@@ -26,6 +26,11 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
     implementation("org.springframework.boot:spring-boot-devtools")
 
+//    implementation("org.springframework.boot:spring-boot-starter-actuator")
+//    implementation("io.micrometer:micrometer-core:1.7.0")
+//    implementation("io.micrometer:micrometer-registry-prometheus")
+    implementation("io.springfox:springfox-boot-starter:3.0.0")
+
     runtimeOnly("mysql:mysql-connector-java")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("com.beust:klaxon:5.6")
