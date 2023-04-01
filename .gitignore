@@ -122,7 +122,8 @@ replay_pid*
 .LSOverride
 
 # Icon must end with two \r
-Icon
+Icon
+
 
 # Thumbnails
 ._*
@@ -176,3 +177,5 @@ gradle-app.setting
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,kotlin,gradle,intellij+all
 
+# .gz files
+*.gz
