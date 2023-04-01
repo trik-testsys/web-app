@@ -20,3 +20,6 @@ logging:
       max-history: 31                                           # Stores a month of logs
 server:
   port: 8080                                                    # Entrypoint
+
+app:
+  version: 0.0.1
