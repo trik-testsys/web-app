@@ -24,6 +24,9 @@ data class WebUser(
     @OneToOne(mappedBy = "webUser", cascade = [CascadeType.ALL])
     lateinit var admin: Admin
 
+    @OneToOne(mappedBy = "webUser", cascade = [CascadeType.ALL])
+    lateinit var superUser: SuperUser
+
     @OneToMany(mappedBy = "webUser", cascade = [CascadeType.ALL])
     lateinit var students: Set<Student>
 }
