@@ -2,6 +2,8 @@ package trik.testsys.webclient.entities
 
 import javax.persistence.*
 
+import trik.testsys.webclient.models.AdminModel
+
 @Entity
 @Table(name = "ADMINS")
 data class Admin(
@@ -27,4 +29,12 @@ data class Admin(
 
     @OneToOne(mappedBy = "admin", cascade = [CascadeType.ALL])
     lateinit var group: Group
+
+    fun toModel(): AdminModel {
+        return AdminModel(
+            id = id!!,
+            webUserId = webUser.id!!,
+            accessToken = webUser.accessToken
+        )
+    }
 }

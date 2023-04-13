@@ -1,5 +1,6 @@
 package trik.testsys.webclient.entities
 
+import trik.testsys.webclient.models.WebUserModel
 import javax.persistence.*
 
 @Entity
@@ -12,7 +13,7 @@ data class WebUser(
 
     @Column(
         nullable = false, unique = true, length = 50,
-        columnDefinition = "VARCHAR(50) DEFAULT ''"
+        columnDefinition = "VARCHAR(100) DEFAULT ''"
     ) val accessToken: String
 ) {
 
@@ -29,4 +30,12 @@ data class WebUser(
 
     @OneToMany(mappedBy = "webUser", cascade = [CascadeType.ALL])
     lateinit var students: Set<Student>
+
+    fun toModel(): WebUserModel {
+        return WebUserModel(
+            id = id!!,
+            username = username,
+            accessToken = accessToken
+        )
+    }
 }
