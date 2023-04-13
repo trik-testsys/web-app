@@ -1,4 +1,4 @@
-package trik.testsys.webclient.swagger.models.basic
+package trik.testsys.webclient.models.basic
 
 import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty
