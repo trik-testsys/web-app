@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 
-import trik.testsys.webclient.swagger.models.basic.AppVersion
+import trik.testsys.webclient.models.basic.AppVersion
 
 @RestController
 class VersionController(@Value("\${app.version}") val appVersion: String) {
