@@ -19,7 +19,7 @@ logging:
       clean-history-on-start: false                             # Not cleaning history on start
       max-history: 31                                           # Stores a month of logs
 server:
-  port: 8080                                                    # Entrypoint
+  port: 8888                                                    # Entrypoint
 
 app:
   version: 0.0.1
