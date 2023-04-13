@@ -9,20 +9,17 @@ class Group(
     @JoinColumn(
         name = "admin_id", referencedColumnName = "id",
         nullable = false, unique = true
-    )
-    val admin: Admin,
+    ) val admin: Admin,
 
     @Column(
         nullable = false, unique = true, length = 50,
         columnDefinition = "VARCHAR(50) DEFAULT ''"
-    )
-    val name: String,
+    ) val name: String,
 
     @Column(
         nullable = false,
         columnDefinition = "BIGINT DEFAULT 100"
-    )
-    var studentsLimit: Long = 100L
+    ) var studentsLimit: Long = 100L
 ) {
 
     @Id
@@ -32,4 +29,12 @@ class Group(
 
     @OneToMany(mappedBy = "group", cascade = [CascadeType.ALL])
     lateinit var students: Set<Student>
+
+    @ManyToMany(cascade = [CascadeType.ALL])
+    @JoinTable(
+        name = "TASKS_BY_GROUPS",
+        joinColumns = [JoinColumn(name = "group_id")],
+        inverseJoinColumns = [JoinColumn(name = "task_id")]
+    )
+    lateinit var tasks: Set<Task>
 }

@@ -11,8 +11,7 @@ data class Admin(
         referencedColumnName = "id",
         nullable = false,
         unique = true
-    )
-    val webUser: WebUser
+    ) val webUser: WebUser
 ) {
 
     @Id
