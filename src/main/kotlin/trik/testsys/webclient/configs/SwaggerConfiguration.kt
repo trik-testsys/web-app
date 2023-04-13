@@ -23,6 +23,7 @@ class SwaggerConfiguration(@Value("\${app.version}") val appVersion: String) : W
             .apis(RequestHandlerSelectors.basePackage("trik.testsys.webclient"))
             .paths(PathSelectors.regex("/.*"))
             .build().apiInfo(apiInfoMetaData())
+            .useDefaultResponseMessages(false)
     }
 
     private fun apiInfoMetaData(): ApiInfo {
