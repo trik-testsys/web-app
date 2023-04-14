@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -39,26 +40,25 @@ class SuperUserController {
     @Autowired
     private lateinit var adminService: AdminService
 
-    @ApiResponses(
-        ApiResponse(code = 200, message = "Client is a super user.", response = ResponseMessage::class),
-        ApiResponse(code = 403, message = "Client is not a super user.", response = ResponseMessage::class)
-    )
-    @GetMapping("/hello", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun hello(@RequestParam accessToken: String): ResponseEntity<ResponseMessage> {
-        logger.info("Client trying to access super user hello page.")
+    @GetMapping
+    fun getAccess(@RequestParam accessToken: String, model: Model): Any {
+        logger.info("Client trying to access super user page.")
 
         val status = validateSuperUser(accessToken)
-        if (status == WebUserStatuses.SUPER_USER) {
-            logger.info("Client is a super user.")
+        if (status != WebUserStatuses.SUPER_USER) {
+            logger.info("Client is not a super user.")
             return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(ResponseMessage(200, "You are a superuser!"))
+                .status(HttpStatus.FORBIDDEN)
+                .body(ResponseMessage(403, "You are not a superuser!"))
         }
 
-        logger.info("Client is not a super user.")
-        return ResponseEntity
-            .status(HttpStatus.FORBIDDEN)
-            .body(ResponseMessage(403, "You are not a superuser!"))
+        logger.info("Client is a super user.")
+
+        val webUsers = webUserService.getWebUserByAccessToken(accessToken)!!
+        model.addAttribute("name", webUsers.username)
+        model.addAttribute("accessToken", accessToken)
+
+        return model
     }
 
     @ApiResponses(
@@ -66,7 +66,11 @@ class SuperUserController {
         ApiResponse(code = 403, message = "Client is not a super user.", response = ResponseMessage::class),
     )
     @PostMapping("/webUser/create", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun createWebUser(@RequestParam accessToken: String, @RequestParam username: String): ResponseEntity<Any> {
+    fun createWebUser(
+        @RequestParam accessToken: String,
+        @RequestParam username: String,
+        model: Model
+    ): Any {
         logger.info("Client trying to create web user.")
 
         val status = validateSuperUser(accessToken)
@@ -79,19 +83,31 @@ class SuperUserController {
 
         val webUser = webUserService.saveWebUser(username)
         logger.info("Web user created.")
-        return ResponseEntity
-            .status(HttpStatus.CREATED)
-            .body(webUser.toModel())
+
+        model.addAttribute("accessToken", accessToken)
+        model.addAttribute("username", webUser.username)
+        model.addAttribute("id", webUser.id!!)
+        model.addAttribute("webUserAccessToken", webUser.accessToken)
+
+        return model
     }
 
     @ApiResponses(
-        ApiResponse(code = 201, message = "Web user successfully raised to admin. New admin created.", response = AdminModel::class),
+        ApiResponse(
+            code = 201,
+            message = "Web user successfully raised to admin. New admin created.",
+            response = AdminModel::class
+        ),
         ApiResponse(code = 403, message = "Client is not a super user.", response = ResponseMessage::class),
         ApiResponse(code = 404, message = "Web user not found.", response = ResponseMessage::class),
         ApiResponse(code = 409, message = "Web user is already an admin.", response = ResponseMessage::class)
     )
     @PostMapping("/webUser/raise", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun raiseWebUserToAdmin(@RequestParam accessToken: String, @RequestParam webUserId: Long): ResponseEntity<Any> {
+    fun raiseWebUserToAdmin(
+        @RequestParam accessToken: String,
+        @RequestParam webUserId: Long,
+        model: Model
+    ): Any {
         logger.info("Client trying to raise web user to admin.")
 
         val status = validateSuperUser(accessToken)
@@ -105,9 +121,12 @@ class SuperUserController {
         webUserService.getWebUserById(webUserId)
             ?: run {
                 logger.info("Web user with id $webUserId not found.")
-                return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body(ResponseMessage(404, "Web user not found!"))
+
+                model.addAttribute("isRaised", false)
+                model.addAttribute("accessToken", accessToken)
+                model.addAttribute("message", "Web user with id $webUserId not found!")
+
+                return model
             }
 
         adminService.getAdminByWebUserId(webUserId)
@@ -118,15 +137,24 @@ class SuperUserController {
                         .status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .body(ResponseMessage(500, "Internal server error!"))
 
-                return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .body(admin.toModel())
+                logger.info("Web user successfully raised to admin.")
+
+                model.addAttribute("isRaised", true)
+                model.addAttribute("accessToken", accessToken)
+                model.addAttribute("id", admin.id!!)
+                model.addAttribute("webUserId", admin.webUser.id!!)
+                model.addAttribute("webUserAccessToken", admin.webUser.accessToken)
+
+                return model
             }
 
         logger.info("Web user is already admin.")
-        return ResponseEntity
-            .status(HttpStatus.CONFLICT)
-            .body(ResponseMessage(409, "Web user is already admin!"))
+
+        model.addAttribute("isRaised", false)
+        model.addAttribute("accessToken", accessToken)
+        model.addAttribute("message", "Web user is already admin!")
+
+        return model
     }
 
     @ApiResponses(
@@ -134,7 +162,11 @@ class SuperUserController {
         ApiResponse(code = 403, message = "Client is not a super user.", response = ResponseMessage::class),
     )
     @PostMapping("/admin/create", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun createAdmin(@RequestParam accessToken: String, @RequestParam username: String): ResponseEntity<Any> {
+    fun createAdmin(
+        @RequestParam accessToken: String,
+        @RequestParam username: String,
+        model: Model
+    ): Any {
         logger.info("Client trying to create admin.")
 
         val status = validateSuperUser(accessToken)
@@ -152,9 +184,13 @@ class SuperUserController {
                 .body(ResponseMessage(500, "Internal server error!"))
 
         logger.info("Admin created.")
-        return ResponseEntity
-            .status(HttpStatus.CREATED)
-            .body(admin.toModel())
+
+        model.addAttribute("accessToken", accessToken)
+        model.addAttribute("id", admin.id!!)
+        model.addAttribute("webUserId", admin.webUser.id!!)
+        model.addAttribute("webUserAccessToken", admin.webUser.accessToken)
+
+        return model
     }
 
 
