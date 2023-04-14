@@ -15,9 +15,11 @@ class TaskService {
     @Autowired
     private lateinit var groupService: GroupService
 
-    fun saveTask(name: String, description: String, groupAccessToken: String): Task? {
+    fun saveTask(name: String, description: String, groupAccessToken: String, testsCount: Long): Task? {
         val group = groupService.getGroupByAccessToken(groupAccessToken) ?: return null
         val task = Task(name, description)
+
+        task.countOfTests = testsCount
 
         task.groups.add(group)
         group.tasks.add(task)

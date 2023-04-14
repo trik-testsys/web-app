@@ -153,6 +153,7 @@ class AdminController {
         @RequestParam groupAccessToken: String,
         @RequestParam name: String,
         @RequestParam description: String,
+        @RequestParam tests: List<MultipartFile>,
         model: Model
     ): Any {
         logger.info("[${accessToken.padStart(80)}]: Client trying to create a task.")
@@ -193,11 +194,11 @@ class AdminController {
         logger.info("[${accessToken.padStart(80)}]: Group found.")
         model.addAttribute("groupAccessToken", group.accessToken)
 
-        val task = taskService.saveTask(name, description, group.accessToken)!!
+        val task = taskService.saveTask(name, description, group.accessToken, tests.size.toLong())!!
         logger.info("[${accessToken.padStart(80)}]: Task created.")
 
         model.addAttribute("isCreated", true)
-        model.addAttribute("id", group.id!!)
+        model.addAttribute("id", task.id!!)
         model.addAttribute("name", task.name)
         model.addAttribute("groupName", group.name)
 
