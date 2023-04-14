@@ -35,6 +35,11 @@ class AccessController {
     fun getAccess(@RequestParam accessToken: String, model: Model): Any {
         logger.info("[${accessToken.padStart(80)}]: Client trying to access service.")
 
+        groupService.getGroupByAccessToken(accessToken)?.let {
+            logger.info("[${accessToken.padStart(80)}]: Client is a new student.")
+            return RedirectView("/v1/student/registration?groupAccessToken=$accessToken")
+        }
+
         val webUser = webUserService.getWebUserByAccessToken(accessToken) ?: run {
             logger.info("[${accessToken.padStart(80)}]: Client is not authorized.")
             return model
@@ -53,11 +58,6 @@ class AccessController {
         studentService.getStudentByWebUser(webUser)?.let {
             logger.info("[${accessToken.padStart(80)}]: Client is a student.")
             return RedirectView("/v1/student?accessToken=$accessToken")
-        }
-
-        groupService.getGroupByAccessToken(accessToken)?.let {
-            logger.info("[${accessToken.padStart(80)}]: Client is a new student.")
-            return RedirectView("/v1/group/registration?accessToken=$accessToken")
         }
 
         return model
