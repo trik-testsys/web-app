@@ -19,7 +19,7 @@ class Task(
     val id: Long? = null
 
     @ManyToMany(mappedBy = "tasks", cascade = [CascadeType.ALL])
-    lateinit var groups: Set<Group>
+    lateinit var groups: MutableSet<Group>
 
     @Column(nullable = false, columnDefinition = "BIGINT DEFAULT 0")
     var countOfTests: Long = 0L

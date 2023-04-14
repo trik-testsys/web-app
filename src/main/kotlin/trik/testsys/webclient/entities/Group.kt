@@ -41,5 +41,5 @@ class Group(
         joinColumns = [JoinColumn(name = "group_id")],
         inverseJoinColumns = [JoinColumn(name = "task_id")]
     )
-    lateinit var tasks: Set<Task>
+    lateinit var tasks: MutableSet<Task>
 }
