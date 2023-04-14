@@ -9,9 +9,11 @@ import org.springframework.http.ResponseEntity
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.multipart.MultipartFile
 
 import trik.testsys.webclient.enums.WebUserStatuses
 import trik.testsys.webclient.models.ResponseMessage
@@ -105,6 +107,37 @@ class StudentController {
         model.addAttribute("username", webUser.username)
         model.addAttribute("accessToken", accessToken)
         model.addAttribute("groupName", student.group.name)
+        return model
+    }
+
+    @PostMapping("/solution/upload")
+    fun uploadSolution(
+        @RequestParam accessToken: String,
+        @RequestParam taskId: Long,
+        @RequestBody file: MultipartFile,
+        model: Model
+    ): Any {
+        logger.info("[${accessToken.padStart(80)}]: Client trying to upload solution.")
+
+        val status = validateStudent(accessToken)
+        if (status == WebUserStatuses.NOT_FOUND || status == WebUserStatuses.ADMIN) {
+            logger.info("[${accessToken.padStart(80)}]: Client is not a student.")
+            return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ResponseMessage(403, "You are not a student!"))
+        }
+
+        logger.info("[${accessToken.padStart(80)}]: Client is a student.")
+        val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
+        val student = studentService.getStudentByWebUser(webUser)!!
+
+        model.addAttribute("accessToken", accessToken)
+
+        val solution = solutionService.saveSolution(student.id!!, taskId)!!
+        logger.info("[${accessToken.padStart(80)}]: Solution uploaded.")
+
+        model.addAttribute("id", solution.id)
+        model.addAttribute("taskName", solution.task.name)
         return model
     }
 

@@ -6,11 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.ui.Model
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 
 import trik.testsys.webclient.enums.WebUserStatuses
@@ -153,7 +149,7 @@ class AdminController {
         @RequestParam groupAccessToken: String,
         @RequestParam name: String,
         @RequestParam description: String,
-        @RequestParam tests: List<MultipartFile>,
+        @RequestBody tests: List<MultipartFile>,
         model: Model
     ): Any {
         logger.info("[${accessToken.padStart(80)}]: Client trying to create a task.")

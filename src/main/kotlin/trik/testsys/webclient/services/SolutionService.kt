@@ -21,6 +21,15 @@ class SolutionService {
     @Autowired
     lateinit var taskRepository: TaskRepository
 
+    fun saveSolution(studentId: Long, taskId: Long): Solution? {
+        val student = studentRepository.findStudentById(studentId) ?: return null
+        val task = taskRepository.findTaskById(taskId) ?: return null
+
+        val solution = Solution(student, task)
+        solution.countOfTests = task.countOfTests
+        return solutionRepository.save(solution)
+    }
+
     fun getAllStudentSolutionsByTask(studentId: Long, taskId: Long): List<Solution>? {
         val student = studentRepository.findStudentById(studentId) ?: return null
         val task = taskRepository.findTaskById(taskId) ?: return null
