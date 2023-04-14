@@ -29,7 +29,7 @@ data class WebUser(
     lateinit var superUser: SuperUser
 
     @OneToMany(mappedBy = "webUser", cascade = [CascadeType.ALL])
-    lateinit var students: MutableSet<Student>
+    val students: MutableSet<Student> = mutableSetOf()
 
     fun toModel(): WebUserModel {
         return WebUserModel(

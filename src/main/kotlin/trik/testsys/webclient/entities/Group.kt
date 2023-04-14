@@ -33,7 +33,7 @@ class Group(
     val id: Long? = null
 
     @OneToMany(mappedBy = "group", cascade = [CascadeType.ALL])
-    lateinit var students: Set<Student>
+    val students: MutableSet<Student> = mutableSetOf()
 
     @ManyToMany(cascade = [CascadeType.ALL])
     @JoinTable(
