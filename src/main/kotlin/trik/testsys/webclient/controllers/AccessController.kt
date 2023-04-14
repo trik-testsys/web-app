@@ -9,10 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.servlet.view.RedirectView
 
-import trik.testsys.webclient.services.AdminService
-import trik.testsys.webclient.services.StudentService
-import trik.testsys.webclient.services.SuperUserService
-import trik.testsys.webclient.services.WebUserService
+import trik.testsys.webclient.services.*
 
 @RestController
 class AccessController {
@@ -30,6 +27,9 @@ class AccessController {
 
     @Autowired
     private lateinit var studentService: StudentService
+
+    @Autowired
+    private lateinit var groupService: GroupService
 
     @GetMapping("/access")
     fun getAccess(@RequestParam accessToken: String, model: Model): Any {
@@ -53,6 +53,11 @@ class AccessController {
         studentService.getStudentByWebUser(webUser)?.let {
             logger.info("[${accessToken.padStart(80)}]: Client is a student.")
             return RedirectView("/v1/student?accessToken=$accessToken")
+        }
+
+        groupService.getGroupByAccessToken(accessToken)?.let {
+            logger.info("[${accessToken.padStart(80)}]: Client is a new student.")
+            return RedirectView("/v1/group/registration?accessToken=$accessToken")
         }
 
         return model
