@@ -42,17 +42,17 @@ class SuperUserController {
 
     @GetMapping
     fun getAccess(@RequestParam accessToken: String, model: Model): Any {
-        logger.info("Client trying to access super user page.")
+        logger.info("[${accessToken.padStart(80)}]: Client trying to access super user page.")
 
         val status = validateSuperUser(accessToken)
         if (status != WebUserStatuses.SUPER_USER) {
-            logger.info("Client is not a super user.")
+            logger.info("[${accessToken.padStart(80)}]: Client is not a super user.")
             return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
                 .body(ResponseMessage(403, "You are not a superuser!"))
         }
 
-        logger.info("Client is a super user.")
+        logger.info("[${accessToken.padStart(80)}]: Client is a super user.")
 
         val webUsers = webUserService.getWebUserByAccessToken(accessToken)!!
         model.addAttribute("name", webUsers.username)
@@ -71,18 +71,18 @@ class SuperUserController {
         @RequestParam username: String,
         model: Model
     ): Any {
-        logger.info("Client trying to create web user.")
+        logger.info("[${accessToken.padStart(80)}]: Client trying to create web user.")
 
         val status = validateSuperUser(accessToken)
         if (status != WebUserStatuses.SUPER_USER) {
-            logger.info("Client is not a super user.")
+            logger.info("[${accessToken.padStart(80)}]: Client is not a super user.")
             return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
                 .body(ResponseMessage(403, "You are not a superuser!"))
         }
 
         val webUser = webUserService.saveWebUser(username)
-        logger.info("Web user created.")
+        logger.info("[${accessToken.padStart(80)}]: Web user created.")
 
         model.addAttribute("accessToken", accessToken)
         model.addAttribute("username", webUser.username)
@@ -108,11 +108,11 @@ class SuperUserController {
         @RequestParam webUserId: Long,
         model: Model
     ): Any {
-        logger.info("Client trying to raise web user to admin.")
+        logger.info("[${accessToken.padStart(80)}]: Client trying to raise web user to admin.")
 
         val status = validateSuperUser(accessToken)
         if (status != WebUserStatuses.SUPER_USER) {
-            logger.info("Client is not a super user.")
+            logger.info("[${accessToken.padStart(80)}]: Client is not a super user.")
             return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
                 .body(ResponseMessage(403, "You are not a superuser!"))
@@ -120,7 +120,7 @@ class SuperUserController {
 
         webUserService.getWebUserById(webUserId)
             ?: run {
-                logger.info("Web user with id $webUserId not found.")
+                logger.info("[${accessToken.padStart(80)}]: Web user with id $webUserId not found.")
 
                 model.addAttribute("isRaised", false)
                 model.addAttribute("accessToken", accessToken)
@@ -131,13 +131,13 @@ class SuperUserController {
 
         adminService.getAdminByWebUserId(webUserId)
             ?: run {
-                logger.info("Raising web user to admin.")
+                logger.info("[${accessToken.padStart(80)}]: Raising web user to admin.")
                 val admin = adminService.saveAdmin(webUserId)
                     ?: return ResponseEntity
                         .status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .body(ResponseMessage(500, "Internal server error!"))
 
-                logger.info("Web user successfully raised to admin.")
+                logger.info("[${accessToken.padStart(80)}]: Web user successfully raised to admin.")
 
                 model.addAttribute("isRaised", true)
                 model.addAttribute("accessToken", accessToken)
@@ -148,7 +148,7 @@ class SuperUserController {
                 return model
             }
 
-        logger.info("Web user is already admin.")
+        logger.info("[${accessToken.padStart(80)}]: Web user is already admin.")
 
         model.addAttribute("isRaised", false)
         model.addAttribute("accessToken", accessToken)
@@ -167,11 +167,11 @@ class SuperUserController {
         @RequestParam username: String,
         model: Model
     ): Any {
-        logger.info("Client trying to create admin.")
+        logger.info("[${accessToken.padStart(80)}]: Client trying to create admin.")
 
         val status = validateSuperUser(accessToken)
         if (status != WebUserStatuses.SUPER_USER) {
-            logger.info("Client is not a super user.")
+            logger.info("[${accessToken.padStart(80)}]: Client is not a super user.")
             return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
                 .body(ResponseMessage(403, "You are not a superuser!"))
@@ -183,7 +183,7 @@ class SuperUserController {
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ResponseMessage(500, "Internal server error!"))
 
-        logger.info("Admin created.")
+        logger.info("[${accessToken.padStart(80)}]: Admin created.")
 
         model.addAttribute("accessToken", accessToken)
         model.addAttribute("id", admin.id!!)

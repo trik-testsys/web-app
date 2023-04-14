@@ -3,21 +3,16 @@ package trik.testsys.webclient.controllers
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.ResponseEntity
-import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.servlet.view.RedirectView
-import trik.testsys.webclient.entities.WebUser
+
 import trik.testsys.webclient.services.AdminService
+import trik.testsys.webclient.services.StudentService
 import trik.testsys.webclient.services.SuperUserService
 import trik.testsys.webclient.services.WebUserService
-import java.io.File
-import java.lang.ProcessBuilder.Redirect
 
 @RestController
 class AccessController {
@@ -33,21 +28,31 @@ class AccessController {
     @Autowired
     private lateinit var adminService: AdminService
 
+    @Autowired
+    private lateinit var studentService: StudentService
+
     @GetMapping("/access")
     fun getAccess(@RequestParam accessToken: String, model: Model): Any {
-        logger.info("Client trying to access service.")
+        logger.info("[${accessToken.padStart(80)}]: Client trying to access service.")
 
         val webUser = webUserService.getWebUserByAccessToken(accessToken) ?: run {
-            logger.info("Client is not authorized.")
+            logger.info("[${accessToken.padStart(80)}]: Client is not authorized.")
             return model
         }
 
         superUserService.getSuperUserByWebUser(webUser)?.let {
+            logger.info("[${accessToken.padStart(80)}]: Client is a super user.")
             return RedirectView("/superuser?accessToken=$accessToken")
         }
 
         adminService.getAdminByWebUser(webUser)?.let {
+            logger.info("[${accessToken.padStart(80)}]: Client is an admin.")
             return RedirectView("/v1/admin?accessToken=$accessToken")
+        }
+
+        studentService.getStudentByWebUser(webUser)?.let {
+            logger.info("[${accessToken.padStart(80)}]: Client is a student.")
+            return RedirectView("/v1/student?accessToken=$accessToken")
         }
 
         return model

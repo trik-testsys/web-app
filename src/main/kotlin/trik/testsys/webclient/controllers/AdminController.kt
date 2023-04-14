@@ -35,11 +35,11 @@ class AdminController {
 
     @GetMapping
     fun getAccess(@RequestParam accessToken: String, model: Model): Any {
-        logger.info("Client trying to access admin page.")
+        logger.info("[${accessToken.padStart(80)}]: Client trying to access admin page.")
 
         val status = validateAdmin(accessToken)
         if (status == WebUserStatuses.ADMIN) {
-            logger.info("Client is an admin.")
+            logger.info("[${accessToken.padStart(80)}]: Client is an admin.")
             val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
             val admin = adminService.getAdminByWebUser(webUser)!!
 
@@ -49,7 +49,7 @@ class AdminController {
             return model
         }
 
-        logger.info("Client is not an admin.")
+        logger.info("[${accessToken.padStart(80)}]: Client is not an admin.")
         return ResponseEntity
             .status(HttpStatus.FORBIDDEN)
             .body(ResponseMessage(403, "You are not an admin!"))
@@ -57,17 +57,17 @@ class AdminController {
 
     @PostMapping("/group/create")
     fun createGroup(@RequestParam accessToken: String, @RequestParam name: String, model: Model): Any {
-        logger.info("Client trying to create a group.")
+        logger.info("[${accessToken.padStart(80)}]: Client trying to create a group.")
 
         val status = validateAdmin(accessToken)
         if (status != WebUserStatuses.ADMIN) {
-            logger.info("Client is not an admin.")
+            logger.info("[${accessToken.padStart(80)}]: Client is not an admin.")
             return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
                 .body(ResponseMessage(403, "You are not an admin!"))
         }
 
-        logger.info("Client is an admin.")
+        logger.info("[${accessToken.padStart(80)}]: Client is an admin.")
         val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
         val admin = adminService.getAdminByWebUser(webUser)!!
 
@@ -75,7 +75,7 @@ class AdminController {
 
         val group = groupService.createGroup(admin, name)
         if (group != null) {
-            logger.info("Group created.")
+            logger.info("[${accessToken.padStart(80)}]: Group created.")
 
             model.addAttribute("isCreated", true)
             model.addAttribute("id", group.id!!)
@@ -85,7 +85,7 @@ class AdminController {
             return model
         }
 
-        logger.info("Group already exists.")
+        logger.info("[${accessToken.padStart(80)}]: Group already exists.")
 
         model.addAttribute("isCreated", false)
         model.addAttribute("message", "Группа с названием $name уже существует.")
@@ -95,17 +95,17 @@ class AdminController {
 
     @GetMapping("/group")
     fun accessToGroup(@RequestParam accessToken: String, @RequestParam groupAccessToken: String, model: Model): Any {
-        logger.info("Client trying to access group.")
+        logger.info("[${accessToken.padStart(80)}]: Client trying to access group.")
 
         val status = validateAdmin(accessToken)
         if (status != WebUserStatuses.ADMIN) {
-            logger.info("Client is not an admin.")
+            logger.info("[${accessToken.padStart(80)}]: Client is not an admin.")
             return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
                 .body(ResponseMessage(403, "You are not an admin!"))
         }
 
-        logger.info("Client is an admin.")
+        logger.info("[${accessToken.padStart(80)}]: Client is an admin.")
         val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
         val admin = adminService.getAdminByWebUser(webUser)!!
 
@@ -113,7 +113,7 @@ class AdminController {
 
         val group = groupService.getGroupByAccessToken(groupAccessToken)
         if (group == null) {
-            logger.info("Group not found.")
+            logger.info("[${accessToken.padStart(80)}]: Group not found.")
 
             model.addAttribute("isFound", false)
             model.addAttribute("message", "Группа не найдена.")
@@ -122,7 +122,7 @@ class AdminController {
         }
 
         if (group.admin != admin) {
-            logger.info("Group not found.")
+            logger.info("[${accessToken.padStart(80)}]: Group not found.")
 
             model.addAttribute("isFound", false)
             model.addAttribute("message", "Group not found.")
@@ -130,7 +130,7 @@ class AdminController {
             return model
         }
 
-        logger.info("Group found.")
+        logger.info("[${accessToken.padStart(80)}]: Group found.")
 
         model.addAttribute("isFound", true)
         model.addAttribute("id", group.id!!)
