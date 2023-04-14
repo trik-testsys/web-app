@@ -2,13 +2,14 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
 <head>
     <meta charset="UTF-8">
-    <title>Access page</title>
+    <title>Registration page</title>
 </head>
 <body>
 <div class="container">
     <h1>Страница регистрации в группу</h1>
     <div class="greeting">
-        <p>Здравствуйте! Вы ввели верный код-доступа группы: <span class="token" th:text="${groupAccessToken}"></span>.</p>
+        <p>Здравствуйте! Вы ввели верный код-доступа группы: <span class="token" th:text="${groupAccessToken}"></span>.
+        </p>
         <p>Для регистрации в группе, введите имя пользователя (строка длиной до 50 символов) для этой группы.</p>
         <div class="creation">
             <form th:action="@{/v1/student/create}" method="post">
