@@ -11,11 +11,13 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.multipart.MultipartFile
 
 import trik.testsys.webclient.enums.WebUserStatuses
 import trik.testsys.webclient.models.ResponseMessage
 import trik.testsys.webclient.services.AdminService
 import trik.testsys.webclient.services.GroupService
+import trik.testsys.webclient.services.TaskService
 import trik.testsys.webclient.services.WebUserService
 
 @RestController
@@ -32,6 +34,9 @@ class AdminController {
 
     @Autowired
     private lateinit var groupService: GroupService
+
+    @Autowired
+    private lateinit var taskService: TaskService
 
     @GetMapping
     fun getAccess(@RequestParam accessToken: String, model: Model): Any {
@@ -138,6 +143,63 @@ class AdminController {
         model.addAttribute("groupAccessToken", group.accessToken)
         model.addAttribute("tasks", group.tasks.sortedBy { it.id })
         model.addAttribute("students", group.students.sortedBy { it.id })
+
+        return model
+    }
+
+    @PostMapping("task/create")
+    fun createTask(
+        @RequestParam accessToken: String,
+        @RequestParam groupAccessToken: String,
+        @RequestParam name: String,
+        @RequestParam description: String,
+        model: Model
+    ): Any {
+        logger.info("[${accessToken.padStart(80)}]: Client trying to create a task.")
+
+        val status = validateAdmin(accessToken)
+        if (status != WebUserStatuses.ADMIN) {
+            logger.info("[${accessToken.padStart(80)}]: Client is not an admin.")
+            return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ResponseMessage(403, "You are not an admin!"))
+        }
+
+        logger.info("[${accessToken.padStart(80)}]: Client is an admin.")
+        val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
+        val admin = adminService.getAdminByWebUser(webUser)!!
+
+        model.addAttribute("accessToken", webUser.accessToken)
+
+        val group = groupService.getGroupByAccessToken(groupAccessToken)
+        if (group == null) {
+            logger.info("[${accessToken.padStart(80)}]: Group not found.")
+
+            model.addAttribute("isFound", false)
+            model.addAttribute("message", "Группа не найдена.")
+
+            return model
+        }
+
+        if (group.admin != admin) {
+            logger.info("[${accessToken.padStart(80)}]: Group not found.")
+
+            model.addAttribute("isFound", false)
+            model.addAttribute("message", "Группа не найдена.")
+
+            return model
+        }
+
+        logger.info("[${accessToken.padStart(80)}]: Group found.")
+        model.addAttribute("groupAccessToken", group.accessToken)
+
+        val task = taskService.saveTask(name, description, group.accessToken)!!
+        logger.info("[${accessToken.padStart(80)}]: Task created.")
+
+        model.addAttribute("isCreated", true)
+        model.addAttribute("id", group.id!!)
+        model.addAttribute("name", task.name)
+        model.addAttribute("groupName", group.name)
 
         return model
     }
