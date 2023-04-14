@@ -28,7 +28,7 @@ data class Admin(
     var countOfGroups: Long = 0L
 
     @OneToMany(mappedBy = "admin", cascade = [CascadeType.ALL])
-    lateinit var group: Set<Group>
+    lateinit var groups: Set<Group>
 
     fun toModel(): AdminModel {
         return AdminModel(
