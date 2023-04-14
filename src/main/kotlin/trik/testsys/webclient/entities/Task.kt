@@ -20,4 +20,7 @@ class Task(
 
     @ManyToMany(mappedBy = "tasks", cascade = [CascadeType.ALL])
     lateinit var groups: Set<Group>
+
+    @Column(nullable = false, columnDefinition = "BIGINT DEFAULT 0")
+    var countOfTests: Long = 0L
 }

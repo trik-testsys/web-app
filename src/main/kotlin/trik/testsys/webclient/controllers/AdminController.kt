@@ -93,6 +93,55 @@ class AdminController {
         return model
     }
 
+    @GetMapping("/group")
+    fun accessToGroup(@RequestParam accessToken: String, @RequestParam groupAccessToken: String, model: Model): Any {
+        logger.info("Client trying to access group.")
+
+        val status = validateAdmin(accessToken)
+        if (status != WebUserStatuses.ADMIN) {
+            logger.info("Client is not an admin.")
+            return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ResponseMessage(403, "You are not an admin!"))
+        }
+
+        logger.info("Client is an admin.")
+        val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
+        val admin = adminService.getAdminByWebUser(webUser)!!
+
+        model.addAttribute("accessToken", webUser.accessToken)
+
+        val group = groupService.getGroupByAccessToken(groupAccessToken)
+        if (group == null) {
+            logger.info("Group not found.")
+
+            model.addAttribute("isFound", false)
+            model.addAttribute("message", "Group not found.")
+
+            return model
+        }
+
+        if (group.admin != admin) {
+            logger.info("Group not found.")
+
+            model.addAttribute("isFound", false)
+            model.addAttribute("message", "Group not found.")
+
+            return model
+        }
+
+        logger.info("Group found.")
+
+        model.addAttribute("isFound", true)
+        model.addAttribute("id", group.id!!)
+        model.addAttribute("name", group.name)
+        model.addAttribute("groupAccessToken", group.accessToken)
+        model.addAttribute("tasks", group.tasks.sortedBy { it.id })
+        model.addAttribute("students", group.students.sortedBy { it.id })
+
+        return model
+    }
+
     private fun validateAdmin(accessToken: String): WebUserStatuses {
         val webUser = webUserService.getWebUserByAccessToken(accessToken) ?: return WebUserStatuses.NOT_FOUND
         adminService.getAdminByWebUser(webUser) ?: return WebUserStatuses.WEB_USER
