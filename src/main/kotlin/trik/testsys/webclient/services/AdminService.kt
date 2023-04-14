@@ -46,5 +46,4 @@ class AdminService {
     fun getAdminByWebUser(webUser: WebUser): Admin? {
         return adminRepository.findAdminByWebUser(webUser)
     }
-
 }

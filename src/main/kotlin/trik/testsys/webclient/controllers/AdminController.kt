@@ -76,15 +76,21 @@ class AdminController {
         val group = groupService.createGroup(admin, name)
         if (group != null) {
             logger.info("Group created.")
-            return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(ResponseMessage(200, "Group created."))
+
+            model.addAttribute("isCreated", true)
+            model.addAttribute("id", group.id!!)
+            model.addAttribute("name", group.name)
+            model.addAttribute("groupAccessToken", group.accessToken)
+
+            return model
         }
 
         logger.info("Group already exists.")
-        return ResponseEntity
-            .status(HttpStatus.CONFLICT)
-            .body(ResponseMessage(409, "Group already exists."))
+
+        model.addAttribute("isCreated", false)
+        model.addAttribute("message", "Group with name $name already exists.")
+
+        return model
     }
 
     private fun validateAdmin(accessToken: String): WebUserStatuses {
