@@ -31,7 +31,7 @@ class GroupService {
 
     private fun generateAccessToken(word: String): String {
         val saltedWord = word + Date().time + Random(Date().time).nextInt()
-        val md = MessageDigest.getInstance("SHA-256")
+        val md = MessageDigest.getInstance("SHA-224")
         val digest = md.digest(saltedWord.toByteArray())
 
         return digest.fold("") { str, it -> str + "%02x".format(it) }
