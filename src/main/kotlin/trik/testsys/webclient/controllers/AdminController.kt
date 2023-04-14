@@ -201,6 +201,82 @@ class AdminController {
         return model
     }
 
+    @GetMapping("/task")
+    fun getTaskSolutions(
+        @RequestParam accessToken: String,
+        @RequestParam groupAccessToken: String,
+        @RequestParam taskId: Long,
+        model: Model
+    ): Any {
+        logger.info("[${accessToken.padStart(80)}]: Client trying to get task solutions.")
+
+        val status = validateAdmin(accessToken)
+        if (status != WebUserStatuses.ADMIN) {
+            logger.info("[${accessToken.padStart(80)}]: Client is not an admin.")
+            return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ResponseMessage(403, "You are not an admin!"))
+        }
+
+        logger.info("[${accessToken.padStart(80)}]: Client is an admin.")
+        val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
+        val admin = adminService.getAdminByWebUser(webUser)!!
+
+        model.addAttribute("accessToken", webUser.accessToken)
+
+        val group = groupService.getGroupByAccessToken(groupAccessToken)
+        if (group == null) {
+            logger.info("[${accessToken.padStart(80)}]: Group not found.")
+
+            model.addAttribute("isFound", false)
+            model.addAttribute("message", "Группа не найдена.")
+
+            return model
+        }
+
+        if (group.admin != admin) {
+            logger.info("[${accessToken.padStart(80)}]: Group not found.")
+
+            model.addAttribute("isFound", false)
+            model.addAttribute("message", "Группа не найдена.")
+
+            return model
+        }
+
+        logger.info("[${accessToken.padStart(80)}]: Group found.")
+        model.addAttribute("groupAccessToken", group.accessToken)
+
+        val task = taskService.getTaskById(taskId)
+        if (task == null) {
+            logger.info("[${accessToken.padStart(80)}]: Task not found.")
+
+            model.addAttribute("isFound", false)
+            model.addAttribute("message", "Задание не найдено.")
+
+            return model
+        }
+
+        if (!task.groups.contains(group)) {
+            logger.info("[${accessToken.padStart(80)}]: Task not found.")
+
+            model.addAttribute("isFound", false)
+            model.addAttribute("message", "Задание не найдено.")
+
+            return model
+        }
+
+        logger.info("[${accessToken.padStart(80)}]: Task found.")
+        model.addAttribute("taskId", task.id)
+        model.addAttribute("taskName", task.name)
+
+        model.addAttribute("isFound", true)
+        model.addAttribute("name", task.name)
+        model.addAttribute("groupName", group.name)
+        model.addAttribute("solutions", task.solutions.sortedBy { it.id })
+
+        return model
+    }
+
     private fun validateAdmin(accessToken: String): WebUserStatuses {
         val webUser = webUserService.getWebUserByAccessToken(accessToken) ?: return WebUserStatuses.NOT_FOUND
         adminService.getAdminByWebUser(webUser) ?: return WebUserStatuses.WEB_USER

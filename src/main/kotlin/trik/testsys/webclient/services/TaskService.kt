@@ -32,4 +32,8 @@ class TaskService {
 
         return group.tasks
     }
+
+    fun getTaskById(taskId: Long): Task? {
+        return taskRepository.findTaskById(taskId)
+    }
 }
