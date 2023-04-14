@@ -74,11 +74,24 @@
                 <th>ID</th>
                 <th>Имя</th>
                 <th>Код-доступа</th>
+                <th></th>
             </tr>
             <tr th:each="student : ${students}">
                 <td th:text="${student.id}"></td>
                 <td th:text="${student.webUser.username}"></td>
                 <td class="token" th:text="${student.webUser.accessToken}"></td>
+                <td style="width: 10%">
+                    <form th:action="@{/v1/admin/student}" method="get">
+                        <input style="display: none" type="text" name="accessToken" placeholder="Access token"
+                               th:value="${accessToken}" readonly/>
+                        <input style="display: none" type="text" name="groupAccessToken"
+                               placeholder="Group access token"
+                               th:value="${groupAccessToken}" readonly/>
+                        <input style="display: none" type="text" name="studentId" placeholder="Student ID"
+                               th:value="${student.id}" readonly/>
+                        <input type="submit" value="Подробнее"/>
+                    </form>
+                </td>
             </tr>
         </table>
     </div>

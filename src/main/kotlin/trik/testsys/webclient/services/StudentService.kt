@@ -21,4 +21,8 @@ class StudentService {
     fun saveStudent(webUser: WebUser, group: Group): Student {
         return studentRepository.save(Student(webUser, group))
     }
+
+    fun getStudentById(id: Long): Student? {
+        return studentRepository.findStudentById(id)
+    }
 }
