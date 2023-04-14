@@ -28,12 +28,14 @@
                     <th>ID</th>
                     <th>Название</th>
                     <th>Код-доступа</th>
+                    <th>Количество учеников</th>
                     <th></th>
                 </tr>
                 <tr th:each="group : ${groups}">
                     <td th:text="${group.id}"></td>
                     <td th:text="${group.name}"></td>
                     <td id="token" th:text="${group.accessToken}"></td>
+                    <td th:text="${group.students.size()}"></td>
                     <td>
                         <form class="button" th:action="@{/v1/admin/group}" method="get">
                             <input style="display: none" type="text" name="accessToken" placeholder="Access token"
@@ -53,6 +55,10 @@
 </html>
 
 <style>
+    body {
+        font-family: sans-serif;
+    }
+
     .container {
         width: 100%;
         height: 100%;
