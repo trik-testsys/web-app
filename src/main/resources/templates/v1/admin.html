@@ -35,9 +35,12 @@
                     <td th:text="${group.name}"></td>
                     <td id="token" th:text="${group.accessToken}"></td>
                     <td>
-                        <form class="button" th:action="@{/v1/admin}" method="get">
+                        <form class="button" th:action="@{/v1/admin/group}" method="get">
                             <input style="display: none" type="text" name="accessToken" placeholder="Access token"
                                    th:value="${accessToken}" readonly/>
+                            <input style="display: none" type="text" name="groupAccessToken"
+                                   placeholder="Group access token"
+                                   th:value="${group.accessToken}" readonly/>
                             <input type="submit" value="Access"/>
                         </form>
                     </td>

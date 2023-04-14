@@ -6,7 +6,7 @@
 </head>
 <body>
 <div class="container">
-    <h1>Superuser page</h1>
+    <h1>Admin page</h1>
 
     <div class="created" th:style="${isCreated}? 'display: none;' : 'display: block;'">
         <p th:text="${message}"/>
@@ -16,8 +16,8 @@
         <p>Group created!</p>
         <table>
             <tr>
-                <th>Id</th>
-                <th>Web user id</th>
+                <th>ID</th>
+                <th>Name</th>
                 <th>Access token</th>
             </tr>
             <tr>
