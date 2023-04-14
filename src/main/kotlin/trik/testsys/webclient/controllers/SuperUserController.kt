@@ -124,7 +124,7 @@ class SuperUserController {
 
                 model.addAttribute("isRaised", false)
                 model.addAttribute("accessToken", accessToken)
-                model.addAttribute("message", "Web user with id $webUserId not found!")
+                model.addAttribute("message", "Пользователь с ID $webUserId не найден!")
 
                 return model
             }
@@ -152,7 +152,7 @@ class SuperUserController {
 
         model.addAttribute("isRaised", false)
         model.addAttribute("accessToken", accessToken)
-        model.addAttribute("message", "Web user is already admin!")
+        model.addAttribute("message", "Пользователь уже администратор!")
 
         return model
     }

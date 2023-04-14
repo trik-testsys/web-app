@@ -88,7 +88,7 @@ class AdminController {
         logger.info("Group already exists.")
 
         model.addAttribute("isCreated", false)
-        model.addAttribute("message", "Group with name $name already exists.")
+        model.addAttribute("message", "Группа с названием $name уже существует.")
 
         return model
     }
@@ -116,7 +116,7 @@ class AdminController {
             logger.info("Group not found.")
 
             model.addAttribute("isFound", false)
-            model.addAttribute("message", "Group not found.")
+            model.addAttribute("message", "Группа не найдена.")
 
             return model
         }

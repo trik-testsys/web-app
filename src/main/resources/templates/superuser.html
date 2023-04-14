@@ -6,38 +6,44 @@
 </head>
 <body>
 <div class="container">
-    <h1>Superuser page</h1>
+    <h1>Панель супер-пользователя</h1>
     <div class="greeting">
-        <p>Hello <span th:text="${name}"></span>!</p>
-        <p>Your access token is <span class="token" th:text="${accessToken}"></span>.</p>
-        <p>Here you can create or raise users.</p>
+        <p>Здравствуйте, <span th:text="${name}"></span>!</p>
+        <p>Ваш код-доступа: <span class="token" th:text="${accessToken}"></span>.</p>
+        <p>Здесь вы можешь управлять пользователями.</p>
     </div>
     <div class="creations">
         <div class="creation">
             <form th:action="@{/superuser/webUser/create}" method="post">
-                <p>Create web user</p>
-                <input style="display: none" type="text" name="accessToken" placeholder="Access token"
+                <div>
+                    <p>Создать пользователя</p>
+                </div>
+                <input style="display: none" type="text" name="accessToken" placeholder="Код доступа"
                        th:value="${accessToken}" readonly/>
-                <input type="text" name="username" placeholder="Name" required/>
-                <input type="submit" value="Create web user" required/>
+                <input type="text" name="username" placeholder="Имя" required/>
+                <input type="submit" value="Создать" required/>
             </form>
         </div>
         <div class="creation">
             <form action="/superuser/webUser/raise" method="post">
-                <p>Raise web user</p>
+                <div>
+                    <p>Повысить до администратора</p>
+                </div>
                 <input style="display: none" type="text" name="accessToken" placeholder="Access token"
                        th:value="${accessToken}" readonly/>
-                <input type="text" name="webUserId" placeholder="Id" required/>
-                <input type="submit" value="Raise web user" required/>
+                <input type="text" name="webUserId" placeholder="ID пользователя" required/>
+                <input type="submit" value="Повысить" required/>
             </form>
         </div>
         <div class="creation">
             <form action="/superuser/admin/create" method="post">
-                <p>Create admin</p>
+                <div>
+                    <p>Создать администратора</p>
+                </div>
                 <input style="display: none" type="text" name="accessToken" placeholder="Access token"
                        th:value="${accessToken}" readonly/>
-                <input type="text" name="username" placeholder="Name" required/>
-                <input type="submit" value="Create admin" required/>
+                <input type="text" name="username" placeholder="Имя" required/>
+                <input type="submit" value="Создать" required/>
             </form>
         </div>
     </div>
@@ -136,4 +142,14 @@
     .greeting p {
         margin: 5px;
     }
+
+    .creations form div p {
+        display: flex;
+        align-items: center;
+        vertical-align: middle;
+        justify-content: center;
+        height: 25px;
+    }
+
+
 </style>

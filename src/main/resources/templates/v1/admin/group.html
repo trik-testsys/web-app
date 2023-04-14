@@ -6,14 +6,14 @@
 </head>
 <body>
 <div class="container">
-  <h1>Group page</h1>
+  <h1>Панель управления группой</h1>
 
   <div class="created group" th:styleappend="${isFound}? 'display: block' : 'display: none;'">
     <table>
       <tr>
         <th>ID</th>
-        <th>Name</th>
-        <th>Access token</th>
+        <th>Название</th>
+        <th>Код-доступа</th>
       </tr>
       <tr>
         <td th:text="${id}"></td>
@@ -23,12 +23,13 @@
     </table>
   </div>
   <div class="tasks-table" th:styleappend="${tasks.size() > 0}? 'display: block' : 'display: none;'">
-    <h2>Tasks</h2>
+    <h2>Задачи</h2>
     <table>
       <tr>
         <th>ID</th>
-        <th>Name</th>
-        <th>Description</th>
+        <th>Название</th>
+        <th>Описание</th>
+        <th style="width: 10%">Количество тестов</th>
       </tr>
       <tr th:each="task : ${tasks}">
         <td th:text="${task.id}"></td>
@@ -39,12 +40,12 @@
     </table>
   </div>
   <div class="students-table" th:styleappend="${students.size() > 0}? 'display: block' : 'display: none;'">
-    <h2>Students</h2>
+    <h2>Ученики</h2>
     <table>
       <tr>
         <th>ID</th>
-        <th>Name</th>
-        <th>Access token</th>
+        <th>Имя</th>
+        <th>Код-доступа</th>
       </tr>
       <tr th:each="student : ${students}">
         <td th:text="${student.id}"></td>
@@ -56,7 +57,7 @@
   <form class="back" action="/v1/admin" method="get">
     <input style="display: none" type="text" name="accessToken" placeholder="Access token"
            th:value="${accessToken}" readonly/>
-    <input type="submit" value="Back"/>
+    <input type="submit" value="Назад"/>
   </form>
 </div>
 </body>

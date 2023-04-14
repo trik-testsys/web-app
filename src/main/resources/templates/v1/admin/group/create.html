@@ -6,19 +6,19 @@
 </head>
 <body>
 <div class="container">
-    <h1>Admin page</h1>
+    <h1>Панель администратора</h1>
 
     <div class="created" th:style="${isCreated}? 'display: none;' : 'display: block;'">
         <p th:text="${message}"/>
     </div>
 
     <div class="created web_user" th:styleappend="${isCreated}? 'display: block' : 'display: none;'">
-        <p>Group created!</p>
+        <p>Группа создана!</p>
         <table>
             <tr>
                 <th>ID</th>
-                <th>Name</th>
-                <th>Access token</th>
+                <th>Название</th>
+                <th>Код-доступа</th>
             </tr>
             <tr>
                 <td th:text="${id}"></td>
@@ -30,7 +30,7 @@
     <form class="back" action="/v1/admin" method="get">
         <input style="display: none" type="text" name="accessToken" placeholder="Access token"
                th:value="${accessToken}" readonly/>
-        <input type="submit" value="Back"/>
+        <input type="submit" value="Назад"/>
     </form>
 </div>
 </body>

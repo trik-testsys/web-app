@@ -6,14 +6,14 @@
 </head>
 <body>
 <div class="container">
-    <h1>Superuser page</h1>
+    <h1>Панель супер-пользователя</h1>
     <div class="created web_user">
-        <p>Web user created!</p>
+        <p>Пользователь создан!</p>
         <table>
             <tr>
-                <th>Id</th>
-                <th>Username</th>
-                <th>Access token</th>
+                <th>ID</th>
+                <th>Имя</th>
+                <th>Код-доступа</th>
             </tr>
             <tr>
                 <td th:text="${id}"></td>
@@ -25,7 +25,7 @@
     <form class="back" action="/superuser" method="get">
         <input style="display: none" type="text" name="accessToken" placeholder="Access token"
                th:value="${accessToken}" readonly/>
-        <input type="submit" value="Back"/>
+        <input type="submit" value="Назад"/>
     </form>
 </div>
 </body>
