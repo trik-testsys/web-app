@@ -23,4 +23,7 @@ class Task(
 
     @Column(nullable = false, columnDefinition = "BIGINT DEFAULT 0")
     var countOfTests: Long = 0L
+
+    @OneToMany(mappedBy = "task", cascade = [CascadeType.ALL])
+    val solutions: MutableSet<Solution> = mutableSetOf()
 }

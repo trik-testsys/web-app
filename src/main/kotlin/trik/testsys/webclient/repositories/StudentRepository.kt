@@ -10,4 +10,6 @@ import trik.testsys.webclient.entities.WebUser
 interface StudentRepository: CrudRepository<Student, String> {
 
     fun findStudentByWebUser(webUser: WebUser): Student?
+
+    fun findStudentById(id: Long): Student?
 }

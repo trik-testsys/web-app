@@ -29,6 +29,10 @@ class GroupService {
         return groupRepository.findGroupByAccessToken(accessToken)
     }
 
+    fun getGroupById(id: Long): Group? {
+        return groupRepository.findGroupById(id)
+    }
+
     private fun generateAccessToken(word: String): String {
         val saltedWord = word + Date().time + Random(Date().time).nextInt()
         val md = MessageDigest.getInstance("SHA-224")

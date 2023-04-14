@@ -26,4 +26,10 @@ class TaskService {
 
         return taskRepository.save(task)
     }
+
+    fun getAllGroupTasks(groupId: Long): Set<Task>? {
+        val group = groupService.getGroupById(groupId) ?: return null
+
+        return group.tasks
+    }
 }

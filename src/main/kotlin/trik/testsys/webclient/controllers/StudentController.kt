@@ -12,12 +12,10 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+
 import trik.testsys.webclient.enums.WebUserStatuses
 import trik.testsys.webclient.models.ResponseMessage
-
-import trik.testsys.webclient.services.GroupService
-import trik.testsys.webclient.services.StudentService
-import trik.testsys.webclient.services.WebUserService
+import trik.testsys.webclient.services.*
 
 @RestController
 @RequestMapping("/v1/student")
@@ -33,6 +31,12 @@ class StudentController {
 
     @Autowired
     private lateinit var webUserService: WebUserService
+
+    @Autowired
+    private lateinit var solutionService: SolutionService
+
+    @Autowired
+    private lateinit var taskService: TaskService
 
     @GetMapping("/registration")
     fun registration(@RequestParam groupAccessToken: String, model: Model): Any {
@@ -95,6 +99,8 @@ class StudentController {
         val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
         val student = studentService.getStudentByWebUser(webUser)!!
 
+        model.addAttribute("tasks", student.group.tasks.sortedBy { it.id })
+        model.addAttribute("solutions", student.solutions.sortedBy { it.date })
         model.addAttribute("id", student.id)
         model.addAttribute("username", webUser.username)
         model.addAttribute("accessToken", accessToken)
