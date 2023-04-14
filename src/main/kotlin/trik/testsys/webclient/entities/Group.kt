@@ -5,16 +5,21 @@ import javax.persistence.*
 @Entity
 @Table(name = "GROUPZ")
 class Group(
-    @OneToOne(cascade = [CascadeType.ALL])
+    @ManyToOne(cascade = [CascadeType.ALL])
     @JoinColumn(
         name = "admin_id", referencedColumnName = "id",
-        nullable = false, unique = true
+        nullable = false
     ) val admin: Admin,
 
     @Column(
         nullable = false, unique = true, length = 50,
         columnDefinition = "VARCHAR(50) DEFAULT ''"
     ) val name: String,
+
+    @Column(
+        nullable = false, unique = true, length = 50,
+        columnDefinition = "VARCHAR(100) DEFAULT ''"
+    ) val accessToken: String,
 
     @Column(
         nullable = false,
