@@ -21,11 +21,11 @@ class SolutionService {
     @Autowired
     lateinit var taskRepository: TaskRepository
 
-    fun saveSolution(studentId: Long, taskId: Long): Solution? {
+    fun saveSolution(studentId: Long, taskId: Long, gradingId: Long): Solution? {
         val student = studentRepository.findStudentById(studentId) ?: return null
         val task = taskRepository.findTaskById(taskId) ?: return null
 
-        val solution = Solution(student, task)
+        val solution = Solution(student, task, gradingId)
         solution.countOfTests = task.countOfTests
         return solutionRepository.save(solution)
     }

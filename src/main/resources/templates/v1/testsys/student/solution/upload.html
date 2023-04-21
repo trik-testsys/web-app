@@ -11,7 +11,7 @@
         <p th:text="${message}"/>
     </div>
 
-    <div class="created web_user">
+    <div class="created web_user" th:style="${isCreated}? 'display: flex;' : 'display: none;'">
         <p>Решение загружено!</p>
         <table>
             <tr>

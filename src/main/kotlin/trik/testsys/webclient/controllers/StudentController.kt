@@ -4,24 +4,28 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.*
 import org.springframework.ui.Model
+import org.springframework.util.LinkedMultiValueMap
+import org.springframework.util.MultiValueMap
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.client.RestTemplate
 import org.springframework.web.multipart.MultipartFile
 
+import trik.testsys.webclient.GradingSystemErrorHandler
 import trik.testsys.webclient.enums.WebUserStatuses
 import trik.testsys.webclient.models.ResponseMessage
 import trik.testsys.webclient.services.*
 
 @RestController
 @RequestMapping("/v1/testsys/student")
-class StudentController {
+class StudentController(@Value("\${app.grading-system-url}") val gradingSystemUrl: String) {
 
     private val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
@@ -39,6 +43,8 @@ class StudentController {
 
     @Autowired
     private lateinit var taskService: TaskService
+
+    private val restTemplate = RestTemplate()
 
     @GetMapping("/registration")
     fun registration(@RequestParam groupAccessToken: String, model: Model): Any {
@@ -117,6 +123,7 @@ class StudentController {
         @RequestBody file: MultipartFile,
         model: Model
     ): Any {
+        restTemplate.errorHandler = GradingSystemErrorHandler()
         logger.info("[${accessToken.padStart(80)}]: Client trying to upload solution.")
 
         val status = validateStudent(accessToken)
@@ -128,12 +135,59 @@ class StudentController {
         }
 
         logger.info("[${accessToken.padStart(80)}]: Client is a student.")
+        model.addAttribute("accessToken", accessToken)
+
         val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
         val student = studentService.getStudentByWebUser(webUser)!!
 
-        model.addAttribute("accessToken", accessToken)
+        val task = taskService.getTaskById(taskId) ?: run {
+            logger.info("[${accessToken.padStart(80)}]: Invalid task id.")
+            return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ResponseMessage(403, "Invalid task id!"))
+        }
+        val taskName = "${task.id}: ${task.name}"
 
-        val solution = solutionService.saveSolution(student.id!!, taskId)!!
+        val headers = HttpHeaders()
+        headers.setBasicAuth("user1", "super")
+        headers.contentType = MediaType.MULTIPART_FORM_DATA
+
+        val body: MultiValueMap<String, Any> = LinkedMultiValueMap()
+        body.add("file", file.resource)
+        body.add("task_name", taskName)
+        body.add("student_id", student.id!!)
+
+        val url = "$gradingSystemUrl/submissions/submission/upload"
+
+        val submissionInfo = restTemplate.postForEntity(
+            url,
+            HttpEntity(body, headers),
+            Map::class.java
+        )
+
+        if (submissionInfo.statusCodeValue == 422) {
+            logger.info("[${accessToken.padStart(80)}]: Invalid file.")
+            model.addAttribute("isCreated", false)
+            model.addAttribute(
+                "message",
+                "Вы отправили некорректный формат файла. Попробуйте отправить файл с расширением .qrs."
+            )
+            return model
+        }
+
+        if (submissionInfo.statusCode == HttpStatus.INTERNAL_SERVER_ERROR) {
+            logger.info("[${accessToken.padStart(80)}]: Something went wrong on grading system server.")
+            model.addAttribute("isCreated", false)
+            model.addAttribute(
+                "message",
+                "Что-то пошло не так на сервере системы проверки. Обратитесь к администратору и попробуйте позже."
+            )
+            return model
+        }
+        model.addAttribute("isCreated", true)
+
+        val solution =
+            solutionService.saveSolution(student.id, taskId, submissionInfo.body!!["id"].toString().toLong())!!
         logger.info("[${accessToken.padStart(80)}]: Solution uploaded.")
 
         model.addAttribute("id", solution.id)

@@ -23,3 +23,4 @@ server:
 
 app:
   version: 0.0.2
+  grading-system-url: http://localhost:8080/v2/grading-system

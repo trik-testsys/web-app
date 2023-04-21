@@ -14,6 +14,9 @@ class Solution(
     @ManyToOne
     @JoinColumn(name = "task_id", nullable = false)
     val task: Task,
+
+    @Column(nullable = false, unique = true)
+    val gradingId: Long
 ) {
 
     @Id
