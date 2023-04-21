@@ -7,13 +7,8 @@
 <body>
 <div class="container">
     <h1>Панель супер-пользователя</h1>
-
-    <div class="created" th:style="${isRaised}? 'display: none;' : 'display: block;'">
-        <p th:text="${message}"/>
-    </div>
-
-    <div class="created web_user" th:styleappend="${isRaised}? 'display: block' : 'display: none;'">
-        <p>Пользователь повышен до админа!</p>
+    <div class="created web_user">
+        <p>Админ создан!</p>
         <table>
             <tr>
                 <th>ID</th>
@@ -27,7 +22,7 @@
             </tr>
         </table>
     </div>
-    <form class="back" action="/superuser" method="get">
+    <form class="back" action="/v1/testsys/superuser" method="get">
         <input style="display: none" type="text" name="accessToken" placeholder="Access token"
                th:value="${accessToken}" readonly/>
         <input type="submit" value="Назад"/>

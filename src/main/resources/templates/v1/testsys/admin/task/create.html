@@ -2,29 +2,37 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
 <head>
     <meta charset="UTF-8">
-    <title>Superuser page</title>
+    <title>Admin page</title>
 </head>
 <body>
 <div class="container">
-    <h1>Панель супер-пользователя</h1>
-    <div class="created web_user">
-        <p>Админ создан!</p>
+    <h1>Панель администратора</h1>
+
+    <div class="created" th:style="${isCreated}? 'display: none;' : 'display: block;'">
+        <p th:text="${message}"/>
+    </div>
+
+    <div class="created web_user" th:styleappend="${isCreated}? 'display: block' : 'display: none;'">
+        <p>Задача загружена!</p>
         <table>
             <tr>
                 <th>ID</th>
-                <th>ID пользователя</th>
-                <th>Код-доступа</th>
+                <th>Название</th>
+                <th>Название группы</th>
             </tr>
             <tr>
                 <td th:text="${id}"></td>
-                <td th:text="${webUserId}"></td>
-                <td th:text="${webUserAccessToken}"></td>
+                <td th:text="${name}"></td>
+                <td th:text="${groupName}"></td>
             </tr>
         </table>
     </div>
-    <form class="back" action="/superuser" method="get">
+    <form class="back" action="/v1/testsys/admin/group" method="get">
         <input style="display: none" type="text" name="accessToken" placeholder="Access token"
                th:value="${accessToken}" readonly/>
+        <input style="display: none" type="text" name="groupAccessToken"
+               placeholder="Group access token"
+               th:value="${groupAccessToken}" readonly/>
         <input type="submit" value="Назад"/>
     </form>
 </div>

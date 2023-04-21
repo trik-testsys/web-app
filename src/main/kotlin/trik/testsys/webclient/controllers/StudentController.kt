@@ -20,7 +20,7 @@ import trik.testsys.webclient.models.ResponseMessage
 import trik.testsys.webclient.services.*
 
 @RestController
-@RequestMapping("/v1/student")
+@RequestMapping("/v1/testsys/student")
 class StudentController {
 
     private val logger: Logger = LoggerFactory.getLogger(this::class.java)

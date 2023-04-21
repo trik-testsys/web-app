@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.servlet.view.RedirectView
@@ -12,6 +13,7 @@ import org.springframework.web.servlet.view.RedirectView
 import trik.testsys.webclient.services.*
 
 @RestController
+@RequestMapping("/v1/testsys")
 class AccessController {
 
     private val logger: Logger = LoggerFactory.getLogger(this::class.java)
@@ -37,7 +39,7 @@ class AccessController {
 
         groupService.getGroupByAccessToken(accessToken)?.let {
             logger.info("[${accessToken.padStart(80)}]: Client is a new student.")
-            return RedirectView("/v1/student/registration?groupAccessToken=$accessToken")
+            return RedirectView("/v1/testsys/student/registration?groupAccessToken=$accessToken")
         }
 
         val webUser = webUserService.getWebUserByAccessToken(accessToken) ?: run {
@@ -47,23 +49,23 @@ class AccessController {
 
         superUserService.getSuperUserByWebUser(webUser)?.let {
             logger.info("[${accessToken.padStart(80)}]: Client is a super user.")
-            return RedirectView("/superuser?accessToken=$accessToken")
+            return RedirectView("/v1/testsys/superuser?accessToken=$accessToken")
         }
 
         adminService.getAdminByWebUser(webUser)?.let {
             logger.info("[${accessToken.padStart(80)}]: Client is an admin.")
-            return RedirectView("/v1/admin?accessToken=$accessToken")
+            return RedirectView("/v1/testsys/admin?accessToken=$accessToken")
         }
 
         studentService.getStudentByWebUser(webUser)?.let {
             logger.info("[${accessToken.padStart(80)}]: Client is a student.")
-            return RedirectView("/v1/student?accessToken=$accessToken")
+            return RedirectView("/v1/testsys/student?accessToken=$accessToken")
         }
 
         return model
     }
 
-    @GetMapping("/")
+    @GetMapping
     fun get(model: Model): Model {
         return model
     }

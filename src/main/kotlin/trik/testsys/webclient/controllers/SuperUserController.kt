@@ -25,7 +25,7 @@ import trik.testsys.webclient.models.WebUserModel
 import trik.testsys.webclient.services.AdminService
 
 
-@RequestMapping("/superuser")
+@RequestMapping("/v1/testsys/superuser")
 @RestController
 class SuperUserController {
 

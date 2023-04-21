@@ -14,7 +14,7 @@ import trik.testsys.webclient.models.ResponseMessage
 import trik.testsys.webclient.services.*
 
 @RestController
-@RequestMapping("/v1/admin")
+@RequestMapping("/v1/testsys/admin")
 class AdminController {
 
     private val logger: Logger = LoggerFactory.getLogger(this::class.java)
@@ -143,7 +143,7 @@ class AdminController {
         return model
     }
 
-    @PostMapping("task/create")
+    @PostMapping("/task/create")
     fun createTask(
         @RequestParam accessToken: String,
         @RequestParam groupAccessToken: String,
