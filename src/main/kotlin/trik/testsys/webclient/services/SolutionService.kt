@@ -30,6 +30,10 @@ class SolutionService {
         return solutionRepository.save(solution)
     }
 
+    fun saveSolution(solution: Solution): Solution? {
+        return solutionRepository.save(solution)
+    }
+
     fun getAllStudentSolutionsByTask(studentId: Long, taskId: Long): List<Solution>? {
         val student = studentRepository.findStudentById(studentId) ?: return null
         val task = taskRepository.findTaskById(taskId) ?: return null
@@ -47,5 +51,9 @@ class SolutionService {
         val task = taskRepository.findTaskById(taskId) ?: return null
 
         return solutionRepository.findSolutionsByTask(task)
+    }
+
+    fun getAllSolutions(): List<Solution> {
+        return solutionRepository.findAll().toList()
     }
 }

@@ -30,7 +30,7 @@ class Solution(
     @Column(nullable = false, columnDefinition = "BIGINT DEFAULT 0")
     var countOfPassedTests: Long = 0L
 
-    @Column(nullable = false, columnDefinition = "BIGINT DEFAULT 0")
+    @Column(nullable = false, columnDefinition = "BIGINT DEFAULT 3")
     var status: SolutionsStatuses = SolutionsStatuses.NOT_STARTED
 
     @Column(nullable = false)
