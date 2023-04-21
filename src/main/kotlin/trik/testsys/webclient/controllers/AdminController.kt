@@ -3,11 +3,15 @@ package trik.testsys.webclient.controllers
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.*
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.ui.Model
+import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.client.RestTemplate
 import org.springframework.web.multipart.MultipartFile
+import trik.testsys.webclient.GradingSystemErrorHandler
 
 import trik.testsys.webclient.enums.WebUserStatuses
 import trik.testsys.webclient.models.ResponseMessage
@@ -15,7 +19,7 @@ import trik.testsys.webclient.services.*
 
 @RestController
 @RequestMapping("/v1/testsys/admin")
-class AdminController {
+class AdminController(@Value("\${app.grading-system-url}") val gradingSystemUrl: String) {
 
     private val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
@@ -33,6 +37,8 @@ class AdminController {
 
     @Autowired
     private lateinit var studentService: StudentService
+
+    private val restTemplate = RestTemplate()
 
     @GetMapping
     fun getAccess(@RequestParam accessToken: String, model: Model): Any {
@@ -152,6 +158,7 @@ class AdminController {
         @RequestBody tests: List<MultipartFile>,
         model: Model
     ): Any {
+        restTemplate.errorHandler = GradingSystemErrorHandler()
         logger.info("[${accessToken.padStart(80)}]: Client trying to create a task.")
 
         val status = validateAdmin(accessToken)
@@ -191,6 +198,34 @@ class AdminController {
         model.addAttribute("groupAccessToken", group.accessToken)
 
         val task = taskService.saveTask(name, description, group.accessToken, tests.size.toLong())!!
+
+        val headers = HttpHeaders()
+        headers.contentType = MediaType.MULTIPART_FORM_DATA
+        headers.setBasicAuth("user1", "super")
+
+        val body = LinkedMultiValueMap<String, Any>()
+        tests.forEach {
+            body.add("files", it.resource)
+        }
+        body.add("taskName", "${task.id}: ${task.name}")
+
+        val url = "$gradingSystemUrl/tasks/create"
+
+        val responseInfo = restTemplate.postForEntity(
+            url,
+            HttpEntity(body, headers),
+            Map::class.java
+        )
+
+        if (responseInfo.statusCode == HttpStatus.CONFLICT) {
+            logger.info("[${accessToken.padStart(80)}]: Task not created.")
+
+            model.addAttribute("isCreated", false)
+            model.addAttribute("message", "Задача с таким названием уже существует.")
+
+            return model
+        }
+
         logger.info("[${accessToken.padStart(80)}]: Task created.")
 
         model.addAttribute("isCreated", true)

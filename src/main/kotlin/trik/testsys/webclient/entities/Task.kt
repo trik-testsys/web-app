@@ -6,7 +6,7 @@ import javax.persistence.*
 @Entity
 @Table(name = "TASKS")
 class Task(
-    @Column(nullable = false, unique = true, columnDefinition = "VARCHAR(50) DEFAULT ''")
+    @Column(nullable = false, columnDefinition = "VARCHAR(50) DEFAULT ''")
     val name: String,
 
     @Column(nullable = false, columnDefinition = "VARCHAR(200) DEFAULT ''")
