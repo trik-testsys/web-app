@@ -64,7 +64,13 @@
             <tr th:each="solution : ${solutions}">
                 <td th:text="${solution.id}"></td>
                 <td th:text="${solution.task.name}"></td>
-                <td th:text="${solution.status}"></td>
+                <td th:switch="${solution.status.ordinal}">
+                    <span th:case=0>Неверное решение</span>
+                    <span th:case=1>Верное решение</span>
+                    <span th:case=2>Тестируется</span>
+                    <span th:case=3>Ожидает проверки</span>
+                    <span th:case=4>Неверное решение</span>
+                </td>
             </tr>
         </table>
     </div>
