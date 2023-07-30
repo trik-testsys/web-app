@@ -1,7 +1,5 @@
 package trik.testsys.webclient.controllers
 
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.*
@@ -16,27 +14,20 @@ import trik.testsys.webclient.enums.SolutionsStatuses
 import trik.testsys.webclient.enums.WebUserStatuses
 import trik.testsys.webclient.models.ResponseMessage
 import trik.testsys.webclient.services.*
+import trik.testsys.webclient.utils.logger.TrikLogger
 
 @RestController
 @RequestMapping("/v1/testsys/admin")
-class AdminController(@Value("\${app.grading-system-url}") val gradingSystemUrl: String) {
+class AdminController @Autowired constructor(
+    @Value("\${app.grading-system-url}")
+    private val gradingSystemUrl: String,
 
-    private val logger: Logger = LoggerFactory.getLogger(this::class.java)
-
-    @Autowired
-    private lateinit var adminService: AdminService
-
-    @Autowired
-    private lateinit var webUserService: WebUserService
-
-    @Autowired
-    private lateinit var groupService: GroupService
-
-    @Autowired
-    private lateinit var taskService: TaskService
-
-    @Autowired
-    private lateinit var studentService: StudentService
+    private val adminService: AdminService,
+    private val webUserService: WebUserService,
+    private val groupService: GroupService,
+    private val taskService: TaskService,
+    private val studentService: StudentService
+) {
 
     private val restTemplate = RestTemplate()
 
@@ -81,21 +72,12 @@ class AdminController(@Value("\${app.grading-system-url}") val gradingSystemUrl:
         model.addAttribute("accessToken", webUser.accessToken)
 
         val group = groupService.createGroup(admin, name)
-        if (group != null) {
-            logger.info("[${accessToken.padStart(80)}]: Group created.")
+        logger.info("[${accessToken.padStart(80)}]: Group created.")
 
-            model.addAttribute("isCreated", true)
-            model.addAttribute("id", group.id!!)
-            model.addAttribute("name", group.name)
-            model.addAttribute("groupAccessToken", group.accessToken)
-
-            return model
-        }
-
-        logger.info("[${accessToken.padStart(80)}]: Group already exists.")
-
-        model.addAttribute("isCreated", false)
-        model.addAttribute("message", "Группа с названием $name уже существует.")
+        model.addAttribute("isCreated", true)
+        model.addAttribute("id", group.id!!)
+        model.addAttribute("name", group.name)
+        model.addAttribute("groupAccessToken", group.accessToken)
 
         return model
     }
@@ -357,7 +339,7 @@ class AdminController(@Value("\${app.grading-system-url}") val gradingSystemUrl:
         logger.info("[${accessToken.padStart(80)}]: Group found.")
         model.addAttribute("groupAccessToken", group.accessToken)
 
-        val student = studentService.getStudentById(studentId)
+        val student = studentService.getById(studentId)
         if (student == null) {
             logger.info("[${accessToken.padStart(80)}]: Student not found.")
 
@@ -474,10 +456,58 @@ class AdminController(@Value("\${app.grading-system-url}") val gradingSystemUrl:
         return model
     }
 
+    @PostMapping("a")
+    fun createStudents(
+        @RequestParam accessToken: String,
+        @RequestParam groupAccessToken: String,
+        @RequestParam count: Long,
+        @RequestParam studentAccessTokenPrefix: String,
+        @RequestParam namePrefix: String
+    ): Any? {
+        logger.info(accessToken, "Client trying to create many students.")
+
+        val status = validateAdmin(accessToken)
+        if (status != WebUserStatuses.ADMIN) {
+            logger.info("[${accessToken.padStart(80)}]: Client is not an admin.")
+            return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ResponseMessage(403, "You are not an admin!"))
+        }
+
+        logger.info("[${accessToken.padStart(80)}]: Client is an admin.")
+        val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
+        val admin = adminService.getAdminByWebUser(webUser)!!
+
+        val group = groupService.getGroupByAccessToken(groupAccessToken)
+        if (group == null) {
+            logger.info("[${accessToken.padStart(80)}]: Group not found.")
+            return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ResponseMessage(404, "Group not found!"))
+        }
+
+        if (group.admin != admin) {
+            logger.info("[${accessToken.padStart(80)}]: Group not found.")
+            return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ResponseMessage(404, "Group not found!"))
+        }
+
+        logger.info("[${accessToken.padStart(80)}]: Group found.")
+
+        val students = studentService.generateStudents(count, studentAccessTokenPrefix, namePrefix, group)
+
+        return null
+    }
+
     private fun validateAdmin(accessToken: String): WebUserStatuses {
         val webUser = webUserService.getWebUserByAccessToken(accessToken) ?: return WebUserStatuses.NOT_FOUND
         adminService.getAdminByWebUser(webUser) ?: return WebUserStatuses.WEB_USER
 
         return WebUserStatuses.ADMIN
+    }
+
+    companion object {
+        private val logger = TrikLogger(this::class.java)
     }
 }

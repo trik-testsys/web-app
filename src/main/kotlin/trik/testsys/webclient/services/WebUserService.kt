@@ -23,6 +23,12 @@ class WebUserService {
         return webUserRepository.save(webUser)
     }
 
+    fun saveWebUser(username: String, accessToken: String): WebUser {
+        val webUser = WebUser(username, accessToken)
+
+        return webUser
+    }
+
     fun getWebUserByAccessToken(accessToken: String): WebUser? {
         return webUserRepository.findWebUserByAccessToken(accessToken)
     }
@@ -33,9 +39,13 @@ class WebUserService {
 
     private fun generateAccessToken(word: String): String {
         val saltedWord = word + Date().time + Random(Date().time).nextInt()
-        val md = MessageDigest.getInstance("SHA-256")
+        val md = MessageDigest.getInstance(HASHING_ALGORITHM_NAME)
         val digest = md.digest(saltedWord.toByteArray())
 
         return digest.fold("") { str, it -> str + "%02x".format(it) }
+    }
+
+    companion object {
+        private const val HASHING_ALGORITHM_NAME = "SHA-256"
     }
 }
