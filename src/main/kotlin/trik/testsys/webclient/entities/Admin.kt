@@ -1,0 +1,40 @@
+package trik.testsys.webclient.entities
+
+import javax.persistence.*
+
+import trik.testsys.webclient.models.AdminModel
+
+@Entity
+@Table(name = "ADMINS")
+data class Admin(
+    @OneToOne(cascade = [CascadeType.ALL])
+    @JoinColumn(
+        name = "web_user_id",
+        referencedColumnName = "id",
+        nullable = false,
+        unique = true
+    ) val webUser: WebUser
+) {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(nullable = false, unique = true)
+    val id: Long? = null
+
+    @Column(
+        nullable = false, name = "count_of_groups",
+        columnDefinition = "BIGINT DEFAULT 0"
+    )
+    var countOfGroups: Long = 0L
+
+    @OneToMany(mappedBy = "admin", cascade = [CascadeType.ALL])
+    val groups: MutableSet<Group> = mutableSetOf()
+
+    fun toModel(): AdminModel {
+        return AdminModel(
+            id = id!!,
+            webUserId = webUser.id!!,
+            accessToken = webUser.accessToken
+        )
+    }
+}

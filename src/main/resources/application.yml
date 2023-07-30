@@ -3,6 +3,7 @@ spring:
     hibernate:
       ddl-auto: update                                          # Update database schema on start if necessary
     open-in-view: on                                            # Enable JPA open-in-view
+    defer-datasource-initialization: true
   datasource:
     url: jdbc:mysql://${MYSQL_HOST:localhost}:3306/testsys_db   # Database URL
     username: testsys                                           # Database username
@@ -11,12 +12,19 @@ spring:
   h2:
     console:
       enabled: off                                              # Disable H2 console
+  sql:
+    init:
+      mode: never
 logging:
   file:
-    name: "./logs/server.log"                                   # Path to log file
+    name: "${PWD}/logs/server.log"                                   # Path to log file
   logback:
     rollingpolicy:
       clean-history-on-start: false                             # Not cleaning history on start
       max-history: 31                                           # Stores a month of logs
 server:
-  port: 8080                                                    # Entrypoint
+  port: 8888                                                    # Entrypoint
+
+app:
+  version: 1.0.2
+  grading-system-url: http://grading-system:8080/v3/grading-system
