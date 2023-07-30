@@ -5,13 +5,13 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.*
-import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.ui.Model
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.multipart.MultipartFile
 import trik.testsys.webclient.GradingSystemErrorHandler
+import trik.testsys.webclient.enums.SolutionsStatuses
 
 import trik.testsys.webclient.enums.WebUserStatuses
 import trik.testsys.webclient.models.ResponseMessage
@@ -383,6 +383,93 @@ class AdminController(@Value("\${app.grading-system-url}") val gradingSystemUrl:
         model.addAttribute("isFound", true)
         model.addAttribute("groupName", group.name)
         model.addAttribute("solutions", student.solutions.sortedBy { it.id })
+
+        return model
+    }
+
+    @GetMapping("/group/table")
+    fun getGroupTable(@RequestParam accessToken: String, @RequestParam groupAccessToken: String, model: Model): Any {
+        logger.info("[${accessToken.padStart(80)}]: Client trying to get group table.")
+
+        val status = validateAdmin(accessToken)
+        if (status != WebUserStatuses.ADMIN) {
+            logger.info("[${accessToken.padStart(80)}]: Client is not an admin.")
+            return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ResponseMessage(403, "You are not an admin!"))
+        }
+
+        logger.info("[${accessToken.padStart(80)}]: Client is an admin.")
+        val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
+        val admin = adminService.getAdminByWebUser(webUser)!!
+
+        model.addAttribute("accessToken", webUser.accessToken)
+
+        val group = groupService.getGroupByAccessToken(groupAccessToken)
+        if (group == null) {
+            logger.info("[${accessToken.padStart(80)}]: Group not found.")
+
+            model.addAttribute("isFound", false)
+            model.addAttribute("message", "Группа не найдена.")
+
+            return model
+        }
+
+        if (group.admin != admin) {
+            logger.info("[${accessToken.padStart(80)}]: Group not found.")
+
+            model.addAttribute("isFound", false)
+            model.addAttribute("message", "Группа не найдена.")
+
+            return model
+        }
+
+        logger.info("[${accessToken.padStart(80)}]: Group found.")
+        model.addAttribute("groupAccessToken", group.accessToken)
+
+        model.addAttribute("isFound", true)
+        model.addAttribute("tasks", group.tasks.sortedBy { it.id })
+        model.addAttribute("groupName", group.name)
+        model.addAttribute("students", group.students.sortedBy { it.id })
+
+        if (group.tasks.isEmpty()) {
+            model.addAttribute("table", emptyList<Int>())
+            return model
+        }
+
+        val table = MutableList<MutableList<Int>>(
+            (group.students.sortedByDescending { it.id }.firstOrNull()?.id?.toInt()?.plus(1)) ?: 0
+        ) { mutableListOf() }
+
+        group.students.sortedByDescending { it.id }.forEach { student ->
+            val taskList = MutableList(
+                group.tasks.sortedByDescending { it.id }.firstOrNull()?.id?.toInt()?.plus(1) ?: 0
+            ) { -1 }
+
+            group.tasks.sortedByDescending { it.id }.forEach { task ->
+                logger.warn("Task: $task")
+
+                val failedSolution =
+                    student.solutions.find { it.task == task && (it.status == SolutionsStatuses.FAILED || it.status == SolutionsStatuses.ERROR) }
+                val passedSolution =
+                    student.solutions.find { it.task == task && it.status == SolutionsStatuses.PASSED }
+                val inProgressSolution =
+                    student.solutions.find { it.task == task && (it.status == SolutionsStatuses.IN_PROGRESS || it.status == SolutionsStatuses.NOT_STARTED) }
+
+                if (failedSolution != null) {
+                    taskList[task.id!!.toInt()] = 0
+                } else if (passedSolution != null) {
+                    taskList[task.id!!.toInt()] = 1
+                } else if (inProgressSolution != null) {
+                    taskList[task.id!!.toInt()] = 2
+                } else {
+                    taskList[task.id!!.toInt()] = -1
+                }
+
+                table[student.id!!.toInt()] = taskList
+            }
+        }
+        model.addAttribute("table", table.toList())
 
         return model
     }
