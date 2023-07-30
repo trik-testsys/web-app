@@ -12,7 +12,7 @@ class Group(
     ) val admin: Admin,
 
     @Column(
-        nullable = false, unique = true, length = 50,
+        nullable = false, unique = false, length = 50,
         columnDefinition = "VARCHAR(50) DEFAULT ''"
     ) val name: String,
 
