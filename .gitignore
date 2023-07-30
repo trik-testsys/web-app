@@ -179,3 +179,5 @@ gradle-app.setting
 
 # .gz files
 *.gz
+
+data
