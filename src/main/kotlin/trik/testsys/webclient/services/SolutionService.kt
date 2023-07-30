@@ -22,7 +22,7 @@ class SolutionService {
     lateinit var taskRepository: TaskRepository
 
     fun saveSolution(studentId: Long, taskId: Long, gradingId: Long): Solution? {
-        val student = studentRepository.findStudentById(studentId) ?: return null
+        val student = studentRepository.findById(studentId) ?: return null
         val task = taskRepository.findTaskById(taskId) ?: return null
 
         val solution = Solution(student, task, gradingId)
@@ -35,14 +35,14 @@ class SolutionService {
     }
 
     fun getAllStudentSolutionsByTask(studentId: Long, taskId: Long): List<Solution>? {
-        val student = studentRepository.findStudentById(studentId) ?: return null
+        val student = studentRepository.findById(studentId) ?: return null
         val task = taskRepository.findTaskById(taskId) ?: return null
 
         return solutionRepository.findSolutionsByStudentAndTask(student, task)
     }
 
     fun getAllStudentSolutions(studentId: Long): List<Solution>? {
-        val student = studentRepository.findStudentById(studentId) ?: return null
+        val student = studentRepository.findById(studentId) ?: return null
 
         return solutionRepository.findSolutionsByStudent(student)
     }

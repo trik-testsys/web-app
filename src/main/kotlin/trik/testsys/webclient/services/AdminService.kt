@@ -24,7 +24,7 @@ class AdminService {
     fun saveAdmin(webUserId: Long): Admin? {
         val webUser = webUserRepository.findWebUserById(webUserId) ?: return null
         if (adminRepository.findAdminByWebUser(webUser) != null) return null
-        if (studentRepository.findStudentByWebUser(webUser) != null) return null
+        if (studentRepository.findByWebUser(webUser) != null) return null
 
         val admin = Admin(webUser)
         return adminRepository.save(admin)
@@ -32,7 +32,7 @@ class AdminService {
 
     fun saveAdmin(webUser: WebUser): Admin? {
         if (adminRepository.findAdminByWebUser(webUser) != null) return null
-        if (studentRepository.findStudentByWebUser(webUser) != null) return null
+        if (studentRepository.findByWebUser(webUser) != null) return null
 
         val admin = Admin(webUser)
         return adminRepository.save(admin)
