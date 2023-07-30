@@ -15,6 +15,10 @@ import trik.testsys.webclient.GradingSystemErrorHandler
 import trik.testsys.webclient.enums.SolutionsStatuses
 import trik.testsys.webclient.services.SolutionService
 
+/**
+ * @author Roman Shishkin
+ * @since 1.0.0
+ */
 @Controller
 class SolutionController(@Value("\${app.grading-system-url}") val gradingSystemUrl: String) {
 
@@ -25,18 +29,19 @@ class SolutionController(@Value("\${app.grading-system-url}") val gradingSystemU
     @Autowired
     private lateinit var solutionService: SolutionService
 
-    @Scheduled(fixedRate = 30_000)
+//    @Scheduled(fixedRate = CHECK_INTERVAL)
     private fun checkSolutions() {
-        restTemplate.errorHandler = GradingSystemErrorHandler()
+//        restTemplate.errorHandler = GradingSystemErrorHandler()
 
         logger.info("Checking solutions...")
         val solutions = solutionService.getAllSolutions()
         val submissionIds = solutions.map { it.gradingId }
+        val idsString = submissionIds.joinToString(",")
 
         val headers = HttpHeaders()
         headers.setBasicAuth("user1", "super")
 
-        val url = "$gradingSystemUrl/submissions/status?id_array=${submissionIds.joinToString(",")}"
+        val url = "$gradingSystemUrl$GRADING_SYSTEM_ENDPOINT$idsString"
 
         val response = restTemplate.exchange(
             url,
@@ -78,5 +83,10 @@ class SolutionController(@Value("\${app.grading-system-url}") val gradingSystemU
         }
 
         logger.info("Checking solutions finished.")
+    }
+
+    companion object {
+        private const val CHECK_INTERVAL = 30_000L
+        private const val GRADING_SYSTEM_ENDPOINT = "/submissions/status?id_array="
     }
 }
