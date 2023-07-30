@@ -11,8 +11,6 @@ interface GroupRepository: CrudRepository<Group, String> {
 
     fun findGroupById(id: Long): Group?
 
-    fun findGroupByName(name: String): Group?
-
     fun findGroupsByAdmin(admin: Admin): List<Group>?
 
     fun findGroupByAccessToken(accessToken: String): Group?

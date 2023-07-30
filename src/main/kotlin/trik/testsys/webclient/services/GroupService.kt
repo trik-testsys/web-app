@@ -15,14 +15,10 @@ class GroupService {
     @Autowired
     private lateinit var groupRepository: GroupRepository
 
-    fun createGroup(admin: Admin, name: String): Group? {
-        groupRepository.findGroupByName(name) ?: run {
-            val accessToken = generateAccessToken(name)
-            val group = Group(admin, name, accessToken)
-            return groupRepository.save(group)
-        }
-
-        return null
+    fun createGroup(admin: Admin, name: String): Group {
+        val accessToken = generateAccessToken(name)
+        val group = Group(admin, name, accessToken)
+        return groupRepository.save(group)
     }
 
     fun getGroupByAccessToken(accessToken: String): Group? {
