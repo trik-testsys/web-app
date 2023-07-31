@@ -2,6 +2,7 @@ package trik.testsys.webclient.utils.logger
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import trik.testsys.webclient.utils.exception.TrikException
 
 /**
  * @author Roman Shishkin
@@ -35,6 +36,13 @@ class TrikLogger<T>(clazz: Class<T>) {
         val fullMessage = createFullMessage(userAccessToken, message)
 
         logger.error(fullMessage)
+    }
+
+    fun errorAndThrow(userAccessToken: String, message: String): Nothing {
+        val fullMessage = createFullMessage(userAccessToken, message)
+
+        logger.error(fullMessage)
+        throw TrikException("Error: $fullMessage")
     }
 
     /**
