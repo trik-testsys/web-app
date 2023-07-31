@@ -29,10 +29,13 @@ interface StudentRepository : CrudRepository<Student, String> {
         nativeQuery = true,
         value = "SELECT CAST(SUBSTRING_INDEX(wu.username, '_', -1) AS UNSIGNED) as number " +
                 "FROM students JOIN web_users wu on wu.id = students.web_user_id " +
-                "WHERE REGEXP_LIKE(wu.username, :prefixRegex) " +
+                "WHERE REGEXP_LIKE(wu.username, :prefixRegex) and students.group_id = :groupId " +
                 "ORDER BY number DESC LIMIT 1"
     )
-    fun findMaxNumberWithSameNamePrefix(@Param("prefixRegex") prefixRegex: String): Long?
+    fun findMaxNumberWithSameNamePrefix(
+        @Param("prefixRegex") prefixRegex: String,
+        @Param("groupId") groupId: Long
+    ): Long?
 
     fun findById(id: Long): Student?
 }

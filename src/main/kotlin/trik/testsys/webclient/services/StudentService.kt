@@ -8,6 +8,7 @@ import trik.testsys.webclient.entities.Student
 import trik.testsys.webclient.entities.WebUser
 import trik.testsys.webclient.repositories.StudentRepository
 import trik.testsys.webclient.repositories.WebUserRepository
+import java.io.File
 
 import java.security.MessageDigest
 import java.util.*
@@ -45,7 +46,7 @@ class StudentService @Autowired constructor(
         val webUsers = mutableListOf<WebUser>()
 
         val prefixRegex = "^$namePrefix$NAME_DELIMITER\\d+$"
-        val startNumber = studentRepository.findMaxNumberWithSameNamePrefix(prefixRegex) ?: START_NUMBER_IF_NOT_FOUND
+        val startNumber = studentRepository.findMaxNumberWithSameNamePrefix(prefixRegex, group.id!!) ?: START_NUMBER_IF_NOT_FOUND
 
         for (i in 1..count) {
             val accessToken = generateAccessToken(accessTokenPrefix, namePrefix)
@@ -84,6 +85,26 @@ class StudentService @Autowired constructor(
         val foldedHash = hash.fold("") { str, it -> str + "%02x".format(it) }
 
         return "$accessTokenPrefix$ACCESS_TOKEN_DELIMITER$foldedHash"
+    }
+
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
+    fun convertToCsv(students: List<Student>): File {
+        val csv = StringBuilder()
+        csv.append("id,username,access_token,group_id,group_name\n")
+        students.forEach { student ->
+            val webUser = student.webUser
+            val group = student.group
+            csv.append("${student.id},${webUser.username},${webUser.accessToken},${group.id},${group.name}\n")
+        }
+
+        val uuid = UUID.randomUUID().toString()
+        val file = File("/tmp/students_$uuid.csv")
+        file.writeText(csv.toString())
+
+        return file
     }
 
     companion object {

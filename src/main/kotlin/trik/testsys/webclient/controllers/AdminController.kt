@@ -1,7 +1,10 @@
 package trik.testsys.webclient.controllers
 
+import org.h2.util.IOUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.core.io.ByteArrayResource
+import org.springframework.core.io.FileSystemResource
 import org.springframework.http.*
 import org.springframework.ui.Model
 import org.springframework.util.LinkedMultiValueMap
@@ -15,6 +18,7 @@ import trik.testsys.webclient.enums.WebUserStatuses
 import trik.testsys.webclient.models.ResponseMessage
 import trik.testsys.webclient.services.*
 import trik.testsys.webclient.utils.logger.TrikLogger
+import java.io.File
 
 @RestController
 @RequestMapping("/v1/testsys/admin")
@@ -456,14 +460,16 @@ class AdminController @Autowired constructor(
         return model
     }
 
-    @PostMapping("a")
+    @GetMapping("/student/create")
+    @ResponseBody
     fun createStudents(
         @RequestParam accessToken: String,
         @RequestParam groupAccessToken: String,
         @RequestParam count: Long,
         @RequestParam studentAccessTokenPrefix: String,
-        @RequestParam namePrefix: String
-    ): Any? {
+        @RequestParam namePrefix: String,
+        model: Model
+    ): ResponseEntity<out Any> {
         logger.info(accessToken, "Client trying to create many students.")
 
         val status = validateAdmin(accessToken)
@@ -495,9 +501,23 @@ class AdminController @Autowired constructor(
 
         logger.info("[${accessToken.padStart(80)}]: Group found.")
 
-        val students = studentService.generateStudents(count, studentAccessTokenPrefix, namePrefix, group)
+        val students = studentService.generateStudents(count, studentAccessTokenPrefix, namePrefix, group!!)
+        logger.info(accessToken, "$count students created.")
 
-        return null
+        val csvFile = studentService.convertToCsv(students)
+        logger.info(accessToken, "CSV with created students created.")
+        val headers = HttpHeaders()
+        headers.contentType = MediaType.APPLICATION_OCTET_STREAM
+        headers.contentDisposition = ContentDisposition.builder("attachment")
+            .filename("students.csv")
+            .build()
+        val bytes = csvFile.readBytes()
+
+        return ResponseEntity
+            .ok()
+            .headers(headers)
+            .contentLength(bytes.size.toLong())
+            .body(FileSystemResource(csvFile))
     }
 
     private fun validateAdmin(accessToken: String): WebUserStatuses {
