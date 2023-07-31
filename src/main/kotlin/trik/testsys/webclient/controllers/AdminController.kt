@@ -1,9 +1,7 @@
 package trik.testsys.webclient.controllers
 
-import org.h2.util.IOUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.core.io.ByteArrayResource
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.*
 import org.springframework.ui.Model
@@ -11,17 +9,22 @@ import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.multipart.MultipartFile
+
 import trik.testsys.webclient.GradingSystemErrorHandler
 import trik.testsys.webclient.enums.SolutionsStatuses
-
-import trik.testsys.webclient.enums.WebUserStatuses
 import trik.testsys.webclient.models.ResponseMessage
 import trik.testsys.webclient.services.*
 import trik.testsys.webclient.utils.logger.TrikLogger
-import java.io.File
+import trik.testsys.webclient.entities.Admin
+import trik.testsys.webclient.entities.Group
+import trik.testsys.webclient.entities.WebUser
+import trik.testsys.webclient.utils.fp.Either
+
+import java.util.*
+
 
 @RestController
-@RequestMapping("/v1/testsys/admin")
+@RequestMapping("\${app.testsys.api.prefix}/admin")
 class AdminController @Autowired constructor(
     @Value("\${app.grading-system.path}")
     private val gradingSystemUrl: String,
@@ -39,8 +42,8 @@ class AdminController @Autowired constructor(
     fun getAccess(@RequestParam accessToken: String, model: Model): Any {
         logger.info("[${accessToken.padStart(80)}]: Client trying to access admin page.")
 
-        val status = validateAdmin(accessToken)
-        if (status == WebUserStatuses.ADMIN) {
+        val isAdmin = isAdminAccessToken(accessToken)
+        if (isAdmin) {
             logger.info("[${accessToken.padStart(80)}]: Client is an admin.")
             val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
             val admin = adminService.getAdminByWebUser(webUser)!!
@@ -61,8 +64,8 @@ class AdminController @Autowired constructor(
     fun createGroup(@RequestParam accessToken: String, @RequestParam name: String, model: Model): Any {
         logger.info("[${accessToken.padStart(80)}]: Client trying to create a group.")
 
-        val status = validateAdmin(accessToken)
-        if (status != WebUserStatuses.ADMIN) {
+        val isAdmin = isAdminAccessToken(accessToken)
+        if (!isAdmin) {
             logger.info("[${accessToken.padStart(80)}]: Client is not an admin.")
             return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
@@ -90,41 +93,13 @@ class AdminController @Autowired constructor(
     fun accessToGroup(@RequestParam accessToken: String, @RequestParam groupAccessToken: String, model: Model): Any {
         logger.info("[${accessToken.padStart(80)}]: Client trying to access group.")
 
-        val status = validateAdmin(accessToken)
-        if (status != WebUserStatuses.ADMIN) {
-            logger.info("[${accessToken.padStart(80)}]: Client is not an admin.")
-            return ResponseEntity
-                .status(HttpStatus.FORBIDDEN)
-                .body(ResponseMessage(403, "You are not an admin!"))
+        val eitherEntities = getAdminEntities(accessToken, groupAccessToken)
+        if (eitherEntities.isLeft()) {
+            return eitherEntities.getLeft()
         }
-
-        logger.info("[${accessToken.padStart(80)}]: Client is an admin.")
-        val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
-        val admin = adminService.getAdminByWebUser(webUser)!!
+        val (webUser, _, group) = eitherEntities.getRight()
 
         model.addAttribute("accessToken", webUser.accessToken)
-
-        val group = groupService.getGroupByAccessToken(groupAccessToken)
-        if (group == null) {
-            logger.info("[${accessToken.padStart(80)}]: Group not found.")
-
-            model.addAttribute("isFound", false)
-            model.addAttribute("message", "Группа не найдена.")
-
-            return model
-        }
-
-        if (group.admin != admin) {
-            logger.info("[${accessToken.padStart(80)}]: Group not found.")
-
-            model.addAttribute("isFound", false)
-            model.addAttribute("message", "Group not found.")
-
-            return model
-        }
-
-        logger.info("[${accessToken.padStart(80)}]: Group found.")
-
         model.addAttribute("isFound", true)
         model.addAttribute("id", group.id!!)
         model.addAttribute("name", group.name)
@@ -147,40 +122,13 @@ class AdminController @Autowired constructor(
         restTemplate.errorHandler = GradingSystemErrorHandler()
         logger.info("[${accessToken.padStart(80)}]: Client trying to create a task.")
 
-        val status = validateAdmin(accessToken)
-        if (status != WebUserStatuses.ADMIN) {
-            logger.info("[${accessToken.padStart(80)}]: Client is not an admin.")
-            return ResponseEntity
-                .status(HttpStatus.FORBIDDEN)
-                .body(ResponseMessage(403, "You are not an admin!"))
+        val eitherEntities = getAdminEntities(accessToken, groupAccessToken)
+        if (eitherEntities.isLeft()) {
+            return eitherEntities.getLeft()
         }
-
-        logger.info("[${accessToken.padStart(80)}]: Client is an admin.")
-        val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
-        val admin = adminService.getAdminByWebUser(webUser)!!
+        val (webUser, _, group) = eitherEntities.getRight()
 
         model.addAttribute("accessToken", webUser.accessToken)
-
-        val group = groupService.getGroupByAccessToken(groupAccessToken)
-        if (group == null) {
-            logger.info("[${accessToken.padStart(80)}]: Group not found.")
-
-            model.addAttribute("isFound", false)
-            model.addAttribute("message", "Группа не найдена.")
-
-            return model
-        }
-
-        if (group.admin != admin) {
-            logger.info("[${accessToken.padStart(80)}]: Group not found.")
-
-            model.addAttribute("isFound", false)
-            model.addAttribute("message", "Группа не найдена.")
-
-            return model
-        }
-
-        logger.info("[${accessToken.padStart(80)}]: Group found.")
         model.addAttribute("groupAccessToken", group.accessToken)
 
         val task = taskService.saveTask(name, description, group.accessToken, tests.size.toLong())!!
@@ -231,40 +179,13 @@ class AdminController @Autowired constructor(
     ): Any {
         logger.info("[${accessToken.padStart(80)}]: Client trying to get task solutions.")
 
-        val status = validateAdmin(accessToken)
-        if (status != WebUserStatuses.ADMIN) {
-            logger.info("[${accessToken.padStart(80)}]: Client is not an admin.")
-            return ResponseEntity
-                .status(HttpStatus.FORBIDDEN)
-                .body(ResponseMessage(403, "You are not an admin!"))
+        val eitherEntities = getAdminEntities(accessToken, groupAccessToken)
+        if (eitherEntities.isLeft()) {
+            return eitherEntities.getLeft()
         }
-
-        logger.info("[${accessToken.padStart(80)}]: Client is an admin.")
-        val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
-        val admin = adminService.getAdminByWebUser(webUser)!!
+        val (webUser, _, group) = eitherEntities.getRight()
 
         model.addAttribute("accessToken", webUser.accessToken)
-
-        val group = groupService.getGroupByAccessToken(groupAccessToken)
-        if (group == null) {
-            logger.info("[${accessToken.padStart(80)}]: Group not found.")
-
-            model.addAttribute("isFound", false)
-            model.addAttribute("message", "Группа не найдена.")
-
-            return model
-        }
-
-        if (group.admin != admin) {
-            logger.info("[${accessToken.padStart(80)}]: Group not found.")
-
-            model.addAttribute("isFound", false)
-            model.addAttribute("message", "Группа не найдена.")
-
-            return model
-        }
-
-        logger.info("[${accessToken.padStart(80)}]: Group found.")
         model.addAttribute("groupAccessToken", group.accessToken)
 
         val task = taskService.getTaskById(taskId)
@@ -307,40 +228,13 @@ class AdminController @Autowired constructor(
     ): Any {
         logger.info("[${accessToken.padStart(80)}]: Client trying to get student submissions.")
 
-        val status = validateAdmin(accessToken)
-        if (status != WebUserStatuses.ADMIN) {
-            logger.info("[${accessToken.padStart(80)}]: Client is not an admin.")
-            return ResponseEntity
-                .status(HttpStatus.FORBIDDEN)
-                .body(ResponseMessage(403, "You are not an admin!"))
+        val eitherEntities = getAdminEntities(accessToken, groupAccessToken)
+        if (eitherEntities.isLeft()) {
+            return eitherEntities.getLeft()
         }
-
-        logger.info("[${accessToken.padStart(80)}]: Client is an admin.")
-        val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
-        val admin = adminService.getAdminByWebUser(webUser)!!
+        val (webUser, _, group) = eitherEntities.getRight()
 
         model.addAttribute("accessToken", webUser.accessToken)
-
-        val group = groupService.getGroupByAccessToken(groupAccessToken)
-        if (group == null) {
-            logger.info("[${accessToken.padStart(80)}]: Group not found.")
-
-            model.addAttribute("isFound", false)
-            model.addAttribute("message", "Группа не найдена.")
-
-            return model
-        }
-
-        if (group.admin != admin) {
-            logger.info("[${accessToken.padStart(80)}]: Group not found.")
-
-            model.addAttribute("isFound", false)
-            model.addAttribute("message", "Группа не найдена.")
-
-            return model
-        }
-
-        logger.info("[${accessToken.padStart(80)}]: Group found.")
         model.addAttribute("groupAccessToken", group.accessToken)
 
         val student = studentService.getById(studentId)
@@ -377,40 +271,13 @@ class AdminController @Autowired constructor(
     fun getGroupTable(@RequestParam accessToken: String, @RequestParam groupAccessToken: String, model: Model): Any {
         logger.info("[${accessToken.padStart(80)}]: Client trying to get group table.")
 
-        val status = validateAdmin(accessToken)
-        if (status != WebUserStatuses.ADMIN) {
-            logger.info("[${accessToken.padStart(80)}]: Client is not an admin.")
-            return ResponseEntity
-                .status(HttpStatus.FORBIDDEN)
-                .body(ResponseMessage(403, "You are not an admin!"))
+        val eitherEntities = getAdminEntities(accessToken, groupAccessToken)
+        if (eitherEntities.isLeft()) {
+            return eitherEntities.getLeft()
         }
-
-        logger.info("[${accessToken.padStart(80)}]: Client is an admin.")
-        val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
-        val admin = adminService.getAdminByWebUser(webUser)!!
+        val (webUser, _, group) = eitherEntities.getRight()
 
         model.addAttribute("accessToken", webUser.accessToken)
-
-        val group = groupService.getGroupByAccessToken(groupAccessToken)
-        if (group == null) {
-            logger.info("[${accessToken.padStart(80)}]: Group not found.")
-
-            model.addAttribute("isFound", false)
-            model.addAttribute("message", "Группа не найдена.")
-
-            return model
-        }
-
-        if (group.admin != admin) {
-            logger.info("[${accessToken.padStart(80)}]: Group not found.")
-
-            model.addAttribute("isFound", false)
-            model.addAttribute("message", "Группа не найдена.")
-
-            return model
-        }
-
-        logger.info("[${accessToken.padStart(80)}]: Group found.")
         model.addAttribute("groupAccessToken", group.accessToken)
 
         model.addAttribute("isFound", true)
@@ -472,36 +339,13 @@ class AdminController @Autowired constructor(
     ): ResponseEntity<out Any> {
         logger.info(accessToken, "Client trying to create many students.")
 
-        val status = validateAdmin(accessToken)
-        if (status != WebUserStatuses.ADMIN) {
-            logger.info("[${accessToken.padStart(80)}]: Client is not an admin.")
-            return ResponseEntity
-                .status(HttpStatus.FORBIDDEN)
-                .body(ResponseMessage(403, "You are not an admin!"))
+        val eitherEntities = getAdminEntities(accessToken, groupAccessToken)
+        if (eitherEntities.isLeft()) {
+            return eitherEntities.getLeft()
         }
+        val (_, _, group) = eitherEntities.getRight()
 
-        logger.info("[${accessToken.padStart(80)}]: Client is an admin.")
-        val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
-        val admin = adminService.getAdminByWebUser(webUser)!!
-
-        val group = groupService.getGroupByAccessToken(groupAccessToken)
-        if (group == null) {
-            logger.info("[${accessToken.padStart(80)}]: Group not found.")
-            return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(ResponseMessage(404, "Group not found!"))
-        }
-
-        if (group.admin != admin) {
-            logger.info("[${accessToken.padStart(80)}]: Group not found.")
-            return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(ResponseMessage(404, "Group not found!"))
-        }
-
-        logger.info("[${accessToken.padStart(80)}]: Group found.")
-
-        val students = studentService.generateStudents(count, studentAccessTokenPrefix, namePrefix, group!!)
+        val students = studentService.generateStudents(count, studentAccessTokenPrefix, namePrefix, group)
         logger.info(accessToken, "$count students created.")
 
         val csvFile = studentService.convertToCsv(students)
@@ -520,12 +364,108 @@ class AdminController @Autowired constructor(
             .body(FileSystemResource(csvFile))
     }
 
-    private fun validateAdmin(accessToken: String): WebUserStatuses {
-        val webUser = webUserService.getWebUserByAccessToken(accessToken) ?: return WebUserStatuses.NOT_FOUND
-        adminService.getAdminByWebUser(webUser) ?: return WebUserStatuses.WEB_USER
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
+    private fun isAdminAccessToken(accessToken: String): Boolean {
+        val webUser = webUserService.getWebUserByAccessToken(accessToken) ?: run {
+            logger.info(accessToken, "Client not found.")
+            return false
+        }
+        adminService.getAdminByWebUser(webUser) ?: run {
+            logger.info(accessToken, "Client is not an admin.")
+            return false
+        }
 
-        return WebUserStatuses.ADMIN
+        logger.info(accessToken, "Client is an admin.")
+        return true
     }
+
+    /**
+     * Validates if [accessToken] belongs to an [Admin].
+     * @return null if client is an admin, else [ResponseEntity] with status 403 and message "You are not an admin!".
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
+    private fun validateAdminByAccessToken(accessToken: String): ResponseEntity<ResponseMessage>? {
+        if (isAdminAccessToken(accessToken)) return null
+
+        return ResponseEntity
+            .status(HttpStatus.FORBIDDEN)
+            .body(ResponseMessage(403, "You are not an admin!"))
+    }
+
+    /**
+     * Validates if [accessToken] belongs to a [Group].
+     * @return [Either] with [ResponseEntity] with status 404 and message "Group not found!" if group not found,
+     * else [Either] with null and [Group] if group found.
+     * @see Either
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
+    private fun validateGroupAccessToken(
+        accessToken: String,
+        admin: Admin
+    ): Either<ResponseEntity<ResponseMessage>, Group> {
+        val group = groupService.getGroupByAccessToken(accessToken) ?: run {
+            logger.info(accessToken, "Group not found.")
+
+            val responseEntity = ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ResponseMessage(404, "Group not found!"))
+
+            return Either.left(responseEntity)
+        }
+
+        if (group.admin != admin) {
+            logger.info(accessToken, "Group not found.")
+
+            val responseEntity = ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ResponseMessage(404, "Group not found!"))
+
+            return Either.left(responseEntity)
+        }
+
+        logger.info(accessToken, "Group found.")
+        return Either.right(group)
+    }
+
+    /**
+     * Validates everything belongs to an [Admin] by [accessToken] and [groupAccessToken].
+     * @return [Either] with [ResponseEntity], else [Either] with null and [Entities].
+     * @see Either
+     * @see Entities
+     * @author Roman Shishkin
+     */
+    private fun getAdminEntities(
+        accessToken: String,
+        groupAccessToken: String
+    ): Either<ResponseEntity<ResponseMessage>, Entities> {
+        logger.info(accessToken, "Validating admin access token.")
+        validateAdminByAccessToken(accessToken)?.let { responseEntity ->
+            return Either.left(responseEntity)
+        }
+
+        val webUser = webUserService.getWebUserByAccessToken(accessToken)
+            ?: logger.errorAndThrow(accessToken, "Web user not found.")
+
+        val admin = adminService.getAdminByWebUser(webUser)
+            ?: logger.errorAndThrow(accessToken, "Admin not found.")
+
+        val eitherGroup = validateGroupAccessToken(groupAccessToken, admin)
+        return eitherGroup.bind { group ->
+            val entities = Entities(webUser, admin, group)
+            Either.right(entities)
+        }
+    }
+
+    private data class Entities(
+        val webUser: WebUser,
+        val admin: Admin,
+        val group: Group
+    )
 
     companion object {
         private val logger = TrikLogger(this::class.java)
