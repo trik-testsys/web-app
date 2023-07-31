@@ -82,7 +82,7 @@ class StudentController(@Value("\${app.grading-system-url}") val gradingSystemUr
         val webUser = webUserService.saveWebUser(username)
         logger.info("[${groupAccessToken.padStart(80)}]: Web user created.")
 
-        val student = studentService.saveStudent(webUser, group)
+        val student = studentService.save(webUser, group)
         logger.info("[${groupAccessToken.padStart(80)}]: Student created.")
 
         model.addAttribute("id", student.id)
@@ -105,7 +105,7 @@ class StudentController(@Value("\${app.grading-system-url}") val gradingSystemUr
 
         logger.info("[${accessToken.padStart(80)}]: Client is a student.")
         val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
-        val student = studentService.getStudentByWebUser(webUser)!!
+        val student = studentService.getByWebUser(webUser)!!
 
         model.addAttribute("tasks", student.group.tasks.sortedBy { it.id })
         model.addAttribute("solutions", student.solutions.sortedBy { it.date })
@@ -138,7 +138,7 @@ class StudentController(@Value("\${app.grading-system-url}") val gradingSystemUr
         model.addAttribute("accessToken", accessToken)
 
         val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
-        val student = studentService.getStudentByWebUser(webUser)!!
+        val student = studentService.getByWebUser(webUser)!!
 
         val task = taskService.getTaskById(taskId) ?: run {
             logger.info("[${accessToken.padStart(80)}]: Invalid task id.")
@@ -200,7 +200,7 @@ class StudentController(@Value("\${app.grading-system-url}") val gradingSystemUr
             return WebUserStatuses.NOT_FOUND
         }
 
-        val student = studentService.getStudentByWebUser(webUser) ?: run {
+        val student = studentService.getByWebUser(webUser) ?: run {
             return WebUserStatuses.ADMIN
         }
 

@@ -60,7 +60,7 @@ class AccessController {
             return RedirectView("/v1/testsys/admin?accessToken=$accessToken")
         }
 
-        studentService.getStudentByWebUser(webUser)?.let {
+        studentService.getByWebUser(webUser)?.let {
             logger.info("[${accessToken.padStart(80)}]: Client is a student.")
 //            return RedirectView("https://srv3.trikset.com:8843/v1/testsys/student?accessToken=$accessToken")
             return RedirectView("/v1/testsys/student?accessToken=$accessToken")
