@@ -25,7 +25,7 @@ import trik.testsys.webclient.services.*
 
 @RestController
 @RequestMapping("/v1/testsys/student")
-class StudentController(@Value("\${app.grading-system-url}") val gradingSystemUrl: String) {
+class StudentController(@Value("\${app.grading-system.path}") val gradingSystemUrl: String) {
 
     private val logger: Logger = LoggerFactory.getLogger(this::class.java)
 

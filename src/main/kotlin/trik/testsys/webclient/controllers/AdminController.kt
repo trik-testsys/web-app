@@ -23,7 +23,7 @@ import java.io.File
 @RestController
 @RequestMapping("/v1/testsys/admin")
 class AdminController @Autowired constructor(
-    @Value("\${app.grading-system-url}")
+    @Value("\${app.grading-system.path}")
     private val gradingSystemUrl: String,
 
     private val adminService: AdminService,
