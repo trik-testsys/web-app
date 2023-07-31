@@ -4,5 +4,6 @@ enum class WebUserStatuses {
     NOT_FOUND,
     ADMIN,
     SUPER_USER,
-    WEB_USER
+    WEB_USER,
+    DEVELOPER
 }
