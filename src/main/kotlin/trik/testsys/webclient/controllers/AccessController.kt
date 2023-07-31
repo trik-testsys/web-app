@@ -12,7 +12,7 @@ import trik.testsys.webclient.services.*
 import trik.testsys.webclient.utils.logger.TrikLogger
 
 @RestController
-@RequestMapping("/v1/testsys")
+@RequestMapping("\${app.testsys.api.prefix}")
 class AccessController @Autowired constructor(
     private val webUserService: WebUserService,
     private val superUserService: SuperUserService,
