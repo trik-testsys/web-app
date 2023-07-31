@@ -49,6 +49,6 @@ class TrikLogger<T>(clazz: Class<T>) {
     }
 
     companion object {
-        private const val MAX_TOKEN_LENGTH = 80
+        private const val MAX_TOKEN_LENGTH = 70
     }
 }

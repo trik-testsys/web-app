@@ -10,6 +10,10 @@ import java.security.MessageDigest
 import java.util.Date
 import java.util.Random
 
+/**
+ * @author Roman Shishkin
+ * @since 1.0.0
+ */
 @Service
 class WebUserService {
 

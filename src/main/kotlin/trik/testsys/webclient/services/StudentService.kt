@@ -8,8 +8,10 @@ import trik.testsys.webclient.entities.Student
 import trik.testsys.webclient.entities.WebUser
 import trik.testsys.webclient.repositories.StudentRepository
 import trik.testsys.webclient.repositories.WebUserRepository
+
 import java.security.MessageDigest
 import java.util.*
+
 import kotlin.random.Random
 
 /**
@@ -42,9 +44,14 @@ class StudentService @Autowired constructor(
         val students = mutableListOf<Student>()
         val webUsers = mutableListOf<WebUser>()
 
-        for (number in 0 until count) {
+        val prefixRegex = "^$namePrefix$NAME_DELIMITER\\d+$"
+        val startNumber = studentRepository.findMaxNumberWithSameNamePrefix(prefixRegex) ?: START_NUMBER_IF_NOT_FOUND
+
+        for (i in 1..count) {
             val accessToken = generateAccessToken(accessTokenPrefix, namePrefix)
-            val username = namePrefix + number
+
+            val number = startNumber + i
+            val username = "${namePrefix}$NAME_DELIMITER$number"
 
             val webUser = WebUser(username, accessToken)
             webUsers.add(webUser)
@@ -76,10 +83,13 @@ class StudentService @Autowired constructor(
         val hash = md.digest(saltedWord.toByteArray())
         val foldedHash = hash.fold("") { str, it -> str + "%02x".format(it) }
 
-        return "${accessTokenPrefix}_$foldedHash"
+        return "$accessTokenPrefix$ACCESS_TOKEN_DELIMITER$foldedHash"
     }
 
     companion object {
-        private const val HASHING_ALGORITHM_NAME = "SHA-1"
+        private const val HASHING_ALGORITHM_NAME = "MD5"
+        private const val START_NUMBER_IF_NOT_FOUND = -1L
+        private const val NAME_DELIMITER = "__"
+        private const val ACCESS_TOKEN_DELIMITER = "_"
     }
 }
