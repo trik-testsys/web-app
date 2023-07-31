@@ -6,7 +6,7 @@ import trik.testsys.webclient.models.AdminModel
 
 @Entity
 @Table(name = "ADMINS")
-data class Admin(
+class Admin(
     @OneToOne(cascade = [CascadeType.ALL])
     @JoinColumn(
         name = "web_user_id",
@@ -29,6 +29,9 @@ data class Admin(
 
     @OneToMany(mappedBy = "admin", cascade = [CascadeType.ALL])
     val groups: MutableSet<Group> = mutableSetOf()
+
+    @ManyToMany(mappedBy = "admins", cascade = [CascadeType.ALL])
+    val tasks: MutableSet<Task> = mutableSetOf()
 
     fun toModel(): AdminModel {
         return AdminModel(

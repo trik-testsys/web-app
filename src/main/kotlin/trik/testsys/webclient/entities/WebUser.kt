@@ -5,7 +5,7 @@ import javax.persistence.*
 
 @Entity
 @Table(name = "WEB_USERS")
-data class WebUser(
+class WebUser(
     @Column(
         nullable = false, length = 50,
         columnDefinition = "VARCHAR(50) DEFAULT ''"

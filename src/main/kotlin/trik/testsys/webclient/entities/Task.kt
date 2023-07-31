@@ -11,6 +11,12 @@ class Task(
 
     @Column(nullable = false, columnDefinition = "VARCHAR(200) DEFAULT ''")
     val description: String,
+
+    @ManyToOne(cascade = [CascadeType.ALL])
+    @JoinColumn(
+        name = "developer_id", referencedColumnName = "id",
+        nullable = false
+    ) val developer: Developer
 ) {
 
     @Id
@@ -26,4 +32,12 @@ class Task(
 
     @OneToMany(mappedBy = "task", cascade = [CascadeType.ALL])
     val solutions: MutableSet<Solution> = mutableSetOf()
+
+    @ManyToMany(cascade = [CascadeType.ALL])
+    @JoinTable(
+        name = "TASKS_BY_ADMINS",
+        joinColumns = [JoinColumn(name = "task_id")],
+        inverseJoinColumns = [JoinColumn(name = "admin_id")]
+    )
+    lateinit var admins: MutableSet<Admin>
 }

@@ -17,14 +17,16 @@ class TaskService {
 
     fun saveTask(name: String, description: String, groupAccessToken: String, testsCount: Long): Task? {
         val group = groupService.getGroupByAccessToken(groupAccessToken) ?: return null
-        val task = Task(name, description)
 
-        task.countOfTests = testsCount
-
-        task.groups.add(group)
-        group.tasks.add(task)
-
-        return taskRepository.save(task)
+        TODO()
+//        val task = Task(name, description)
+//
+//        task.countOfTests = testsCount
+//
+//        task.groups.add(group)
+//        group.tasks.add(task)
+//
+//        return taskRepository.save(task)
     }
 
     fun getAllGroupTasks(groupId: Long): Set<Task>? {
