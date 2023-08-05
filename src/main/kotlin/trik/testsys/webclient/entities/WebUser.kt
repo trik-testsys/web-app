@@ -30,12 +30,4 @@ class WebUser(
 
     @OneToMany(mappedBy = "webUser", cascade = [CascadeType.ALL])
     val students: MutableSet<Student> = mutableSetOf()
-
-    fun toModel(): WebUserModel {
-        return WebUserModel(
-            id = id!!,
-            username = username,
-            accessToken = accessToken
-        )
-    }
 }

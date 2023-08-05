@@ -2,8 +2,6 @@ package trik.testsys.webclient.entities
 
 import javax.persistence.*
 
-import trik.testsys.webclient.models.AdminModel
-
 @Entity
 @Table(name = "ADMINS")
 class Admin(
@@ -32,12 +30,4 @@ class Admin(
 
     @ManyToMany(mappedBy = "admins", cascade = [CascadeType.ALL])
     val tasks: MutableSet<Task> = mutableSetOf()
-
-    fun toModel(): AdminModel {
-        return AdminModel(
-            id = id!!,
-            webUserId = webUser.id!!,
-            accessToken = webUser.accessToken
-        )
-    }
 }

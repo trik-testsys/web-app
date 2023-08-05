@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 import trik.testsys.webclient.enums.WebUserStatuses
-import trik.testsys.webclient.models.AdminModel
 import trik.testsys.webclient.services.SuperUserService
 import trik.testsys.webclient.services.WebUserService
 import trik.testsys.webclient.models.ResponseMessage
@@ -92,16 +91,6 @@ class SuperUserController {
         return model
     }
 
-    @ApiResponses(
-        ApiResponse(
-            code = 201,
-            message = "Web user successfully raised to admin. New admin created.",
-            response = AdminModel::class
-        ),
-        ApiResponse(code = 403, message = "Client is not a super user.", response = ResponseMessage::class),
-        ApiResponse(code = 404, message = "Web user not found.", response = ResponseMessage::class),
-        ApiResponse(code = 409, message = "Web user is already an admin.", response = ResponseMessage::class)
-    )
     @PostMapping("/webUser/raise", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun raiseWebUserToAdmin(
         @RequestParam accessToken: String,
@@ -157,10 +146,6 @@ class SuperUserController {
         return model
     }
 
-    @ApiResponses(
-        ApiResponse(code = 201, message = "New admin successfully created.", response = AdminModel::class),
-        ApiResponse(code = 403, message = "Client is not a super user.", response = ResponseMessage::class),
-    )
     @PostMapping("/admin/create", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun createAdmin(
         @RequestParam accessToken: String,
