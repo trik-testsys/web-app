@@ -24,9 +24,7 @@
                 <h3>Здравствуйте, <span th:text="${username}"></span>!</h3>
                 <p>На этой странице вы можете:</p>
                 <ul>
-                    <li>Загрузить задачу;</li>
-                    <li>Удалить задачу;</li>
-                    <li>Изменить задачу;</li>
+                    <li>Загрузить/
                     <li>Просмотреть список всех задач;</li>
                     <li>Открыть доступ к задаче выбранным Администраторам.</li>
                 </ul>
@@ -36,6 +34,19 @@
                                              onclick="copy('accessToken')">ed30da0f75d595465d6977e2fd551d2026cc3ff66dd5bd958ac2a50807684cb7</span>.</b>
                 </p>
             </div>
+        </div>
+    </div>
+    <form class="uploadForm">
+        <input type="submit" id="uploadTask" value="Загрузить" />
+    </form>
+    <div id="uploadPopup" class="popup">
+        <div class="popup-content">
+            <h1>
+                Задача успешно загружена!
+            </h1>
+            <button id="closeUpload">
+                Закрыть
+            </button>
         </div>
     </div>
 </div>
@@ -96,7 +107,7 @@
         border-radius: 10px;
     }
 
-    .header > .exit > form > input[type="submit"]:hover, .data-header > button:hover {
+    .header > .exit > form > input[type="submit"]:hover, .popup-content button, .uploadForm input[type="submit"]:hover {
         background-color: var(--trik-green);
         color: var(--trik-blue);
         cursor: pointer;
@@ -156,6 +167,35 @@
         align-items: center;
         width: 20%;
     }
+
+    .popup {
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.4);
+        display: none;
+    }
+    .popup-content {
+        margin: 10% auto;
+        padding: 20px;
+        width: 30%;
+    }
+    .popup-content button {
+        display: block;
+        margin: 0 auto;
+    }
+    .show {
+        display: block;
+    }
+    h1 {
+        color: var(--trik-blue);
+        font-size: 30px;
+        text-align: center;
+    }
 </style>
 
 <script>
@@ -169,4 +209,16 @@
         document.execCommand("Copy");
         textArea.remove();
     }
+
+    uploadTask.addEventListener("click", function () {
+        uploadPopup.classList.add("show");
+    });
+    closeUpload.addEventListener("click", function () {
+        uploadPopup.classList.remove("show");
+    });
+    window.addEventListener("click", function (event) {
+        if (event.target == uploadPopup) {
+            uploadPopup.classList.remove("show");
+        }
+    });
 </script>
