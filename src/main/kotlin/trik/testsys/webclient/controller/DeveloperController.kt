@@ -1,7 +1,14 @@
 package trik.testsys.webclient.controller
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.core.io.Resource
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
+import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -19,6 +26,7 @@ import trik.testsys.webclient.service.TaskService
 import trik.testsys.webclient.service.WebUserService
 import trik.testsys.webclient.util.fp.Either
 import trik.testsys.webclient.util.logger.TrikLogger
+import java.net.http.HttpResponse.ResponseInfo
 
 /**
  * @author Roman Shishkin
@@ -27,6 +35,9 @@ import trik.testsys.webclient.util.logger.TrikLogger
 @RestController
 @RequestMapping("\${app.testsys.api.prefix}/developer")
 class DeveloperController @Autowired constructor(
+    @Value("\${app.grading-system.path}")
+    private val gradingSystemUrl: String,
+
     private val developerService: DeveloperService,
     private val webUserService: WebUserService,
     private val taskService: TaskService
@@ -48,13 +59,13 @@ class DeveloperController @Autowired constructor(
     ): ModelAndView {
         logger.info(accessToken, "Client trying to access developer page.")
 
-        val isDeveloper = validateDeveloper(accessToken)
-        if (isDeveloper.isLeft()) {
-            return isDeveloper.getLeft()
+        val eitherDeveloperEntities = validateDeveloper(accessToken)
+        if (eitherDeveloperEntities.isLeft()) {
+            return eitherDeveloperEntities.getLeft()
         }
 
-        val webUser = webUserService.getWebUserByAccessToken(accessToken)
-        val username = webUser?.username ?: logger.errorAndThrow(accessToken, "Parameter 'username' is null.")
+        val (_, webUser) = eitherDeveloperEntities.getRight()
+        val username = webUser.username
 
         val developerModel = DeveloperModel.Builder()
             .accessToken(accessToken)
@@ -66,7 +77,7 @@ class DeveloperController @Autowired constructor(
         return modelAndView
     }
 
-    @GetMapping("/task/create")
+    @PostMapping("/task/create")
     fun createTask(
         @RequestParam accessToken: String,
         @RequestParam name: String,
@@ -82,19 +93,68 @@ class DeveloperController @Autowired constructor(
         if (eitherDeveloperEntities.isLeft()) {
             return eitherDeveloperEntities.getLeft()
         }
+        modelAndView.viewName = DEVELOPER_VIEW_NAME
 
-        val webUser = eitherDeveloperEntities.getRight().webUser
-        val developer = eitherDeveloperEntities.getRight().developer
+        val (developer, webUser) = eitherDeveloperEntities.getRight()
+        val developerModelBuilder = DeveloperModel.Builder()
+            .accessToken(accessToken)
+            .username(webUser.username)
 
         modelAndView.addObject("accessToken", accessToken)
 
-        restTemplate.errorHandler = GradingSystemErrorHandler()
         val testsCount = tests.size.toLong()
         val task = taskService.saveTask(name, description, testsCount, developer, training, benchmark)
 
-        val headers = org.springframework.http.HttpHeaders()
+        val isTaskPosted = postTask(name, tests, benchmark, training)
+        if (!isTaskPosted) {
+            developerModelBuilder.postTaskMessage("Задача '${task.fullName}' не была загружена на сервер, попробуйте еще раз.")
+            val developerModel = developerModelBuilder.build()
+            modelAndView.addAllObjects(developerModel.asMap())
 
-        TODO()
+            return modelAndView
+        }
+        logger.info(accessToken, "Task '${task.fullName}' was successfully posted.")
+
+        developerModelBuilder.postTaskMessage("Задача '${task.fullName}' была успешно загружена на сервер.")
+        val developerModel = developerModelBuilder.build()
+        modelAndView.addAllObjects(developerModel.asMap())
+
+        return modelAndView
+    }
+
+    private fun postTask(
+        name: String,
+        tests: List<MultipartFile>,
+        benchmark: MultipartFile?,
+        training: MultipartFile?
+    ): Boolean {
+        val restTemplate = RestTemplate()
+        restTemplate.errorHandler = GradingSystemErrorHandler()
+
+        val headers = HttpHeaders()
+        headers.contentType = MediaType.MULTIPART_FORM_DATA
+        headers.setBasicAuth("admin", "admin") // TODO("Change to real credentials.")
+
+        val body = LinkedMultiValueMap<String, Any>()
+        body.add("taskName", name)
+
+        tests.forEach { body.add("files", it.resource) }
+        benchmark?.let { body.add("benchmark", it.resource) }
+        training?.let { body.add("training", it.resource) }
+
+        val url = "$gradingSystemUrl/task/create"
+        val responseInfo = restTemplate.postForEntity(
+            url,
+            body,
+            Map::class.java
+        )
+
+        if (responseInfo.statusCode != HttpStatus.OK) {
+            logger.error("Error while creating task '$name': ${responseInfo.statusCode}")
+            return false
+        }
+
+        return true
     }
 
     private fun validateDeveloper(accessToken: String): Either<ModelAndView, DeveloperEntities> {
@@ -117,14 +177,15 @@ class DeveloperController @Autowired constructor(
         return Either.right(developerEntities)
     }
 
-    data class DeveloperEntities(
+    private data class DeveloperEntities(
         val developer: Developer,
         val webUser: WebUser,
     )
 
     companion object {
         private val logger = TrikLogger(this::class.java)
-        private val restTemplate = RestTemplate()
+
         private const val DEVELOPER_VIEW_NAME = "developer"
+        private const val POST_TASK_MESSAGE = "postTaskMessage"
     }
 }

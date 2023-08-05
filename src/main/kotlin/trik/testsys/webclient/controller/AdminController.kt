@@ -105,66 +105,6 @@ class AdminController @Autowired constructor(
         return model
     }
 
-//    @PostMapping("/task/create")
-//    fun createTask(
-//        @RequestParam accessToken: String,
-//        @RequestParam groupAccessToken: String,
-//        @RequestParam name: String,
-//        @RequestParam description: String,
-//        @RequestBody tests: List<MultipartFile>,
-//        model: Model
-//    ): Any {
-//        restTemplate.errorHandler = GradingSystemErrorHandler()
-//        logger.info("[${accessToken.padStart(80)}]: Client trying to create a task.")
-//
-//        val eitherEntities = getAdminEntities(accessToken, groupAccessToken)
-//        if (eitherEntities.isLeft()) {
-//            return eitherEntities.getLeft()
-//        }
-//        val (webUser, _, group) = eitherEntities.getRight()
-//
-//        model.addAttribute("accessToken", webUser.accessToken)
-//        model.addAttribute("groupAccessToken", group.accessToken)
-//
-//        val task = taskService.saveTask(name, description, group.accessToken, tests.size.toLong())!!
-//
-//        val headers = HttpHeaders()
-//        headers.contentType = MediaType.MULTIPART_FORM_DATA
-//        headers.setBasicAuth("user1", "super")
-//
-//        val body = LinkedMultiValueMap<String, Any>()
-//        tests.forEach {
-//            body.add("files", it.resource)
-//        }
-//        body.add("taskName", "${task.id}: ${task.name}")
-//
-//        val url = "$gradingSystemUrl/tasks/create"
-//
-//        val responseInfo = restTemplate.postForEntity(
-//            url,
-//            HttpEntity(body, headers),
-//            Map::class.java
-//        )
-//
-//        if (responseInfo.statusCode == HttpStatus.CONFLICT) {
-//            logger.info("[${accessToken.padStart(80)}]: Task not created.")
-//
-//            model.addAttribute("isCreated", false)
-//            model.addAttribute("message", "Задача с таким названием уже существует.")
-//
-//            return model
-//        }
-//
-//        logger.info("[${accessToken.padStart(80)}]: Task created.")
-//
-//        model.addAttribute("isCreated", true)
-//        model.addAttribute("id", task.id!!)
-//        model.addAttribute("name", task.name)
-//        model.addAttribute("groupName", group.name)
-//
-//        return model
-//    }
-
     @GetMapping("/task")
     fun getTaskSolutions(
         @RequestParam accessToken: String,

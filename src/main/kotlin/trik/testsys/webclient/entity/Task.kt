@@ -39,6 +39,9 @@ class Task(
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
     var hasTraining: Boolean = false
 
+    @Column(nullable = false)
+    var fullName: String = "$id: $name"
+
     @ManyToMany(cascade = [CascadeType.ALL])
     @JoinTable(
         name = "TASKS_BY_ADMINS",

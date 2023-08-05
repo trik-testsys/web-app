@@ -24,7 +24,7 @@
                 <h3>Здравствуйте, <span th:text="${username}"></span>!</h3>
                 <p>На этой странице вы можете:</p>
                 <ul>
-                    <li>Загрузить/
+                    <li>Загрузить/изменить/удалить задачу;</li>
                     <li>Просмотреть список всех задач;</li>
                     <li>Открыть доступ к задаче выбранным Администраторам.</li>
                 </ul>
@@ -36,14 +36,18 @@
             </div>
         </div>
     </div>
-    <form class="uploadForm">
-        <input type="submit" id="uploadTask" value="Загрузить" />
+    <form class="uploadForm" th:action="@{/v1/testsys/developer/task/create}" method="post" enctype="multipart/form-data">
+        <input type="text" name="name" placeholder="Название задачи" required/>
+        <input type="text" name="description" placeholder="Описание задачи" required/>
+        <input type="text" name="accessToken" th:value="${accessToken}" style="display: none"/>
+        <input type="file" multiple="multiple" name="tests" accept=".xml" required/>
+        <input type="file" name="benchmark" accept=".qrs"/>
+        <input type="file" name="training" accept=".qrs"/>
+        <input type="submit" id="uploadTask" value="Загрузить"/>
     </form>
     <div id="uploadPopup" class="popup">
         <div class="popup-content">
-            <h1>
-                Задача успешно загружена!
-            </h1>
+            <h1><span th:text="${postTaskMessage}"></span></h1>
             <button id="closeUpload">
                 Закрыть
             </button>
@@ -179,16 +183,23 @@
         background-color: rgba(0, 0, 0, 0.4);
         display: none;
     }
+
     .popup-content {
         margin: 10% auto;
         padding: 20px;
         width: 30%;
+        background: var(--trik-white);
+        border-radius: 10px;
+        border: 2px solid var(--trik-blue);
     }
+
     .popup-content button {
         display: block;
         margin: 0 auto;
     }
+
     .show {
+
         display: block;
     }
     h1 {
