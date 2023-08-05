@@ -7,12 +7,10 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
-import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Controller
 import org.springframework.web.client.RestTemplate
 
-import trik.testsys.webclient.GradingSystemErrorHandler
-import trik.testsys.webclient.enums.SolutionsStatuses
+import trik.testsys.webclient.entities.Solution
 import trik.testsys.webclient.services.SolutionService
 
 /**
@@ -56,27 +54,27 @@ class SolutionController(@Value("\${app.grading-system.path}") val gradingSystem
             when (statuses[solution.gradingId.toInt()]) {
                 100 -> {
                     logger.info("Solution ${solution.id} is in queue.")
-                    solution.status = SolutionsStatuses.NOT_STARTED
+                    solution.status = Solution.Status.NOT_STARTED
                 }
                 102 -> {
                     logger.info("Solution ${solution.id} is in progress.")
-                    solution.status = SolutionsStatuses.IN_PROGRESS
+                    solution.status = Solution.Status.IN_PROGRESS
                 }
                 202 -> {
                     logger.info("Solution ${solution.id} is accepted.")
-                    solution.status = SolutionsStatuses.PASSED
+                    solution.status = Solution.Status.PASSED
                 }
                 406 -> {
                     logger.info("Solution ${solution.id} is failed.")
-                    solution.status = SolutionsStatuses.FAILED
+                    solution.status = Solution.Status.FAILED
                 }
                 500 -> {
                     logger.info("Solution ${solution.id} is error.")
-                    solution.status = SolutionsStatuses.FAILED
+                    solution.status = Solution.Status.FAILED
                 }
                 null -> {
                     logger.info("Solution ${solution.id} is not found.")
-                    solution.status = SolutionsStatuses.ERROR
+                    solution.status = Solution.Status.ERROR
                 }
             }
             solutionService.saveSolution(solution)

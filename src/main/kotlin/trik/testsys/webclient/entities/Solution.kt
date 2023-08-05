@@ -1,6 +1,5 @@
 package trik.testsys.webclient.entities
 
-import trik.testsys.webclient.enums.SolutionsStatuses
 import java.util.Date
 import javax.persistence.*
 
@@ -31,8 +30,20 @@ class Solution(
     var countOfPassedTests: Long = 0L
 
     @Column(nullable = false, columnDefinition = "BIGINT DEFAULT 3")
-    var status: SolutionsStatuses = SolutionsStatuses.NOT_STARTED
+    var status: Status = Status.NOT_STARTED
 
     @Column(nullable = false)
     var date: Date = Date()
+
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
+    enum class Status {
+        FAILED,
+        PASSED,
+        IN_PROGRESS,
+        NOT_STARTED,
+        ERROR
+    }
 }

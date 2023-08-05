@@ -1,8 +1,5 @@
 package trik.testsys.webclient.controllers
 
-import io.swagger.annotations.ApiResponse
-import io.swagger.annotations.ApiResponses
-
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -15,12 +12,11 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import trik.testsys.webclient.entities.WebUser
 
-import trik.testsys.webclient.enums.WebUserStatuses
 import trik.testsys.webclient.services.SuperUserService
 import trik.testsys.webclient.services.WebUserService
 import trik.testsys.webclient.models.ResponseMessage
-import trik.testsys.webclient.models.WebUserModel
 import trik.testsys.webclient.services.AdminService
 
 
@@ -44,7 +40,7 @@ class SuperUserController {
         logger.info("[${accessToken.padStart(80)}]: Client trying to access super user page.")
 
         val status = validateSuperUser(accessToken)
-        if (status != WebUserStatuses.SUPER_USER) {
+        if (status != WebUser.Status.SUPER_USER) {
             logger.info("[${accessToken.padStart(80)}]: Client is not a super user.")
             return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
@@ -60,10 +56,6 @@ class SuperUserController {
         return model
     }
 
-    @ApiResponses(
-        ApiResponse(code = 201, message = "New web user successfully created.", response = WebUserModel::class),
-        ApiResponse(code = 403, message = "Client is not a super user.", response = ResponseMessage::class),
-    )
     @PostMapping("/webUser/create", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun createWebUser(
         @RequestParam accessToken: String,
@@ -73,7 +65,7 @@ class SuperUserController {
         logger.info("[${accessToken.padStart(80)}]: Client trying to create web user.")
 
         val status = validateSuperUser(accessToken)
-        if (status != WebUserStatuses.SUPER_USER) {
+        if (status != WebUser.Status.SUPER_USER) {
             logger.info("[${accessToken.padStart(80)}]: Client is not a super user.")
             return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
@@ -100,7 +92,7 @@ class SuperUserController {
         logger.info("[${accessToken.padStart(80)}]: Client trying to raise web user to admin.")
 
         val status = validateSuperUser(accessToken)
-        if (status != WebUserStatuses.SUPER_USER) {
+        if (status != WebUser.Status.SUPER_USER) {
             logger.info("[${accessToken.padStart(80)}]: Client is not a super user.")
             return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
@@ -155,7 +147,7 @@ class SuperUserController {
         logger.info("[${accessToken.padStart(80)}]: Client trying to create admin.")
 
         val status = validateSuperUser(accessToken)
-        if (status != WebUserStatuses.SUPER_USER) {
+        if (status != WebUser.Status.SUPER_USER) {
             logger.info("[${accessToken.padStart(80)}]: Client is not a super user.")
             return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
@@ -179,10 +171,10 @@ class SuperUserController {
     }
 
 
-    private fun validateSuperUser(accessToken: String): WebUserStatuses {
-        val webUser = webUserService.getWebUserByAccessToken(accessToken) ?: return WebUserStatuses.NOT_FOUND
-        superUserService.getSuperUserByWebUserId(webUser.id!!) ?: return WebUserStatuses.WEB_USER
+    private fun validateSuperUser(accessToken: String): Enum<*> {
+        val webUser = webUserService.getWebUserByAccessToken(accessToken) ?: return WebUser.Status.NOT_FOUND
+        superUserService.getSuperUserByWebUserId(webUser.id!!) ?: return WebUser.Status.WEB_USER
 
-        return WebUserStatuses.SUPER_USER
+        return WebUser.Status.SUPER_USER
     }
 }

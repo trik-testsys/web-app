@@ -19,7 +19,7 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.web.multipart.MultipartFile
 
 import trik.testsys.webclient.GradingSystemErrorHandler
-import trik.testsys.webclient.enums.WebUserStatuses
+import trik.testsys.webclient.entities.WebUser
 import trik.testsys.webclient.models.ResponseMessage
 import trik.testsys.webclient.services.*
 
@@ -96,7 +96,7 @@ class StudentController(@Value("\${app.grading-system.path}") val gradingSystemU
         logger.info("[${accessToken.padStart(80)}]: Client trying to access student page.")
 
         val status = validateStudent(accessToken)
-        if (status == WebUserStatuses.NOT_FOUND || status == WebUserStatuses.ADMIN) {
+        if (status == WebUser.Status.NOT_FOUND || status == WebUser.Status.ADMIN) {
             logger.info("[${accessToken.padStart(80)}]: Client is not a student.")
             return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
@@ -127,7 +127,7 @@ class StudentController(@Value("\${app.grading-system.path}") val gradingSystemU
         logger.info("[${accessToken.padStart(80)}]: Client trying to upload solution.")
 
         val status = validateStudent(accessToken)
-        if (status == WebUserStatuses.NOT_FOUND || status == WebUserStatuses.ADMIN) {
+        if (status == WebUser.Status.NOT_FOUND || status == WebUser.Status.ADMIN) {
             logger.info("[${accessToken.padStart(80)}]: Client is not a student.")
             return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
@@ -195,15 +195,15 @@ class StudentController(@Value("\${app.grading-system.path}") val gradingSystemU
         return model
     }
 
-    private fun validateStudent(accessToken: String): WebUserStatuses {
+    private fun validateStudent(accessToken: String): Enum<*> {
         val webUser = webUserService.getWebUserByAccessToken(accessToken) ?: run {
-            return WebUserStatuses.NOT_FOUND
+            return WebUser.Status.NOT_FOUND
         }
 
         val student = studentService.getByWebUser(webUser) ?: run {
-            return WebUserStatuses.ADMIN
+            return WebUser.Status.ADMIN
         }
 
-        return WebUserStatuses.WEB_USER
+        return WebUser.Status.WEB_USER
     }
 }

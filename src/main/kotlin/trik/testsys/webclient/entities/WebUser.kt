@@ -1,6 +1,5 @@
 package trik.testsys.webclient.entities
 
-import trik.testsys.webclient.models.WebUserModel
 import javax.persistence.*
 
 @Entity
@@ -30,4 +29,16 @@ class WebUser(
 
     @OneToMany(mappedBy = "webUser", cascade = [CascadeType.ALL])
     val students: MutableSet<Student> = mutableSetOf()
+
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
+    enum class Status {
+        NOT_FOUND,
+        ADMIN,
+        SUPER_USER,
+        WEB_USER,
+        DEVELOPER
+    }
 }

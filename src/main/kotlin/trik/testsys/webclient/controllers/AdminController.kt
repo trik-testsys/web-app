@@ -5,22 +5,17 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.*
 import org.springframework.ui.Model
-import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.client.RestTemplate
-import org.springframework.web.multipart.MultipartFile
 
-import trik.testsys.webclient.GradingSystemErrorHandler
-import trik.testsys.webclient.enums.SolutionsStatuses
 import trik.testsys.webclient.models.ResponseMessage
 import trik.testsys.webclient.services.*
 import trik.testsys.webclient.utils.logger.TrikLogger
 import trik.testsys.webclient.entities.Admin
 import trik.testsys.webclient.entities.Group
+import trik.testsys.webclient.entities.Solution
 import trik.testsys.webclient.entities.WebUser
 import trik.testsys.webclient.utils.fp.Either
-
-import java.util.*
 
 
 @RestController
@@ -303,11 +298,11 @@ class AdminController @Autowired constructor(
                 logger.warn("Task: $task")
 
                 val failedSolution =
-                    student.solutions.find { it.task == task && (it.status == SolutionsStatuses.FAILED || it.status == SolutionsStatuses.ERROR) }
+                    student.solutions.find { it.task == task && (it.status == Solution.Status.FAILED || it.status == Solution.Status.ERROR) }
                 val passedSolution =
-                    student.solutions.find { it.task == task && it.status == SolutionsStatuses.PASSED }
+                    student.solutions.find { it.task == task && it.status == Solution.Status.PASSED }
                 val inProgressSolution =
-                    student.solutions.find { it.task == task && (it.status == SolutionsStatuses.IN_PROGRESS || it.status == SolutionsStatuses.NOT_STARTED) }
+                    student.solutions.find { it.task == task && (it.status == Solution.Status.IN_PROGRESS || it.status == Solution.Status.NOT_STARTED) }
 
                 if (failedSolution != null) {
                     taskList[task.id!!.toInt()] = 0
