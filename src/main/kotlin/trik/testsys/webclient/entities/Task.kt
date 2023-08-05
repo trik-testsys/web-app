@@ -33,6 +33,12 @@ class Task(
     @OneToMany(mappedBy = "task", cascade = [CascadeType.ALL])
     val solutions: MutableSet<Solution> = mutableSetOf()
 
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    var hasBenchmark: Boolean = false
+
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    var hasTraining: Boolean = false
+
     @ManyToMany(cascade = [CascadeType.ALL])
     @JoinTable(
         name = "TASKS_BY_ADMINS",
