@@ -13,6 +13,7 @@ import org.springframework.web.servlet.ModelAndView
 import trik.testsys.webclient.util.handler.GradingSystemErrorHandler
 import trik.testsys.webclient.entity.Developer
 import trik.testsys.webclient.entity.WebUser
+import trik.testsys.webclient.model.DeveloperModel
 import trik.testsys.webclient.service.DeveloperService
 import trik.testsys.webclient.service.TaskService
 import trik.testsys.webclient.service.WebUserService
@@ -30,8 +31,6 @@ class DeveloperController @Autowired constructor(
     private val webUserService: WebUserService,
     private val taskService: TaskService
 ) {
-
-    private val restTemplate = RestTemplate()
 
     @GetMapping("/test")
     fun test(): ModelAndView {
@@ -54,9 +53,16 @@ class DeveloperController @Autowired constructor(
             return isDeveloper.getLeft()
         }
 
-        modelAndView.viewName = "developer"
-        modelAndView.addObject("accessToken", accessToken)
-        modelAndView.addObject("username", webUserService.getWebUserByAccessToken(accessToken)?.username)
+        val webUser = webUserService.getWebUserByAccessToken(accessToken)
+        val username = webUser?.username ?: logger.errorAndThrow(accessToken, "Parameter 'username' is null.")
+
+        val developerModel = DeveloperModel.Builder()
+            .accessToken(accessToken)
+            .username(username)
+            .build()
+
+        modelAndView.viewName = DEVELOPER_VIEW_NAME
+        modelAndView.addAllObjects(developerModel.asMap())
         return modelAndView
     }
 
@@ -118,5 +124,7 @@ class DeveloperController @Autowired constructor(
 
     companion object {
         private val logger = TrikLogger(this::class.java)
+        private val restTemplate = RestTemplate()
+        private const val DEVELOPER_VIEW_NAME = "developer"
     }
 }
