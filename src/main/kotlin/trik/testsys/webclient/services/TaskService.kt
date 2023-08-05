@@ -2,6 +2,8 @@ package trik.testsys.webclient.services
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import org.springframework.web.multipart.MultipartFile
+import trik.testsys.webclient.entities.Developer
 
 import trik.testsys.webclient.entities.Task
 import trik.testsys.webclient.repositories.TaskRepository
@@ -15,18 +17,21 @@ class TaskService {
     @Autowired
     private lateinit var groupService: GroupService
 
-    fun saveTask(name: String, description: String, groupAccessToken: String, testsCount: Long): Task? {
-        val group = groupService.getGroupByAccessToken(groupAccessToken) ?: return null
+    fun saveTask(
+        name: String,
+        description: String,
+        testsCount: Long,
+        developer: Developer,
+        training: MultipartFile?,
+        benchmark: MultipartFile?,
+    ): Task {
+        val task = Task(name, description, developer)
 
-        TODO()
-//        val task = Task(name, description)
-//
-//        task.countOfTests = testsCount
-//
-//        task.groups.add(group)
-//        group.tasks.add(task)
-//
-//        return taskRepository.save(task)
+        task.countOfTests = testsCount
+        task.hasBenchmark = benchmark != null
+        task.hasTraining = training != null
+
+        return taskRepository.save(task)
     }
 
     fun getAllGroupTasks(groupId: Long): Set<Task>? {
