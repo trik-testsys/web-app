@@ -2,7 +2,6 @@ package trik.testsys.webclient.controller
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.core.io.Resource
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -26,7 +25,6 @@ import trik.testsys.webclient.service.TaskService
 import trik.testsys.webclient.service.WebUserService
 import trik.testsys.webclient.util.fp.Either
 import trik.testsys.webclient.util.logger.TrikLogger
-import java.net.http.HttpResponse.ResponseInfo
 
 /**
  * @author Roman Shishkin
@@ -105,22 +103,70 @@ class DeveloperController @Autowired constructor(
         val testsCount = tests.size.toLong()
         val task = taskService.saveTask(name, description, testsCount, developer, training, benchmark)
 
-        val isTaskPosted = postTask(name, tests, benchmark, training)
-        if (!isTaskPosted) {
-            developerModelBuilder.postTaskMessage("Задача '${task.fullName}' не была загружена на сервер, попробуйте еще раз.")
-            val developerModel = developerModelBuilder.build()
-            modelAndView.addAllObjects(developerModel.asMap())
+//        val isTaskPosted = postTask(name, tests, benchmark, training)
+//        if (!isTaskPosted) {
+//            developerModelBuilder.postTaskMessage("Задача '${task.fullName}' не была загружена на сервер, попробуйте еще раз.")
+//            val developerModel = developerModelBuilder.build()
+//            modelAndView.addAllObjects(developerModel.asMap())
+//
+//            return modelAndView
+//        }
+        logger.info(accessToken, "Task '${task.getFullName()}' was successfully posted.")
 
-            return modelAndView
-        }
-        logger.info(accessToken, "Task '${task.fullName}' was successfully posted.")
-
-        developerModelBuilder.postTaskMessage("Задача '${task.fullName}' была успешно загружена на сервер.")
+        developerModelBuilder.postTaskMessage("Задача '${task.getFullName()}' была успешно загружена на сервер.")
         val developerModel = developerModelBuilder.build()
         modelAndView.addAllObjects(developerModel.asMap())
 
         return modelAndView
     }
+
+//    @PostMapping("/task/delete")
+//    fun deleteTask(
+//        @RequestParam accessToken: String,
+//        @RequestParam taskId: Long,
+//        modelAndView: ModelAndView
+//    ): ModelAndView {
+//        logger.info(accessToken, "Client trying to delete task.")
+//
+//        val eitherDeveloperEntities = validateDeveloper(accessToken)
+//        if (eitherDeveloperEntities.isLeft()) {
+//            return eitherDeveloperEntities.getLeft()
+//        }
+//        modelAndView.viewName = DEVELOPER_VIEW_NAME
+//
+//        val (_, webUser) = eitherDeveloperEntities.getRight()
+//        val developerModelBuilder = DeveloperModel.Builder()
+//            .accessToken(accessToken)
+//            .username(webUser.username)
+//
+//        modelAndView.addObject("accessToken", accessToken)
+//
+//        val task = taskService.getTaskById(taskId)
+//        if (task == null) {
+//            developerModelBuilder.deleteTaskMessage("Задача с id '$taskId' не найдена.")
+//            val developerModel = developerModelBuilder.build()
+//            modelAndView.addAllObjects(developerModel.asMap())
+//
+//            return modelAndView
+//        }
+//
+//        val isTaskDeleted = deleteTask(task)
+//        if (!isTaskDeleted) {
+//            developerModelBuilder.deleteTaskMessage("Задача '${task.fullName}' не была удалена с сервера, попробуйте еще раз.")
+//            val developerModel = developerModelBuilder.build()
+//            modelAndView.addAllObjects(developerModel.asMap())
+//
+//            return modelAndView
+//        }
+//        logger.info(accessToken, "Task '${task.fullName}' was successfully deleted.")
+//
+//        taskService.deleteTask(task)
+//        developerModelBuilder.deleteTaskMessage("Задача '${task.fullName}' была успешно удалена с сервера.")
+//        val developerModel = developerModelBuilder.build()
+//        modelAndView.addAllObjects(developerModel.asMap())
+//
+//        return modelAndView
+//    }
 
     private fun postTask(
         name: String,

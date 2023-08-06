@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository
 import trik.testsys.webclient.entity.Task
 
 @Repository
-interface TaskRepository: CrudRepository<Task, String> {
+interface TaskRepository: CrudRepository<Task, Long> {
 
     fun findTaskById(id: Long): Task?
 }
