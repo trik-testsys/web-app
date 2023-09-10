@@ -101,7 +101,7 @@ class DeveloperController @Autowired constructor(
         modelAndView.addObject("accessToken", accessToken)
 
         val testsCount = tests.size.toLong()
-        val task = taskService.saveTask(name, description, testsCount, developer, training, benchmark)
+        val task = taskService.saveTask(name, description, developer, tests, training, benchmark)
 
 //        val isTaskPosted = postTask(name, tests, benchmark, training)
 //        if (!isTaskPosted) {

@@ -3,19 +3,18 @@ package trik.testsys.webclient.service
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
-import trik.testsys.webclient.entity.Developer
 
+import trik.testsys.webclient.entity.Developer
 import trik.testsys.webclient.entity.Task
+import trik.testsys.webclient.entity.TrikFile
 import trik.testsys.webclient.repository.TaskRepository
 
 @Service
-class TaskService {
-
-    @Autowired
-    private lateinit var taskRepository: TaskRepository
-
-    @Autowired
-    private lateinit var groupService: GroupService
+class TaskService @Autowired constructor(
+    private val taskRepository: TaskRepository,
+    private val groupService: GroupService,
+    private val trikFileService: TrikFileService,
+) {
 
     /**
      * @return Saved [Task] if it was saved, [null] otherwise
@@ -25,17 +24,31 @@ class TaskService {
     fun saveTask(
         name: String,
         description: String,
-        testsCount: Long,
         developer: Developer,
+        tests: List<MultipartFile>,
         training: MultipartFile?,
         benchmark: MultipartFile?,
     ): Task {
         val task = Task(name, description, developer)
+        task.countOfTests = tests.size.toLong()
+        taskRepository.save(task)
 
-        task.countOfTests = testsCount
         task.hasBenchmark = benchmark != null
         task.hasTraining = training != null
 
+        val allFiles = tests.map { TrikFile(task, it.originalFilename!!, TrikFile.Type.TEST) }.toMutableSet()
+
+        benchmark ?.let {
+            val benchmarkFile = TrikFile(task, benchmark.originalFilename!!, TrikFile.Type.BENCHMARK)
+            allFiles.add(benchmarkFile)
+        }
+
+        training ?.let {
+            val trainingFile = TrikFile(task, training.originalFilename!!, TrikFile.Type.TRAINING)
+            allFiles.add(trainingFile)
+        }
+
+        task.trikFiles = allFiles
         return taskRepository.save(task)
     }
 

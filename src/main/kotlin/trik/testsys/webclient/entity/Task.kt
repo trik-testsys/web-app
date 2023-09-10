@@ -2,16 +2,19 @@ package trik.testsys.webclient.entity
 
 import javax.persistence.*
 
-
 @Entity
 @Table(name = "TASKS")
 class Task(
     @Column(nullable = false, columnDefinition = "VARCHAR(50) DEFAULT ''")
-    val name: String,
+    var name: String,
 
     @Column(nullable = false, columnDefinition = "VARCHAR(200) DEFAULT ''")
-    val description: String,
+    var description: String,
 
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
     @ManyToOne(cascade = [CascadeType.ALL])
     @JoinColumn(
         name = "developer_id", referencedColumnName = "id",
@@ -33,15 +36,31 @@ class Task(
     @OneToMany(mappedBy = "task", cascade = [CascadeType.ALL])
     val solutions: MutableSet<Solution> = mutableSetOf()
 
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
     var hasBenchmark: Boolean = false
 
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
     var hasTraining: Boolean = false
 
-    @Column(nullable = false)
-    var fullName: String = "$id: $name"
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
+    @OneToMany(mappedBy = "task", cascade = [CascadeType.ALL])
+    lateinit var trikFiles: MutableSet<TrikFile>
 
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
     @ManyToMany(cascade = [CascadeType.ALL])
     @JoinTable(
         name = "TASKS_BY_ADMINS",
@@ -49,4 +68,10 @@ class Task(
         inverseJoinColumns = [JoinColumn(name = "admin_id")]
     )
     lateinit var admins: MutableSet<Admin>
+
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
+    fun getFullName() = "$id: $name"
 }
