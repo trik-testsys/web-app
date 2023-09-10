@@ -27,6 +27,9 @@ class WebUser(
     @OneToOne(mappedBy = "webUser", cascade = [CascadeType.ALL])
     lateinit var superUser: SuperUser
 
+    @OneToOne(mappedBy = "webUser", cascade = [CascadeType.ALL])
+    lateinit var developer: Developer
+
     @OneToMany(mappedBy = "webUser", cascade = [CascadeType.ALL])
     val students: MutableSet<Student> = mutableSetOf()
 
