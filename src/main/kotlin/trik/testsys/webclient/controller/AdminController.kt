@@ -8,13 +8,10 @@ import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.client.RestTemplate
 
+import trik.testsys.webclient.entity.*
 import trik.testsys.webclient.models.ResponseMessage
 import trik.testsys.webclient.service.*
 import trik.testsys.webclient.util.logger.TrikLogger
-import trik.testsys.webclient.entity.Admin
-import trik.testsys.webclient.entity.Group
-import trik.testsys.webclient.entity.Solution
-import trik.testsys.webclient.entity.WebUser
 import trik.testsys.webclient.util.fp.Either
 
 
@@ -28,7 +25,8 @@ class AdminController @Autowired constructor(
     private val webUserService: WebUserService,
     private val groupService: GroupService,
     private val taskService: TaskService,
-    private val studentService: StudentService
+    private val studentService: StudentService,
+    private val labelService: LabelService
 ) {
 
     private val restTemplate = RestTemplate()
@@ -203,7 +201,11 @@ class AdminController @Autowired constructor(
     }
 
     @GetMapping("/group/table")
-    fun getGroupTable(@RequestParam accessToken: String, @RequestParam groupAccessToken: String, model: Model): Any {
+    fun getGroupTable(
+        @RequestParam accessToken: String,
+        @RequestParam groupAccessToken: String,
+        model: Model
+    ): Any {
         logger.info("[${accessToken.padStart(80)}]: Client trying to get group table.")
 
         val eitherEntities = getAdminEntities(accessToken, groupAccessToken)
@@ -299,6 +301,39 @@ class AdminController @Autowired constructor(
             .body(FileSystemResource(csvFile))
     }
 
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
+    @PostMapping("/group/add/label")
+    fun addLabelToGroup(
+        @RequestParam accessToken: String,
+        @RequestParam groupAccessToken: String,
+        @RequestParam labelName: String,
+        model: Model
+    ): ResponseEntity<out Any> {
+        logger.info(accessToken, "Client trying to add label to group.")
+
+        val eitherEntities = getAdminEntities(accessToken, groupAccessToken)
+        if (eitherEntities.isLeft()) {
+            return eitherEntities.getLeft()
+        }
+        val (_, _, group) = eitherEntities.getRight()
+
+        val label = labelService.getByName(labelName)?: run {
+            logger.info(accessToken, "Label not found. Creating new one.")
+            Label(labelName)
+        }
+        label.groups.add(group)
+        labelService.save(label)
+
+        group.labels.add(label)
+        groupService.save(group)
+
+        logger.info(accessToken, "Label added to group.")
+
+        return ResponseEntity.ok().build()
+    }
     /**
      * @author Roman Shishkin
      * @since 1.1.0
@@ -404,5 +439,7 @@ class AdminController @Autowired constructor(
 
     companion object {
         private val logger = TrikLogger(this::class.java)
+
+        private const val ADMIN_VIEW_NAME = "admin"
     }
 }

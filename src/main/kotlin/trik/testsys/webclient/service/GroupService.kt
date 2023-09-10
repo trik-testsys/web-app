@@ -21,6 +21,10 @@ class GroupService {
         return groupRepository.save(group)
     }
 
+    fun save(group: Group): Group {
+        return groupRepository.save(group)
+    }
+
     fun getGroupByAccessToken(accessToken: String): Group? {
         return groupRepository.findGroupByAccessToken(accessToken)
     }
