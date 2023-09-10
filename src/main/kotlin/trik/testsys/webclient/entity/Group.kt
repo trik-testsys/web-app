@@ -42,4 +42,12 @@ class Group(
         inverseJoinColumns = [JoinColumn(name = "task_id")]
     )
     lateinit var tasks: MutableSet<Task>
+
+    @ManyToMany(cascade = [CascadeType.ALL])
+    @JoinTable(
+        name = "GROUPS_BY_LABELS",
+        joinColumns = [JoinColumn(name = "group_id")],
+        inverseJoinColumns = [JoinColumn(name = "label_id")]
+    )
+    val labels = mutableSetOf<Label>()
 }
