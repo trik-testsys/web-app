@@ -39,7 +39,7 @@ class DeveloperController @Autowired constructor(
     private val developerService: DeveloperService,
     private val webUserService: WebUserService,
     private val taskService: TaskService
-) {
+) : TrikUserController {
 
     @GetMapping("/test")
     fun test(): ModelAndView {
@@ -51,7 +51,7 @@ class DeveloperController @Autowired constructor(
     }
 
     @GetMapping
-    fun getAccess(
+    override fun getAccess(
         @RequestParam accessToken: String,
         modelAndView: ModelAndView
     ): ModelAndView {
