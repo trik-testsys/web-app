@@ -10,7 +10,6 @@ import org.springframework.util.unit.DataUnit
 
 import javax.servlet.MultipartConfigElement
 
-
 @SpringBootApplication
 @Configuration
 class Application {

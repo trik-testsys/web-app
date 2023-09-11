@@ -27,4 +27,8 @@ server:
 
 app:
   version: 1.0.2
-  grading-system-url: http://grading-system:8080/v3/grading-system
+  grading-system:
+    path: http://grading-system:8080/v3/grading-system
+  testsys:
+    api:
+      prefix: /v1/testsys

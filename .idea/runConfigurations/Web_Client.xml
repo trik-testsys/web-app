@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Web Client" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
-    <module name="trik-testsys-web-client.main" />
+    <module name="Pupsen&amp;Vupsen.trik-testsys-web-client.main" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="trik.testsys.Application" />
     <extension name="coverage">
       <pattern>

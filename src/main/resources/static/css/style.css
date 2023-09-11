@@ -1,0 +1,149 @@
+:root {
+    --trik-blue: #001A42;
+    --trik-green: #99CC00;
+    --trik-white: #f2f3f4;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background: var(--trik-white)
+}
+
+.container {
+    margin: 0 auto;
+    width: 100%;
+    font-family: "Roboto", sans-serif;
+}
+
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 5px;
+    background-color: var(--trik-blue);
+    height: 50px;
+}
+
+.header > .page-type {
+    margin-left: 15px;
+    color: var(--trik-white);
+    font-size: 20px;
+}
+
+.header > .exit {
+    margin-right: 15px;
+}
+
+.header > .exit > form > input[type="submit"], .data-header > button {
+    background-color: var(--trik-blue);
+    border: none;
+    color: var(--trik-white);
+    padding: 5px 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 10px;
+}
+
+.header > .exit > form > input[type="submit"]:hover, .popup-content button, .uploadForm input[type="submit"]:hover {
+    background-color: var(--trik-green);
+    color: var(--trik-blue);
+    cursor: pointer;
+}
+
+.header .page-type {
+    margin-left: 0px;
+    display: flex;
+    align-items: center;
+}
+
+.header .page-type img {
+    width: 60px;
+    height: 60px;
+    margin: 0 15px 0 0;
+}
+
+.greeting {
+
+    font-size: 30px;
+    color: var(--trik-blue);
+}
+
+.main {
+    width: 80%;
+    margin: 80px auto 100px;
+}
+
+.greeting > h3 {
+    margin: 0;
+    font-size: 20px;
+}
+
+.greeting > p {
+    margin: 0;
+    font-size: 16px;
+}
+
+.greeting > ul {
+    margin: 0;
+    font-size: 16px;
+}
+
+.accessToken {
+    font-family: monospace;
+}
+
+.accessToken:hover {
+    cursor: pointer;
+    color: var(--trik-green);
+
+}
+
+.data-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 20%;
+}
+
+.popup {
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: none;
+}
+
+.popup-content {
+    margin: 10% auto;
+    padding: 20px;
+    width: 30%;
+    background: var(--trik-white);
+    border-radius: 10px;
+    border: 2px solid var(--trik-blue);
+}
+
+.popup-content button {
+    display: block;
+    margin: 0 auto;
+}
+
+.show {
+
+    display: block;
+}
+h1 {
+    color: var(--trik-blue);
+    font-size: 30px;
+    text-align: center;
+}
