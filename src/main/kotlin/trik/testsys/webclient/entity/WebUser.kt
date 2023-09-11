@@ -33,6 +33,9 @@ class WebUser(
     @OneToMany(mappedBy = "webUser", cascade = [CascadeType.ALL])
     val students: MutableSet<Student> = mutableSetOf()
 
+    @OneToOne(mappedBy = "webUser", cascade = [CascadeType.ALL])
+    lateinit var viewer: Viewer
+
     /**
      * @author Roman Shishkin
      * @since 1.1.0

@@ -19,7 +19,8 @@ class AccessController @Autowired constructor(
     private val adminService: AdminService,
     private val studentService: StudentService,
     private val groupService: GroupService,
-    private val developerService: DeveloperService
+    private val developerService: DeveloperService,
+    private val viewerService: ViewerService
 ) {
 
     @GetMapping("/access")
@@ -58,6 +59,12 @@ class AccessController @Autowired constructor(
             logger.info(accessToken, "Client is a student.")
 //            return RedirectView("https://srv3.trikset.com:8843/v1/testsys/student?accessToken=$accessToken")
             return RedirectView("/v1/testsys/student?accessToken=$accessToken")
+        }
+
+        viewerService.getByWebUser(webUser)?.let {
+            logger.info(accessToken, "Client is a viewer.")
+
+            return RedirectView("/v1/testsys/viewer?accessToken=$accessToken")
         }
 
         return model
