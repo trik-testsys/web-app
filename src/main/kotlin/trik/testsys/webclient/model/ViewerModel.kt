@@ -1,5 +1,6 @@
 package trik.testsys.webclient.model
 
+import trik.testsys.webclient.controller.ViewerController
 import trik.testsys.webclient.entity.Label
 import trik.testsys.webclient.util.exception.TrikException
 
@@ -12,7 +13,8 @@ class ViewerModel private constructor(
     val username: String?,
     val correctNames: Set<String>?,
     val incorrectNames: Set<String>?,
-    val labels: Set<Label>?
+    val labels: Set<Label>?,
+    val table: List<ViewerController.TableRow>?
 ) : TrikModel {
 
     class Builder internal constructor() {
@@ -22,6 +24,7 @@ class ViewerModel private constructor(
         private var correctNames: Set<String>? = null
         private var incorrectNames: Set<String>? = null
         private var labels: Set<Label>? = null
+        private var table: List<ViewerController.TableRow>? = null
 
         fun accessToken(accessToken: String) = apply { this.accessToken = accessToken }
 
@@ -33,12 +36,15 @@ class ViewerModel private constructor(
 
         fun labels(labels: Set<Label>) = apply { this.labels = labels }
 
+        fun table(table: List<ViewerController.TableRow>) = apply { this.table = table }
+
         fun build() = ViewerModel(
             accessToken ?: throw TrikException(String.format(PARAMETER_ERROR, ViewerModel::accessToken.name)),
             username,
             correctNames,
             incorrectNames,
-            labels
+            labels,
+            table
         )
     }
 
@@ -50,6 +56,7 @@ class ViewerModel private constructor(
         argsMap[this::correctNames.name] = correctNames
         argsMap[this::incorrectNames.name] = incorrectNames
         argsMap[this::labels.name] = labels
+        argsMap[this::table.name] = table
 
         return argsMap
     }
