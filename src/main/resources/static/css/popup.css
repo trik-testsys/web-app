@@ -1,0 +1,90 @@
+.popup {
+    position: fixed;
+    z-index: 101;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: none;
+}
+
+.popup-content {
+    margin: 10% auto;
+    padding: 20px;
+    width: 20%;
+    background: var(--trik-white);
+    border-radius: 10px;
+    border: 2px solid var(--trik-blue);
+}
+
+.popup-content > h1 {
+    margin: 0;
+    font-size: 20px;
+    color: var(--trik-blue);
+}
+
+.popup-content > form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.popup-content > form > input {
+    margin: 10px;
+    width: 80%;
+    height: 30px;
+    border: 1px solid var(--trik-white);
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.popup-content > form > input[type="submit"] {
+    width: 40%;
+    height: 40px;
+    background-color: var(--trik-blue);
+    color: var(--trik-white);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.popup-content > form > input[type="submit"]:hover {
+    color: var(--trik-blue);
+    background-color: var(--trik-green);
+}
+
+input[type="file"] {
+    display: none;
+}
+
+.popup-content > form > label.upload-file {
+    width: 80%;
+    height: 30px;
+    border: 1px solid var(--trik-white);
+    border-radius: 5px;
+    padding: 5px;
+    cursor: pointer;
+}
+
+label.upload-file {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/*change label.upload-file background if it has uploaded files*/
+.popup-content > form > label.upload-file:has(input[type="file"]:valid) {
+    background-color: var(--trik-green);
+    color: var(--trik-blue);
+}
+
+.popup-content > form > label.upload-file:hover {
+    background-color: var(--trik-blue);
+    color: var(--trik-white);
+}
+
+.show {
+    display: block;
+}
