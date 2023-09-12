@@ -5,6 +5,7 @@
     <title>Страница Разработчика</title>
     <link rel="icon" th:href="@{/img/trik_testsys_logo.ico}">
     <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body>
 <div class="container">
@@ -31,7 +32,8 @@
                 </ul>
             </div>
             <div class="user-data">
-                <p>Ваш Код-доступа: <b><span th:text="${accessToken}" id="accessToken" class="accessToken"
+                <p>Ваш Код-доступа: <b><span title="Нажмите, чтобы скопировать" th:text="${accessToken}"
+                                             id="accessToken" class="accessToken"
                                              onclick="copy('accessToken')">ed30da0f75d595465d6977e2fd551d2026cc3ff66dd5bd958ac2a50807684cb7</span>.</b>
                 </p>
             </div>
@@ -54,6 +56,44 @@
                 Закрыть
             </button>
         </div>
+    </div>
+
+    <div class="table tasks-table">
+        <table>
+            <caption>Список задач</caption>
+            <tr>
+                <th>ID</th>
+                <th>Название</th>
+                <th>Описание</th>
+                <th></th>
+            </tr>
+            <tr th:each="task: ${tasks}">
+                <td th:text="${task.id}"></td>
+                <td th:text="${task.name}"></td>
+                <td th:text="${task.description}"></td>
+                <td style="text-align: center; width: 5%"><i class="fa fa-info"></i></td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="table admins-table">
+        <table>
+            <caption>Список Администраторов</caption>
+            <tr>
+                <th>ID</th>
+                <th>Имя</th>
+                <th>Количество групп</th>
+                <th>Количество задач</th>
+                <th></th>
+            </tr>
+            <tr th:each="admin: ${admins}">
+                <td th:text="${admin.id}"></td>
+                <td th:text="${admin.webUser.username}"></td>
+                <td th:text="${admin.groups.size()}"></td>
+                <td th:text="${admin.tasks.size()}"></td>
+                <td style="text-align: center; width: 5%"><i class="fa fa-info"></i></td>
+            </tr>
+        </table>
     </div>
 </div>
 </body>
@@ -84,3 +124,7 @@
         }
     });
 </script>
+
+<style>
+
+</style>
