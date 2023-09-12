@@ -46,4 +46,12 @@ class AdminService {
     fun getAdminByWebUser(webUser: WebUser): Admin? {
         return adminRepository.findAdminByWebUser(webUser)
     }
+
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
+    fun getAll(): List<Admin> {
+        return adminRepository.findAll().toList()
+    }
 }

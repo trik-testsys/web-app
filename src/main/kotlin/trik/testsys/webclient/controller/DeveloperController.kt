@@ -20,6 +20,7 @@ import trik.testsys.webclient.util.handler.GradingSystemErrorHandler
 import trik.testsys.webclient.entity.Developer
 import trik.testsys.webclient.entity.WebUser
 import trik.testsys.webclient.model.DeveloperModel
+import trik.testsys.webclient.service.AdminService
 import trik.testsys.webclient.service.DeveloperService
 import trik.testsys.webclient.service.TaskService
 import trik.testsys.webclient.service.WebUserService
@@ -38,17 +39,9 @@ class DeveloperController @Autowired constructor(
 
     private val developerService: DeveloperService,
     private val webUserService: WebUserService,
-    private val taskService: TaskService
+    private val taskService: TaskService,
+    private val adminService: AdminService
 ) {
-
-    @GetMapping("/test")
-    fun test(): ModelAndView {
-        val modelAndView = ModelAndView("developer")
-        modelAndView.addObject("username", "Roman")
-        modelAndView.addObject("accessToken", "ed30da0f75d595465d6977e2fd551d2026cc3ff66dd5bd958ac2a50807684cb7")
-        println(modelAndView.model)
-        return modelAndView
-    }
 
     @GetMapping
     fun getAccess(
@@ -62,12 +55,16 @@ class DeveloperController @Autowired constructor(
             return eitherDeveloperEntities.getLeft()
         }
 
-        val (_, webUser) = eitherDeveloperEntities.getRight()
+        val (developer, webUser) = eitherDeveloperEntities.getRight()
         val username = webUser.username
+
+        val admins = adminService.getAll()
 
         val developerModel = DeveloperModel.Builder()
             .accessToken(accessToken)
             .username(username)
+            .tasks(developer.tasks)
+            .admins(admins)
             .build()
 
         modelAndView.viewName = DEVELOPER_VIEW_NAME
@@ -114,6 +111,8 @@ class DeveloperController @Autowired constructor(
         logger.info(accessToken, "Task '${task.getFullName()}' was successfully posted.")
 
         developerModelBuilder.postTaskMessage("Задача '${task.getFullName()}' была успешно загружена на сервер.")
+        developerModelBuilder.tasks(developer.tasks)
+        developerModelBuilder.admins(adminService.getAll())
         val developerModel = developerModelBuilder.build()
         modelAndView.addAllObjects(developerModel.asMap())
 
