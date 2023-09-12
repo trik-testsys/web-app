@@ -29,6 +29,11 @@ class AccessController @Autowired constructor(
 
         groupService.getGroupByAccessToken(accessToken)?.let {
             logger.info(accessToken, "Client is a new student.")
+            if (!it.isRegistrationOpen) {
+                // TODO: Add message about closed registration.
+                logger.info(accessToken, "Registration is closed.")
+                return@let
+            }
 //            return RedirectView("https://srv3.trikset.com:8843/v1/testsys/student/registration?groupAccessToken=$accessToken")
             return RedirectView("/v1/testsys/student/registration?groupAccessToken=$accessToken")
         }
@@ -57,6 +62,12 @@ class AccessController @Autowired constructor(
 
         studentService.getByWebUser(webUser)?.let {
             logger.info(accessToken, "Client is a student.")
+            val group = it.group
+            if (!group.isAccessible) {
+                //TODO: Add message about group is not accessible.
+                logger.info(accessToken, "Group is not accessible.")
+                return@let
+            }
 //            return RedirectView("https://srv3.trikset.com:8843/v1/testsys/student?accessToken=$accessToken")
             return RedirectView("/v1/testsys/student?accessToken=$accessToken")
         }

@@ -334,6 +334,32 @@ class AdminController @Autowired constructor(
 
         return ResponseEntity.ok().build()
     }
+
+    @PostMapping("/group/change/access")
+    fun changeAccess(
+        @RequestParam accessToken: String,
+        @RequestParam groupAccessToken: String,
+        @RequestParam isAccessible: Boolean,
+        @RequestParam isRegistrationOpen: Boolean,
+        model: Model
+    ): ResponseEntity<out Any> {
+        logger.info(accessToken, "Client trying to change group access.")
+
+        val eitherEntities = getAdminEntities(accessToken, groupAccessToken)
+        if (eitherEntities.isLeft()) {
+            return eitherEntities.getLeft()
+        }
+        val (_, _, group) = eitherEntities.getRight()
+
+        group.isAccessible = isAccessible
+        group.isRegistrationOpen = isRegistrationOpen
+        groupService.save(group)
+
+        logger.info(accessToken, "Group access changed.")
+
+        return ResponseEntity.ok().build()
+    }
+
     /**
      * @author Roman Shishkin
      * @since 1.1.0
