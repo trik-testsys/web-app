@@ -1,7 +1,9 @@
 package trik.testsys.webclient.controller
 
+import io.swagger.v3.oas.annotations.headers.Header
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -9,6 +11,7 @@ import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -25,6 +28,7 @@ import trik.testsys.webclient.service.TaskService
 import trik.testsys.webclient.service.WebUserService
 import trik.testsys.webclient.util.fp.Either
 import trik.testsys.webclient.util.logger.TrikLogger
+import java.time.LocalDateTime
 
 /**
  * @author Roman Shishkin
@@ -168,6 +172,39 @@ class DeveloperController @Autowired constructor(
 //        return modelAndView
 //    }
 
+    @PostMapping("/task/changeDeadline")
+    fun changeTaskDeadline(
+        @RequestParam accessToken: String,
+        @RequestParam taskId: Long,
+        @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") deadline: LocalDateTime,
+        modelAndView: ModelAndView
+    ): ModelAndView {
+        logger.info(accessToken, "Client trying to create task.")
+
+        val eitherDeveloperEntities = validateDeveloper(accessToken)
+        if (eitherDeveloperEntities.isLeft()) {
+            return eitherDeveloperEntities.getLeft()
+        }
+        modelAndView.viewName = DEVELOPER_VIEW_NAME
+
+        val (_, webUser) = eitherDeveloperEntities.getRight()
+
+        val task = taskService.getTaskById(taskId)
+        if (task != null) {
+            val serverDeadline = deadline.minusHours(UTC_OFFSET)
+            task.deadline = serverDeadline
+            taskService.saveTask(task)
+        }
+
+        val developerModelBuilder = DeveloperModel.Builder()
+            .accessToken(accessToken)
+            .username(webUser.username)
+            .build()
+
+        modelAndView.addAllObjects(developerModelBuilder.asMap())
+        return modelAndView
+    }
+
     private fun postTask(
         name: String,
         tests: List<MultipartFile>,
@@ -233,5 +270,6 @@ class DeveloperController @Autowired constructor(
 
         private const val DEVELOPER_VIEW_NAME = "developer"
         private const val POST_TASK_MESSAGE = "postTaskMessage"
+        private const val UTC_OFFSET = 3L
     }
 }
