@@ -22,6 +22,7 @@ import trik.testsys.webclient.util.handler.GradingSystemErrorHandler
 import trik.testsys.webclient.entity.WebUser
 import trik.testsys.webclient.models.ResponseMessage
 import trik.testsys.webclient.service.*
+import java.time.LocalDateTime
 
 @RestController
 @RequestMapping("\${app.testsys.api.prefix}/student")
@@ -180,6 +181,15 @@ class StudentController(@Value("\${app.grading-system.path}") val gradingSystemU
                 .status(HttpStatus.FORBIDDEN)
                 .body(ResponseMessage(403, "Invalid task id!"))
         }
+        val deadline = task.deadline
+        if (deadline != null && deadline < LocalDateTime.now()) {
+            logger.info("[${accessToken.padStart(80)}]: Deadline is over.")
+            //TODO: add normal page
+            return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ResponseMessage(403, "Deadline is over!"))
+        }
+
         val taskName = "${task.id}: ${task.name}"
 
         val headers = HttpHeaders()
