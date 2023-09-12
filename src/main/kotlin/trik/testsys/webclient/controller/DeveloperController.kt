@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.servlet.ModelAndView
+import org.springframework.web.servlet.view.RedirectView
 
 import trik.testsys.webclient.util.handler.GradingSystemErrorHandler
 import trik.testsys.webclient.entity.Developer
@@ -36,6 +37,9 @@ import trik.testsys.webclient.util.logger.TrikLogger
 class DeveloperController @Autowired constructor(
     @Value("\${app.grading-system.path}")
     private val gradingSystemUrl: String,
+
+    @Value("\${app.testsys.api.prefix}")
+    private val apiPrefix: String,
 
     private val developerService: DeveloperService,
     private val webUserService: WebUserService,
@@ -88,7 +92,7 @@ class DeveloperController @Autowired constructor(
         if (eitherDeveloperEntities.isLeft()) {
             return eitherDeveloperEntities.getLeft()
         }
-        modelAndView.viewName = DEVELOPER_VIEW_NAME
+        modelAndView.view = RedirectView("/v1/testsys/developer")
 
         val (developer, webUser) = eitherDeveloperEntities.getRight()
         val developerModelBuilder = DeveloperModel.Builder()

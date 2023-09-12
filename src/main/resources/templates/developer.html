@@ -12,7 +12,7 @@
     <div class="header">
         <div class="page-type">
             <img th:src="@{/img/trik_testsys_logo.svg}" alt="logo">
-            <p>Страница разработчика</p>
+            <p>Страница Разработчика</p>
         </div>
         <div class="exit">
             <form th:action="@{/v1/testsys}" method="get">
@@ -39,21 +39,30 @@
             </div>
         </div>
     </div>
-    <form class="uploadForm" th:action="@{/v1/testsys/developer/task/create}" method="post"
-          enctype="multipart/form-data">
-        <input type="text" name="name" placeholder="Название задачи" required/>
-        <input type="text" name="description" placeholder="Описание задачи" required/>
-        <input type="text" name="accessToken" th:value="${accessToken}" style="display: none"/>
-        <input type="file" multiple="multiple" name="tests" accept=".xml" required/>
-        <input type="file" name="benchmark" accept=".qrs"/>
-        <input type="file" name="training" accept=".qrs"/>
-        <input type="submit" id="uploadTask" value="Загрузить"/>
-    </form>
-    <div id="uploadPopup" class="popup">
+    <div class="uploadTaskPopup popup" id="uploadTaskPopup">
         <div class="popup-content">
-            <h1><span th:text="${postTaskMessage}"></span></h1>
-            <button id="closeUpload">
-                Закрыть
+            <h1>Загрузка задачи</h1>
+            <form class="uploadForm" th:action="@{/v1/testsys/developer/task/create}" method="post"
+                  enctype="multipart/form-data">
+                <input type="text" name="name" placeholder="Название задачи" required/>
+                <input type="text" name="description" placeholder="Описание задачи" required/>
+                <input type="text" name="accessToken" th:value="${accessToken}" style="display: none"/>
+                <label class="upload-file">
+                    Тестовые поля
+                    <input type="file" multiple="multiple" name="tests" accept=".xml" required/>
+                </label>
+                <label class="upload-file">
+                    Эталонное решение
+                    <input type="file" name="benchmark" accept=".qrs"/>
+                </label>
+                <label class="upload-file">
+                    Файл с упражнением
+                    <input type="file" name="training" accept=".qrs"/>
+                </label>
+                <input type="submit" id="uploadTask" value="Загрузить"/>
+            </form>
+            <button id="closeUploadTask" class="close-button">
+                <i class="fa fa-plus"></i>
             </button>
         </div>
     </div>
@@ -65,15 +74,35 @@
                 <th>ID</th>
                 <th>Название</th>
                 <th>Описание</th>
-                <th></th>
+                <th>Количество решений</th>
+                <th style="text-align: center" id="uploadTaskButton">
+                    <button>
+                        <i class="fa fa-plus"></i>
+                    </button>
+                </th>
             </tr>
-            <tr th:each="task: ${tasks}">
-                <td th:text="${task.id}"></td>
+            <tr th:each="task: ${tasks}" th:id="'task' + ${task.id}">
+                <td th:text="${task.id}" style="width: 10%"></td>
                 <td th:text="${task.name}"></td>
                 <td th:text="${task.description}"></td>
-                <td style="text-align: center; width: 5%"><i class="fa fa-info"></i></td>
+                <td th:text="${task.solutions.size()}"></td>
+                <td style="text-align: center; width: 5%">
+                    <button id="taskInfo" th:onclick="'showTaskInfo(' + ${task.id} + ')'">
+                        <i class="fa fa-info"></i>
+                    </button>
+                </td>
             </tr>
         </table>
+    </div>
+
+    <div class="infoPopup taskInfoPopup popup">
+        <div class="popup-content">
+            <h1>Информация о задаче</h1>
+            <button id="closeTaskInfo">
+                Закрыть
+            </button>
+        </div>
+
     </div>
 
     <div class="table admins-table">
@@ -86,7 +115,7 @@
                 <th>Количество задач</th>
                 <th></th>
             </tr>
-            <tr th:each="admin: ${admins}">
+            <tr th:each="admin: ${admins}" th:id="'admin' + ${admin.id}">
                 <td th:text="${admin.id}"></td>
                 <td th:text="${admin.webUser.username}"></td>
                 <td th:text="${admin.groups.size()}"></td>
@@ -111,20 +140,27 @@
         textArea.remove();
     }
 
-    uploadTask.addEventListener("click", function () {
-        uploadPopup.classList.add("show");
+    uploadTaskButton.addEventListener("click", function () {
+        uploadTaskPopup.classList.add("show");
     });
-    closeUpload.addEventListener("click", function () {
-        uploadPopup.classList.remove("show");
-    });
-    window.addEventListener("click", function (event) {
-        if (event.target == uploadPopup) {
 
-            uploadPopup.classList.remove("show");
-        }
+    closeUploadTask.addEventListener("click", function () {
+        uploadTaskPopup.classList.remove("show");
     });
+
+    // uploadTask.addEventListener("click", function () {
+    //     uploadPopup.classList.add("show");
+    // });
+    // closeUpload.addEventListener("click", function () {
+    //     uploadPopup.classList.remove("show");
+    // });
+    // window.addEventListener("click", function (event) {
+    //     if (event.target == uploadPopup) {
+    //
+    //         uploadPopup.classList.remove("show");
+    //     }
+    // });
 </script>
 
 <style>
-
 </style>
