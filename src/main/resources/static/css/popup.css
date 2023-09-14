@@ -13,10 +13,11 @@
 .popup-content {
     margin: 10% auto;
     padding: 20px;
-    width: 20%;
+    width: 30%;
     background: var(--trik-white);
     border-radius: 10px;
     border: 2px solid var(--trik-blue);
+    position: relative;
 }
 
 .popup-content > h1 {
@@ -87,4 +88,63 @@ label.upload-file {
 
 .show {
     display: block;
+}
+
+.taskInfo, .delete-task-info {
+    margin: 0 auto;
+    width: 80%;
+}
+
+.popup-content p {
+    margin: 0;
+    padding: 0;
+}
+
+.taskInfo p span {
+    font-weight: bold;
+}
+
+/*attach it to top right corner of popup*/
+.popup-content > .close-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 5px;
+    width: 25px;
+    height: 25px;
+    border: none;
+    color: var(--trik-blue);
+    font-size: 20px;
+    background: none;
+    cursor: pointer;
+}
+
+.uploadForm > select {
+    width: 100%;
+    height: 100px;
+    margin-bottom: 10px;
+}
+
+.admin-list {
+    width: 100%;
+    margin-top: 0;
+}
+
+.admin-list > li {
+    font-weight: bold;
+}
+
+.popup-button {
+    background: var(--trik-white);
+    border-radius: 25%;
+    width: 25px;
+    border: 1px solid var(--trik-blue);
+    outline: none;
+    cursor: pointer;
+    text-align: center;
+}
+
+.taskInfo p, .popup-content p {
+    margin: 5px;
+    color: var(--trik-blue);
 }

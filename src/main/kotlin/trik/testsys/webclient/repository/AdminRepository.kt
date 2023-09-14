@@ -7,7 +7,7 @@ import trik.testsys.webclient.entity.Admin
 import trik.testsys.webclient.entity.WebUser
 
 @Repository
-interface AdminRepository: CrudRepository<Admin, String> {
+interface AdminRepository: CrudRepository<Admin, Long> {
 
     fun findAdminByWebUser(webUser: WebUser): Admin?
 

@@ -22,7 +22,7 @@ class TrikFileService @Autowired constructor(
         trikFileRepository.saveAll(files)
     }
 
-    fun deleteAllByTask(taskId: Long): Boolean {
+    fun deleteAllByTaskId(taskId: Long): Boolean {
         val task = taskRepository.findTaskById(taskId) ?: return false
         trikFileRepository.deleteAllByTask(task)
 

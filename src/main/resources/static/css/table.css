@@ -52,3 +52,9 @@ caption {
     width: 80%;
 
 }
+
+.buttons {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}

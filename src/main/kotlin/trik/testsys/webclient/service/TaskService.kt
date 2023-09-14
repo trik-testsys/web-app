@@ -48,7 +48,7 @@ class TaskService @Autowired constructor(
             allFiles.add(trainingFile)
         }
 
-        task.trikFiles = allFiles
+        trikFileService.saveAll(allFiles)
         return taskRepository.save(task)
     }
 
@@ -91,7 +91,9 @@ class TaskService @Autowired constructor(
         task.countOfTests = tests.size.toLong()
         task.hasBenchmark = benchmark != null
         task.hasTraining = training != null
+        task.countOfTests = tests.size.toLong()
 
+//        trikFileService.deleteAllByTaskId(taskId)
         val allFiles = tests.map { TrikFile(task, it.originalFilename!!, TrikFile.Type.TEST) }.toMutableSet()
 
         benchmark?.let {
@@ -105,6 +107,8 @@ class TaskService @Autowired constructor(
         }
 
         task.trikFiles = allFiles
+        trikFileService.saveAll(allFiles)
+
         return taskRepository.save(task)
     }
 

@@ -53,7 +53,7 @@ body {
     border-radius: 10px;
 }
 
-.header > .exit > form > input[type="submit"]:hover, .popup-content button, .uploadForm input[type="submit"]:hover {
+.header > .exit > form > input[type="submit"]:hover, .uploadForm input[type="submit"]:hover {
     background-color: var(--trik-green);
     color: var(--trik-blue);
     cursor: pointer;

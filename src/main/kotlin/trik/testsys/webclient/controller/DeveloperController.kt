@@ -1,6 +1,7 @@
 package trik.testsys.webclient.controller
 
 import io.swagger.v3.oas.annotations.headers.Header
+import org.hibernate.collection.internal.PersistentSet
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.format.annotation.DateTimeFormat
@@ -19,6 +20,7 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
+import trik.testsys.webclient.entity.Admin
 
 import trik.testsys.webclient.util.handler.GradingSystemErrorHandler
 import trik.testsys.webclient.entity.Developer
@@ -31,6 +33,7 @@ import trik.testsys.webclient.service.WebUserService
 import trik.testsys.webclient.util.fp.Either
 import trik.testsys.webclient.util.logger.TrikLogger
 import java.time.LocalDateTime
+import java.util.stream.Collectors
 
 /**
  * @author Roman Shishkin
@@ -50,15 +53,6 @@ class DeveloperController @Autowired constructor(
     private val taskService: TaskService,
     private val adminService: AdminService
 ) : TrikUserController {
-
-    @GetMapping("/test")
-    fun test(): ModelAndView {
-        val modelAndView = ModelAndView("developer")
-        modelAndView.addObject("username", "Roman")
-        modelAndView.addObject("accessToken", "ed30da0f75d595465d6977e2fd551d2026cc3ff66dd5bd958ac2a50807684cb7")
-        println(modelAndView.model)
-        return modelAndView
-    }
 
     @GetMapping
     override fun getAccess(
@@ -114,7 +108,6 @@ class DeveloperController @Autowired constructor(
 
         modelAndView.addObject("accessToken", accessToken)
 
-        val testsCount = tests.size.toLong()
         val task = taskService.saveTask(name, description, developer, tests, training, benchmark)
 
 //        val isTaskPosted = postTask(name, tests, benchmark, training)
@@ -150,7 +143,7 @@ class DeveloperController @Autowired constructor(
         }
         modelAndView.view = REDIRECT_VIEW
 
-        val (_, webUser) = eitherDeveloperEntities.getRight()
+        val (developer, webUser) = eitherDeveloperEntities.getRight()
         val developerModelBuilder = DeveloperModel.Builder()
             .accessToken(accessToken)
             .username(webUser.username)
@@ -159,7 +152,10 @@ class DeveloperController @Autowired constructor(
 
         val task = taskService.getTaskById(taskId) ?: run {
             developerModelBuilder.postTaskMessage("Задача с id '${taskId}' не найдена.")
-            val developerModel = developerModelBuilder.build()
+            val developerModel = developerModelBuilder
+                .tasks(developer.tasks)
+                .admins(adminService.getAll())
+                .build()
             modelAndView.addAllObjects(developerModel.asMap())
 
             return modelAndView
@@ -176,7 +172,10 @@ class DeveloperController @Autowired constructor(
         logger.info(accessToken, "Task '${task.getFullName()}' was successfully deleted.")
 
         developerModelBuilder.postTaskMessage("Задача '${task.getFullName()}' была успешно удалена с сервера.")
-        val developerModel = developerModelBuilder.build()
+        val developerModel = developerModelBuilder
+            .tasks(developer.tasks)
+            .admins(adminService.getAll())
+            .build()
         modelAndView.addAllObjects(developerModel.asMap())
 
         return modelAndView
@@ -306,6 +305,108 @@ class DeveloperController @Autowired constructor(
         return modelAndView
     }
 
+    @PostMapping("/task/attach")
+    fun attachTaskToAdmin(
+        @RequestParam accessToken: String,
+        @RequestParam taskId: Long,
+        @RequestParam adminIds: List<Long>,
+        modelAndView: ModelAndView
+    ): ModelAndView {
+        logger.info(accessToken, "Client trying to attach task to admins.")
+
+        val eitherDeveloperEntities = validateDeveloper(accessToken)
+        if (eitherDeveloperEntities.isLeft()) {
+            return eitherDeveloperEntities.getLeft()
+        }
+        modelAndView.view = REDIRECT_VIEW
+
+        val (developer, webUser) = eitherDeveloperEntities.getRight()
+
+        val task = taskService.getTaskById(taskId)
+        if (task == null) {
+            logger.warn(accessToken, "Task with id '$taskId' not found.")
+
+            val developerModelBuilder = DeveloperModel.Builder()
+                .accessToken(accessToken)
+                .username(webUser.username)
+                .postTaskMessage("Задача с id '$taskId' не найдена.")
+                .tasks(developer.tasks)
+                .admins(adminService.getAll())
+            val developerModel = developerModelBuilder.build()
+            modelAndView.addAllObjects(developerModel.asMap())
+
+            return modelAndView
+        }
+
+        val admins = adminService.getAllByIds(adminIds)
+        task.admins.addAll(admins)
+        taskService.saveTask(task)
+
+        logger.info(accessToken, "Task '${task.getFullName()}' was successfully attached to admins.")
+
+        val developerModelBuilder = DeveloperModel.Builder()
+            .accessToken(accessToken)
+            .username(webUser.username)
+            .postTaskMessage("Задача '${task.getFullName()}' была успешно прикреплена к администраторам.")
+            .tasks(developer.tasks)
+            .admins(adminService.getAll())
+        val developerModel = developerModelBuilder.build()
+        modelAndView.addAllObjects(developerModel.asMap())
+
+        return modelAndView
+    }
+
+    @PostMapping("/task/detach")
+    fun detachTaskToAdmin(
+        @RequestParam accessToken: String,
+        @RequestParam taskId: Long,
+        @RequestParam adminIds: List<Long>,
+        modelAndView: ModelAndView
+    ): ModelAndView {
+        logger.info(accessToken, "Client trying to detach task from admins.")
+
+        val eitherDeveloperEntities = validateDeveloper(accessToken)
+        if (eitherDeveloperEntities.isLeft()) {
+            return eitherDeveloperEntities.getLeft()
+        }
+        modelAndView.view = REDIRECT_VIEW
+
+        val (developer, webUser) = eitherDeveloperEntities.getRight()
+
+        val task = taskService.getTaskById(taskId)
+        if (task == null) {
+            logger.warn(accessToken, "Task with id '$taskId' not found.")
+
+            val developerModelBuilder = DeveloperModel.Builder()
+                .accessToken(accessToken)
+                .username(webUser.username)
+                .postTaskMessage("Задача с id '$taskId' не найдена.")
+                .tasks(developer.tasks)
+                .admins(adminService.getAll())
+            val developerModel = developerModelBuilder.build()
+            modelAndView.addAllObjects(developerModel.asMap())
+
+            return modelAndView
+        }
+
+        val admins = adminService.getAllByIds(adminIds)
+        task.admins.removeAll(admins.toSet())
+        taskService.saveTask(task)
+
+        logger.info(accessToken, "Task '${task.getFullName()}' was successfully detached from admins.")
+
+        val developerModelBuilder = DeveloperModel.Builder()
+            .accessToken(accessToken)
+            .username(webUser.username)
+            .postTaskMessage("Задача '${task.getFullName()}' была успешно откреплена от администраторов.")
+            .tasks(developer.tasks)
+            .admins(adminService.getAll())
+        val developerModel = developerModelBuilder.build()
+        modelAndView.addAllObjects(developerModel.asMap())
+
+        return modelAndView
+    }
+
     private fun validateDeveloper(accessToken: String): Either<ModelAndView, DeveloperEntities> {
         val modelAndView = ModelAndView("error")
         val webUser = webUserService.getWebUserByAccessToken(accessToken) ?: run {
@@ -336,7 +437,7 @@ class DeveloperController @Autowired constructor(
 
         private const val DEVELOPER_VIEW_NAME = "developer"
         private const val POST_TASK_MESSAGE = "postTaskMessage"
-        private val REDIRECT_VIEW = RedirectView("/v1/testsys/developer")
+        private val REDIRECT_VIEW = RedirectView("/v1/testsys/$DEVELOPER_VIEW_NAME")
         private const val UTC_OFFSET = 3L
     }
 }

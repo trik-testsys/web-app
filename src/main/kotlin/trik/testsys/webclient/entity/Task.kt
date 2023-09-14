@@ -16,7 +16,7 @@ class Task(
      * @author Roman Shishkin
      * @since 1.1.0
      */
-    @ManyToOne(cascade = [CascadeType.ALL])
+    @ManyToOne
     @JoinColumn(
         name = "developer_id", referencedColumnName = "id",
         nullable = false
@@ -62,7 +62,7 @@ class Task(
      * @author Roman Shishkin
      * @since 1.1.0
      */
-    @ManyToMany(cascade = [CascadeType.ALL])
+    @ManyToMany
     @JoinTable(
         name = "TASKS_BY_ADMINS",
         joinColumns = [JoinColumn(name = "task_id")],
