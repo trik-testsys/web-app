@@ -92,7 +92,7 @@ class DeveloperController @Autowired constructor(
         if (eitherDeveloperEntities.isLeft()) {
             return eitherDeveloperEntities.getLeft()
         }
-        modelAndView.view = RedirectView("/v1/testsys/developer")
+        modelAndView.view = REDIRECT_VIEW
 
         val (developer, webUser) = eitherDeveloperEntities.getRight()
         val developerModelBuilder = DeveloperModel.Builder()
@@ -123,53 +123,51 @@ class DeveloperController @Autowired constructor(
         return modelAndView
     }
 
-//    @PostMapping("/task/delete")
-//    fun deleteTask(
-//        @RequestParam accessToken: String,
-//        @RequestParam taskId: Long,
-//        modelAndView: ModelAndView
-//    ): ModelAndView {
-//        logger.info(accessToken, "Client trying to delete task.")
-//
-//        val eitherDeveloperEntities = validateDeveloper(accessToken)
-//        if (eitherDeveloperEntities.isLeft()) {
-//            return eitherDeveloperEntities.getLeft()
-//        }
-//        modelAndView.viewName = DEVELOPER_VIEW_NAME
-//
-//        val (_, webUser) = eitherDeveloperEntities.getRight()
-//        val developerModelBuilder = DeveloperModel.Builder()
-//            .accessToken(accessToken)
-//            .username(webUser.username)
-//
-//        modelAndView.addObject("accessToken", accessToken)
-//
-//        val task = taskService.getTaskById(taskId)
-//        if (task == null) {
-//            developerModelBuilder.deleteTaskMessage("Задача с id '$taskId' не найдена.")
-//            val developerModel = developerModelBuilder.build()
-//            modelAndView.addAllObjects(developerModel.asMap())
-//
-//            return modelAndView
-//        }
-//
-//        val isTaskDeleted = deleteTask(task)
-//        if (!isTaskDeleted) {
-//            developerModelBuilder.deleteTaskMessage("Задача '${task.fullName}' не была удалена с сервера, попробуйте еще раз.")
-//            val developerModel = developerModelBuilder.build()
-//            modelAndView.addAllObjects(developerModel.asMap())
-//
-//            return modelAndView
-//        }
-//        logger.info(accessToken, "Task '${task.fullName}' was successfully deleted.")
-//
-//        taskService.deleteTask(task)
-//        developerModelBuilder.deleteTaskMessage("Задача '${task.fullName}' была успешно удалена с сервера.")
-//        val developerModel = developerModelBuilder.build()
-//        modelAndView.addAllObjects(developerModel.asMap())
-//
-//        return modelAndView
-//    }
+    @PostMapping("/task/delete")
+    fun deleteTask(
+        @RequestParam accessToken: String,
+        @RequestParam taskId: Long,
+        modelAndView: ModelAndView
+    ): ModelAndView {
+        logger.info(accessToken, "Client trying to delete task.")
+
+        val eitherDeveloperEntities = validateDeveloper(accessToken)
+        if (eitherDeveloperEntities.isLeft()) {
+            return eitherDeveloperEntities.getLeft()
+        }
+        modelAndView.view = REDIRECT_VIEW
+
+        val (_, webUser) = eitherDeveloperEntities.getRight()
+        val developerModelBuilder = DeveloperModel.Builder()
+            .accessToken(accessToken)
+            .username(webUser.username)
+
+        modelAndView.addObject("accessToken", accessToken)
+
+        val task = taskService.getTaskById(taskId) ?: run {
+            developerModelBuilder.postTaskMessage("Задача с id '${taskId}' не найдена.")
+            val developerModel = developerModelBuilder.build()
+            modelAndView.addAllObjects(developerModel.asMap())
+
+            return modelAndView
+        }
+
+        val isTaskDeleted = taskService.deleteTask(taskId)
+        if (!isTaskDeleted) {
+            developerModelBuilder.postTaskMessage("Задача '${task.getFullName()}' не была удалена с сервера, попробуйте еще раз.")
+            val developerModel = developerModelBuilder.build()
+            modelAndView.addAllObjects(developerModel.asMap())
+
+            return modelAndView
+        }
+        logger.info(accessToken, "Task '${task.getFullName()}' was successfully deleted.")
+
+        developerModelBuilder.postTaskMessage("Задача '${task.getFullName()}' была успешно удалена с сервера.")
+        val developerModel = developerModelBuilder.build()
+        modelAndView.addAllObjects(developerModel.asMap())
+
+        return modelAndView
+    }
 
     private fun postTask(
         name: String,
@@ -223,7 +221,7 @@ class DeveloperController @Autowired constructor(
         if (eitherDeveloperEntities.isLeft()) {
             return eitherDeveloperEntities.getLeft()
         }
-        modelAndView.view = RedirectView("/v1/testsys/developer")
+        modelAndView.view = REDIRECT_VIEW
 
         val (developer, webUser) = eitherDeveloperEntities.getRight()
         val developerModelBuilder = DeveloperModel.Builder()
@@ -292,5 +290,6 @@ class DeveloperController @Autowired constructor(
 
         private const val DEVELOPER_VIEW_NAME = "developer"
         private const val POST_TASK_MESSAGE = "postTaskMessage"
+        private val REDIRECT_VIEW = RedirectView("/v1/testsys/developer")
     }
 }
