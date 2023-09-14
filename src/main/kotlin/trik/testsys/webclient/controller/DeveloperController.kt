@@ -1,7 +1,5 @@
 package trik.testsys.webclient.controller
 
-import io.swagger.v3.oas.annotations.headers.Header
-import org.hibernate.collection.internal.PersistentSet
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.format.annotation.DateTimeFormat
@@ -12,7 +10,6 @@ import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -20,7 +17,6 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
-import trik.testsys.webclient.entity.Admin
 
 import trik.testsys.webclient.util.handler.GradingSystemErrorHandler
 import trik.testsys.webclient.entity.Developer
@@ -33,7 +29,6 @@ import trik.testsys.webclient.service.WebUserService
 import trik.testsys.webclient.util.fp.Either
 import trik.testsys.webclient.util.logger.TrikLogger
 import java.time.LocalDateTime
-import java.util.stream.Collectors
 
 /**
  * @author Roman Shishkin
