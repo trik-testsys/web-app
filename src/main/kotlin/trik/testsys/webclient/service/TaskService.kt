@@ -38,12 +38,12 @@ class TaskService @Autowired constructor(
 
         val allFiles = tests.map { TrikFile(task, it.originalFilename!!, TrikFile.Type.TEST) }.toMutableSet()
 
-        benchmark ?.let {
+        benchmark?.let {
             val benchmarkFile = TrikFile(task, benchmark.originalFilename!!, TrikFile.Type.BENCHMARK)
             allFiles.add(benchmarkFile)
         }
 
-        training ?.let {
+        training?.let {
             val trainingFile = TrikFile(task, training.originalFilename!!, TrikFile.Type.TRAINING)
             allFiles.add(trainingFile)
         }
@@ -65,30 +65,38 @@ class TaskService @Autowired constructor(
     }
 
     /**
-     * @return Updated [Task] if it was updated, null it was not found in database.
-     * @param newName New name of task
-     * @param taskId Id of task
-     * @since 1.1.0
      * @author Roman Shishkin
-     */
-    fun updateName(taskId: Long, newName: String): Task? {
-        val task = taskRepository.findTaskById(taskId) ?: return null
-        task.name = newName
-
-        return taskRepository.save(task)
-    }
-
-    /**
-     * @return Updated [Task] if it was updated, null it was not found in database.
      * @since 1.1.0
-     * @param newDescription New description of task
-     * @param taskId Id of task
-     * @author Roman Shiskin
      */
-    fun updateDescription(taskId: Long, newDescription: String): Task? {
+    fun update(
+        taskId: Long,
+        name: String,
+        description: String,
+        tests: List<MultipartFile>,
+        training: MultipartFile?,
+        benchmark: MultipartFile?,
+    ): Task? {
         val task = taskRepository.findTaskById(taskId) ?: return null
-        task.description = newDescription
 
+        task.name = name
+        task.description = description
+        task.countOfTests = tests.size.toLong()
+        task.hasBenchmark = benchmark != null
+        task.hasTraining = training != null
+
+        val allFiles = tests.map { TrikFile(task, it.originalFilename!!, TrikFile.Type.TEST) }.toMutableSet()
+
+        benchmark?.let {
+            val benchmarkFile = TrikFile(task, benchmark.originalFilename!!, TrikFile.Type.BENCHMARK)
+            allFiles.add(benchmarkFile)
+        }
+
+        training?.let {
+            val trainingFile = TrikFile(task, training.originalFilename!!, TrikFile.Type.TRAINING)
+            allFiles.add(trainingFile)
+        }
+
+        task.trikFiles = allFiles
         return taskRepository.save(task)
     }
 

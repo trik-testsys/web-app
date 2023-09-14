@@ -5,9 +5,12 @@
     <title>Страница Разработчика</title>
     <link rel="icon" th:href="@{/img/trik_testsys_logo.ico}">
     <link rel="stylesheet" th:href="@{/css/style.css}"/>
-    <link rel="stylesheet" th:href="@{/css/table.css}"/>
     <link rel="stylesheet" th:href="@{/css/popup.css}"/>
+    <link rel="stylesheet" th:href="@{/css/table.css}"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js">
+    </script>
 </head>
 <body>
 <div class="container">
@@ -44,7 +47,7 @@
     <div class="uploadTaskPopup popup" id="uploadTaskPopup">
         <div class="popup-content">
             <h1>Загрузка задачи</h1>
-            <form class="uploadForm" th:action="@{/v1/testsys/developer/task/create}" method="post"
+            <form class="uploadForm" id="uploadTaskForm" th:action="@{/v1/testsys/developer/task/create}" method="post"
                   enctype="multipart/form-data">
                 <input type="text" name="name" placeholder="Название задачи" required/>
                 <input type="text" name="description" placeholder="Описание задачи" required/>
@@ -63,8 +66,8 @@
                 </label>
                 <input type="submit" id="uploadTask" value="Загрузить"/>
             </form>
-            <button id="closeUploadTask" class="close-button">
-                <i class="fa fa-plus"></i>
+            <button id="closeUploadTask" class="close-button" onclick="resetPopupForm('uploadTaskForm')">
+                <i class="fa fa-close"></i>
             </button>
         </div>
     </div>
@@ -88,23 +91,61 @@
                 <td th:text="${task.name}"></td>
                 <td th:text="${task.description}"></td>
                 <td th:text="${task.solutions.size()}"></td>
-                <td style="text-align: center; width: 5%">
+                <td style="text-align: center; width: 10%">
+                    <div class="infoPopup taskInfoPopup popup" th:id="'taskInfoPopup' + ${task.id}">
+                        <div class="popup-content">
+                            <h1>Информация о задаче</h1>
+                            <div class="taskInfo">
+                                <p>Название: <span th:text="${task.name}"></span></p>
+                                <p>Описание: <span th:text="${task.description}"></span></p>
+                                <p>Количество решений: <span th:text="${task.solutions.size()}"></span></p>
+                                <p>Количество групп: <span th:text="${task.groups.size()}"></span></p>
+                                <p>Количество Администраторов: <span th:text="${task.admins.size()}"></span></p>
+                            </div>
+                            <button id="closeTaskInfo" th:onclick="'closeTaskInfo(' + ${task.id} + ')'">
+                                <i class="fa fa-close"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="task-edit-popup popup" th:id="'taskEditPopup' + ${task.id}">
+                        <div class="popup-content">
+                            <h1>Редактирование задачи</h1>
+                            <h1 th:text="${task.id} + ': ' + ${task.name}"></h1>
+                            <form class="uploadForm" id="editTaskForm" th:action="@{/v1/testsys/developer/task/edit}" method="post"
+                                  enctype="multipart/form-data">
+                                <input type="number" name="taskId" th:value="${task.id}" required style="display: none"/>
+                                <input type="text" name="name" th:value="${task.name}" placeholder="Название задачи" required/>
+                                <input type="text" name="description" th:value="${task.description}" placeholder="Описание задачи" required/>
+                                <input type="text" name="accessToken" th:value="${accessToken}" style="display: none"/>
+                                <label class="upload-file">
+                                    Тестовые поля
+                                    <input type="file" multiple="multiple" name="tests" accept=".xml"/>
+                                </label>
+                                <label class="upload-file">
+                                    Эталонное решение
+                                    <input type="file" name="benchmark" accept=".qrs"/>
+                                </label>
+                                <label class="upload-file">
+                                    Файл с упражнением
+                                    <input type="file" name="training" accept=".qrs"/>
+                                </label>
+                                <input type="submit" id="editTask" value="Изменить" th:action="@{/v1/testsys/developer/task/edit}"/>
+                            </form>
+                            <button id="closeEditTask" class="close-button" th:onclick="'closeEditTask(' + ${task.id} + ')'">
+                                <i class="fa fa-close"></i>
+                            </button>
+                        </div>
+                    </div>
                     <button id="taskInfo" th:onclick="'showTaskInfo(' + ${task.id} + ')'">
                         <i class="fa fa-info"></i>
+                    </button>
+                    <button id="taskEdit" th:onclick="'editTask(' + ${task.id} + ')'">
+                        <i class="fa fa-pencil"></i>
                     </button>
                 </td>
             </tr>
         </table>
-    </div>
-
-    <div class="infoPopup taskInfoPopup popup">
-        <div class="popup-content">
-            <h1>Информация о задаче</h1>
-            <button id="closeTaskInfo">
-                Закрыть
-            </button>
-        </div>
-
     </div>
 
     <div class="table admins-table">
@@ -142,6 +183,8 @@
         textArea.remove();
     }
 
+
+    //region Scripts for upload task popup
     uploadTaskButton.addEventListener("click", function () {
         uploadTaskPopup.classList.add("show");
     });
@@ -150,19 +193,56 @@
         uploadTaskPopup.classList.remove("show");
     });
 
-    // uploadTask.addEventListener("click", function () {
-    //     uploadPopup.classList.add("show");
-    // });
-    // closeUpload.addEventListener("click", function () {
-    //     uploadPopup.classList.remove("show");
-    // });
-    // window.addEventListener("click", function (event) {
-    //     if (event.target == uploadPopup) {
-    //
-    //         uploadPopup.classList.remove("show");
-    //     }
-    // });
+    function resetPopupForm(formId) {
+        document.getElementById(formId).reset();
+    }
+
+    //endregion
+
+    //region Scripts for task info popup
+    function showTaskInfo(taskId) {
+        var taskInfoPopup = document.getElementById("taskInfoPopup" + taskId);
+        taskInfoPopup.classList.add("show");
+    }
+
+    function closeTaskInfo(taskId) {
+        var taskInfoPopup = document.getElementById("taskInfoPopup" + taskId);
+        taskInfoPopup.classList.remove("show");
+    }
+    //endregion
+
+
+    //region Scripts for task edit popup
+    function editTask(taskId) {
+        var taskEditPopup = document.getElementById("taskEditPopup" + taskId);
+        taskEditPopup.classList.add("show");
+    }
+
+    function closeEditTask(taskId) {
+        var taskEditPopup = document.getElementById("taskEditPopup" + taskId);
+        taskEditPopup.classList.remove("show");
+
+        var form = taskEditPopup.querySelector("form");
+        form.reset();
+    }
+    //endregion
+
 </script>
 
 <style>
+    .taskInfo {
+        margin: 0 auto;
+        width: 80%;
+    }
+
+    .taskInfo p {
+        margin: 0;
+        padding: 0;
+    }
+
+    .taskInfo p span {
+        font-weight: bold;
+    }
+
+
 </style>

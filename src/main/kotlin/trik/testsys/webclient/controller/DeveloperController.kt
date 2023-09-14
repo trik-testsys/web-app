@@ -206,6 +206,62 @@ class DeveloperController @Autowired constructor(
         return true
     }
 
+    @PostMapping("/task/edit")
+    fun editTask(
+        @RequestParam accessToken: String,
+        @RequestParam taskId: Long,
+        @RequestParam name: String,
+        @RequestParam description: String,
+        @RequestBody tests: List<MultipartFile>,
+        @RequestBody benchmark: MultipartFile?,
+        @RequestBody training: MultipartFile?,
+        modelAndView: ModelAndView
+    ): ModelAndView {
+        logger.info(accessToken, "Client trying to update task.")
+
+        val eitherDeveloperEntities = validateDeveloper(accessToken)
+        if (eitherDeveloperEntities.isLeft()) {
+            return eitherDeveloperEntities.getLeft()
+        }
+        modelAndView.view = RedirectView("/v1/testsys/developer")
+
+        val (developer, webUser) = eitherDeveloperEntities.getRight()
+        val developerModelBuilder = DeveloperModel.Builder()
+            .accessToken(accessToken)
+            .username(webUser.username)
+
+        modelAndView.addObject("accessToken", accessToken)
+
+        val testsCount = tests.size.toLong()
+        val task = taskService.update(taskId, name, description, tests, training, benchmark) ?: run {
+            logger.warn(accessToken, "Task with id '$taskId' not found.")
+
+            developerModelBuilder.postTaskMessage("Задача с id '$taskId' не найдена.")
+            val developerModel = developerModelBuilder.build()
+            modelAndView.addAllObjects(developerModel.asMap())
+
+            return modelAndView
+        }
+
+//        val isTaskPosted = postTask(name, tests, benchmark, training)
+//        if (!isTaskPosted) {
+//            developerModelBuilder.postTaskMessage("Задача '${task.fullName}' не была загружена на сервер, попробуйте еще раз.")
+//            val developerModel = developerModelBuilder.build()
+//            modelAndView.addAllObjects(developerModel.asMap())
+//
+//            return modelAndView
+//        }
+        logger.info(accessToken, "Task '${task.getFullName()}' was successfully updated.")
+
+        developerModelBuilder.postTaskMessage("Задача '${task.getFullName()}' была успешно загружена на сервер.")
+        developerModelBuilder.tasks(developer.tasks)
+        developerModelBuilder.admins(adminService.getAll())
+        val developerModel = developerModelBuilder.build()
+        modelAndView.addAllObjects(developerModel.asMap())
+
+        return modelAndView
+    }
+
     private fun validateDeveloper(accessToken: String): Either<ModelAndView, DeveloperEntities> {
         val modelAndView = ModelAndView("error")
         val webUser = webUserService.getWebUserByAccessToken(accessToken) ?: run {
