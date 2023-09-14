@@ -53,6 +53,14 @@ class TaskService @Autowired constructor(
     }
 
     /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
+    fun saveTask(task: Task): Task {
+        return taskRepository.save(task)
+    }
+
+    /**
      * @return [Boolean.true] if task was deleted, [Boolean.false] otherwise
      * @author Roman Shishkin
      * @since 1.1.0

@@ -14,7 +14,7 @@ class DeveloperModel private constructor(
     val postTaskMessage: String?,
     val tasks: Collection<Task>,
     val admins: Collection<Admin>
-) {
+) : TrikModel {
 
     class Builder internal constructor() {
 
@@ -44,7 +44,7 @@ class DeveloperModel private constructor(
 
     }
 
-    fun asMap(): Map<String, Any?> {
+    override fun asMap(): Map<String, Any?> {
         val argsMap = mutableMapOf<String, Any?>()
 
         argsMap[this::accessToken.name] = accessToken

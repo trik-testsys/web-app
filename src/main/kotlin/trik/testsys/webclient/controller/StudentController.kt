@@ -22,6 +22,7 @@ import trik.testsys.webclient.util.handler.GradingSystemErrorHandler
 import trik.testsys.webclient.entity.WebUser
 import trik.testsys.webclient.models.ResponseMessage
 import trik.testsys.webclient.service.*
+import java.time.LocalDateTime
 
 @RestController
 @RequestMapping("\${app.testsys.api.prefix}/student")
@@ -58,6 +59,14 @@ class StudentController(@Value("\${app.grading-system.path}") val gradingSystemU
                 .body(ResponseMessage(403, "Invalid group token!"))
         }
 
+        if (!group.isAccessible) {
+            logger.info("[${groupAccessToken.padStart(80)}]: Group is not accessible.")
+
+            return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ResponseMessage(403, "Group is not accessible!"))
+        }
+
 
         logger.info("[${groupAccessToken.padStart(80)}]: Group token is valid.")
 
@@ -75,6 +84,14 @@ class StudentController(@Value("\${app.grading-system.path}") val gradingSystemU
             return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
                 .body(ResponseMessage(403, "Invalid group token!"))
+        }
+
+        if (!group.isAccessible) {
+            logger.info("[${groupAccessToken.padStart(80)}]: Group is not accessible.")
+
+            return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ResponseMessage(403, "Group is not accessible!"))
         }
 
         logger.info("[${groupAccessToken.padStart(80)}]: Group token is valid.")
@@ -106,6 +123,15 @@ class StudentController(@Value("\${app.grading-system.path}") val gradingSystemU
         logger.info("[${accessToken.padStart(80)}]: Client is a student.")
         val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
         val student = studentService.getByWebUser(webUser)!!
+        val group = student.group
+
+        if (!group.isAccessible) {
+            logger.info("[${group.accessToken.padStart(80)}]: Group is not accessible.")
+
+            return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ResponseMessage(403, "Group is not accessible!"))
+        }
 
         model.addAttribute("tasks", student.group.tasks.sortedBy { it.id })
         model.addAttribute("solutions", student.solutions.sortedBy { it.date })
@@ -139,6 +165,15 @@ class StudentController(@Value("\${app.grading-system.path}") val gradingSystemU
 
         val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
         val student = studentService.getByWebUser(webUser)!!
+        val group = student.group
+
+        if (!group.isAccessible) {
+            logger.info("[${group.accessToken.padStart(80)}]: Group is not accessible.")
+
+            return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ResponseMessage(403, "Group is not accessible!"))
+        }
 
         val task = taskService.getTaskById(taskId) ?: run {
             logger.info("[${accessToken.padStart(80)}]: Invalid task id.")
@@ -146,6 +181,15 @@ class StudentController(@Value("\${app.grading-system.path}") val gradingSystemU
                 .status(HttpStatus.FORBIDDEN)
                 .body(ResponseMessage(403, "Invalid task id!"))
         }
+        val deadline = task.deadline
+        if (deadline != null && deadline < LocalDateTime.now()) {
+            logger.info("[${accessToken.padStart(80)}]: Deadline is over.")
+            //TODO: add normal page
+            return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ResponseMessage(403, "Deadline is over!"))
+        }
+
         val taskName = "${task.id}: ${task.name}"
 
         val headers = HttpHeaders()

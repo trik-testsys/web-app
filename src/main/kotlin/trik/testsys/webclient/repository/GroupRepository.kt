@@ -5,6 +5,7 @@ import org.springframework.stereotype.Repository
 
 import trik.testsys.webclient.entity.Admin
 import trik.testsys.webclient.entity.Group
+import trik.testsys.webclient.entity.Label
 
 @Repository
 interface GroupRepository: CrudRepository<Group, String> {

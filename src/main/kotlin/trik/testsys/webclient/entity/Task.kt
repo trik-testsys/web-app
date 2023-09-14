@@ -1,5 +1,6 @@
 package trik.testsys.webclient.entity
 
+import java.time.LocalDateTime
 import javax.persistence.*
 
 @Entity
@@ -68,6 +69,9 @@ class Task(
         inverseJoinColumns = [JoinColumn(name = "admin_id")]
     )
     lateinit var admins: MutableSet<Admin>
+
+    @Column(nullable = true)
+    var deadline: LocalDateTime? = null
 
     /**
      * @author Roman Shishkin

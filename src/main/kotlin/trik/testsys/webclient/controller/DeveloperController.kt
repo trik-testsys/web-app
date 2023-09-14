@@ -1,7 +1,9 @@
 package trik.testsys.webclient.controller
 
+import io.swagger.v3.oas.annotations.headers.Header
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -9,6 +11,7 @@ import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -27,6 +30,7 @@ import trik.testsys.webclient.service.TaskService
 import trik.testsys.webclient.service.WebUserService
 import trik.testsys.webclient.util.fp.Either
 import trik.testsys.webclient.util.logger.TrikLogger
+import java.time.LocalDateTime
 
 /**
  * @author Roman Shishkin
@@ -45,10 +49,19 @@ class DeveloperController @Autowired constructor(
     private val webUserService: WebUserService,
     private val taskService: TaskService,
     private val adminService: AdminService
-) {
+) : TrikUserController {
+
+    @GetMapping("/test")
+    fun test(): ModelAndView {
+        val modelAndView = ModelAndView("developer")
+        modelAndView.addObject("username", "Roman")
+        modelAndView.addObject("accessToken", "ed30da0f75d595465d6977e2fd551d2026cc3ff66dd5bd958ac2a50807684cb7")
+        println(modelAndView.model)
+        return modelAndView
+    }
 
     @GetMapping
-    fun getAccess(
+    override fun getAccess(
         @RequestParam accessToken: String,
         modelAndView: ModelAndView
     ): ModelAndView {
@@ -166,6 +179,39 @@ class DeveloperController @Autowired constructor(
         val developerModel = developerModelBuilder.build()
         modelAndView.addAllObjects(developerModel.asMap())
 
+        return modelAndView
+    }
+
+    @PostMapping("/task/changeDeadline")
+    fun changeTaskDeadline(
+        @RequestParam accessToken: String,
+        @RequestParam taskId: Long,
+        @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") deadline: LocalDateTime,
+        modelAndView: ModelAndView
+    ): ModelAndView {
+        logger.info(accessToken, "Client trying to create task.")
+
+        val eitherDeveloperEntities = validateDeveloper(accessToken)
+        if (eitherDeveloperEntities.isLeft()) {
+            return eitherDeveloperEntities.getLeft()
+        }
+        modelAndView.viewName = DEVELOPER_VIEW_NAME
+
+        val (_, webUser) = eitherDeveloperEntities.getRight()
+
+        val task = taskService.getTaskById(taskId)
+        if (task != null) {
+            val serverDeadline = deadline.minusHours(UTC_OFFSET)
+            task.deadline = serverDeadline
+            taskService.saveTask(task)
+        }
+
+        val developerModelBuilder = DeveloperModel.Builder()
+            .accessToken(accessToken)
+            .username(webUser.username)
+            .build()
+
+        modelAndView.addAllObjects(developerModelBuilder.asMap())
         return modelAndView
     }
 
@@ -291,5 +337,6 @@ class DeveloperController @Autowired constructor(
         private const val DEVELOPER_VIEW_NAME = "developer"
         private const val POST_TASK_MESSAGE = "postTaskMessage"
         private val REDIRECT_VIEW = RedirectView("/v1/testsys/developer")
+        private const val UTC_OFFSET = 3L
     }
 }
