@@ -30,4 +30,7 @@ class Admin(
 
     @ManyToMany(mappedBy = "admins", cascade = [CascadeType.ALL])
     val tasks: MutableSet<Task> = mutableSetOf()
+
+    @OneToMany(mappedBy = "admin", cascade = [CascadeType.ALL])
+    val viewers: MutableSet<Viewer> = mutableSetOf()
 }

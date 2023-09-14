@@ -15,7 +15,10 @@ class Viewer(
         referencedColumnName = "id",
         nullable = false,
         unique = true
-    ) val webUser: WebUser
+    ) val webUser: WebUser,
+
+    @ManyToOne(cascade = [CascadeType.ALL])
+    val admin: Admin
 ) {
 
     @Id

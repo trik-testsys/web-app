@@ -49,9 +49,19 @@ class AdminService {
 
     /**
      * @author Roman Shishkin
+     * @since 1.1.0
      */
     fun getAllByIds(ids: List<Long>): List<Admin> {
         return adminRepository.findAllById(ids).toList()
+    }
+
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
+    fun getByAccessToken(accessToken: String): Admin? {
+        val webUser = webUserRepository.findWebUserByAccessToken(accessToken) ?: return null
+        return adminRepository.findAdminByWebUser(webUser)
     }
 
     /**

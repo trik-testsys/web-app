@@ -7,13 +7,15 @@ import org.springframework.http.*
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.servlet.ModelAndView
+import org.springframework.web.servlet.view.RedirectView
 
 import trik.testsys.webclient.entity.*
+import trik.testsys.webclient.model.AdminModel
 import trik.testsys.webclient.models.ResponseMessage
 import trik.testsys.webclient.service.*
 import trik.testsys.webclient.util.logger.TrikLogger
 import trik.testsys.webclient.util.fp.Either
-
 
 @RestController
 @RequestMapping("\${app.testsys.api.prefix}/admin")
@@ -29,58 +31,106 @@ class AdminController @Autowired constructor(
     private val labelService: LabelService
 ) {
 
-    private val restTemplate = RestTemplate()
-
     @GetMapping
-    fun getAccess(@RequestParam accessToken: String, model: Model): Any {
-        logger.info("[${accessToken.padStart(80)}]: Client trying to access admin page.")
-
-        val isAdmin = isAdminAccessToken(accessToken)
-        if (isAdmin) {
-            logger.info("[${accessToken.padStart(80)}]: Client is an admin.")
-            val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
-            val admin = adminService.getAdminByWebUser(webUser)!!
-
-            model.addAttribute("name", webUser.username)
-            model.addAttribute("accessToken", accessToken)
-            model.addAttribute("groups", admin.groups.sortedBy { it.id })
-            return model
-        }
-
-        logger.info("[${accessToken.padStart(80)}]: Client is not an admin.")
-        return ResponseEntity
-            .status(HttpStatus.FORBIDDEN)
-            .body(ResponseMessage(403, "You are not an admin!"))
-    }
-
-    @PostMapping("/group/create")
-    fun createGroup(@RequestParam accessToken: String, @RequestParam name: String, model: Model): Any {
-        logger.info("[${accessToken.padStart(80)}]: Client trying to create a group.")
+    fun getAccess(
+        @RequestParam accessToken: String,
+        modelAndView: ModelAndView
+    ): ModelAndView {
+        logger.info(accessToken, "Client trying to access admin page.")
 
         val isAdmin = isAdminAccessToken(accessToken)
         if (!isAdmin) {
-            logger.info("[${accessToken.padStart(80)}]: Client is not an admin.")
-            return ResponseEntity
-                .status(HttpStatus.FORBIDDEN)
-                .body(ResponseMessage(403, "You are not an admin!"))
+            logger.info(accessToken, "Client is not an admin.")
+
+            modelAndView.viewName = "error"
+            modelAndView.addObject("message", "You are not an admin!")
+
+            return modelAndView
         }
 
-        logger.info("[${accessToken.padStart(80)}]: Client is an admin.")
+        val admin = adminService.getByAccessToken(accessToken)!!
+
+        modelAndView.viewName = ADMIN_VIEW_NAME
+        val adminModel = AdminModel.Builder()
+            .accessToken(accessToken)
+            .username(admin.webUser.username)
+            .tasks(admin.tasks)
+            .groups(admin.groups)
+            .viewers(admin.viewers)
+            .build()
+
+        modelAndView.addAllObjects(adminModel.asMap())
+
+        return modelAndView
+    }
+
+    @PostMapping("/group/create")
+    fun createGroup(
+        @RequestParam accessToken: String,
+        @RequestParam name: String,
+        modelAndView: ModelAndView
+    ): ModelAndView {
+        logger.info(accessToken, "Client trying to create a group.")
+
+        val isAdmin = isAdminAccessToken(accessToken)
+        if (!isAdmin) {
+            logger.info(accessToken, "Client is not an admin.")
+            modelAndView.viewName = "error"
+            modelAndView.addObject("message", "You are not an admin!")
+
+            return modelAndView
+        }
+
+        logger.info(accessToken, "Client is an admin.")
         val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
         val admin = adminService.getAdminByWebUser(webUser)!!
 
-        model.addAttribute("accessToken", webUser.accessToken)
-
         val group = groupService.createGroup(admin, name)
-        logger.info("[${accessToken.padStart(80)}]: Group created.")
+        logger.info(accessToken, "Group created: $group")
 
-        model.addAttribute("isCreated", true)
-        model.addAttribute("id", group.id!!)
-        model.addAttribute("name", group.name)
-        model.addAttribute("groupAccessToken", group.accessToken)
+        val adminModel = AdminModel.Builder()
+            .accessToken(accessToken)
+            .groups(admin.groups)
+            .viewers(admin.viewers)
+            .tasks(admin.tasks)
+            .username(admin.webUser.username)
+            .build()
 
-        return model
+        modelAndView.addAllObjects(adminModel.asMap())
+        modelAndView.view = RedirectView("/v1/testsys/admin")
+
+        return modelAndView
     }
+
+
+//    @PostMapping("/group/create")
+//    fun createGroup(@RequestParam accessToken: String, @RequestParam name: String, model: Model): Any {
+//        logger.info("[${accessToken.padStart(80)}]: Client trying to create a group.")
+//
+//        val isAdmin = isAdminAccessToken(accessToken)
+//        if (!isAdmin) {
+//            logger.info("[${accessToken.padStart(80)}]: Client is not an admin.")
+//            return ResponseEntity
+//                .status(HttpStatus.FORBIDDEN)
+//                .body(ResponseMessage(403, "You are not an admin!"))
+//        }
+//
+//        logger.info("[${accessToken.padStart(80)}]: Client is an admin.")
+//        val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
+//        val admin = adminService.getAdminByWebUser(webUser)!!
+//
+//        model.addAttribute("accessToken", webUser.accessToken)
+//
+//        val group = groupService.createGroup(admin, name)
+//        logger.info("[${accessToken.padStart(80)}]: Group created.")
+//
+//        model.addAttribute("isCreated", true)
+//        model.addAttribute("id", group.id!!)
+//        model.addAttribute("name", group.name)
+//        model.addAttribute("groupAccessToken", group.accessToken)
+//
+//        return model
+//    }
 
     @GetMapping("/group")
     fun accessToGroup(@RequestParam accessToken: String, @RequestParam groupAccessToken: String, model: Model): Any {
