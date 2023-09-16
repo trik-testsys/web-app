@@ -25,12 +25,24 @@ class GroupService @Autowired constructor(
         return groupRepository.save(group)
     }
 
+    fun saveAll(groups: Collection<Group>): List<Group> {
+        return groupRepository.saveAll(groups).toList()
+    }
+
     fun getGroupByAccessToken(accessToken: String): Group? {
         return groupRepository.findGroupByAccessToken(accessToken)
     }
 
     fun getGroupById(id: Long): Group? {
         return groupRepository.findGroupById(id)
+    }
+
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
+    fun getAllByIds(ids: List<Long>): List<Group> {
+        return groupRepository.findAllById(ids).toList()
     }
 
     /**

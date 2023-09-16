@@ -360,6 +360,108 @@ class AdminController @Autowired constructor(
         return modelAndView
     }
 
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
+    @PostMapping("/task/groups/add")
+    fun addGroupsToTask(
+        @RequestParam accessToken: String,
+        @RequestParam taskId: Long,
+        @RequestParam groupIds: List<Long>,
+        modelAndView: ModelAndView
+    ): ModelAndView {
+        logger.info(accessToken, "Client trying to add groups to task.")
+
+        val isAdmin = isAdminAccessToken(accessToken)
+        if (!isAdmin) {
+            logger.info(accessToken, "Client is not an admin.")
+            modelAndView.viewName = "error"
+            modelAndView.addObject("message", "You are not an admin!")
+
+            return modelAndView
+        }
+
+        logger.info(accessToken, "Client is an admin.")
+
+        val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
+        val admin = adminService.getAdminByWebUser(webUser)!!
+
+        val task = taskService.getTaskById(taskId)!!
+        val groups = groupService.getAllByIds(groupIds)
+        task.groups.addAll(groups)
+        groups.forEach { it.tasks.add(task) }
+        groupService.saveAll(groups)
+        taskService.saveTask(task)
+
+        logger.info(accessToken, "Groups added to task: $task")
+
+        val adminModel = AdminModel.Builder()
+            .accessToken(accessToken)
+            .groups(admin.groups)
+            .viewers(admin.viewers)
+            .tasks(admin.tasks)
+            .username(admin.webUser.username)
+            .labels(labelService.getAll())
+            .build()
+
+        modelAndView.addAllObjects(adminModel.asMap())
+        modelAndView.view = RedirectView("/v1/testsys/admin")
+
+        return modelAndView
+    }
+
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
+    @PostMapping("/task/groups/remove")
+    fun removeGroupsFromTask(
+        @RequestParam accessToken: String,
+        @RequestParam taskId: Long,
+        @RequestParam groupIds: List<Long>,
+        modelAndView: ModelAndView
+    ): ModelAndView {
+        logger.info(accessToken, "Client trying to remove groups from task.")
+
+        val isAdmin = isAdminAccessToken(accessToken)
+        if (!isAdmin) {
+            logger.info(accessToken, "Client is not an admin.")
+            modelAndView.viewName = "error"
+            modelAndView.addObject("message", "You are not an admin!")
+
+            return modelAndView
+        }
+
+        logger.info(accessToken, "Client is an admin.")
+
+        val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
+        val admin = adminService.getAdminByWebUser(webUser)!!
+
+        val task = taskService.getTaskById(taskId)!!
+        val groups = groupService.getAllByIds(groupIds)
+        task.groups.removeAll(groups.toSet())
+        groups.forEach { it.tasks.remove(task) }
+        groupService.saveAll(groups)
+        taskService.saveTask(task)
+
+        logger.info(accessToken, "Groups removed from task: $task")
+
+        val adminModel = AdminModel.Builder()
+            .accessToken(accessToken)
+            .groups(admin.groups)
+            .viewers(admin.viewers)
+            .tasks(admin.tasks)
+            .username(admin.webUser.username)
+            .labels(labelService.getAll())
+            .build()
+
+        modelAndView.addAllObjects(adminModel.asMap())
+        modelAndView.view = RedirectView("/v1/testsys/admin")
+
+        return modelAndView
+    }
+
     @Deprecated("")
     @GetMapping("/group")
     fun accessToGroup(

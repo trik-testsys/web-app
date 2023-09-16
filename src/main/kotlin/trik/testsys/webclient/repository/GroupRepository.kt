@@ -8,7 +8,7 @@ import trik.testsys.webclient.entity.Group
 import trik.testsys.webclient.entity.Label
 
 @Repository
-interface GroupRepository: CrudRepository<Group, String> {
+interface GroupRepository: CrudRepository<Group, Long> {
 
     fun findGroupById(id: Long): Group?
 

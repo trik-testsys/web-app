@@ -251,6 +251,92 @@
         </div>
     </div>
 
+    <div class="table tasks-table">
+        <table>
+            <caption>Список задач</caption>
+            <tr>
+                <th>ID</th>
+                <th>Название</th>
+                <th>Описание</th>
+                <th>Действия</th>
+            </tr>
+            <tr th:each="task: ${tasks}" th:id="'task' + ${task.id}">
+                <td th:text="${task.id}"></td>
+                <td th:text="${task.name}"></td>
+                <td th:text="${task.description}"></td>
+                <td style="width: 5%">
+
+                    <div class="add-task-to-group-popup popup" th:id="'addTaskToGroupsPopup' + ${task.id}">
+                        <div class="popup-content">
+                            <button id="closeAddTaskToGroupsPopup" class="close-button"
+                                    th:onclick="'closeAddTaskToGroupsPopup(\'' + ${task.id} + '\')'">
+                                <i class="fa fa-close"></i>
+                            </button>
+
+                            <h1>Добавление задачи в группы</h1>
+                            <h1 th:text="${task.id} + ': ' + ${task.name}"></h1>
+                            <p>Выберите группы, в которые нужно добавить задачу:</p>
+                            <form class="uploadForm" th:action="@{/v1/testsys/admin/task/groups/add}"
+                                  method="post">
+                                <input type="text" name="taskId" th:value="${task.id}"
+                                       style="display: none"/>
+                                <input type="text" name="accessToken" th:value="${accessToken}"
+                                       placeholder="Код-доступа" required
+                                       style="display: none"/>
+                                <select name="groupIds" multiple required>
+                                    <option th:each="group : ${groups}" th:if="${!group.tasks.contains(task)}"
+                                            th:value="${group.id}"
+                                            th:text="${group.id} + ': ' + ${group.name}"></option>
+                                </select>
+                                <input type="submit" value="Добавить"/>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="remove-task-from-groups-popup popup" th:id="'removeTaskFromGroupsPopup' + ${task.id}">
+                        <div class="popup-content">
+                            <button id="closeRemoveTaskFromGroupsPopup" class="close-button"
+                                    th:onclick="'closeRemoveTaskFromGroupsPopup(\'' + ${task.id} + '\')'">
+                                <i class="fa fa-close"></i>
+                            </button>
+
+                            <h1>Удаление задачи из групп</h1>
+                            <h1 th:text="${task.id} + ': ' + ${task.name}"></h1>
+                            <p>Выберите группы, из которых нужно удалить задачу:</p>
+                            <form class="uploadForm" th:action="@{/v1/testsys/admin/task/groups/remove}"
+                                  method="post">
+                                <input type="text" name="taskId" th:value="${task.id}"
+                                       style="display: none"/>
+                                <input type="text" name="accessToken" th:value="${accessToken}"
+                                       placeholder="Код-доступа" required
+                                       style="display: none"/>
+                                <select name="groupIds" multiple required>
+                                    <option th:each="group : ${groups}" th:if="${group.tasks.contains(task)}"
+                                            th:value="${group.id}"
+                                            th:text="${group.id} + ': ' + ${group.name}"></option>
+                                </select>
+                                <input type="submit" value="Удалить"/>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="buttons">
+                        <button class="popup-button" title="Добавить в группы"
+                                id="addTaskToGroups" th:onclick="'addTaskToGroupsPopup(\'' + ${task.id} + '\')'">
+                            <i class="fa fa-paperclip"></i>
+                        </button>
+                        <button class="popup-button" title="Убрать из групп"
+                                id="removeTaskFromGroups"
+                                th:onclick="'removeTaskFromGroupsPopup(\'' + ${task.id} + '\')'">
+                            <i class="fa fa-chain-broken"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+
     <div class="popup create-viewer-popup" id="createViewerPopup">
         <div class="popup-content">
             <button id="closeCreateViewer" class="close-button"
@@ -417,6 +503,38 @@
         addLabelPopup.classList.remove("show");
 
         var form = addLabelPopup.querySelector("form");
+        form.reset();
+    }
+
+    //endregion
+
+    //region Scripts for add tasks to group popup
+    function addTaskToGroupsPopup(taskId) {
+        var addTaskToGroupsPopup = document.getElementById("addTaskToGroupsPopup" + taskId);
+        addTaskToGroupsPopup.classList.add("show");
+    }
+
+    function closeAddTaskToGroupsPopup(taskId) {
+        var addTaskToGroupsPopup = document.getElementById("addTaskToGroupsPopup" + taskId);
+        addTaskToGroupsPopup.classList.remove("show");
+
+        var form = addTaskToGroupsPopup.querySelector("form");
+        form.reset();
+    }
+
+    //endregion
+
+    //region Scripts for remove task from groups popup
+    function removeTaskFromGroupsPopup(taskId) {
+        var removeTaskFromGroupsPopup = document.getElementById("removeTaskFromGroupsPopup" + taskId);
+        removeTaskFromGroupsPopup.classList.add("show");
+    }
+
+    function closeRemoveTaskFromGroupsPopup(taskId) {
+        var removeTaskFromGroupsPopup = document.getElementById("removeTaskFromGroupsPopup" + taskId);
+        removeTaskFromGroupsPopup.classList.remove("show");
+
+        var form = removeTaskFromGroupsPopup.querySelector("form");
         form.reset();
     }
 
