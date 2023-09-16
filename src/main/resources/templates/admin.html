@@ -146,7 +146,8 @@
                             <h1>Изменение тегов группы</h1>
                             <h1 th:text="${group.id} + ': ' + ${group.name}"></h1>
                             <div class="popup-forms">
-                                <form class="uploadForm" th:action="@{/v1/testsys/admin/group/labels/add}" method="post">
+                                <form class="uploadForm" th:action="@{/v1/testsys/admin/group/labels/add}"
+                                      method="post">
                                     <p>Новый тег:</p>
                                     <input type="text" name="newLabel" placeholder="Новый тег"
                                            th:required="${labels.size() == 0}"
@@ -228,12 +229,68 @@
                                 th:onclick="'deleteGroupPopup(\'' + ${group.id} + '\')'">
                             <i class="fa fa-trash"></i>
                         </button>
+                        <form th:action="@{/v1/testsys/admin/group}" method="get">
+                            <input type="text" name="groupAccessToken" th:value="${group.accessToken}"
+                                   style="display: none"/>
+                            <input type="text" name="accessToken" th:value="${accessToken}"
+                                   placeholder="Код-доступа" required
+                                   style="display: none"/>
+                            <button type="submit" class="popup-button" title="Перейти в группу"
+                                    id="goToGroup">
+                                <i class="fa fa-arrow-right"></i>
+                            </button>
+                        </form>
                     </div>
                 </td>
             </tr>
         </table>
         <div class="add-button">
             <button class="popup-button" id="createGroup">
+                <i class="fa fa-plus"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="popup create-viewer-popup" id="createViewerPopup">
+        <div class="popup-content">
+            <button id="closeCreateViewer" class="close-button"
+                    onclick="closeCreateViewerPopup()">
+                <i class="fa fa-close"></i>
+            </button>
+            <h1>Создание наблюдателя</h1>
+            <form class="uploadForm" id="create-viewer-form"
+                  th:action="@{/v1/testsys/admin/viewer/create}" method="post">
+                <input type="text" name="accessToken" th:value="${accessToken}"
+                       placeholder="Код-доступа" required
+                       style="display: none"/>
+                <input type="text" name="username" placeholder="Имя пользователя" required/>
+                <input type="submit" value="Создать"/>
+            </form>
+        </div>
+    </div>
+
+    <div class="table viewers-tables">
+        <table>
+            <caption>Список наблюдателей</caption>
+            <tr>
+                <th>ID</th>
+                <th>Имя</th>
+                <th>Код-доступа</th>
+                <th>Действия</th>
+            </tr>
+            <tr th:each="viewer: ${viewers}" th:id="'viewer' + ${viewer.id}">
+                <td th:text="${viewer.id}"></td>
+                <td th:text="${viewer.webUser.username}"></td>
+                <td class="accessToken" th:id="'viewerAccessToken' + ${viewer.id}"
+                    title="Нажмите, чтобы скопировать" th:onclick="'copyViewerAccessToken(\'' + ${viewer.id} + '\')'"
+                    th:text="${viewer.webUser.accessToken}">
+                </td>
+                <td>
+                </td>
+            </tr>
+        </table>
+        <div class="add-button">
+            <button class="popup-button" id="createViewer">
                 <i class="fa fa-plus"></i>
             </button>
         </div>
@@ -265,6 +322,16 @@
         textArea.remove();
     }
 
+    function copyViewerAccessToken(id) {
+        var copyText = document.getElementById("viewerAccessToken" + id);
+        var textArea = document.createElement("textarea");
+
+        textArea.value = copyText.textContent;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("Copy");
+        textArea.remove();
+    }
 
     //region Scripts for group create popup
     createGroup.addEventListener("click", function () {
@@ -279,6 +346,16 @@
         document.getElementById(formId).reset();
     }
 
+    //endregion
+
+    //region Scripts for create viewer popup
+    createViewer.addEventListener("click", function () {
+        createViewerPopup.classList.add("show");
+    });
+
+    closeCreateViewer.addEventListener("click", function () {
+        createViewerPopup.classList.remove("show");
+    });
     //endregion
 
     //region Scripts for group info popup
@@ -342,6 +419,7 @@
         var form = addLabelPopup.querySelector("form");
         form.reset();
     }
+
     //endregion
 
 </script>

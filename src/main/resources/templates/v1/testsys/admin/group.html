@@ -23,37 +23,19 @@
             </tr>
         </table>
     </div>
-    <div class="creations">
-        <div class="creation task-creation">
-            <form id="task-creation" th:action="@{/v1/testsys/admin/task/create}" method="post"
-                  enctype="multipart/form-data">
-                <p>Загрузите задачу</p>
-                <input style="display: none" type="text" name="accessToken" placeholder="Access token"
-                       th:value="${accessToken}" readonly/>
-                <input style="display: none" type="text" name="groupAccessToken"
-                       placeholder="Group access token"
-                       th:value="${groupAccessToken}" readonly/>
-                <input type="text" name="name" placeholder="Название задачи" required/>
-                <textarea name="description" placeholder="Описание задачи" required form="task-creation"></textarea>
-                <p style="font-size: 15px">Добавьте файлы с тестами</p>
-                <input type="file" name="tests" placeholder="Файлы с тестами" required multiple/>
-                <input type="submit" value="Загрузить" required/>
-            </form>
-        </div>
-        <div class="student-generation creation">
-            <form id="student-creation" th:action="@{/v1/testsys/admin/student/create}" method="get">
-                <p>Сгенерируйте учеников</p>
-                <input style="display: none" type="text" name="accessToken" placeholder="Access token"
-                       th:value="${accessToken}" readonly/>
-                <input style="display: none" type="text" name="groupAccessToken"
-                       placeholder="Group access token"
-                       th:value="${groupAccessToken}" readonly/>
-                <input type="number" min="1" th:max="200" step="1" name="count" placeholder="Количество учеников" required/>
-                <input type="text" name="studentAccessTokenPrefix" placeholder="Префикс кода-доступа" required/>
-                <input type="text" name="namePrefix" placeholder="Префикс имени" required/>
-                <input type="submit" value="Сгенерировать" required id="reset"/>
-            </form>
-        </div>
+    <div class="student-generation creation">
+        <form id="student-creation" th:action="@{/v1/testsys/admin/student/create}" method="get">
+            <p>Сгенерируйте учеников</p>
+            <input style="display: none" type="text" name="accessToken" placeholder="Access token"
+                   th:value="${accessToken}" readonly/>
+            <input style="display: none" type="text" name="groupAccessToken"
+                   placeholder="Group access token"
+                   th:value="${groupAccessToken}" readonly/>
+            <input type="number" min="1" th:max="200" step="1" name="count" placeholder="Количество учеников" required/>
+            <input type="text" name="studentAccessTokenPrefix" placeholder="Префикс кода-доступа" required/>
+            <input type="text" name="namePrefix" placeholder="Префикс имени" required/>
+            <input type="submit" value="Сгенерировать" required id="reset"/>
+        </form>
     </div>
     <div class="get-table">
         <form class="" action="/v1/testsys/admin/group/table" method="get">

@@ -28,7 +28,8 @@ class AdminController @Autowired constructor(
     private val groupService: GroupService,
     private val taskService: TaskService,
     private val studentService: StudentService,
-    private val labelService: LabelService
+    private val labelService: LabelService,
+    private val viewerService: ViewerService,
 ) {
 
     /**
@@ -312,9 +313,60 @@ class AdminController @Autowired constructor(
         return modelAndView
     }
 
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
+    @PostMapping("/viewer/create")
+    fun createViewer(
+        @RequestParam accessToken: String,
+        @RequestParam username: String,
+        modelAndView: ModelAndView
+    ): ModelAndView {
+        logger.info(accessToken, "Client trying to delete labels from group.")
+
+        val isAdmin = isAdminAccessToken(accessToken)
+        if (!isAdmin) {
+            logger.info(accessToken, "Client is not an admin.")
+            modelAndView.viewName = "error"
+            modelAndView.addObject("message", "You are not an admin!")
+
+            return modelAndView
+        }
+
+        logger.info(accessToken, "Client is an admin.")
+
+        val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
+        val admin = adminService.getAdminByWebUser(webUser)!!
+
+        val newWebUser = webUserService.saveWebUser(username)
+        val newViewer = Viewer(newWebUser, admin)
+        viewerService.save(newViewer)
+
+        logger.info(accessToken, "Viewer created: $newViewer")
+
+        val adminModel = AdminModel.Builder()
+            .accessToken(accessToken)
+            .groups(admin.groups)
+            .viewers(admin.viewers)
+            .tasks(admin.tasks)
+            .username(admin.webUser.username)
+            .labels(labelService.getAll())
+            .build()
+
+        modelAndView.addAllObjects(adminModel.asMap())
+        modelAndView.view = RedirectView("/v1/testsys/admin")
+
+        return modelAndView
+    }
+
     @Deprecated("")
     @GetMapping("/group")
-    fun accessToGroup(@RequestParam accessToken: String, @RequestParam groupAccessToken: String, model: Model): Any {
+    fun accessToGroup(
+        @RequestParam accessToken: String,
+        @RequestParam groupAccessToken: String,
+        model: Model
+    ): Any {
         logger.info("[${accessToken.padStart(80)}]: Client trying to access group.")
 
         val eitherEntities = getAdminEntities(accessToken, groupAccessToken)
