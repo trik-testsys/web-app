@@ -28,7 +28,7 @@ class Task(
     @Column(nullable = false, unique = true)
     val id: Long? = null
 
-    @ManyToMany(mappedBy = "tasks", cascade = [CascadeType.ALL])
+    @ManyToMany(mappedBy = "tasks")
     val groups: MutableSet<Group> = mutableSetOf()
 
     @Column(nullable = false, columnDefinition = "BIGINT DEFAULT 0")

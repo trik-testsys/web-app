@@ -17,7 +17,7 @@ class Viewer(
         unique = true
     ) val webUser: WebUser,
 
-    @ManyToOne(cascade = [CascadeType.ALL])
+    @ManyToOne
     val admin: Admin
 ) {
 

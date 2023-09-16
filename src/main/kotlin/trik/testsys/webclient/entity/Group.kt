@@ -5,7 +5,7 @@ import javax.persistence.*
 @Entity
 @Table(name = "GROUPZ")
 class Group(
-    @ManyToOne(cascade = [CascadeType.ALL])
+    @ManyToOne
     @JoinColumn(
         name = "admin_id", referencedColumnName = "id",
         nullable = false
@@ -14,7 +14,7 @@ class Group(
     @Column(
         nullable = false, unique = false, length = 50,
         columnDefinition = "VARCHAR(50) DEFAULT ''"
-    ) val name: String,
+    ) var name: String,
 
     @Column(
         nullable = false, unique = true, length = 50,
@@ -35,7 +35,7 @@ class Group(
     @OneToMany(mappedBy = "group", cascade = [CascadeType.ALL])
     val students: MutableSet<Student> = mutableSetOf()
 
-    @ManyToMany(cascade = [CascadeType.ALL])
+    @ManyToMany
     @JoinTable(
         name = "TASKS_BY_GROUPS",
         joinColumns = [JoinColumn(name = "group_id")],
@@ -43,7 +43,7 @@ class Group(
     )
     lateinit var tasks: MutableSet<Task>
 
-    @ManyToMany(cascade = [CascadeType.ALL])
+    @ManyToMany
     @JoinTable(
         name = "GROUPS_BY_LABELS",
         joinColumns = [JoinColumn(name = "group_id")],

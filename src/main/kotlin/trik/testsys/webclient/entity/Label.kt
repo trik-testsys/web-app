@@ -19,6 +19,6 @@ class Label (
     @Column(nullable = false, unique = true)
     val id: Long? = null
 
-    @ManyToMany(mappedBy = "labels", cascade = [CascadeType.ALL])
+    @ManyToMany(mappedBy = "labels")
     val groups: MutableSet<Group> = mutableSetOf()
 }
