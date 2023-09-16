@@ -31,6 +31,10 @@ class AdminController @Autowired constructor(
     private val labelService: LabelService
 ) {
 
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
     @GetMapping
     fun getAccess(
         @RequestParam accessToken: String,
@@ -57,6 +61,7 @@ class AdminController @Autowired constructor(
             .tasks(admin.tasks)
             .groups(admin.groups)
             .viewers(admin.viewers)
+            .labels(labelService.getAll())
             .build()
 
         modelAndView.addAllObjects(adminModel.asMap())
@@ -64,6 +69,10 @@ class AdminController @Autowired constructor(
         return modelAndView
     }
 
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
     @PostMapping("/group/create")
     fun createGroup(
         @RequestParam accessToken: String,
@@ -94,6 +103,7 @@ class AdminController @Autowired constructor(
             .viewers(admin.viewers)
             .tasks(admin.tasks)
             .username(admin.webUser.username)
+            .labels(labelService.getAll())
             .build()
 
         modelAndView.addAllObjects(adminModel.asMap())
@@ -102,35 +112,95 @@ class AdminController @Autowired constructor(
         return modelAndView
     }
 
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
+    @PostMapping("/group/edit")
+    fun editGroup(
+        @RequestParam accessToken: String,
+        @RequestParam groupAccessToken: String,
+        @RequestParam name: String,
+        modelAndView: ModelAndView
+    ): ModelAndView {
+        logger.info(accessToken, "Client trying to edit a group.")
 
-//    @PostMapping("/group/create")
-//    fun createGroup(@RequestParam accessToken: String, @RequestParam name: String, model: Model): Any {
-//        logger.info("[${accessToken.padStart(80)}]: Client trying to create a group.")
-//
-//        val isAdmin = isAdminAccessToken(accessToken)
-//        if (!isAdmin) {
-//            logger.info("[${accessToken.padStart(80)}]: Client is not an admin.")
-//            return ResponseEntity
-//                .status(HttpStatus.FORBIDDEN)
-//                .body(ResponseMessage(403, "You are not an admin!"))
-//        }
-//
-//        logger.info("[${accessToken.padStart(80)}]: Client is an admin.")
-//        val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
-//        val admin = adminService.getAdminByWebUser(webUser)!!
-//
-//        model.addAttribute("accessToken", webUser.accessToken)
-//
-//        val group = groupService.createGroup(admin, name)
-//        logger.info("[${accessToken.padStart(80)}]: Group created.")
-//
-//        model.addAttribute("isCreated", true)
-//        model.addAttribute("id", group.id!!)
-//        model.addAttribute("name", group.name)
-//        model.addAttribute("groupAccessToken", group.accessToken)
-//
-//        return model
-//    }
+        val isAdmin = isAdminAccessToken(accessToken)
+        if (!isAdmin) {
+            logger.info(accessToken, "Client is not an admin.")
+            modelAndView.viewName = "error"
+            modelAndView.addObject("message", "You are not an admin!")
+
+            return modelAndView
+        }
+
+        logger.info(accessToken, "Client is an admin.")
+        val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
+        val admin = adminService.getAdminByWebUser(webUser)!!
+
+        val group = groupService.getGroupByAccessToken(groupAccessToken)!!
+        group.name = name
+        groupService.save(group)
+        logger.info(accessToken, "Group edited: $group")
+
+        val adminModel = AdminModel.Builder()
+            .accessToken(accessToken)
+            .groups(admin.groups)
+            .viewers(admin.viewers)
+            .tasks(admin.tasks)
+            .username(admin.webUser.username)
+            .labels(labelService.getAll())
+            .build()
+
+        modelAndView.addAllObjects(adminModel.asMap())
+        modelAndView.view = RedirectView("/v1/testsys/admin")
+
+        return modelAndView
+    }
+
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
+    @PostMapping("/group/delete")
+    fun deleteGroup(
+        @RequestParam accessToken: String,
+        @RequestParam groupAccessToken: String,
+        modelAndView: ModelAndView
+    ): ModelAndView {
+        logger.info(accessToken, "Client trying to delete a group.")
+
+        val isAdmin = isAdminAccessToken(accessToken)
+        if (!isAdmin) {
+            logger.info(accessToken, "Client is not an admin.")
+            modelAndView.viewName = "error"
+            modelAndView.addObject("message", "You are not an admin!")
+
+            return modelAndView
+        }
+
+        logger.info(accessToken, "Client is an admin.")
+        val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
+        val admin = adminService.getAdminByWebUser(webUser)!!
+
+        val group = groupService.getGroupByAccessToken(groupAccessToken)!!
+        groupService.delete(group)
+        logger.info(accessToken, "Group deleted: $group")
+
+        val adminModel = AdminModel.Builder()
+            .accessToken(accessToken)
+            .groups(admin.groups)
+            .viewers(admin.viewers)
+            .tasks(admin.tasks)
+            .username(admin.webUser.username)
+            .labels(labelService.getAll())
+            .build()
+
+        modelAndView.addAllObjects(adminModel.asMap())
+        modelAndView.view = RedirectView("/v1/testsys/admin")
+
+        return modelAndView
+    }
 
     @GetMapping("/group")
     fun accessToGroup(@RequestParam accessToken: String, @RequestParam groupAccessToken: String, model: Model): Any {
@@ -349,40 +419,6 @@ class AdminController @Autowired constructor(
             .headers(headers)
             .contentLength(bytes.size.toLong())
             .body(FileSystemResource(csvFile))
-    }
-
-    /**
-     * @author Roman Shishkin
-     * @since 1.1.0
-     */
-    @PostMapping("/group/add/label")
-    fun addLabelToGroup(
-        @RequestParam accessToken: String,
-        @RequestParam groupAccessToken: String,
-        @RequestParam labelName: String,
-        model: Model
-    ): ResponseEntity<out Any> {
-        logger.info(accessToken, "Client trying to add label to group.")
-
-        val eitherEntities = getAdminEntities(accessToken, groupAccessToken)
-        if (eitherEntities.isLeft()) {
-            return eitherEntities.getLeft()
-        }
-        val (_, _, group) = eitherEntities.getRight()
-
-        val label = labelService.getByName(labelName)?: run {
-            logger.info(accessToken, "Label not found. Creating new one.")
-            Label(labelName)
-        }
-        label.groups.add(group)
-        labelService.save(label)
-
-        group.labels.add(label)
-        groupService.save(group)
-
-        logger.info(accessToken, "Label added to group.")
-
-        return ResponseEntity.ok().build()
     }
 
     @PostMapping("/group/change/access")

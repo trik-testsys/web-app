@@ -33,6 +33,14 @@ class GroupService @Autowired constructor(
         return groupRepository.findGroupById(id)
     }
 
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
+    fun delete(group: Group) {
+        groupRepository.delete(group)
+    }
+
     private fun generateAccessToken(word: String): String {
         val saltedWord = word + Date().time + Random(Date().time).nextInt()
         val md = MessageDigest.getInstance("SHA-224")

@@ -58,3 +58,26 @@ caption {
     justify-content: space-around;
     align-items: center;
 }
+
+.add-button {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.add-button button {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: var(--trik-blue);
+    color: var(--trik-white);
+    border: none;
+    outline: none;
+    cursor: pointer;
+    font-size: 15px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+table th:last-child {
+    text-align: center;
+}

@@ -23,6 +23,10 @@ class LabelService @Autowired constructor(
         return labelRepository.save(label)
     }
 
+    fun getAll(): List<Label> {
+        return labelRepository.findAll().toList()
+    }
+
     /**
      * @return [Set] of [Group]s that have all [Label]s from [labels] set.
      */

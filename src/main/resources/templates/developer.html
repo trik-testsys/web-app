@@ -7,8 +7,8 @@
     <link rel="stylesheet" th:href="@{/css/style.css}"/>
     <link rel="stylesheet" th:href="@{/css/popup.css}"/>
     <link rel="stylesheet" th:href="@{/css/table.css}"/>
+    <!--    <link rel="stylesheet" th:href="@{/fontawesome-free-6.4.2-web/css/all.min.css}">-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js">
     </script>
 </head>
@@ -79,11 +79,7 @@
                 <th>ID</th>
                 <th>Название</th>
                 <th>Описание</th>
-                <th style="text-align: center" id="uploadTaskButton">
-                    <button class="popup-button">
-                        <i class="fa fa-plus"></i>
-                    </button>
-                </th>
+                <th>Действия</th>
             </tr>
             <tr th:each="task: ${tasks}" th:id="'task' + ${task.id}">
                 <td th:text="${task.id}" style="width: 10%"></td>
@@ -92,7 +88,8 @@
                 <td style=" width: 10%">
                     <div class="infoPopup taskInfoPopup popup" th:id="'taskInfoPopup' + ${task.id}">
                         <div class="popup-content">
-                            <button id="closeTaskInfo" class="close-button" th:onclick="'closeTaskInfo(' + ${task.id} + ')'">
+                            <button id="closeTaskInfo" class="close-button"
+                                    th:onclick="'closeTaskInfo(' + ${task.id} + ')'">
                                 <i class="fa fa-close"></i>
                             </button>
                             <h1>Информация о задаче</h1>
@@ -104,7 +101,8 @@
                                 <p>Количество Администраторов: <span th:text="${task.admins.size()}"></span></p>
                                 <p th:if="${task.admins.size() > 0}">Доступна Администраторам:</p>
                                 <ul class="admin-list" th:if="${task.admins.size() > 0}">
-                                    <li th:each="admin: ${task.admins}" th:text="${admin.id} + ': ' + ${admin.webUser.username}"></li>
+                                    <li th:each="admin: ${task.admins}"
+                                        th:text="${admin.id} + ': ' + ${admin.webUser.username}"></li>
                                 </ul>
                             </div>
                         </div>
@@ -112,16 +110,21 @@
 
                     <div class="task-edit-popup popup" th:id="'taskEditPopup' + ${task.id}">
                         <div class="popup-content">
-                            <button id="closeEditTask" class="close-button" th:onclick="'closeEditTask(' + ${task.id} + ')'">
+                            <button id="closeEditTask" class="close-button"
+                                    th:onclick="'closeEditTask(' + ${task.id} + ')'">
                                 <i class="fa fa-close"></i>
                             </button>
                             <h1>Редактирование задачи</h1>
                             <h1 th:text="${task.id} + ': ' + ${task.name}"></h1>
-                            <form class="uploadForm" id="editTaskForm" th:action="@{/v1/testsys/developer/task/edit}" method="post"
+                            <form class="uploadForm" id="editTaskForm" th:action="@{/v1/testsys/developer/task/edit}"
+                                  method="post"
                                   enctype="multipart/form-data">
-                                <input type="number" name="taskId" th:value="${task.id}" required style="display: none"/>
-                                <input type="text" name="name" th:value="${task.name}" placeholder="Название задачи" required/>
-                                <input type="text" name="description" th:value="${task.description}" placeholder="Описание задачи" required/>
+                                <input type="number" name="taskId" th:value="${task.id}" required
+                                       style="display: none"/>
+                                <input type="text" name="name" th:value="${task.name}" placeholder="Название задачи"
+                                       required/>
+                                <input type="text" name="description" th:value="${task.description}"
+                                       placeholder="Описание задачи" required/>
                                 <input type="text" name="accessToken" th:value="${accessToken}" style="display: none"/>
                                 <label class="upload-file">
                                     Тестовые поля
@@ -143,19 +146,23 @@
 
                     <div class="attach-task-to-admin-popup popup" th:id="'attachTaskToAdminPopup' + ${task.id}">
                         <div class="popup-content">
-                            <button id="closeAttachTaskToAdmin" class="close-button" th:onclick="'closeAttachTaskToAdmin(' + ${task.id} + ')'">
+                            <button id="closeAttachTaskToAdmin" class="close-button"
+                                    th:onclick="'closeAttachTaskToAdmin(' + ${task.id} + ')'">
                                 <i class="fa fa-close"></i>
                             </button>
                             <h1>Предоставление доступа к задаче</h1>
                             <h1 th:text="${task.id} + ': ' + ${task.name}"></h1>
                             <p>Выберите Администраторов:</p>
-                            <form class="uploadForm" id="attachTaskToAdminForm" th:action="@{/v1/testsys/developer/task/attach}" method="post"
+                            <form class="uploadForm" id="attachTaskToAdminForm"
+                                  th:action="@{/v1/testsys/developer/task/attach}" method="post"
                                   enctype="multipart/form-data">
-                                <input type="number" name="taskId" th:value="${task.id}" required style="display: none"/>
+                                <input type="number" name="taskId" th:value="${task.id}" required
+                                       style="display: none"/>
                                 <input type="text" name="accessToken" th:value="${accessToken}" style="display: none"/>
                                 <select class="admin-select" name="adminIds" multiple required>
                                     <option th:each="admin: ${admins}" th:if="${!task.admins.contains(admin)}"
-                                            th:value="${admin.id}" th:text="${admin.id} + ': ' + ${admin.webUser.username}"></option>
+                                            th:value="${admin.id}"
+                                            th:text="${admin.id} + ': ' + ${admin.webUser.username}"></option>
                                 </select>
                                 <input type="submit" id="attachTaskToAdmin" value="Предоставить"/>
                             </form>
@@ -164,19 +171,23 @@
 
                     <div class="detach-task-from-admin-popup popup" th:id="'detachTaskFromAdminPopup' + ${task.id}">
                         <div class="popup-content">
-                            <button id="closeDetachTaskFromAdmin" class="close-button" th:onclick="'closeDetachTaskFromAdmin(' + ${task.id} + ')'">
+                            <button id="closeDetachTaskFromAdmin" class="close-button"
+                                    th:onclick="'closeDetachTaskFromAdmin(' + ${task.id} + ')'">
                                 <i class="fa fa-close"></i>
                             </button>
                             <h1>Отключение доступа к задаче</h1>
                             <h1 th:text="${task.id} + ': ' + ${task.name}"></h1>
                             <p>Выберите Администраторов:</p>
-                            <form class="uploadForm" id="detachTaskFromAdminForm" th:action="@{/v1/testsys/developer/task/detach}" method="post"
+                            <form class="uploadForm" id="detachTaskFromAdminForm"
+                                  th:action="@{/v1/testsys/developer/task/detach}" method="post"
                                   enctype="multipart/form-data">
-                                <input type="number" name="taskId" th:value="${task.id}" required style="display: none"/>
+                                <input type="number" name="taskId" th:value="${task.id}" required
+                                       style="display: none"/>
                                 <input type="text" name="accessToken" th:value="${accessToken}" style="display: none"/>
                                 <select class="admin-select" name="adminIds" multiple required>
                                     <option th:each="admin: ${task.admins}"
-                                            th:value="${admin.id}" th:text="${admin.id} + ': ' + ${admin.webUser.username}"></option>
+                                            th:value="${admin.id}"
+                                            th:text="${admin.id} + ': ' + ${admin.webUser.username}"></option>
                                 </select>
                                 <input type="submit" id="detachTaskFromAdmin" value="Отключить"/>
                             </form>
@@ -185,18 +196,22 @@
 
                     <div class="task-delete-popup popup" th:id="'taskDeletePopup' + ${task.id}">
                         <div class="popup-content">
-                            <button id="closeDeleteTask" class="close-button" th:onclick="'closeDeleteTask(' + ${task.id} + ')'">
+                            <button id="closeDeleteTask" class="close-button"
+                                    th:onclick="'closeDeleteTask(' + ${task.id} + ')'">
                                 <i class="fa fa-close"></i>
                             </button>
                             <h1>Удаление задачи</h1>
                             <h1 th:text="${task.id} + ': ' + ${task.name}"></h1>
                             <div class="delete-task-info">
-                                <p>По этой задаче есть <span th:text="${task.solutions.size()}" style="font-weight: bold"></span> решений.</p>
+                                <p>По этой задаче есть <span th:text="${task.solutions.size()}"
+                                                             style="font-weight: bold"></span> решений.</p>
                                 <p>Вы уверены, что хотите удалить задачу?</p>
                             </div>
-                            <form class="uploadForm" id="deleteTaskForm" th:action="@{/v1/testsys/developer/task/delete}" method="post"
+                            <form class="uploadForm" id="deleteTaskForm"
+                                  th:action="@{/v1/testsys/developer/task/delete}" method="post"
                                   enctype="multipart/form-data">
-                                <input type="number" name="taskId" th:value="${task.id}" required style="display: none"/>
+                                <input type="number" name="taskId" th:value="${task.id}" required
+                                       style="display: none"/>
                                 <input type="text" name="accessToken" th:value="${accessToken}" style="display: none"/>
                                 <input type="submit" id="deleteTask" value="Удалить"/>
                             </form>
@@ -225,8 +240,12 @@
                         </button>
                     </div>
                 </td>
-            </tr>
         </table>
+        <div class="add-button">
+            <button class="popup-button" id="uploadTaskButton">
+                <i class="fa fa-plus"></i>
+            </button>
+        </div>
     </div>
 
     <div class="table admins-table">
@@ -290,6 +309,7 @@
         var taskInfoPopup = document.getElementById("taskInfoPopup" + taskId);
         taskInfoPopup.classList.remove("show");
     }
+
     //endregion
 
     //region Scripts for task edit popup
@@ -305,6 +325,7 @@
         var form = taskEditPopup.querySelector("form");
         form.reset();
     }
+
     //endregion
 
     //region Scripts for task delete popup
@@ -320,6 +341,7 @@
         var form = taskDeletePopup.querySelector("form");
         form.reset();
     }
+
     //endregion
 
     //region Scripts for attach task to admin popup
@@ -335,6 +357,7 @@
         var form = attachTaskToAdminPopup.querySelector("form");
         form.reset();
     }
+
     //endregion
 
     //region Scripts for detach task from admin popup
@@ -350,10 +373,26 @@
         var form = detachTaskFromAdminPopup.querySelector("form");
         form.reset();
     }
+
+    //endregion
+
+    //region Scripts for popups
+    function showPopup(popupId) {
+        var popup = document.getElementById(popupId);
+        popup.classList.add("show");
+    }
+
+    function closePopup(popupId) {
+        var popup = document.getElementById(popupId);
+        popup.classList.remove("show");
+
+        var form = popup.querySelector("form");
+        form.reset();
+    }
+
     //endregion
 
 </script>
 
 <style>
-
 </style>
