@@ -78,8 +78,9 @@
                 <td th:text="${group.accessToken}" th:id="'groupAccessToken' + ${group.id}"
                     th:onclick="'copyGroupAccessToken(\'' + ${group.id} + '\')'"
                     class="accessToken" title="Нажмите, чтобы скопировать"></td>
-                <td>
-                    <span th:each="label : ${group.labels}" th:text="${label.name} + ' '" class="label"></span>
+                <td style="width: 30%">
+                    <span th:each="label : ${group.labels}"
+                          th:text="${label.name}" class="label"></span>
                 </td>
 
                 <td style="width: 10%">
@@ -135,26 +136,50 @@
                     </div>
 
                     <div class="popup group-add-label-popup"
-                         th:id="'groupAddLabelPopup' + ${group.id}">
+                         th:id="'groupEditLabelPopup' + ${group.id}">
                         <div class="popup-content">
                             <button id="close-group-add-label-popup" class="close-button"
-                                    th:onclick="'closeGroupAddLabelPopup(\'' + ${group.id} + '\')'">
+                                    th:onclick="'closeGroupEditLabelPopup(\'' + ${group.id} + '\')'">
                                 <i class="fa fa-close"></i>
                             </button>
 
-                            <h1>Добавление тегов</h1>
-                            <form class="uploadForm" th:action="@{/v1/testsys/admin/group/addLabel}" method="post">
-                                <input type="text" name="groupAccessToken" th:value="${group.accessToken}"
-                                       style="display: none"/>
-                                <input type="text" name="accessToken" th:value="${accessToken}"
-                                       placeholder="Код-доступа" required
-                                       style="display: none"/>
-                                <select name="labelId" required>
-                                    <option th:each="label: ${labels}" th:value="${label.id}"
-                                            th:text="${label.name}"></option>
-                                </select>
-                                <input type="submit" value="Добавить"/>
-                            </form>
+                            <h1>Изменение тегов группы</h1>
+                            <h1 th:text="${group.id} + ': ' + ${group.name}"></h1>
+                            <div class="popup-forms">
+                                <form class="uploadForm" th:action="@{/v1/testsys/admin/group/labels/add}" method="post">
+                                    <p>Новый тег:</p>
+                                    <input type="text" name="newLabel" placeholder="Новый тег"
+                                           th:required="${labels.size() == 0}"
+                                    />
+                                    <input type="text" name="groupAccessToken" th:value="${group.accessToken}"
+                                           style="display: none"/>
+                                    <input type="text" name="accessToken" th:value="${accessToken}"
+                                           placeholder="Код-доступа" required
+                                           style="display: none"/>
+                                    <p>Выберите из существующих:</p>
+                                    <select name="labels" multiple>
+                                        <option th:each="label : ${labels}" th:if="${!group.labels.contains(label)}"
+                                                th:value="${label.name}"
+                                                th:text="${label.name}"></option>
+                                    </select>
+                                    <input type="submit" value="Добавить"/>
+                                </form>
+                                <form class="uploadForm" th:action="@{/v1/testsys/admin/group/labels/delete}"
+                                      method="post">
+                                    <p>Выберите теги для удаления:</p>
+                                    <input type="text" name="groupAccessToken" th:value="${group.accessToken}"
+                                           style="display: none"/>
+                                    <input type="text" name="accessToken" th:value="${accessToken}"
+                                           placeholder="Код-доступа" required
+                                           style="display: none"/>
+                                    <select name="labels" multiple>
+                                        <option th:each="label : ${group.labels}"
+                                                th:value="${label.name}"
+                                                th:text="${label.name}"></option>
+                                    </select>
+                                    <input type="submit" value="Удалить"/>
+                                </form>
+                            </div>
                         </div>
                     </div>
 
@@ -180,7 +205,6 @@
                                 <input type="submit" value="Удалить"/>
                             </form>
                         </div>
-
                     </div>
 
                     <div class="buttons">
@@ -194,15 +218,10 @@
                                 th:onclick="'showGroupEditPopup(\'' + ${group.id} + '\')'">
                             <i class="fa fa-pencil"></i>
                         </button>
-                        <button class="popup-button" title="Добавить тег"
-                                id="addLabel"
-                                th:onclick="'groupAddLabelPopup(\'' + ${group.id} + '\')'">
+                        <button class="popup-button" title="Изменить теги группы"
+                                id="editGroupLabels"
+                                th:onclick="'groupEditLabelPopup(\'' + ${group.id} + '\')'">
                             <i class="fa fa-tag"></i>
-                        </button>
-                        <button class="popup-button" title="Убрать тег"
-                                id="removeLabel"
-                                th:onclick="'removeLabelPopup(\'' + ${group.id} + '\')'">
-                            <i class="fa fa-link-slash"></i>
                         </button>
                         <button class="popup-button" title="Удалить группу"
                                 id="deleteGroup"
@@ -311,13 +330,13 @@
     //endregion
 
     //region Scripts for add tag to group popup
-    function groupAddLabelPopup(groupId) {
-        var addLabelPopup = document.getElementById("groupAddLabelPopup" + groupId);
+    function groupEditLabelPopup(groupId) {
+        var addLabelPopup = document.getElementById("groupEditLabelPopup" + groupId);
         addLabelPopup.classList.add("show");
     }
 
-    function closeGroupAddLabelPopup(groupId) {
-        var addLabelPopup = document.getElementById("groupAddLabelPopup" + groupId);
+    function closeGroupEditLabelPopup(groupId) {
+        var addLabelPopup = document.getElementById("groupEditLabelPopup" + groupId);
         addLabelPopup.classList.remove("show");
 
         var form = addLabelPopup.querySelector("form");
@@ -325,23 +344,16 @@
     }
     //endregion
 
-    //region Scripts for remove tag from group popup
-    function removeLabelPopup(groupId) {
-        var removeLabelPopup = document.getElementById("removeLabelPopup" + groupId);
-        removeLabelPopup.classList.add("show");
-    }
-
-    function closeRemoveLabelPopup(groupId) {
-        var removeLabelPopup = document.getElementById("removeLabelPopup" + groupId);
-        removeLabelPopup.classList.remove("show");
-
-        var form = removeLabelPopup.querySelector("form");
-        form.reset();
-    }
-    //endregion
-
 </script>
 
 <style>
-
+    .label {
+        display: inline-block;
+        padding: 2px 5px;
+        margin: 2px;
+        border-radius: 5px;
+        background-color: var(--trik-grey);
+        color: var(--trik-blue);
+        font-size: 12px;
+    }
 </style>

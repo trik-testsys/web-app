@@ -202,6 +202,117 @@ class AdminController @Autowired constructor(
         return modelAndView
     }
 
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
+    @PostMapping("/group/labels/add")
+    fun addLabelsToGroup(
+        @RequestParam accessToken: String,
+        @RequestParam groupAccessToken: String,
+        @RequestParam newLabel: String?,
+        @RequestParam labels: List<String>?,
+        modelAndView: ModelAndView
+    ): ModelAndView {
+        logger.info(accessToken, "Client trying to add labels to group.")
+
+        val isAdmin = isAdminAccessToken(accessToken)
+        if (!isAdmin) {
+            logger.info(accessToken, "Client is not an admin.")
+            modelAndView.viewName = "error"
+            modelAndView.addObject("message", "You are not an admin!")
+
+            return modelAndView
+        }
+
+        logger.info(accessToken, "Client is an admin.")
+
+        val labelsToAdd = mutableListOf<String>()
+        if (!newLabel.isNullOrBlank()) {
+            labelsToAdd.add(newLabel)
+        }
+
+        if (labels != null) {
+            labelsToAdd.addAll(labels)
+        }
+
+        val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
+        val admin = adminService.getAdminByWebUser(webUser)!!
+
+        val group = groupService.getGroupByAccessToken(groupAccessToken)!!
+        val labelsToCreate = labelsToAdd.filter { labelService.getByName(it) == null }.map { Label(it) }
+        labelService.saveAll(labelsToCreate)
+
+        val allLabels = labelService.getAll().filter { it.name in labelsToAdd }
+
+        group.labels.addAll(allLabels)
+        groupService.save(group)
+        logger.info(accessToken, "Labels added to group: $group")
+
+        val adminModel = AdminModel.Builder()
+            .accessToken(accessToken)
+            .groups(admin.groups)
+            .viewers(admin.viewers)
+            .tasks(admin.tasks)
+            .username(admin.webUser.username)
+            .labels(labelService.getAll())
+            .build()
+
+        modelAndView.addAllObjects(adminModel.asMap())
+        modelAndView.view = RedirectView("/v1/testsys/admin")
+
+        return modelAndView
+    }
+
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
+    @PostMapping("/group/labels/delete")
+    fun deleteLabelsFromGroup(
+        @RequestParam accessToken: String,
+        @RequestParam groupAccessToken: String,
+        @RequestParam labels: List<String>,
+        modelAndView: ModelAndView
+    ): ModelAndView {
+        logger.info(accessToken, "Client trying to delete labels from group.")
+
+        val isAdmin = isAdminAccessToken(accessToken)
+        if (!isAdmin) {
+            logger.info(accessToken, "Client is not an admin.")
+            modelAndView.viewName = "error"
+            modelAndView.addObject("message", "You are not an admin!")
+
+            return modelAndView
+        }
+
+        logger.info(accessToken, "Client is an admin.")
+
+        val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
+        val admin = adminService.getAdminByWebUser(webUser)!!
+
+        val group = groupService.getGroupByAccessToken(groupAccessToken)!!
+        val labelsToDelete = labelService.getAll().filter { it.name in labels }
+        group.labels.removeAll(labelsToDelete.toSet())
+        groupService.save(group)
+        logger.info(accessToken, "Labels deleted from group: $group")
+
+        val adminModel = AdminModel.Builder()
+            .accessToken(accessToken)
+            .groups(admin.groups)
+            .viewers(admin.viewers)
+            .tasks(admin.tasks)
+            .username(admin.webUser.username)
+            .labels(labelService.getAll())
+            .build()
+
+        modelAndView.addAllObjects(adminModel.asMap())
+        modelAndView.view = RedirectView("/v1/testsys/admin")
+
+        return modelAndView
+    }
+
+    @Deprecated("")
     @GetMapping("/group")
     fun accessToGroup(@RequestParam accessToken: String, @RequestParam groupAccessToken: String, model: Model): Any {
         logger.info("[${accessToken.padStart(80)}]: Client trying to access group.")
@@ -223,6 +334,7 @@ class AdminController @Autowired constructor(
         return model
     }
 
+    @Deprecated("")
     @GetMapping("/task")
     fun getTaskSolutions(
         @RequestParam accessToken: String,
@@ -272,6 +384,7 @@ class AdminController @Autowired constructor(
         return model
     }
 
+    @Deprecated("")
     @GetMapping("/student")
     fun getStudentSubmissions(
         @RequestParam accessToken: String,
@@ -320,6 +433,7 @@ class AdminController @Autowired constructor(
         return model
     }
 
+    @Deprecated("")
     @GetMapping("/group/table")
     fun getGroupTable(
         @RequestParam accessToken: String,
@@ -384,6 +498,7 @@ class AdminController @Autowired constructor(
         return model
     }
 
+    @Deprecated("")
     @GetMapping("/student/create")
     @ResponseBody
     fun createStudents(
@@ -421,6 +536,7 @@ class AdminController @Autowired constructor(
             .body(FileSystemResource(csvFile))
     }
 
+    @Deprecated("")
     @PostMapping("/group/change/access")
     fun changeAccess(
         @RequestParam accessToken: String,

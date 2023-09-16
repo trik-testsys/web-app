@@ -23,6 +23,10 @@ class LabelService @Autowired constructor(
         return labelRepository.save(label)
     }
 
+    fun saveAll(labels: Collection<Label>): List<Label> {
+        return labelRepository.saveAll(labels).toList()
+    }
+
     fun getAll(): List<Label> {
         return labelRepository.findAll().toList()
     }
