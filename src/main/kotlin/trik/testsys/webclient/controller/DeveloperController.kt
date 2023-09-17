@@ -21,11 +21,11 @@ import org.springframework.web.servlet.view.RedirectView
 import trik.testsys.webclient.util.handler.GradingSystemErrorHandler
 import trik.testsys.webclient.entity.Developer
 import trik.testsys.webclient.entity.WebUser
-import trik.testsys.webclient.model.DeveloperModel
-import trik.testsys.webclient.service.AdminService
-import trik.testsys.webclient.service.DeveloperService
-import trik.testsys.webclient.service.TaskService
-import trik.testsys.webclient.service.WebUserService
+import trik.testsys.webclient.model.impl.DeveloperModel
+import trik.testsys.webclient.service.impl.AdminService
+import trik.testsys.webclient.service.impl.DeveloperService
+import trik.testsys.webclient.service.impl.TaskService
+import trik.testsys.webclient.service.impl.WebUserService
 import trik.testsys.webclient.util.fp.Either
 import trik.testsys.webclient.util.logger.TrikLogger
 import java.time.LocalDateTime

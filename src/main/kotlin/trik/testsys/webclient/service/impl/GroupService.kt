@@ -1,19 +1,19 @@
-package trik.testsys.webclient.service
+package trik.testsys.webclient.service.impl
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
 import trik.testsys.webclient.entity.Admin
 import trik.testsys.webclient.entity.Group
-import trik.testsys.webclient.entity.Label
 import trik.testsys.webclient.repository.GroupRepository
+import trik.testsys.webclient.service.TrikService
 import java.security.MessageDigest
 import java.util.*
 
 @Service
 class GroupService @Autowired constructor(
    private val groupRepository: GroupRepository
-) {
+) : TrikService {
 
     fun createGroup(admin: Admin, name: String): Group {
         val accessToken = generateAccessToken(name)

@@ -1,4 +1,4 @@
-package trik.testsys.webclient.service
+package trik.testsys.webclient.service.impl
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -8,13 +8,14 @@ import trik.testsys.webclient.entity.Developer
 import trik.testsys.webclient.entity.Task
 import trik.testsys.webclient.entity.TrikFile
 import trik.testsys.webclient.repository.TaskRepository
+import trik.testsys.webclient.service.TrikService
 
 @Service
 class TaskService @Autowired constructor(
     private val taskRepository: TaskRepository,
     private val groupService: GroupService,
     private val trikFileService: TrikFileService,
-) {
+) : TrikService {
 
     /**
      * @return Saved [Task] if it was saved, [null] otherwise

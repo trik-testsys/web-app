@@ -1,4 +1,4 @@
-package trik.testsys.webclient.service
+package trik.testsys.webclient.service.impl
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -8,6 +8,7 @@ import trik.testsys.webclient.entity.Student
 import trik.testsys.webclient.entity.WebUser
 import trik.testsys.webclient.repository.StudentRepository
 import trik.testsys.webclient.repository.WebUserRepository
+import trik.testsys.webclient.service.TrikService
 import java.io.File
 
 import java.security.MessageDigest
@@ -23,7 +24,7 @@ import kotlin.random.Random
 class StudentService @Autowired constructor(
     private val studentRepository: StudentRepository,
     private val webUserRepository: WebUserRepository
-) {
+) : TrikService {
 
     fun getByWebUser(webUser: WebUser): Student? {
         return studentRepository.findByWebUser(webUser)

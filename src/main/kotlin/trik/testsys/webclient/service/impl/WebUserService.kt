@@ -1,10 +1,11 @@
-package trik.testsys.webclient.service
+package trik.testsys.webclient.service.impl
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
 import trik.testsys.webclient.entity.WebUser
 import trik.testsys.webclient.repository.WebUserRepository
+import trik.testsys.webclient.service.TrikService
 
 import java.security.MessageDigest
 import java.util.Date
@@ -15,10 +16,9 @@ import java.util.Random
  * @since 1.0.0
  */
 @Service
-class WebUserService {
-
-    @Autowired
-    private lateinit var webUserRepository: WebUserRepository
+class WebUserService @Autowired constructor(
+    private val webUserRepository: WebUserRepository
+) : TrikService {
 
     fun saveWebUser(username: String): WebUser {
         val accessToken = generateAccessToken(username)

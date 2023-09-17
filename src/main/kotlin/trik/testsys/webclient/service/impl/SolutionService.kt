@@ -1,4 +1,4 @@
-package trik.testsys.webclient.service
+package trik.testsys.webclient.service.impl
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -7,19 +7,15 @@ import trik.testsys.webclient.entity.Solution
 import trik.testsys.webclient.repository.SolutionRepository
 import trik.testsys.webclient.repository.StudentRepository
 import trik.testsys.webclient.repository.TaskRepository
+import trik.testsys.webclient.service.TrikService
 
 
 @Service
-class SolutionService {
-
-    @Autowired
-    lateinit var solutionRepository: SolutionRepository
-
-    @Autowired
-    lateinit var studentRepository: StudentRepository
-
-    @Autowired
-    lateinit var taskRepository: TaskRepository
+class SolutionService @Autowired constructor(
+    private val solutionRepository: SolutionRepository,
+    private val studentRepository: StudentRepository,
+    private val taskRepository: TaskRepository
+) : TrikService {
 
     fun saveSolution(studentId: Long, taskId: Long, gradingId: Long): Solution? {
         val student = studentRepository.findById(studentId) ?: return null

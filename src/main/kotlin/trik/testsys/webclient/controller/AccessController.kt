@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.servlet.view.RedirectView
 
-import trik.testsys.webclient.service.*
+import trik.testsys.webclient.service.impl.*
 import trik.testsys.webclient.util.logger.TrikLogger
 
 @RestController
