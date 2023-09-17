@@ -7,7 +7,7 @@ import trik.testsys.webclient.entity.SuperUser
 import trik.testsys.webclient.entity.WebUser
 
 @Repository
-interface SuperUserRepository: CrudRepository<SuperUser, String> {
+interface SuperUserRepository: CrudRepository<SuperUser, Long> {
 
     fun findSuperUserByWebUserId(webUserId: Long): SuperUser?
 

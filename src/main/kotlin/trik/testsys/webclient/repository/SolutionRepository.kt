@@ -8,7 +8,7 @@ import trik.testsys.webclient.entity.Student
 import trik.testsys.webclient.entity.Task
 
 @Repository
-interface SolutionRepository : CrudRepository<Solution, String> {
+interface SolutionRepository : CrudRepository<Solution, Long> {
 
     fun findSolutionsByTask(task: Task): List<Solution>?
 

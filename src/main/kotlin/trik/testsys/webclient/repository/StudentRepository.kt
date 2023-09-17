@@ -13,7 +13,7 @@ import trik.testsys.webclient.entity.WebUser
  * @since 1.0.0
  */
 @Repository
-interface StudentRepository : CrudRepository<Student, String> {
+interface StudentRepository : CrudRepository<Student, Long> {
 
     fun findByWebUser(webUser: WebUser): Student?
 
@@ -37,5 +37,5 @@ interface StudentRepository : CrudRepository<Student, String> {
         @Param("groupId") groupId: Long
     ): Long?
 
-    fun findById(id: Long): Student?
+    fun findStudentById(id: Long): Student?
 }

@@ -69,7 +69,7 @@ class StudentService @Autowired constructor(
     }
 
     fun getById(id: Long): Student? {
-        return studentRepository.findById(id)
+        return studentRepository.findStudentById(id)
     }
 
     /**
