@@ -1,7 +1,5 @@
-package trik.testsys.webclient.controller
+package trik.testsys.webclient.controller.impl
 
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -12,48 +10,31 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.servlet.ModelAndView
+import trik.testsys.webclient.controller.TrikUserController
 import trik.testsys.webclient.entity.WebUser
 
 import trik.testsys.webclient.service.impl.SuperUserService
 import trik.testsys.webclient.service.impl.WebUserService
 import trik.testsys.webclient.models.ResponseMessage
 import trik.testsys.webclient.service.impl.AdminService
+import trik.testsys.webclient.util.logger.TrikLogger
 
 
 @RequestMapping("\${app.testsys.api.prefix}/superuser")
 @RestController
-class SuperUserController {
-
-    private val logger: Logger = LoggerFactory.getLogger(this::class.java)
-
-    @Autowired
-    private lateinit var superUserService: SuperUserService
-
-    @Autowired
-    private lateinit var webUserService: WebUserService
-
-    @Autowired
-    private lateinit var adminService: AdminService
+class SuperUserController @Autowired constructor(
+    private val superUserService: SuperUserService,
+    private val webUserService: WebUserService,
+    private val adminService: AdminService
+) : TrikUserController {
 
     @GetMapping
-    fun getAccess(@RequestParam accessToken: String, model: Model): Any {
-        logger.info("[${accessToken.padStart(80)}]: Client trying to access super user page.")
-
-        val status = validateSuperUser(accessToken)
-        if (status != WebUser.Status.SUPER_USER) {
-            logger.info("[${accessToken.padStart(80)}]: Client is not a super user.")
-            return ResponseEntity
-                .status(HttpStatus.FORBIDDEN)
-                .body(ResponseMessage(403, "You are not a superuser!"))
-        }
-
-        logger.info("[${accessToken.padStart(80)}]: Client is a super user.")
-
-        val webUsers = webUserService.getWebUserByAccessToken(accessToken)!!
-        model.addAttribute("name", webUsers.username)
-        model.addAttribute("accessToken", accessToken)
-
-        return model
+    override fun getAccess(
+        @RequestParam accessToken: String,
+        modelAndView: ModelAndView
+    ): ModelAndView {
+        TODO("Not yet implemented")
     }
 
     @PostMapping("/webUser/create", produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -176,5 +157,9 @@ class SuperUserController {
         superUserService.getSuperUserByWebUserId(webUser.id!!) ?: return WebUser.Status.WEB_USER
 
         return WebUser.Status.SUPER_USER
+    }
+
+    companion object {
+        private val logger = TrikLogger(this::class.java)
     }
 }

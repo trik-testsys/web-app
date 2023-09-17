@@ -1,4 +1,4 @@
-package trik.testsys.webclient.controller
+package trik.testsys.webclient.controller.impl
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -17,6 +17,7 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
+import trik.testsys.webclient.controller.TrikUserController
 
 import trik.testsys.webclient.util.handler.GradingSystemErrorHandler
 import trik.testsys.webclient.entity.Developer

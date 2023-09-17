@@ -1,4 +1,4 @@
-package trik.testsys.webclient.controller
+package trik.testsys.webclient.controller.impl
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.GetMapping
@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.servlet.ModelAndView
+import trik.testsys.webclient.controller.TrikUserController
 import trik.testsys.webclient.entity.*
 
 import trik.testsys.webclient.model.impl.ViewerModel

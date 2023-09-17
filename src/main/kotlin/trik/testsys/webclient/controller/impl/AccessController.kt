@@ -1,4 +1,4 @@
-package trik.testsys.webclient.controller
+package trik.testsys.webclient.controller.impl
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.ui.Model

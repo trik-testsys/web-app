@@ -1,4 +1,4 @@
-package trik.testsys.webclient.controller
+package trik.testsys.webclient.controller.impl
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -8,6 +8,7 @@ import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
+import trik.testsys.webclient.controller.TrikUserController
 
 import trik.testsys.webclient.entity.*
 import trik.testsys.webclient.model.impl.AdminModel
@@ -29,14 +30,14 @@ class AdminController @Autowired constructor(
     private val studentService: StudentService,
     private val labelService: LabelService,
     private val viewerService: ViewerService,
-) {
+) : TrikUserController {
 
     /**
      * @author Roman Shishkin
      * @since 1.1.0
      */
     @GetMapping
-    fun getAccess(
+    override fun getAccess(
         @RequestParam accessToken: String,
         modelAndView: ModelAndView
     ): ModelAndView {

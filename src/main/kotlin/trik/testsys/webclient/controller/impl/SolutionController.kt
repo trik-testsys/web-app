@@ -1,4 +1,4 @@
-package trik.testsys.webclient.controller
+package trik.testsys.webclient.controller.impl
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
