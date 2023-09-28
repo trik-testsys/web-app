@@ -50,9 +50,9 @@ class StudentService @Autowired constructor(
         val startNumber = studentRepository.findMaxNumberWithSameNamePrefix(prefixRegex, group.id!!) ?: START_NUMBER_IF_NOT_FOUND
 
         for (i in 1..count) {
-            val accessToken = generateAccessToken(accessTokenPrefix, namePrefix)
-
             val number = startNumber + i
+            val accessToken = generateAccessToken(accessTokenPrefix, namePrefix, number)
+
             val username = "${namePrefix}$NAME_DELIMITER$number"
 
             val webUser = WebUser(username, accessToken)
@@ -78,8 +78,8 @@ class StudentService @Autowired constructor(
      * @param accessTokenPrefix prefix for access token
      * @param usernamePrefix prefix for username
      */
-    private fun generateAccessToken(accessTokenPrefix: String, usernamePrefix: String): String {
-        val saltedWord = usernamePrefix + Random(Date().time).nextInt()
+    private fun generateAccessToken(accessTokenPrefix: String, usernamePrefix: String, number: Long): String {
+        val saltedWord = usernamePrefix + Random(Date().time).nextInt() + Date().time + number
         val md = MessageDigest.getInstance(HASHING_ALGORITHM_NAME)
 
         val hash = md.digest(saltedWord.toByteArray())
@@ -92,7 +92,7 @@ class StudentService @Autowired constructor(
      * @author Roman Shishkin
      * @since 1.1.0
      */
-    fun convertToCsv(students: List<Student>): File {
+    fun convertToCsv(students: List<Student>): StringBuilder {
         val csv = StringBuilder()
         csv.append("id,username,access_token,group_id,group_name\n")
         students.forEach { student ->
@@ -101,11 +101,7 @@ class StudentService @Autowired constructor(
             csv.append("${student.id},${webUser.username},${webUser.accessToken},${group.id},${group.name}\n")
         }
 
-        val uuid = UUID.randomUUID().toString()
-        val file = File("/tmp/students_$uuid.csv")
-        file.writeText(csv.toString())
-
-        return file
+        return csv
     }
 
     companion object {
