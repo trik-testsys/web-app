@@ -38,6 +38,12 @@ class AccessController @Autowired constructor(
             return RedirectView("/v1/testsys/student/registration?groupAccessToken=$accessToken")
         }
 
+        viewerService.getByAdminRegToken(accessToken)?.let {
+            logger.info(accessToken, "Client is a new admin.")
+//            return RedirectView("https://srv3.trikset.com:8843/v1/testsys/admin/registration?accessToken=$accessToken")
+            return RedirectView("/v1/testsys/admin/registration?accessToken=$accessToken")
+        }
+
         val webUser = webUserService.getWebUserByAccessToken(accessToken) ?: run {
             logger.info(accessToken, "Client is not authorized.")
             return model
@@ -57,6 +63,7 @@ class AccessController @Autowired constructor(
 
         developerService.getByWebUser(webUser)?.let {
             logger.info(accessToken, "Client is a developer.")
+//            return RedirectView("https://srv3.trikset.com:8843/v1/testsys/developer?accessToken=$accessToken")
             return RedirectView("/v1/testsys/developer?accessToken=$accessToken")
         }
 
@@ -75,6 +82,7 @@ class AccessController @Autowired constructor(
         viewerService.getByWebUser(webUser)?.let {
             logger.info(accessToken, "Client is a viewer.")
 
+//            return RedirectView("https://srv3.trikset.com:8843/v1/testsys/viewer?accessToken=$accessToken")
             return RedirectView("/v1/testsys/viewer?accessToken=$accessToken")
         }
 
