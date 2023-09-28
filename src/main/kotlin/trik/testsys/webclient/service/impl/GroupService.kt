@@ -3,9 +3,9 @@ package trik.testsys.webclient.service.impl
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
-import trik.testsys.webclient.entity.Admin
-import trik.testsys.webclient.entity.Group
-import trik.testsys.webclient.repository.GroupRepository
+import trik.testsys.webclient.entity.impl.Admin
+import trik.testsys.webclient.entity.impl.Group
+import trik.testsys.webclient.repository.impl.GroupRepository
 import trik.testsys.webclient.service.TrikService
 import java.security.MessageDigest
 import java.util.*

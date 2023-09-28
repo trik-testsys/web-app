@@ -2,7 +2,6 @@ package trik.testsys.webclient.controller.impl
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.core.io.FileSystemResource
 import org.springframework.http.*
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.*
@@ -10,7 +9,7 @@ import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import trik.testsys.webclient.controller.TrikUserController
 
-import trik.testsys.webclient.entity.*
+import trik.testsys.webclient.entity.impl.*
 import trik.testsys.webclient.model.impl.AdminModel
 import trik.testsys.webclient.models.ResponseMessage
 import trik.testsys.webclient.service.impl.*

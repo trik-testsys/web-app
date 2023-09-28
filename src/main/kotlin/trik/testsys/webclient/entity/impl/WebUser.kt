@@ -1,6 +1,5 @@
-package trik.testsys.webclient.entity
+package trik.testsys.webclient.entity.impl
 
-import trik.testsys.webclient.util.AccessToken
 import javax.persistence.*
 
 @Entity
@@ -8,8 +7,8 @@ import javax.persistence.*
 class WebUser(
     @Column(
         nullable = false, length = 50,
-        columnDefinition = "VARCHAR(50) DEFAULT ''"
-    ) val username: String,
+        columnDefinition = "VARCHAR(300) DEFAULT ''"
+    ) var username: String,
 
     @Column(
         nullable = false, unique = true, length = 50,
@@ -21,6 +20,9 @@ class WebUser(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, unique = true)
     val id: Long? = null
+
+    @Column(columnDefinition = "VARCHAR(1000) DEFAULT ''")
+    var additionalInfo: String? = null
 
     @OneToOne(mappedBy = "webUser", cascade = [CascadeType.ALL])
     lateinit var admin: Admin

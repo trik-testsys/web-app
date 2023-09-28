@@ -3,12 +3,12 @@ package trik.testsys.webclient.service.impl
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
-import trik.testsys.webclient.entity.Admin
-import trik.testsys.webclient.entity.Viewer
-import trik.testsys.webclient.entity.WebUser
-import trik.testsys.webclient.repository.AdminRepository
-import trik.testsys.webclient.repository.StudentRepository
-import trik.testsys.webclient.repository.WebUserRepository
+import trik.testsys.webclient.entity.impl.Admin
+import trik.testsys.webclient.entity.impl.Viewer
+import trik.testsys.webclient.entity.impl.WebUser
+import trik.testsys.webclient.repository.impl.AdminRepository
+import trik.testsys.webclient.repository.impl.StudentRepository
+import trik.testsys.webclient.repository.impl.WebUserRepository
 import trik.testsys.webclient.service.TrikService
 
 @Service
@@ -62,7 +62,7 @@ class AdminService @Autowired constructor(
     }
 
     fun getAdminByWebUser(webUser: WebUser): Admin? {
-        return adminRepository.findByWebUser(webUser)
+        return adminRepository.findAdminByWebUser(webUser)
     }
 
     /**

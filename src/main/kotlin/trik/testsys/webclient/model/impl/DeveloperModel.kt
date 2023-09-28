@@ -1,7 +1,7 @@
 package trik.testsys.webclient.model.impl
 
-import trik.testsys.webclient.entity.Admin
-import trik.testsys.webclient.entity.Task
+import trik.testsys.webclient.entity.impl.Admin
+import trik.testsys.webclient.entity.impl.Task
 import trik.testsys.webclient.model.TrikModel
 import trik.testsys.webclient.util.exception.TrikException
 

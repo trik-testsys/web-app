@@ -2,11 +2,10 @@ package trik.testsys.webclient.service.impl
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import trik.testsys.webclient.entity.Task
 
-import trik.testsys.webclient.entity.TrikFile
-import trik.testsys.webclient.repository.TaskRepository
-import trik.testsys.webclient.repository.TrikFileRepository
+import trik.testsys.webclient.entity.impl.TrikFile
+import trik.testsys.webclient.repository.impl.TaskRepository
+import trik.testsys.webclient.repository.impl.TrikFileRepository
 import trik.testsys.webclient.service.TrikService
 
 /**

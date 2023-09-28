@@ -7,9 +7,11 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.servlet.view.RedirectView
+import trik.testsys.webclient.entity.impl.WebUser
 
 import trik.testsys.webclient.service.impl.*
 import trik.testsys.webclient.util.logger.TrikLogger
+import java.util.Random
 
 @RestController
 @RequestMapping("\${app.testsys.api.prefix}")

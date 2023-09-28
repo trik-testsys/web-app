@@ -1,8 +1,8 @@
-package trik.testsys.webclient.repository
+package trik.testsys.webclient.repository.impl
 
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
-import trik.testsys.webclient.entity.WebUser
+import trik.testsys.webclient.entity.impl.WebUser
 
 /**
  * @author Roman Shishkin

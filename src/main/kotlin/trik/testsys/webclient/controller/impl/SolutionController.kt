@@ -10,8 +10,9 @@ import org.springframework.http.HttpMethod
 import org.springframework.stereotype.Controller
 import org.springframework.web.client.RestTemplate
 
-import trik.testsys.webclient.entity.Solution
+import trik.testsys.webclient.entity.impl.Solution
 import trik.testsys.webclient.service.impl.SolutionService
+import trik.testsys.webclient.util.handler.GradingSystemErrorHandler
 
 /**
  * @author Roman Shishkin
@@ -29,7 +30,7 @@ class SolutionController(@Value("\${app.grading-system.path}") val gradingSystem
 
 //    @Scheduled(fixedRate = CHECK_INTERVAL)
     private fun checkSolutions() {
-//        restTemplate.errorHandler = GradingSystemErrorHandler()
+        restTemplate.errorHandler = GradingSystemErrorHandler()
 
         logger.info("Checking solutions...")
         val solutions = solutionService.getAllSolutions()
@@ -37,7 +38,7 @@ class SolutionController(@Value("\${app.grading-system.path}") val gradingSystem
         val idsString = submissionIds.joinToString(",")
 
         val headers = HttpHeaders()
-        headers.setBasicAuth("user1", "super")
+        headers.setBasicAuth("admin", "@dm1n")
 
         val url = "$gradingSystemUrl$GRADING_SYSTEM_ENDPOINT$idsString"
 

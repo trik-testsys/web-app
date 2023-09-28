@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.servlet.ModelAndView
 import trik.testsys.webclient.controller.TrikUserController
-import trik.testsys.webclient.entity.*
+import trik.testsys.webclient.entity.impl.*
 
 import trik.testsys.webclient.model.impl.ViewerModel
 import trik.testsys.webclient.service.impl.*

@@ -2,9 +2,9 @@ package trik.testsys.webclient.service.impl
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import trik.testsys.webclient.entity.Viewer
-import trik.testsys.webclient.entity.WebUser
-import trik.testsys.webclient.repository.ViewerRepository
+import trik.testsys.webclient.entity.impl.Viewer
+import trik.testsys.webclient.entity.impl.WebUser
+import trik.testsys.webclient.repository.impl.ViewerRepository
 import trik.testsys.webclient.service.TrikService
 import java.security.MessageDigest
 import java.util.*

@@ -1,9 +1,8 @@
 package trik.testsys.webclient.model.impl
 
-import trik.testsys.webclient.entity.Group
-import trik.testsys.webclient.entity.Label
-import trik.testsys.webclient.entity.Task
-import trik.testsys.webclient.entity.Viewer
+import trik.testsys.webclient.entity.impl.Group
+import trik.testsys.webclient.entity.impl.Label
+import trik.testsys.webclient.entity.impl.Task
 import trik.testsys.webclient.model.TrikModel
 import trik.testsys.webclient.util.exception.TrikException
 

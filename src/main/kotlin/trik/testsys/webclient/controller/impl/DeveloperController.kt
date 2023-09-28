@@ -20,8 +20,8 @@ import org.springframework.web.servlet.view.RedirectView
 import trik.testsys.webclient.controller.TrikUserController
 
 import trik.testsys.webclient.util.handler.GradingSystemErrorHandler
-import trik.testsys.webclient.entity.Developer
-import trik.testsys.webclient.entity.WebUser
+import trik.testsys.webclient.entity.impl.Developer
+import trik.testsys.webclient.entity.impl.WebUser
 import trik.testsys.webclient.model.impl.DeveloperModel
 import trik.testsys.webclient.service.impl.*
 import trik.testsys.webclient.util.fp.Either

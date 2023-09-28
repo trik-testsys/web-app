@@ -1,22 +1,21 @@
-package trik.testsys.webclient.entity
+package trik.testsys.webclient.entity.impl
 
 import javax.persistence.*
-
 
 /**
  * @author Roman Shishkin
  * @since 1.1.0
  */
 @Entity
-@Table(name = "DEVELOPERS")
-class Developer(
+@Table(name = "VIEWERS")
+class Viewer(
     @OneToOne(cascade = [CascadeType.ALL])
     @JoinColumn(
         name = "web_user_id",
         referencedColumnName = "id",
         nullable = false,
         unique = true
-    ) val webUser: WebUser? = null
+    ) val webUser: WebUser,
 ) {
 
     @Id
@@ -24,6 +23,9 @@ class Developer(
     @Column(nullable = false, unique = true)
     val id: Long? = null
 
-    @OneToMany(mappedBy = "developer", cascade = [CascadeType.ALL])
-    val tasks: MutableSet<Task> = mutableSetOf()
+    @OneToMany(mappedBy = "viewer", cascade = [CascadeType.ALL])
+    val admins: MutableSet<Admin> = mutableSetOf()
+
+    @Column(nullable = false, name = "admin_reg_token", columnDefinition = "VARCHAR(100) DEFAULT ''")
+    var adminRegToken: String = ""
 }

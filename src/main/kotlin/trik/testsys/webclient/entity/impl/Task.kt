@@ -1,4 +1,4 @@
-package trik.testsys.webclient.entity
+package trik.testsys.webclient.entity.impl
 
 import java.time.LocalDateTime
 import javax.persistence.*
