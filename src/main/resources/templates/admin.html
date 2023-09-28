@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en" th:charset="utf-8">
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
 <head>
     <meta charset="UTF-8">
-    <title>Страница Администатора</title>
-    <link rel="icon" th:href="@{/img/trik_testsys_logo.ico}">
-    <link rel="stylesheet" th:href="@{/css/style.css}"/>
-    <link rel="stylesheet" th:href="@{/css/popup.css}"/>
-    <link rel="stylesheet" th:href="@{/css/table.css}"/>
+    <title>Страница Организатора</title>
+    <link rel="icon" th:href="@{/v1/testsys/img/trik_testsys_logo.ico}">
+    <link rel="stylesheet" th:href="@{/v1/testsys/css/style.css}"/>
+    <link rel="stylesheet" th:href="@{/v1/testsys/css/popup.css}"/>
+    <link rel="stylesheet" th:href="@{/v1/testsys/css/table.css}"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js">
@@ -16,8 +16,8 @@
 <div class="container">
     <div class="header">
         <div class="page-type">
-            <img th:src="@{/img/trik_testsys_logo.svg}" alt="logo">
-            <p>Страница Администратора</p>
+            <img th:src="@{/v1/testsys/img/trik_testsys_logo.svg}" alt="logo">
+            <p>Страница Организатора</p>
         </div>
         <div class="exit">
             <form th:action="@{/v1/testsys}" method="get">
@@ -266,6 +266,25 @@
                 <td th:text="${task.description}"></td>
                 <td style="width: 5%">
 
+                    <!--                    <div class="task-info-popup popup" th:id="'taskInfoPopup' + ${task.id}">-->
+                    <!--                        <div class="popup-content">-->
+                    <!--                            <button id="closeTaskInfoPopup" class="close-button"-->
+                    <!--                                    th:onclick="'closeTaskInfoPopup(\'' + ${task.id} + '\')'">-->
+                    <!--                                <i class="fa fa-close"></i>-->
+                    <!--                            </button>-->
+
+                    <!--                            <h1>Информация о задаче</h1>-->
+                    <!--                            <h1 th:text="${task.id} + ': ' + ${task.name}"></h1>-->
+                    <!--                            <p th:text="${task.description}"></p>-->
+                    <!--                            <p>В задаче участвуют <span th:text="${task.groups.size()}"></span> групп.</p>-->
+                    <!--                            <p>В задаче участвуют <span th:text="${task.students.size()}"></span> участников.</p>-->
+                    <!--                            <p>В задаче участвуют <span th:text="${task.labels.size()}"></span> тегов.</p>-->
+                    <!--                            <p>В задаче участвуют <span th:text="${task.tests.size()}"></span> тестов.</p>-->
+                    <!--                            <p>В задаче участвуют <span th:text="${task.answers.size()}"></span> ответов.</p>-->
+                    <!--                            <p>В задаче участвуют <span th:text="${task.results.size()}"></span> результатов.</p>-->
+                    <!--                        </div>-->
+                    <!--                    </div>-->
+
                     <div class="add-task-to-group-popup popup" th:id="'addTaskToGroupsPopup' + ${task.id}">
                         <div class="popup-content">
                             <button id="closeAddTaskToGroupsPopup" class="close-button"
@@ -321,6 +340,10 @@
                     </div>
 
                     <div class="buttons">
+                        <button class="popup-button" title="Подробная информация"
+                                id="taskInfo" th:onclick="'taskInfoPopup(\'' + ${task.id} + '\')'">
+                            <i class="fa fa-info"></i>
+                        </button>
                         <button class="popup-button" title="Добавить в группы"
                                 id="addTaskToGroups" th:onclick="'addTaskToGroupsPopup(\'' + ${task.id} + '\')'">
                             <i class="fa fa-paperclip"></i>
@@ -337,50 +360,52 @@
     </div>
 
 
-    <div class="popup create-viewer-popup" id="createViewerPopup">
-        <div class="popup-content">
-            <button id="closeCreateViewer" class="close-button"
-                    onclick="closeCreateViewerPopup()">
-                <i class="fa fa-close"></i>
-            </button>
-            <h1>Создание наблюдателя</h1>
-            <form class="uploadForm" id="create-viewer-form"
-                  th:action="@{/v1/testsys/admin/viewer/create}" method="post">
-                <input type="text" name="accessToken" th:value="${accessToken}"
-                       placeholder="Код-доступа" required
-                       style="display: none"/>
-                <input type="text" name="username" placeholder="Имя пользователя" required/>
-                <input type="submit" value="Создать"/>
-            </form>
-        </div>
-    </div>
+<!--    <div class="popup create-viewer-popup" id="createViewerPopup">-->
+<!--        <div class="popup-content">-->
+<!--            <button id="closeCreateViewer" class="close-button"-->
+<!--                    onclick="closeCreateViewerPopup()">-->
+<!--                <i class="fa fa-close"></i>-->
+<!--            </button>-->
+<!--            <h1>Создание наблюдателя</h1>-->
+<!--            <form class="uploadForm" id="create-viewer-form"-->
+<!--                  th:action="@{/v1/testsys/admin/viewer/create}" method="post">-->
+<!--                <input type="text" name="accessToken" th:value="${accessToken}"-->
+<!--                       placeholder="Код-доступа" required-->
+<!--                       style="display: none"/>-->
+<!--                <input type="text" name="username" placeholder="Имя пользователя" required/>-->
+<!--                <input type="submit" value="Создать"/>-->
+<!--            </form>-->
+<!--        </div>-->
+<!--    </div>-->
 
-    <div class="table viewers-tables">
-        <table>
-            <caption>Список наблюдателей</caption>
-            <tr>
-                <th>ID</th>
-                <th>Имя</th>
-                <th>Код-доступа</th>
-                <th>Действия</th>
-            </tr>
-            <tr th:each="viewer: ${viewers}" th:id="'viewer' + ${viewer.id}">
-                <td th:text="${viewer.id}"></td>
-                <td th:text="${viewer.webUser.username}"></td>
-                <td class="accessToken" th:id="'viewerAccessToken' + ${viewer.id}"
-                    title="Нажмите, чтобы скопировать" th:onclick="'copyViewerAccessToken(\'' + ${viewer.id} + '\')'"
-                    th:text="${viewer.webUser.accessToken}">
-                </td>
-                <td>
-                </td>
-            </tr>
-        </table>
-        <div class="add-button">
-            <button class="popup-button" id="createViewer">
-                <i class="fa fa-plus"></i>
-            </button>
-        </div>
-    </div>
+<!--    <div class="table viewers-tables">-->
+<!--        <table>-->
+<!--            <caption>Список наблюдателей</caption>-->
+<!--            <tr>-->
+<!--                <th>ID</th>-->
+<!--                <th>Имя</th>-->
+<!--                <th>Код-доступа</th>-->
+<!--                <th>Действия</th>-->
+<!--            </tr>-->
+<!--            <tbody>-->
+<!--            <tr th:each="viewer: ${viewers}" th:id="'viewer' + ${viewer.id}">-->
+<!--                <td th:text="${viewer.id}"></td>-->
+<!--                <td th:text="${viewer.webUser.username}"></td>-->
+<!--                <td class="accessToken" th:id="'viewerAccessToken' + ${viewer.id}"-->
+<!--                    title="Нажмите, чтобы скопировать" th:onclick="'copyViewerAccessToken(\'' + ${viewer.id} + '\')'"-->
+<!--                    th:text="${viewer.webUser.accessToken}">-->
+<!--                </td>-->
+<!--                <td>-->
+<!--                </td>-->
+<!--            </tr>-->
+<!--            </tbody>-->
+<!--        </table>-->
+<!--        <div class="add-button">-->
+<!--            <button class="popup-button" id="createViewer">-->
+<!--                <i class="fa fa-plus"></i>-->
+<!--            </button>-->
+<!--        </div>-->
+<!--    </div>-->
 </div>
 </body>
 </html>

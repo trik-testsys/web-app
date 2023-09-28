@@ -32,8 +32,12 @@
                    placeholder="Group access token"
                    th:value="${groupAccessToken}" readonly/>
             <input type="number" min="1" th:max="200" step="1" name="count" placeholder="Количество учеников" required/>
-            <input type="text" name="studentAccessTokenPrefix" placeholder="Префикс кода-доступа" required/>
-            <input type="text" name="namePrefix" placeholder="Префикс имени" required/>
+            <input type="text" name="studentAccessTokenPrefix" placeholder="Префикс кода-доступа"
+                   style="display: none" th:value="${name}"
+                   required readonly/>
+            <input type="text" name="namePrefix" placeholder="Префикс имени"
+                   style="display: none" th:value="${name}"
+                   required readonly/>
             <input type="submit" value="Сгенерировать" required id="reset"/>
         </form>
     </div>
