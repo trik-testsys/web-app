@@ -23,10 +23,7 @@ import trik.testsys.webclient.util.handler.GradingSystemErrorHandler
 import trik.testsys.webclient.entity.Developer
 import trik.testsys.webclient.entity.WebUser
 import trik.testsys.webclient.model.impl.DeveloperModel
-import trik.testsys.webclient.service.impl.AdminService
-import trik.testsys.webclient.service.impl.DeveloperService
-import trik.testsys.webclient.service.impl.TaskService
-import trik.testsys.webclient.service.impl.WebUserService
+import trik.testsys.webclient.service.impl.*
 import trik.testsys.webclient.util.fp.Either
 import trik.testsys.webclient.util.logger.TrikLogger
 import java.time.LocalDateTime
@@ -47,7 +44,8 @@ class DeveloperController @Autowired constructor(
     private val developerService: DeveloperService,
     private val webUserService: WebUserService,
     private val taskService: TaskService,
-    private val adminService: AdminService
+    private val adminService: AdminService,
+    private val groupService: GroupService
 ) : TrikUserController {
 
     @GetMapping
@@ -105,7 +103,7 @@ class DeveloperController @Autowired constructor(
         modelAndView.addObject("accessToken", accessToken)
 
         val task = taskService.saveTask(name, description, developer, tests, training, benchmark)
-
+        postTask(name, tests, benchmark, training)
 //        val isTaskPosted = postTask(name, tests, benchmark, training)
 //        if (!isTaskPosted) {
 //            developerModelBuilder.postTaskMessage("Задача '${task.fullName}' не была загружена на сервер, попробуйте еще раз.")
@@ -221,14 +219,14 @@ class DeveloperController @Autowired constructor(
 
         val headers = HttpHeaders()
         headers.contentType = MediaType.MULTIPART_FORM_DATA
-        headers.setBasicAuth("admin", "admin") // TODO("Change to real credentials.")
+        headers.setBasicAuth("admin", "@dm1n") // TODO("Change to real credentials.")
 
         val body = LinkedMultiValueMap<String, Any>()
         body.add("taskName", name)
 
         tests.forEach { body.add("files", it.resource) }
-        benchmark?.let { body.add("benchmark", it.resource) }
-        training?.let { body.add("training", it.resource) }
+//        benchmark?.let { body.add("benchmark", it.resource) }
+//        training?.let { body.add("training", it.resource) }
 
         val url = "$gradingSystemUrl/task/create"
         val responseInfo = restTemplate.postForEntity(
@@ -389,6 +387,17 @@ class DeveloperController @Autowired constructor(
         task.admins.removeAll(admins.toSet())
         taskService.saveTask(task)
 
+        admins.forEach { admin ->
+            admin.tasks.remove(task)
+
+            val groups = admin.groups
+            groups.forEach { group ->
+                group.tasks.remove(task)
+            }
+            groupService.saveAll(groups)
+        }
+        adminService.saveAll(admins)
+
         logger.info(accessToken, "Task '${task.getFullName()}' was successfully detached from admins.")
 
         val developerModelBuilder = DeveloperModel.Builder()
@@ -433,7 +442,8 @@ class DeveloperController @Autowired constructor(
 
         private const val DEVELOPER_VIEW_NAME = "developer"
         private const val POST_TASK_MESSAGE = "postTaskMessage"
-        private val REDIRECT_VIEW = RedirectView("/v1/testsys/$DEVELOPER_VIEW_NAME")
+        private const val SERVER_PREFIX = "https://srv3.trikset.com:8843"
+        private val REDIRECT_VIEW = RedirectView("${SERVER_PREFIX}/v1/testsys/$DEVELOPER_VIEW_NAME")
         private const val UTC_OFFSET = 3L
     }
 }
