@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service
 import trik.testsys.webclient.entity.impl.WebUser
 import trik.testsys.webclient.repository.impl.WebUserRepository
 import trik.testsys.webclient.service.TrikService
+import trik.testsys.webclient.util.AccessTokenGenerator
 
 import java.security.MessageDigest
 import java.util.Date
@@ -25,7 +26,7 @@ class WebUserService @Autowired constructor(
     }
 
     fun saveWebUser(username: String): WebUser {
-        val accessToken = generateAccessToken(username)
+        val accessToken = AccessTokenGenerator.generateAccessToken(username, AccessTokenGenerator.TokenType.WEB_USER)
         val webUser = WebUser(username, accessToken)
 
         return webUserRepository.save(webUser)
@@ -43,17 +44,5 @@ class WebUserService @Autowired constructor(
 
     fun getWebUserById(id: Long): WebUser? {
         return webUserRepository.findWebUserById(id)
-    }
-
-    private fun generateAccessToken(word: String): String {
-        val saltedWord = word + Date().time + Random(Date().time).nextInt()
-        val md = MessageDigest.getInstance(HASHING_ALGORITHM_NAME)
-        val digest = md.digest(saltedWord.toByteArray())
-
-        return digest.fold("") { str, it -> str + "%02x".format(it) }
-    }
-
-    companion object {
-        private const val HASHING_ALGORITHM_NAME = "SHA-256"
     }
 }

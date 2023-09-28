@@ -7,6 +7,7 @@ import trik.testsys.webclient.entity.impl.Admin
 import trik.testsys.webclient.entity.impl.Group
 import trik.testsys.webclient.repository.impl.GroupRepository
 import trik.testsys.webclient.service.TrikService
+import trik.testsys.webclient.util.AccessTokenGenerator
 import java.security.MessageDigest
 import java.util.*
 
@@ -16,7 +17,7 @@ class GroupService @Autowired constructor(
 ) : TrikService {
 
     fun createGroup(admin: Admin, name: String): Group {
-        val accessToken = generateAccessToken(name)
+        val accessToken = AccessTokenGenerator.generateAccessToken(name, AccessTokenGenerator.TokenType.GROUP)
         val group = Group(admin, name, accessToken)
         return groupRepository.save(group)
     }
@@ -51,13 +52,5 @@ class GroupService @Autowired constructor(
      */
     fun delete(group: Group) {
         groupRepository.delete(group)
-    }
-
-    private fun generateAccessToken(word: String): String {
-        val saltedWord = word + Date().time + Random(Date().time).nextInt()
-        val md = MessageDigest.getInstance("SHA-224")
-        val digest = md.digest(saltedWord.toByteArray())
-
-        return digest.fold("") { str, it -> str + "%02x".format(it) }
     }
 }

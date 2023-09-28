@@ -9,6 +9,7 @@ import trik.testsys.webclient.entity.impl.WebUser
 import trik.testsys.webclient.repository.impl.StudentRepository
 import trik.testsys.webclient.repository.impl.WebUserRepository
 import trik.testsys.webclient.service.TrikService
+import trik.testsys.webclient.util.AccessTokenGenerator
 
 import java.security.MessageDigest
 import java.util.*
@@ -50,7 +51,8 @@ class StudentService @Autowired constructor(
 
         for (i in 1..count) {
             val number = startNumber + i
-            val accessToken = generateAccessToken(accessTokenPrefix, namePrefix, number)
+            val generatedToken = AccessTokenGenerator.generateAccessToken(namePrefix + number, AccessTokenGenerator.TokenType.WEB_USER)
+            val accessToken = accessTokenPrefix + ACCESS_TOKEN_DELIMITER + generatedToken
 
             val username = "${namePrefix}$NAME_DELIMITER$number"
 
@@ -69,22 +71,6 @@ class StudentService @Autowired constructor(
 
     fun getById(id: Long): Student? {
         return studentRepository.findStudentById(id)
-    }
-
-    /**
-     * @author Roman Shishkin
-     * @since 1.1.0
-     * @param accessTokenPrefix prefix for access token
-     * @param usernamePrefix prefix for username
-     */
-    private fun generateAccessToken(accessTokenPrefix: String, usernamePrefix: String, number: Long): String {
-        val saltedWord = usernamePrefix + Random(Date().time).nextInt() + Date().time + number
-        val md = MessageDigest.getInstance(HASHING_ALGORITHM_NAME)
-
-        val hash = md.digest(saltedWord.toByteArray())
-        val foldedHash = hash.fold("") { str, it -> str + "%02x".format(it) }
-
-        return "$accessTokenPrefix$ACCESS_TOKEN_DELIMITER$foldedHash"
     }
 
     /**
