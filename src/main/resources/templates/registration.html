@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+<head>
+    <meta charset="UTF-8">
+    <title>Registration page</title>
+</head>
+<body>
+<div class="container">
+    <h1>Страница регистрации Организатора</h1>
+    <div class="greeting">
+        <p>Здравствуйте! Вы ввели верный Код-регистрации Организатора: <span class="token" th:text="${accessToken}"></span>.
+        </p>
+        <p>Для регистрации в системе, необходимо ввести псевдоним, с помощью которого Наблюдатель сможет Вас идентифицировать.</p>
+        <p>В дальнейшем, Вы не сможете изменить свой псевдоним, поэтому, пожалуйста, вводите его внимательно.</p>
+        <div class="creation">
+            <form th:action="@{/v1/testsys/admin/create}" method="post">
+                <input type="hidden" name="accessToken" th:value="${accessToken}" readonly/>
+                <input type="text" name="username" placeholder="Имя пользователя" required/>
+                <input type="submit" value="Зарегистрироваться" required/>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
+<style>
+    .container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .greeting {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .groups {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .groups-table {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .groups-table table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    .groups-table th, td {
+        text-align: left;
+        padding: 8px;
+    }
+
+    .groups-table tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    .groups-table th {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .creation {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .greeting {
+        text-align: center;
+    }
+
+    .greeting p {
+        text-align: center;
+    }
+
+    .greeting span {
+        font-weight: bold;
+    }
+
+    .greeting .token {
+        font-family: monospace;
+    }
+
+    .greeting .token:hover {
+        color: #45a049;
+    }
+
+    .greeting .token:active {
+        color: #4CAF50;
+    }
+
+    .greeting p {
+        margin: 5px;
+    }
+
+    .groups-table input {
+        width: 100%;
+    }
+
+    .groups-table form {
+        width: 100%;
+    }
+
+    .groups-table form input {
+        width: 100%;
+    }
+
+    .groups-table form input[type="submit"] {
+        width: 100%;
+    }
+
+    .groups-table input[type="submit"] {
+        width: 100%;
+        color: white;
+        background-color: #4CAF50;
+        padding: 10px 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .groups-table input[type="submit"]:hover {
+        background-color: #45a049;
+    }
+
+    .creation input[type="submit"] {
+        width: 100%;
+        color: white;
+        background-color: #4CAF50;
+        padding: 10px 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .creation input[type="submit"]:hover {
+        background-color: #45a049;
+    }
+
+    .creation input[type="text"] {
+        width: 100%;
+        padding: 10px 10px;
+        margin: 5px 0;
+        display: inline-block;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    .creation {
+        width: 20%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+        text-align: center;
+        background: #f2f2f2;
+        border-radius: 5px;
+        padding: 15px 20px 20px;
+    }
+
+    .creation form p {
+        text-align: center;
+        margin-bottom: 5px;
+        margin-top: 0;
+    }
+
+    body {
+        font-family: sans-serif;
+    }
+</style>
