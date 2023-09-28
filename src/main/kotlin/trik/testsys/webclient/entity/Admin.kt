@@ -12,7 +12,7 @@ class Admin(
         nullable = false,
         unique = true
     ) val webUser: WebUser
-) {
+) : TrikEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,6 +31,21 @@ class Admin(
     @ManyToMany(mappedBy = "admins")
     val tasks: MutableSet<Task> = mutableSetOf()
 
-    @OneToMany(mappedBy = "admin")
-    val viewers: MutableSet<Viewer> = mutableSetOf()
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
+    @ManyToOne
+    @JoinColumn(
+        name = "viewer_id",
+        referencedColumnName = "id"
+    ) lateinit var viewer: Viewer
+
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
+    constructor(webUser: WebUser, viewer: Viewer) : this(webUser) {
+        this.viewer = viewer
+    }
 }

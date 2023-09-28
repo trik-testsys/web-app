@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
 import trik.testsys.webclient.entity.Admin
+import trik.testsys.webclient.entity.Viewer
 import trik.testsys.webclient.entity.WebUser
 import trik.testsys.webclient.repository.AdminRepository
 import trik.testsys.webclient.repository.StudentRepository
@@ -34,13 +35,34 @@ class AdminService @Autowired constructor(
         return adminRepository.save(admin)
     }
 
+    fun saveAll(admins: Collection<Admin>): List<Admin> {
+        return adminRepository.saveAll(admins).toList()
+    }
+
     fun getAdminByWebUserId(webUserId: Long): Admin? {
         val webUser = webUserRepository.findWebUserById(webUserId) ?: return null
         return adminRepository.findAdminByWebUser(webUser)
     }
 
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
+    fun save(admin: Admin): Admin {
+        return adminRepository.save(admin)
+    }
+
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
+    fun save(webUser: WebUser, viewer: Viewer): Admin {
+        val admin = Admin(webUser, viewer)
+        return adminRepository.save(admin)
+    }
+
     fun getAdminByWebUser(webUser: WebUser): Admin? {
-        return adminRepository.findAdminByWebUser(webUser)
+        return adminRepository.findByWebUser(webUser)
     }
 
     /**
@@ -51,6 +73,13 @@ class AdminService @Autowired constructor(
         return adminRepository.findAllById(ids).toList()
     }
 
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
+    fun getById(id: Long): Admin? {
+        return adminRepository.findAdminById(id)
+    }
     /**
      * @author Roman Shishkin
      * @since 1.1.0

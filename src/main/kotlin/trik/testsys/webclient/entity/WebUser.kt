@@ -1,5 +1,6 @@
 package trik.testsys.webclient.entity
 
+import trik.testsys.webclient.util.AccessToken
 import javax.persistence.*
 
 @Entity

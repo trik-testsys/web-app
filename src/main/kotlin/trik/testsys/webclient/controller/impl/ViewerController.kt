@@ -10,10 +10,7 @@ import trik.testsys.webclient.controller.TrikUserController
 import trik.testsys.webclient.entity.*
 
 import trik.testsys.webclient.model.impl.ViewerModel
-import trik.testsys.webclient.service.impl.GroupService
-import trik.testsys.webclient.service.impl.LabelService
-import trik.testsys.webclient.service.impl.ViewerService
-import trik.testsys.webclient.service.impl.WebUserService
+import trik.testsys.webclient.service.impl.*
 import trik.testsys.webclient.util.fp.Either
 import trik.testsys.webclient.util.logger.TrikLogger
 
@@ -27,7 +24,7 @@ class ViewerController @Autowired constructor(
     private val webUserService: WebUserService,
     private val groupService: GroupService,
     private val viewerService: ViewerService,
-    private val labelService: LabelService
+    private val adminService: AdminService
 ) : TrikUserController {
 
     @GetMapping
@@ -43,9 +40,31 @@ class ViewerController @Autowired constructor(
         }
         val viewer = eitherViewer.getRight()
 
+        val groups = mutableSetOf<Group>()
+        viewer.admins.forEach { admin ->
+            groups.addAll(admin.groups)
+        }
+
+        val groupsResult = mutableMapOf<Long, Table>()
+        groups.forEach { group ->
+            val groupResult = generateGroupResult(group)
+            groupsResult[group.id!!] = groupResult
+        }
+
+        val adminsResult = mutableMapOf<Long, Table>()
+        viewer.admins.forEach { admin ->
+            val adminResult = generateAdminResult(admin)
+            adminsResult[admin.id!!] = adminResult
+        }
+
         val viewerModel = ViewerModel.Builder()
             .accessToken(accessToken)
             .username(viewer.webUser.username)
+            .adminRegToken(viewer.adminRegToken)
+            .admins(viewer.admins)
+            .groups(groups)
+            .groupsResult(groupsResult)
+            .adminsResult(adminsResult)
             .build()
         modelAndView.viewName = VIEWER_VIEW_NAME
         modelAndView.addAllObjects(viewerModel.asMap())
@@ -53,57 +72,41 @@ class ViewerController @Autowired constructor(
         return modelAndView
     }
 
-    @GetMapping("/result")
-    fun getResults(
-        @RequestParam accessToken: String,
-        @RequestParam labelNames: List<String>,
-        @RequestParam intersection: Boolean,
-        modelAndView: ModelAndView
-    ): ModelAndView {
-        logger.info(accessToken, "Client trying to get results by labels: ${labelNames}.")
+    private fun generateAdminResult(admin: Admin): Table {
+        val tasks = admin.tasks.toList().sortedBy { it.id }
 
-        val eitherViewer = validateViewer(accessToken)
-        if (eitherViewer.isLeft()) {
-            return eitherViewer.getLeft()
-        }
-        val viewer = eitherViewer.getRight()
-
-        val labels = mutableSetOf<Label>()
-        val correctNames = mutableSetOf<String>()
-        val incorrectNames = mutableSetOf<String>()
-        labelNames.forEach { labelName ->
-            val label = labelService.getByName(labelName)
-            if (label != null) {
-                correctNames.add(labelName)
-                labels.add(label)
-            } else {
-                incorrectNames.add(labelName)
-            }
-        }
-
-        val groups = if (intersection) {
-            labelService.getGroupsWithAllLabels(labels)
-        } else {
-            labelService.getGroupsWithAnyLabel(labels)
-        }
-
-        val tasksSet = mutableSetOf<Task>()
+        val students = mutableSetOf<Student>()
+        val groups = admin.groups
         groups.forEach { group ->
-            tasksSet.addAll(group.tasks)
+            students.addAll(group.students)
         }
 
-        val studentsSet = mutableSetOf<Student>()
-        groups.forEach { group ->
-            studentsSet.addAll(group.students)
+        val table = generateTable(tasks, students.toList().sortedBy { it.id })
+
+        return table
+    }
+
+    private fun generateGroupResult(group: Group): Table {
+        val tasks = group.tasks.toList().sortedBy { it.id }
+        val students = group.students.toList().sortedBy { it.id }
+        val table = generateTable(tasks, students)
+
+        return table
+    }
+
+    private fun generateTable(tasks: List<Task>, students: List<Student>): Table {
+        val header = mutableListOf<String>()
+        tasks.forEach { task ->
+            val taskNameWithId = "${task.id}: ${task.name}"
+            header.add(taskNameWithId)
         }
 
-        val tasksList = tasksSet.toList()
-        val table = mutableListOf<TableRow>()
-        studentsSet.forEach { student ->
+        val rows = mutableListOf<TableRow>()
+        students.forEach { student ->
             val tasksInfo = mutableListOf<Long>()
-            tasksList.forEach { task ->
+            tasks.forEach { task ->
                 val failedSolution =
-                    student.solutions.find { it.task == task && (it.status == Solution.Status.FAILED || it.status == Solution.Status.ERROR) }
+                    student.solutions.find { it.task.id == task.id && (it.status == Solution.Status.FAILED || it.status == Solution.Status.ERROR) }
                 val passedSolution =
                     student.solutions.find { it.task == task && it.status == Solution.Status.PASSED }
                 val inProgressSolution =
@@ -119,41 +122,31 @@ class ViewerController @Autowired constructor(
                     tasksInfo.add(-1)
                 }
             }
-
-            val username = student.webUser.username
-            val groupName = student.group.name
-            val tableRow = TableRow(groupName, student.id!!, username, tasksInfo)
-            table.add(tableRow)
+            rows.add(TableRow(student.id!!, student.webUser.username, tasksInfo))
         }
 
-
-        val viewerModel = ViewerModel.Builder()
-            .accessToken(accessToken)
-            .correctNames(correctNames)
-            .incorrectNames(incorrectNames)
-            .labels(labels)
-            .table(table)
-            .build()
-
-        modelAndView.viewName = VIEWER_VIEW_NAME
-        modelAndView.addAllObjects(viewerModel.asMap())
-        return modelAndView
+        return Table(header, rows)
     }
+
+    data class Table(
+        val header: List<String>,
+        val rows: List<TableRow>
+    )
 
     data class TableRow(
         val username: String,
         val tasksInfo: List<Long>
     ) {
         constructor(
-            groupName: String, studentId: Long, studentName: String,
+            studentId: Long, studentName: String,
             tasksInfo: List<Long>
         ) : this(
-            "$groupName|$studentId|$studentName",
+            "$studentId: $studentName",
             tasksInfo
         )
     }
 
-    private fun validateViewer(accessToken: String): Either<ModelAndView, Viewer> {
+    fun validateViewer(accessToken: String): Either<ModelAndView, Viewer> {
         val modelAndView = ModelAndView("error")
         val webUser = webUserService.getWebUserByAccessToken(accessToken) ?: run {
             logger.info(accessToken, "Client is not found.")

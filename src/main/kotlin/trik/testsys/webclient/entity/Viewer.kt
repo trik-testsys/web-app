@@ -16,13 +16,16 @@ class Viewer(
         nullable = false,
         unique = true
     ) val webUser: WebUser,
-
-    @ManyToOne
-    val admin: Admin
 ) {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, unique = true)
     val id: Long? = null
+
+    @OneToMany(mappedBy = "viewer", cascade = [CascadeType.ALL])
+    val admins: MutableSet<Admin> = mutableSetOf()
+
+    @Column(nullable = false, name = "admin_reg_token", columnDefinition = "VARCHAR(100) DEFAULT ''")
+    var adminRegToken: String = ""
 }

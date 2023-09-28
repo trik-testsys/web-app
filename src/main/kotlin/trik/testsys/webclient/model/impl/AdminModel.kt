@@ -16,7 +16,6 @@ class AdminModel private constructor(
     val username: String,
     val groups: Collection<Group>,
     val tasks: Collection<Task>,
-    val viewers: Collection<Viewer>,
     val labels: Collection<Label>
 ) : TrikModel {
 
@@ -26,7 +25,6 @@ class AdminModel private constructor(
         private var username: String? = null
         private var groups: Collection<Group>? = null
         private var tasks: Collection<Task>? = null
-        private var viewers: Collection<Viewer>? = null
         private var labels: Collection<Label>? = null
 
         fun accessToken(accessToken: String) = apply { this.accessToken = accessToken }
@@ -37,8 +35,6 @@ class AdminModel private constructor(
 
         fun tasks(tasks: Collection<Task>) = apply { this.tasks = tasks }
 
-        fun viewers(viewers: Collection<Viewer>) = apply { this.viewers = viewers }
-
         fun labels(labels: Collection<Label>) = apply { this.labels = labels }
 
         fun build() = AdminModel(
@@ -46,7 +42,6 @@ class AdminModel private constructor(
             username ?: throw TrikException(String.format(PARAMETER_ERROR, AdminModel::username.name)),
             groups ?: throw TrikException(String.format(PARAMETER_ERROR, AdminModel::groups.name)),
             tasks ?: throw TrikException(String.format(PARAMETER_ERROR, AdminModel::tasks.name)),
-            viewers ?: throw TrikException(String.format(PARAMETER_ERROR, AdminModel::viewers.name)),
             labels ?: throw TrikException(String.format(PARAMETER_ERROR, AdminModel::labels.name))
         )
     }
@@ -58,7 +53,6 @@ class AdminModel private constructor(
         argsMap[this::username.name] = username
         argsMap[this::groups.name] = groups.sortedBy { it.id }
         argsMap[this::tasks.name] = tasks.sortedBy { it.id }
-        argsMap[this::viewers.name] = viewers.sortedBy { it.id }
         argsMap[this::labels.name] = labels.sortedBy { it.id }
 
         return argsMap

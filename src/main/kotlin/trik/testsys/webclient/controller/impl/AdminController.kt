@@ -61,7 +61,6 @@ class AdminController @Autowired constructor(
             .username(admin.webUser.username)
             .tasks(admin.tasks)
             .groups(admin.groups)
-            .viewers(admin.viewers)
             .labels(labelService.getAll())
             .build()
 
@@ -101,14 +100,13 @@ class AdminController @Autowired constructor(
         val adminModel = AdminModel.Builder()
             .accessToken(accessToken)
             .groups(admin.groups)
-            .viewers(admin.viewers)
             .tasks(admin.tasks)
             .username(admin.webUser.username)
             .labels(labelService.getAll())
             .build()
 
         modelAndView.addAllObjects(adminModel.asMap())
-        modelAndView.view = RedirectView("/v1/testsys/admin")
+        modelAndView.view = RedirectView("${SERVER_PREFIX}/v1/testsys/admin")
 
         return modelAndView
     }
@@ -147,14 +145,13 @@ class AdminController @Autowired constructor(
         val adminModel = AdminModel.Builder()
             .accessToken(accessToken)
             .groups(admin.groups)
-            .viewers(admin.viewers)
             .tasks(admin.tasks)
             .username(admin.webUser.username)
             .labels(labelService.getAll())
             .build()
 
         modelAndView.addAllObjects(adminModel.asMap())
-        modelAndView.view = RedirectView("/v1/testsys/admin")
+        modelAndView.view = RedirectView("${SERVER_PREFIX}/v1/testsys/admin")
 
         return modelAndView
     }
@@ -191,14 +188,13 @@ class AdminController @Autowired constructor(
         val adminModel = AdminModel.Builder()
             .accessToken(accessToken)
             .groups(admin.groups)
-            .viewers(admin.viewers)
             .tasks(admin.tasks)
             .username(admin.webUser.username)
             .labels(labelService.getAll())
             .build()
 
         modelAndView.addAllObjects(adminModel.asMap())
-        modelAndView.view = RedirectView("/v1/testsys/admin")
+        modelAndView.view = RedirectView("${SERVER_PREFIX}/v1/testsys/admin")
 
         return modelAndView
     }
@@ -253,14 +249,13 @@ class AdminController @Autowired constructor(
         val adminModel = AdminModel.Builder()
             .accessToken(accessToken)
             .groups(admin.groups)
-            .viewers(admin.viewers)
             .tasks(admin.tasks)
             .username(admin.webUser.username)
             .labels(labelService.getAll())
             .build()
 
         modelAndView.addAllObjects(adminModel.asMap())
-        modelAndView.view = RedirectView("/v1/testsys/admin")
+        modelAndView.view = RedirectView("${SERVER_PREFIX}/v1/testsys/admin")
 
         return modelAndView
     }
@@ -301,14 +296,13 @@ class AdminController @Autowired constructor(
         val adminModel = AdminModel.Builder()
             .accessToken(accessToken)
             .groups(admin.groups)
-            .viewers(admin.viewers)
             .tasks(admin.tasks)
             .username(admin.webUser.username)
             .labels(labelService.getAll())
             .build()
 
         modelAndView.addAllObjects(adminModel.asMap())
-        modelAndView.view = RedirectView("/v1/testsys/admin")
+        modelAndView.view = RedirectView("${SERVER_PREFIX}/v1/testsys/admin")
 
         return modelAndView
     }
@@ -317,48 +311,111 @@ class AdminController @Autowired constructor(
      * @author Roman Shishkin
      * @since 1.1.0
      */
-    @PostMapping("/viewer/create")
-    fun createViewer(
+    @GetMapping("/registration")
+    fun registration(
         @RequestParam accessToken: String,
-        @RequestParam username: String,
         modelAndView: ModelAndView
     ): ModelAndView {
-        logger.info(accessToken, "Client trying to delete labels from group.")
+        logger.info(accessToken, "Admin trying to register.")
 
-        val isAdmin = isAdminAccessToken(accessToken)
-        if (!isAdmin) {
-            logger.info(accessToken, "Client is not an admin.")
+        val viewer = viewerService.getByAdminRegToken(accessToken) ?: run {
+            logger.info(accessToken, "No viewer with such regToken.")
             modelAndView.viewName = "error"
-            modelAndView.addObject("message", "You are not an admin!")
+            modelAndView.addObject("message", "No viewer with such regToken!")
 
             return modelAndView
         }
 
-        logger.info(accessToken, "Client is an admin.")
-
-        val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
-        val admin = adminService.getAdminByWebUser(webUser)!!
-
-        val newWebUser = webUserService.saveWebUser(username)
-        val newViewer = Viewer(newWebUser, admin)
-        viewerService.save(newViewer)
-
-        logger.info(accessToken, "Viewer created: $newViewer")
-
         val adminModel = AdminModel.Builder()
             .accessToken(accessToken)
-            .groups(admin.groups)
-            .viewers(admin.viewers)
-            .tasks(admin.tasks)
-            .username(admin.webUser.username)
+            .username("")
             .labels(labelService.getAll())
+            .groups(emptySet())
+            .tasks(emptySet())
             .build()
-
         modelAndView.addAllObjects(adminModel.asMap())
-        modelAndView.view = RedirectView("/v1/testsys/admin")
+        modelAndView.viewName = "registration"
 
         return modelAndView
     }
+
+    @PostMapping("/create")
+    fun create(
+        @RequestParam accessToken: String,
+        @RequestParam username: String,
+        modelAndView: ModelAndView
+    ): ModelAndView {
+        logger.info(accessToken, "Admin trying to create.")
+
+        val viewer = viewerService.getByAdminRegToken(accessToken) ?: run {
+            logger.info(accessToken, "No viewer with such regToken.")
+            modelAndView.viewName = "error"
+            modelAndView.addObject("message", "No viewer with such regToken!")
+
+            return modelAndView
+        }
+
+        val webUser = webUserService.saveWebUser(username)
+        val admin = adminService.save(webUser, viewer)
+
+        val adminModel = AdminModel.Builder()
+            .accessToken(webUser.accessToken)
+            .username(webUser.username)
+            .labels(labelService.getAll())
+            .groups(admin.groups)
+            .tasks(admin.tasks)
+            .build()
+        modelAndView.addAllObjects(adminModel.asMap())
+        modelAndView.viewName = "create"
+
+        return modelAndView
+    }
+
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
+//    @PostMapping("/viewer/create")
+//    fun createViewer(
+//        @RequestParam accessToken: String,
+//        @RequestParam username: String,
+//        modelAndView: ModelAndView
+//    ): ModelAndView {
+//        logger.info(accessToken, "Client trying to delete labels from group.")
+//
+//        val isAdmin = isAdminAccessToken(accessToken)
+//        if (!isAdmin) {
+//            logger.info(accessToken, "Client is not an admin.")
+//            modelAndView.viewName = "error"
+//            modelAndView.addObject("message", "You are not an admin!")
+//
+//            return modelAndView
+//        }
+//
+//        logger.info(accessToken, "Client is an admin.")
+//
+//        val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
+//        val admin = adminService.getAdminByWebUser(webUser)!!
+//
+//        val newWebUser = webUserService.saveWebUser(username)
+//        val newViewer = Viewer(newWebUser, admin)
+//        viewerService.save(newViewer)
+//
+//        logger.info(accessToken, "Viewer created: $newViewer")
+//
+//        val adminModel = AdminModel.Builder()
+//            .accessToken(accessToken)
+//            .groups(admin.groups)
+//            .tasks(admin.tasks)
+//            .username(admin.webUser.username)
+//            .labels(labelService.getAll())
+//            .build()
+//
+//        modelAndView.addAllObjects(adminModel.asMap())
+//        modelAndView.view = RedirectView("${SERVER_PREFIX}/v1/testsys/admin")
+//
+//        return modelAndView
+//    }
 
     /**
      * @author Roman Shishkin
@@ -399,14 +456,13 @@ class AdminController @Autowired constructor(
         val adminModel = AdminModel.Builder()
             .accessToken(accessToken)
             .groups(admin.groups)
-            .viewers(admin.viewers)
             .tasks(admin.tasks)
             .username(admin.webUser.username)
             .labels(labelService.getAll())
             .build()
 
         modelAndView.addAllObjects(adminModel.asMap())
-        modelAndView.view = RedirectView("/v1/testsys/admin")
+        modelAndView.view = RedirectView("${SERVER_PREFIX}/v1/testsys/admin")
 
         return modelAndView
     }
@@ -450,14 +506,13 @@ class AdminController @Autowired constructor(
         val adminModel = AdminModel.Builder()
             .accessToken(accessToken)
             .groups(admin.groups)
-            .viewers(admin.viewers)
             .tasks(admin.tasks)
             .username(admin.webUser.username)
             .labels(labelService.getAll())
             .build()
 
         modelAndView.addAllObjects(adminModel.asMap())
-        modelAndView.view = RedirectView("/v1/testsys/admin")
+        modelAndView.view = RedirectView("${SERVER_PREFIX}/v1/testsys/admin")
 
         return modelAndView
     }
@@ -674,20 +729,22 @@ class AdminController @Autowired constructor(
         val students = studentService.generateStudents(count, studentAccessTokenPrefix, namePrefix, group)
         logger.info(accessToken, "$count students created.")
 
-        val csvFile = studentService.convertToCsv(students)
+        val csv = studentService.convertToCsv(students)
         logger.info(accessToken, "CSV with created students created.")
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_OCTET_STREAM
         headers.contentDisposition = ContentDisposition.builder("attachment")
-            .filename("students.csv")
+            .filename("${group.name}-студенты.csv")
             .build()
-        val bytes = csvFile.readBytes()
+
+        headers.acceptCharset = listOf(Charsets.UTF_8)
+        val bytes = csv.toString().toByteArray()
 
         return ResponseEntity
             .ok()
             .headers(headers)
             .contentLength(bytes.size.toLong())
-            .body(FileSystemResource(csvFile))
+            .body(bytes)
     }
 
     @Deprecated("")
@@ -823,5 +880,6 @@ class AdminController @Autowired constructor(
         private val logger = TrikLogger(this::class.java)
 
         private const val ADMIN_VIEW_NAME = "admin"
+        private const val SERVER_PREFIX = "https://srv3.trikset.com:8843"
     }
 }

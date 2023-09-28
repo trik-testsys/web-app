@@ -13,4 +13,6 @@ import trik.testsys.webclient.entity.WebUser
 interface ViewerRepository : CrudRepository<Viewer, Long> {
 
     fun findViewerByWebUser(webUser: WebUser): Viewer?
+
+    fun findByAdminRegToken(adminRegToken: String): Viewer?
 }
