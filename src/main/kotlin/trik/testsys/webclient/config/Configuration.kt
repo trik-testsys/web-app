@@ -19,9 +19,9 @@ class Configuration : WebMvcConfigurerAdapter() {
 
     override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
         registry.addResourceHandler(
-            "/img/**",
-            "/css/**",
-            "/js/**"
+            "/v1/testsys/img/**",
+            "/v1/testsys/css/**",
+            "/v1/testsys/js/**"
         ).addResourceLocations(
             "classpath:/static/img/",
             "classpath:/static/css/",
