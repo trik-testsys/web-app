@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+<head>
+    <meta charset="UTF-8">
+    <title>Страница Наблюдателя</title>
+    <link rel="icon" th:href="@{/v1/testsys/img/trik_testsys_logo.ico}">
+    <link rel="stylesheet" th:href="@{/v1/testsys/css/style.css}"/>
+    <link rel="stylesheet" th:href="@{/v1/testsys/css/popup.css}"/>
+    <link rel="stylesheet" th:href="@{/v1/testsys/css/table.css}"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js">
+    </script>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="page-type">
+            <img th:src="@{/v1/testsys/img/trik_testsys_logo.svg}" alt="logo">
+            <p>Страница Наблюдателя</p>
+        </div>
+        <div class="exit">
+            <form th:action="@{/v1/testsys}" method="get">
+                <input type="submit" value="Выйти"/>
+            </form>
+        </div>
+    </div>
+    <div class="main">
+        <div class="info">
+            <div class="greeting">
+                <h3>Здравствуйте, <span th:text="${username}"></span>!</h3>
+                <p>На этой странице вы можете отслеживать процесс выполнения задач участниками:</p>
+                <ul>
+                    <li>По школе;</li>
+                    <li>По району.</li>
+                </ul>
+            </div>
+            <div class="user-data">
+                <p>Ваш Код-доступа: <b><span title="Нажмите, чтобы скопировать" th:text="${accessToken}"
+                                             id="accessToken" class="accessToken"
+                                             onclick="copy('accessToken')"></span>.</b>
+                </p>
+                <p>Код-регистрации Организатора: <b><span title="Нажмите, чтобы скопировать"
+                                                          th:text="${adminRegToken}"
+                                                          id="adminRegToken"
+                                                          class="accessToken"
+                                                          onclick="copy('adminRegToken')"></span>.</b>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="table admins-table">
+        <table>
+            <caption>Список Организаторов</caption>
+            <tr>
+                <th>ID</th>
+                <th>Псевдоним</th>
+                <th style="width: 4%">Действия</th>
+            </tr>
+            <tr th:each="admin : ${admins}">
+                <td th:text="${admin.id}"></td>
+                <td th:text="${admin.webUser.username}"></td>
+                <td>
+                    <div class="popup admin-result-popup"
+                         th:id="'adminResultPopup' + ${admin.id}">
+                        <div class="popup-content" style="width: 80%">
+                            <button class="close-button" title="Закрыть"
+                                    id="closeAdminResultPopup"
+                                    th:onclick="'closeAdminResultPopup(' + ${admin.id} + ')'">
+                                <i class="fa fa-close"></i>
+                            </button>
+                            <h1>Результаты всех групп Организатора</h1>
+                            <h1 th:text="${admin.id} + ': ' + ${admin.webUser.username}"></h1>
+                            <div class="table group-results-table">
+                                <table>
+                                    <tr>
+                                        <th>Участник</th>
+                                        <th th:each="taskName: ${adminsResult.get(admin.id).header}">
+                                            <span th:text="${taskName}"></span>
+                                        </th>
+                                    </tr>
+                                    <tr th:each="row: ${adminsResult.get(admin.id).rows}">
+                                        <td th:text="${row.username}"></td>
+                                        <td th:each="info: ${row.tasksInfo}" style="text-align: center">
+                                            <span th:switch="${info}">
+                                                <span th:case=0>❌</span>
+                                                <span th:case=1>✅</span>
+                                                <span th:case=2>🔄</span>
+                                                <span th:case=-1>⬜</span>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="popup admin-groups-popup"
+                         th:id="'adminGroupsPopup' + ${admin.id}">
+                        <div class="popup-content" style="width: 30%">
+                            <button class="close-button" title="Закрыть"
+                                    id="closeAdminGroupsPopup"
+                                    th:onclick="'closeAdminGroupsPopup(' + ${admin.id} + ')'">
+                                <i class="fa fa-close"></i>
+                            </button>
+                            <h1>Группы Организатора</h1>
+                            <h1 th:text="${admin.id} + ': ' + ${admin.webUser.username}"></h1>
+                            <div class="table admin-groups-table">
+                                <table>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th style="text-align: left">Название</th>
+                                    </tr>
+                                    <tr th:each="group : ${admin.groups}">
+                                        <td th:text="${group.id}"></td>
+                                        <td th:text="${group.name}"></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="buttons">
+                        <button class="popup-button" title="Результаты всех групп"
+                                id="adminResults"
+                                th:onclick="'showAdminResultsPopup(' + ${admin.id} + ')'">
+                            <i class="fa fa-table"></i>
+                        </button>
+                        <button class="popup-button" title="Группы Организатора"
+                                id="adminsGroups"
+                                th:onclick="'showAdminGroupsPopup(' + ${admin.id} + ')'">
+                            <i class="fa fa-users"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+
+        </table>
+    </div>
+
+    <div class="table groups-table">
+        <table>
+            <caption>Список Групп</caption>
+            <tr>
+                <th style="width: 13%">ID Организатора</th>
+                <th style="width: 35%">Организатор</th>
+                <th style="width: 13%">ID Группы</th>
+                <th style="width: 35%">Название</th>
+                <th style="width: 4%">Действия</th>
+            </tr>
+            <tr th:each="group : ${groups}">
+                <td th:text="${group.admin.id}"></td>
+                <td th:text="${group.admin.webUser.username}"></td>
+                <td th:text="${group.id}"></td>
+                <td th:text="${group.name}"></td>
+                <td>
+                    <div class="popup group-result"
+                         th:id="'groupResultPopup' + ${group.id}">
+                        <div class="popup-content" style="width: 80%">
+                            <button class="close-button" title="Закрыть"
+                                    id="closeGroupResultPopup"
+                                    th:onclick="'closeGroupResultPopup(' + ${group.id} + ')'">
+                                <i class="fa fa-close"></i>
+                            </button>
+                            <h1>Результаты группы</h1>
+                            <h1 th:text="${group.id} + ': ' + ${group.name}"></h1>
+                            <div class="table group-results-table">
+                                <table>
+                                    <tr>
+                                        <th>Участник</th>
+                                        <th th:each="taskName: ${groupsResult.get(group.id).header}">
+                                            <span th:text="${taskName}" style="text-align: center"></span>
+                                        </th>
+                                    </tr>
+                                    <tr th:each="row: ${groupsResult.get(group.id).rows}">
+                                        <td th:text="${row.username}"></td>
+                                        <td th:each="info: ${row.tasksInfo}" style="text-align: center">
+                                            <span th:switch="${info}">
+                                                <span th:case=0>❌</span>
+                                                <span th:case=1>✅</span>
+                                                <span th:case=2>🔄</span>
+                                                <span th:case=-1>⬜</span>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="popup group-members-popup"
+                         th:id="'groupMembersPopup' + ${group.id}">
+                        <div class="popup-content" style="width: 30%">
+                            <button class="close-button" title="Закрыть"
+                                    id="closeGroupMembersPopup"
+                                    th:onclick="'closeGroupMembersPopup(' + ${group.id} + ')'">
+                                <i class="fa fa-close"></i>
+                            </button>
+                            <h1>Участники группы</h1>
+                            <h1 th:text="${group.id} + ': ' + ${group.name}"></h1>
+                            <div class="table group-members-table">
+                                <table>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th style="text-align: left">Псевдоним</th>
+                                    </tr>
+                                    <tr th:each="student : ${group.students}">
+                                        <td th:text="${student.id}"></td>
+                                        <td th:text="${student.webUser.username}"></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="buttons">
+                        <button class="popup-button" title="Результаты группы"
+                                id="groupResults"
+                                th:onclick="'showGroupResultsPopup(' + ${group.id} + ')'">
+                            <i class="fa fa-table"></i>
+                        </button>
+                        <button class="popup-button" title="Участники группы"
+                                id="groupMembers"
+                                th:onclick="'showGroupMembersPopup(' + ${group.id} + ')'">
+                            <i class="fa fa-users"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+</body>
+</html>
+
+<script>
+    function copy(id) {
+        var copyText = document.getElementById(id);
+        var textArea = document.createElement("textarea");
+
+        textArea.value = copyText.textContent;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("Copy");
+        textArea.remove();
+    }
+
+    //region Scripts for group members popup
+    function showGroupMembersPopup(groupId) {
+        var popup = document.getElementById("groupMembersPopup" + groupId);
+        popup.style.display = "block";
+    }
+
+    function closeGroupMembersPopup(groupId) {
+        var popup = document.getElementById("groupMembersPopup" + groupId);
+        popup.style.display = "none";
+    }
+
+    //endregion
+
+    //region Scripts for admin groups popup
+    function showAdminGroupsPopup(adminId) {
+        var popup = document.getElementById("adminGroupsPopup" + adminId);
+        popup.style.display = "block";
+    }
+
+    function closeAdminGroupsPopup(adminId) {
+        var popup = document.getElementById("adminGroupsPopup" + adminId);
+        popup.style.display = "none";
+    }
+
+    //endregion
+
+    //region Scripts for group results popup
+    function showGroupResultsPopup(groupId) {
+        var popup = document.getElementById("groupResultPopup" + groupId);
+        popup.style.display = "block";
+    }
+
+    function closeGroupResultPopup(groupId) {
+        var popup = document.getElementById("groupResultPopup" + groupId);
+        popup.style.display = "none";
+    }
+
+    //endregion
+
+    //region Scripts for admin results popup
+    function showAdminResultsPopup(adminId) {
+        var popup = document.getElementById("adminResultPopup" + adminId);
+        popup.style.display = "block";
+    }
+
+    function closeAdminResultPopup(adminId) {
+        var popup = document.getElementById("adminResultPopup" + adminId);
+        popup.style.display = "none";
+    }
+
+    //endregion
+
+</script>
+
+<style>
+
+</style>
