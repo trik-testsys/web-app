@@ -98,7 +98,7 @@ body {
 
 .accessToken, .label {
     font-family: monospace;
-    font-size: 14px;
+    font-size: 15px;
 }
 
 .accessToken:hover {

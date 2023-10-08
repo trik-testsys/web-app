@@ -8,13 +8,17 @@ import trik.testsys.webclient.entity.impl.Group
 import trik.testsys.webclient.repository.impl.GroupRepository
 import trik.testsys.webclient.service.TrikService
 import trik.testsys.webclient.util.AccessTokenGenerator
-import java.security.MessageDigest
-import java.util.*
 
 @Service
 class GroupService @Autowired constructor(
    private val groupRepository: GroupRepository
 ) : TrikService {
+
+    fun createGroup(admin: Admin, name: String, additionalInfo: String?): Group {
+        val accessToken = AccessTokenGenerator.generateAccessToken(name, AccessTokenGenerator.TokenType.GROUP)
+        val group = Group(admin, name, accessToken, additionalInfo)
+        return groupRepository.save(group)
+    }
 
     fun createGroup(admin: Admin, name: String): Group {
         val accessToken = AccessTokenGenerator.generateAccessToken(name, AccessTokenGenerator.TokenType.GROUP)

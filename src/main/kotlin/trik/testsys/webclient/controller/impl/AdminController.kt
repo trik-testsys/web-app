@@ -19,7 +19,7 @@ import java.time.LocalDateTime
 
 @RestController
 @RequestMapping("\${app.testsys.api.prefix}/admin")
-@Suppress("UnnecessaryVariable")
+@Suppress("UnnecessaryVariable", "DuplicatedCode")
 class AdminController @Autowired constructor(
     @Value("\${app.grading-system.path}")
     private val gradingSystemUrl: String,
@@ -57,9 +57,6 @@ class AdminController @Autowired constructor(
         val admin = adminService.getByAccessToken(accessToken)!!
         val webUser = admin.webUser
 
-        webUser.lastLoginDate = LocalDateTime.now()
-        webUserService.saveWebUser(webUser)
-
         modelAndView.viewName = ADMIN_VIEW_NAME
         val adminModel = getModel(admin, webUser)
 
@@ -76,6 +73,7 @@ class AdminController @Autowired constructor(
     fun createGroup(
         @RequestParam accessToken: String,
         @RequestParam name: String,
+        @RequestParam additionalInfo: String?,
         modelAndView: ModelAndView
     ): ModelAndView {
         logger.info(accessToken, "Client trying to create a group.")
@@ -93,7 +91,7 @@ class AdminController @Autowired constructor(
         val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
         val admin = adminService.getAdminByWebUser(webUser)!!
 
-        val group = groupService.createGroup(admin, name)
+        val group = groupService.createGroup(admin, name, additionalInfo)
         logger.info(accessToken, "Group created: $group")
 
         val adminModel = getModel(admin, webUser)
@@ -113,6 +111,7 @@ class AdminController @Autowired constructor(
         @RequestParam accessToken: String,
         @RequestParam groupAccessToken: String,
         @RequestParam name: String,
+        @RequestParam additionalInfo: String?,
         modelAndView: ModelAndView
     ): ModelAndView {
         logger.info(accessToken, "Client trying to edit a group.")
@@ -132,6 +131,7 @@ class AdminController @Autowired constructor(
 
         val group = groupService.getGroupByAccessToken(groupAccessToken)!!
         group.name = name
+        group.additionalInfo = additionalInfo
         groupService.save(group)
         logger.info(accessToken, "Group edited: $group")
 
@@ -328,6 +328,9 @@ class AdminController @Autowired constructor(
         }
 
         val webUser = webUserService.saveWebUser(username)
+        webUser.lastLoginDate = LocalDateTime.now()
+        webUserService.saveWebUser(webUser)
+
         val admin = adminService.save(webUser, viewer)
 
         val adminModel = getModel(admin, webUser)
@@ -336,52 +339,6 @@ class AdminController @Autowired constructor(
 
         return modelAndView
     }
-
-    /**
-     * @author Roman Shishkin
-     * @since 1.1.0
-     */
-//    @PostMapping("/viewer/create")
-//    fun createViewer(
-//        @RequestParam accessToken: String,
-//        @RequestParam username: String,
-//        modelAndView: ModelAndView
-//    ): ModelAndView {
-//        logger.info(accessToken, "Client trying to delete labels from group.")
-//
-//        val isAdmin = isAdminAccessToken(accessToken)
-//        if (!isAdmin) {
-//            logger.info(accessToken, "Client is not an admin.")
-//            modelAndView.viewName = "error"
-//            modelAndView.addObject("message", "You are not an admin!")
-//
-//            return modelAndView
-//        }
-//
-//        logger.info(accessToken, "Client is an admin.")
-//
-//        val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
-//        val admin = adminService.getAdminByWebUser(webUser)!!
-//
-//        val newWebUser = webUserService.saveWebUser(username)
-//        val newViewer = Viewer(newWebUser, admin)
-//        viewerService.save(newViewer)
-//
-//        logger.info(accessToken, "Viewer created: $newViewer")
-//
-//        val adminModel = AdminModel.Builder()
-//            .accessToken(accessToken)
-//            .groups(admin.groups)
-//            .tasks(admin.tasks)
-//            .username(admin.webUser.username)
-//            .labels(labelService.getAll())
-//            .build()
-//
-//        modelAndView.addAllObjects(adminModel.asMap())
-//        modelAndView.view = RedirectView("${SERVER_PREFIX}/v1/testsys/admin")
-//
-//        return modelAndView
-//    }
 
     /**
      * @author Roman Shishkin

@@ -10,6 +10,8 @@ import trik.testsys.webclient.service.impl.*
 import trik.testsys.webclient.util.AvatarGenerator
 import trik.testsys.webclient.util.logger.TrikLogger
 import java.io.File
+import java.time.LocalDateTime
+import java.time.ZoneOffset.UTC
 import java.util.Random
 
 @RestController
@@ -50,6 +52,8 @@ class AccessController @Autowired constructor(
             logger.info(accessToken, "Client is not authorized.")
             return model
         }
+        webUser.lastLoginDate = LocalDateTime.now(UTC).plusHours(3)
+        webUserService.saveWebUser(webUser)
 
         superUserService.getSuperUserByWebUser(webUser)?.let {
             logger.info(accessToken, "Client is a super user.")

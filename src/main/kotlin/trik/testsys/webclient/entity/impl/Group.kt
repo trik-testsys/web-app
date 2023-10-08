@@ -56,4 +56,16 @@ class Group(
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
     var isRegistrationOpen: Boolean = true
+
+    @Column(nullable = true, columnDefinition = "VARCHAR(1000)")
+    var additionalInfo: String? = null
+
+    constructor(
+        admin: Admin,
+        name: String,
+        accessToken: String,
+        additionalInfo: String?
+    ) : this(admin, name, accessToken) {
+        this.additionalInfo = additionalInfo
+    }
 }

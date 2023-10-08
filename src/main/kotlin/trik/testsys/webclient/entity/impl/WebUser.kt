@@ -1,6 +1,7 @@
 package trik.testsys.webclient.entity.impl
 
 import java.time.LocalDateTime
+import java.time.ZoneOffset.UTC
 import javax.persistence.*
 
 @Entity
@@ -26,8 +27,7 @@ class WebUser(
     var additionalInfo: String? = null
 
     @Column(nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
-    var registrationDate: LocalDateTime = LocalDateTime.now()
-        get() = field.plusHours(3)
+    var registrationDate: LocalDateTime = LocalDateTime.now(UTC).plusHours(3)
 
     @OneToOne(mappedBy = "webUser", cascade = [CascadeType.ALL])
     lateinit var admin: Admin
@@ -54,7 +54,6 @@ class WebUser(
      */
     @Column(nullable = true, columnDefinition = "DATETIME")
     var lastLoginDate: LocalDateTime? = null
-        get() = field?.plusHours(3)
     /**
      * @author Roman Shishkin
      * @since 1.1.0
