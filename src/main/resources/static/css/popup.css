@@ -22,8 +22,9 @@
 
 .popup-content > h1 {
     margin: 0;
-    font-size: 20px;
+    font-size: 22px;
     color: var(--trik-blue);
+    padding-bottom: 10px;
 }
 
 .popup-content form {
@@ -39,6 +40,7 @@
     border: 1px solid var(--trik-white);
     border-radius: 5px;
     padding: 5px;
+    font-size: 16px;
 }
 
 .popup-content form > input[type="submit"] {
@@ -161,4 +163,18 @@ label.upload-file {
 
 .group-add-label-popup .popup-content {
     width: 800px;
+}
+
+.popup-content .input-name {
+    width: 80%;
+    padding: 0;
+    color: var(--trik-blue);
+    text-align: left;
+    margin: 0 0 -2px;
+}
+
+.input-name h2 {
+    margin: 0;
+    padding: 0;
+    font-size: 18px;
 }

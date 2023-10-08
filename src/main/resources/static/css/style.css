@@ -41,7 +41,7 @@ body {
     margin-right: 15px;
 }
 
-.header > .exit > form > input[type="submit"], .data-header > button {
+.header > .exit > form > input[type="submit"], .data-header > button, .info button {
     background-color: var(--trik-blue);
     border: none;
     color: var(--trik-white);
@@ -53,7 +53,7 @@ body {
     border-radius: 10px;
 }
 
-.header > .exit > form > input[type="submit"]:hover, .uploadForm input[type="submit"]:hover {
+.header > .exit > form > input[type="submit"]:hover, .uploadForm input[type="submit"]:hover, .info button:hover {
     background-color: var(--trik-green);
     color: var(--trik-blue);
     cursor: pointer;
@@ -122,4 +122,60 @@ h1 {
 
 button:hover {
     cursor: pointer;
+}
+
+.info {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: var(--trik-grey);
+    color: var(--trik-blue);
+}
+
+.avatar-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 20%;
+}
+
+.additional-info {
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+}
+
+.info-table {
+    width: 100%;
+}
+
+.info-table td {
+    padding: 5px;
+}
+
+.info-table td:nth-child(1) {
+    font-weight: bold;
+    width: 33%;
+}
+
+.info-table td:nth-child(2) {
+    text-align: right;
+}
+
+.avatar-container img {
+    width: 100px;
+    height: 100px;
+    border-radius: 10%;
+    background-color: var(--trik-blue);
+    align-self: center;
+}
+
+.avatar-container .username {
+    align-self: center;
+    align-content: center;
+    text-align: center;
 }

@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
 <head>
     <meta charset="UTF-8">
-    <title>Страница Организатора</title>
+    <title>Кабинет Организатора</title>
     <link rel="icon" th:href="@{/v1/testsys/img/trik_testsys_logo.ico}">
     <link rel="stylesheet" th:href="@{/v1/testsys/css/style.css}"/>
     <link rel="stylesheet" th:href="@{/v1/testsys/css/popup.css}"/>
@@ -17,7 +17,7 @@
     <div class="header">
         <div class="page-type">
             <img th:src="@{/v1/testsys/img/trik_testsys_logo.svg}" alt="logo">
-            <p>Страница Организатора</p>
+            <p>Кабинет Организатора</p>
         </div>
         <div class="exit">
             <form th:action="@{/v1/testsys}" method="get">
@@ -25,22 +25,81 @@
             </form>
         </div>
     </div>
+
+    <div class="change-info-popup popup" id="changeInfoPopup">
+        <div class="popup-content">
+            <button class="close-button" id="closeChangeInfo"
+                    th:onclick="'closeChangeInfoPopup(\'' + ${webUserId} + '\')'">
+                <i class="fa fa-close"></i>
+            </button>
+            <h1>Редактирование данных</h1>
+            <form class="uploadForm" th:action="@{/v1/testsys/admin/info/change}" method="post">
+                <input type="text" name="accessToken" th:value="${accessToken}" placeholder="Код-доступа" required
+                       style="display: none"/>
+                <div class="input-name">
+                    <h2>Имя пользователя</h2>
+                </div>
+                <input type="text" name="newUsername" th:value="${username}" placeholder="Псевдоним" required/>
+                <div class="input-name">
+                    <h2>Дополнительная информация</h2>
+                </div>
+                <input type="text" name="newAdditionalInfo" th:value="${additionalInfo}"
+                       placeholder="Дополнительная информация"/>
+                <input type="submit" value="Редактировать"/>
+            </form>
+        </div>
+    </div>
+
     <div class="main">
         <div class="info">
-            <div class="greeting">
-                <h3>Здравствуйте, <span th:text="${username}"></span>!</h3>
-                <p>На этой странице вы можете:</p>
-                <ul>
-                    <li>Создать группу;</li>
-                    <li>Добавить доступные задачи в группу;</li>
-                    <li>Сгенерировать Код-доступа для Наблюдателя.</li>
-                </ul>
+            <div class="avatar-container">
+                <img th:src="@{/v1/testsys/img/trik_testsys_logo.svg}" alt="avatar">
+                <div class="username">
+                    <p th:text="${username}"></p>
+                </div>
+                <button id="changeInfo" class="edit-button"
+                        th:onclick="'showChangeInfoPopup(\'' + ${webUserId} + '\')'">
+                    Редактировать
+                </button>
             </div>
-            <div class="user-data">
-                <p>Ваш Код-доступа: <b><span title="Нажмите, чтобы скопировать" th:text="${accessToken}"
-                                             id="accessToken" class="accessToken"
-                                             onclick="copy('accessToken')"></span>.</b>
-                </p>
+            <div class="additional-info">
+                <table class="table info-table" style="width: 100%;">
+                    <caption>
+                        Информация об организаторе
+                    </caption>
+                    <tr>
+                        <td>Псевдоним</td>
+                        <td th:text="${username}"></td>
+                    </tr>
+                    <tr>
+                        <td>Код-доступа</td>
+                        <td th:text="${accessToken}"
+                            title="Нажмите, чтобы скопировать"
+                            id="accessToken" class="accessToken"
+                            onclick="copy('accessToken')">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Дополнительная информация</td>
+                        <td th:text="${additionalInfo}"></td>
+                    </tr>
+                    <tr>
+                        <td>Дата и время регистрации</td>
+                        <td>
+                            <time th:datetime="${registrationDate}"
+                                  th:text="${#temporals.format(registrationDate, 'dd.MM.yyyy HH:mm')}">
+                            </time>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Дата и время последнего входа</td>
+                        <td>
+                            <time th:datetime="${lastLoginDate}"
+                                  th:text="${#temporals.format(lastLoginDate, 'dd.MM.yyyy HH:mm')}">
+                            </time>
+                        </td>
+                    </tr>
+                </table>
             </div>
         </div>
     </div>
@@ -360,52 +419,52 @@
     </div>
 
 
-<!--    <div class="popup create-viewer-popup" id="createViewerPopup">-->
-<!--        <div class="popup-content">-->
-<!--            <button id="closeCreateViewer" class="close-button"-->
-<!--                    onclick="closeCreateViewerPopup()">-->
-<!--                <i class="fa fa-close"></i>-->
-<!--            </button>-->
-<!--            <h1>Создание наблюдателя</h1>-->
-<!--            <form class="uploadForm" id="create-viewer-form"-->
-<!--                  th:action="@{/v1/testsys/admin/viewer/create}" method="post">-->
-<!--                <input type="text" name="accessToken" th:value="${accessToken}"-->
-<!--                       placeholder="Код-доступа" required-->
-<!--                       style="display: none"/>-->
-<!--                <input type="text" name="username" placeholder="Имя пользователя" required/>-->
-<!--                <input type="submit" value="Создать"/>-->
-<!--            </form>-->
-<!--        </div>-->
-<!--    </div>-->
+    <!--    <div class="popup create-viewer-popup" id="createViewerPopup">-->
+    <!--        <div class="popup-content">-->
+    <!--            <button id="closeCreateViewer" class="close-button"-->
+    <!--                    onclick="closeCreateViewerPopup()">-->
+    <!--                <i class="fa fa-close"></i>-->
+    <!--            </button>-->
+    <!--            <h1>Создание наблюдателя</h1>-->
+    <!--            <form class="uploadForm" id="create-viewer-form"-->
+    <!--                  th:action="@{/v1/testsys/admin/viewer/create}" method="post">-->
+    <!--                <input type="text" name="accessToken" th:value="${accessToken}"-->
+    <!--                       placeholder="Код-доступа" required-->
+    <!--                       style="display: none"/>-->
+    <!--                <input type="text" name="username" placeholder="Имя пользователя" required/>-->
+    <!--                <input type="submit" value="Создать"/>-->
+    <!--            </form>-->
+    <!--        </div>-->
+    <!--    </div>-->
 
-<!--    <div class="table viewers-tables">-->
-<!--        <table>-->
-<!--            <caption>Список наблюдателей</caption>-->
-<!--            <tr>-->
-<!--                <th>ID</th>-->
-<!--                <th>Имя</th>-->
-<!--                <th>Код-доступа</th>-->
-<!--                <th>Действия</th>-->
-<!--            </tr>-->
-<!--            <tbody>-->
-<!--            <tr th:each="viewer: ${viewers}" th:id="'viewer' + ${viewer.id}">-->
-<!--                <td th:text="${viewer.id}"></td>-->
-<!--                <td th:text="${viewer.webUser.username}"></td>-->
-<!--                <td class="accessToken" th:id="'viewerAccessToken' + ${viewer.id}"-->
-<!--                    title="Нажмите, чтобы скопировать" th:onclick="'copyViewerAccessToken(\'' + ${viewer.id} + '\')'"-->
-<!--                    th:text="${viewer.webUser.accessToken}">-->
-<!--                </td>-->
-<!--                <td>-->
-<!--                </td>-->
-<!--            </tr>-->
-<!--            </tbody>-->
-<!--        </table>-->
-<!--        <div class="add-button">-->
-<!--            <button class="popup-button" id="createViewer">-->
-<!--                <i class="fa fa-plus"></i>-->
-<!--            </button>-->
-<!--        </div>-->
-<!--    </div>-->
+    <!--    <div class="table viewers-tables">-->
+    <!--        <table>-->
+    <!--            <caption>Список наблюдателей</caption>-->
+    <!--            <tr>-->
+    <!--                <th>ID</th>-->
+    <!--                <th>Имя</th>-->
+    <!--                <th>Код-доступа</th>-->
+    <!--                <th>Действия</th>-->
+    <!--            </tr>-->
+    <!--            <tbody>-->
+    <!--            <tr th:each="viewer: ${viewers}" th:id="'viewer' + ${viewer.id}">-->
+    <!--                <td th:text="${viewer.id}"></td>-->
+    <!--                <td th:text="${viewer.webUser.username}"></td>-->
+    <!--                <td class="accessToken" th:id="'viewerAccessToken' + ${viewer.id}"-->
+    <!--                    title="Нажмите, чтобы скопировать" th:onclick="'copyViewerAccessToken(\'' + ${viewer.id} + '\')'"-->
+    <!--                    th:text="${viewer.webUser.accessToken}">-->
+    <!--                </td>-->
+    <!--                <td>-->
+    <!--                </td>-->
+    <!--            </tr>-->
+    <!--            </tbody>-->
+    <!--        </table>-->
+    <!--        <div class="add-button">-->
+    <!--            <button class="popup-button" id="createViewer">-->
+    <!--                <i class="fa fa-plus"></i>-->
+    <!--            </button>-->
+    <!--        </div>-->
+    <!--    </div>-->
 </div>
 </body>
 </html>
@@ -565,6 +624,26 @@
 
     //endregion
 
+    //region Scripts for change info popup
+    function showChangeInfoPopup() {
+        var changeInfoPopup = document.getElementById("changeInfoPopup");
+        changeInfoPopup.classList.add("show");
+    }
+
+    function closeChangeInfoPopup() {
+        var changeInfoPopup = document.getElementById("changeInfoPopup");
+        changeInfoPopup.classList.remove("show");
+
+        var form = changeInfoPopup.querySelector("form");
+        form.reset();
+    }
+
+    closeChangeInfo.addEventListener("click", function () {
+        var changeInfoPopup = document.getElementById("changeInfoPopup");
+        changeInfoPopup.classList.remove("show");
+    });
+
+    //endregion
 </script>
 
 <style>

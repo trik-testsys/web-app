@@ -1,5 +1,6 @@
 package trik.testsys.webclient.entity.impl
 
+import java.time.LocalDateTime
 import javax.persistence.*
 
 @Entity
@@ -21,8 +22,12 @@ class WebUser(
     @Column(nullable = false, unique = true)
     val id: Long? = null
 
-    @Column(columnDefinition = "VARCHAR(1000) DEFAULT ''")
+    @Column(columnDefinition = "VARCHAR(1000) DEFAULT ''", nullable = true)
     var additionalInfo: String? = null
+
+    @Column(nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
+    var registrationDate: LocalDateTime = LocalDateTime.now()
+        get() = field.plusHours(3)
 
     @OneToOne(mappedBy = "webUser", cascade = [CascadeType.ALL])
     lateinit var admin: Admin
@@ -36,9 +41,20 @@ class WebUser(
     @OneToMany(mappedBy = "webUser", cascade = [CascadeType.ALL])
     val students: MutableSet<Student> = mutableSetOf()
 
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
     @OneToOne(mappedBy = "webUser", cascade = [CascadeType.ALL])
     lateinit var viewer: Viewer
 
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
+    @Column(nullable = true, columnDefinition = "DATETIME")
+    var lastLoginDate: LocalDateTime? = null
+        get() = field?.plusHours(3)
     /**
      * @author Roman Shishkin
      * @since 1.1.0

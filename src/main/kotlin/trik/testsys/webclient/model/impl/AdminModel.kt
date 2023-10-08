@@ -5,6 +5,7 @@ import trik.testsys.webclient.entity.impl.Label
 import trik.testsys.webclient.entity.impl.Task
 import trik.testsys.webclient.model.TrikModel
 import trik.testsys.webclient.util.exception.TrikException
+import java.time.LocalDateTime
 
 /**
  * @author Roman Shishkin
@@ -15,7 +16,11 @@ class AdminModel private constructor(
     val username: String,
     val groups: Collection<Group>,
     val tasks: Collection<Task>,
-    val labels: Collection<Label>
+    val labels: Collection<Label>,
+    val webUserId: Long?,
+    val additionalInfo: String,
+    val registrationDate: LocalDateTime,
+    val lastLoginDate: LocalDateTime?
 ) : TrikModel {
 
     class Builder internal constructor() {
@@ -25,6 +30,10 @@ class AdminModel private constructor(
         private var groups: Collection<Group>? = null
         private var tasks: Collection<Task>? = null
         private var labels: Collection<Label>? = null
+        private var webUserId: Long? = null
+        private var additionalInfo: String? = null
+        private var registrationDate: LocalDateTime? = null
+        private var lastLoginDate: LocalDateTime? = null
 
         fun accessToken(accessToken: String) = apply { this.accessToken = accessToken }
 
@@ -36,12 +45,24 @@ class AdminModel private constructor(
 
         fun labels(labels: Collection<Label>) = apply { this.labels = labels }
 
+        fun webUserId(webUserId: Long?) = apply { this.webUserId = webUserId }
+
+        fun additionalInfo(additionalInfo: String?) = apply { this.additionalInfo = additionalInfo }
+
+        fun registrationDate(registrationDate: LocalDateTime?) = apply { this.registrationDate = registrationDate }
+
+        fun lastLoginDate(lastLoginDate: LocalDateTime?) = apply { this.lastLoginDate = lastLoginDate }
+
         fun build() = AdminModel(
             accessToken ?: throw TrikException(String.format(PARAMETER_ERROR, AdminModel::accessToken.name)),
             username ?: throw TrikException(String.format(PARAMETER_ERROR, AdminModel::username.name)),
             groups ?: throw TrikException(String.format(PARAMETER_ERROR, AdminModel::groups.name)),
             tasks ?: throw TrikException(String.format(PARAMETER_ERROR, AdminModel::tasks.name)),
-            labels ?: throw TrikException(String.format(PARAMETER_ERROR, AdminModel::labels.name))
+            labels ?: throw TrikException(String.format(PARAMETER_ERROR, AdminModel::labels.name)),
+            webUserId,
+            additionalInfo ?: "",
+            registrationDate ?: throw TrikException(String.format(PARAMETER_ERROR, AdminModel::registrationDate.name)),
+            lastLoginDate
         )
     }
 
@@ -53,6 +74,10 @@ class AdminModel private constructor(
         argsMap[this::groups.name] = groups.sortedBy { it.id }
         argsMap[this::tasks.name] = tasks.sortedBy { it.id }
         argsMap[this::labels.name] = labels.sortedBy { it.id }
+        argsMap[this::webUserId.name] = webUserId
+        argsMap[this::additionalInfo.name] = additionalInfo
+        argsMap[this::registrationDate.name] = registrationDate
+        argsMap[this::lastLoginDate.name] = lastLoginDate
 
         return argsMap
     }
