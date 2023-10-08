@@ -23,7 +23,7 @@ import kotlin.random.Random
 @Service
 class StudentService @Autowired constructor(
     private val studentRepository: StudentRepository,
-    private val webUserRepository: WebUserRepository
+    private val webUserService: WebUserService
 ) : TrikService {
 
     fun getByWebUser(webUser: WebUser): Student? {
@@ -63,7 +63,7 @@ class StudentService @Autowired constructor(
             students.add(student)
         }
 
-        webUserRepository.saveAll(webUsers)
+        webUserService.saveAll(webUsers)
         studentRepository.saveAll(students)
 
         return students

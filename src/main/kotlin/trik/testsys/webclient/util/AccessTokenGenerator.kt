@@ -8,7 +8,6 @@ import java.util.*
  * @author Roman Shishkin
  * @since 1.1.0
  */
-
 object AccessTokenGenerator {
 
     fun generateAccessToken(word: String, tokenType: TokenType): String {
