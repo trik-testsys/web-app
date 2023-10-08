@@ -2,15 +2,14 @@ package trik.testsys.webclient.controller.impl
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.ui.Model
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.view.RedirectView
 import trik.testsys.webclient.entity.impl.WebUser
 
 import trik.testsys.webclient.service.impl.*
+import trik.testsys.webclient.util.AvatarGenerator
 import trik.testsys.webclient.util.logger.TrikLogger
+import java.io.File
 import java.util.Random
 
 @RestController
@@ -22,7 +21,8 @@ class AccessController @Autowired constructor(
     private val studentService: StudentService,
     private val groupService: GroupService,
     private val developerService: DeveloperService,
-    private val viewerService: ViewerService
+    private val viewerService: ViewerService,
+    private val avatarGenerator: AvatarGenerator
 ) {
 
     @GetMapping("/access")

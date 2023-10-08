@@ -18,7 +18,7 @@ import kotlin.random.Random
 @Component
 class AvatarGenerator @Autowired constructor(
     @Value("\${app.avatar.path}")
-    private val avatarPath: String
+    val avatarPath: String
 ) {
 
     fun generatePrimitiveAvatar(userId: Long) {
