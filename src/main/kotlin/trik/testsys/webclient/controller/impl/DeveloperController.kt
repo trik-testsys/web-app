@@ -527,7 +527,7 @@ class DeveloperController @Autowired constructor(
 
         private const val DEVELOPER_VIEW_NAME = "developer"
         private const val POST_TASK_MESSAGE = "postTaskMessage"
-        private const val SERVER_PREFIX = "http://localhost:8888"
+        private const val SERVER_PREFIX = "https://testsys.trikset.com"
         private val REDIRECT_VIEW = RedirectView("${SERVER_PREFIX}/v1/testsys/$DEVELOPER_VIEW_NAME")
         private const val UTC_OFFSET = 3L
     }

@@ -43,16 +43,16 @@ class AccessController @Autowired constructor(
                 logger.info(accessToken, "Registration is closed.")
                 return@let
             }
-//            return RedirectView("https://srv3.trikset.com:8843/v1/testsys/student/registration")
             redirectAttributes.addAttribute("groupAccessToken", accessToken)
-            return RedirectView("/v1/testsys/student/registration")
+            return RedirectView("$SERVER_PREFIX/registration")
+//            return RedirectView("/v1/testsys/student/registration")
         }
         redirectAttributes.addAttribute("accessToken", accessToken)
 
         viewerService.getByAdminRegToken(accessToken)?.let {
             logger.info(accessToken, "Client is a new admin.")
-//            return RedirectView("https://srv3.trikset.com:8843/v1/testsys/admin/registration")
-            return RedirectView("/v1/testsys/admin/registration")
+            return RedirectView("$SERVER_PREFIX/registration")
+//            return RedirectView("/v1/testsys/admin/registration")
         }
 
         val webUser = webUserService.getWebUserByAccessToken(accessToken) ?: run {
@@ -64,20 +64,20 @@ class AccessController @Autowired constructor(
 
         superUserService.getSuperUserByWebUser(webUser)?.let {
             logger.info(accessToken, "Client is a super user.")
-//            return RedirectView("https://srv3.trikset.com:8843/v1/testsys/superuser")
-            return RedirectView("/v1/testsys/superuser")
+            return RedirectView("$SERVER_PREFIX/superuser")
+//            return RedirectView("/v1/testsys/superuser")
         }
 
         adminService.getAdminByWebUser(webUser)?.let {
             logger.info(accessToken, "Client is an admin.")
-//            return RedirectView("https://srv3.trikset.com:8843/v1/testsys/admin")
-            return RedirectView("/v1/testsys/admin")
+            return RedirectView("$SERVER_PREFIX/admin")
+//            return RedirectView("/v1/testsys/admin")
         }
 
         developerService.getByWebUser(webUser)?.let {
             logger.info(accessToken, "Client is a developer.")
-//            return RedirectView("https://srv3.trikset.com:8843/v1/testsys/developer")
-            return RedirectView("/v1/testsys/developer")
+            return RedirectView("$SERVER_PREFIX/developer")
+//            return RedirectView("/v1/testsys/developer")
         }
 
         studentService.getByWebUser(webUser)?.let {
@@ -88,15 +88,15 @@ class AccessController @Autowired constructor(
                 logger.info(accessToken, "Group is not accessible.")
                 return@let
             }
-//            return RedirectView("https://srv3.trikset.com:8843/v1/testsys/student")
-            return RedirectView("/v1/testsys/student")
+            return RedirectView("$SERVER_PREFIX/student")
+//            return RedirectView("/v1/testsys/student")
         }
 
         viewerService.getByWebUser(webUser)?.let {
             logger.info(accessToken, "Client is a viewer.")
 
-//            return RedirectView("https://srv3.trikset.com:8843/v1/testsys/viewer")
-            return RedirectView("/v1/testsys/viewer")
+            return RedirectView("$SERVER_PREFIX/viewer")
+//            return RedirectView("/v1/testsys/viewer")
         }
 
         return model
@@ -109,5 +109,6 @@ class AccessController @Autowired constructor(
 
     companion object {
         private val logger = TrikLogger(this::class.java)
+        private const val SERVER_PREFIX = "https://testsys.trikset.com/v1/testsys"
     }
 }

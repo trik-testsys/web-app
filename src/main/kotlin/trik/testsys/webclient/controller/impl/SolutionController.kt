@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Controller
 import org.springframework.web.client.RestTemplate
 
@@ -28,7 +29,7 @@ class SolutionController(@Value("\${app.grading-system.path}") val gradingSystem
     @Autowired
     private lateinit var solutionService: SolutionService
 
-//    @Scheduled(fixedRate = CHECK_INTERVAL)
+    @Scheduled(fixedRate = CHECK_INTERVAL)
     private fun checkSolutions() {
         restTemplate.errorHandler = GradingSystemErrorHandler()
 

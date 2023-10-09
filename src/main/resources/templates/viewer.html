@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
 <head>
     <meta charset="UTF-8">
-    <title>Страница Наблюдателя</title>
+    <title>Кабинет Наблюдателя</title>
     <link rel="icon" th:href="@{/v1/testsys/img/trik_testsys_logo.ico}">
     <link rel="stylesheet" th:href="@{/v1/testsys/css/style.css}"/>
     <link rel="stylesheet" th:href="@{/v1/testsys/css/popup.css}"/>
@@ -11,13 +11,14 @@
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js">
     </script>
+    <script th:src="@{/v1/testsys/js/popup.js}"></script>
 </head>
 <body>
 <div class="container">
     <div class="header">
         <div class="page-type">
             <img th:src="@{/v1/testsys/img/trik_testsys_logo.svg}" alt="logo">
-            <p>Страница Наблюдателя</p>
+            <p>Кабинет Наблюдателя</p>
         </div>
         <div class="exit">
             <form th:action="@{/v1/testsys}" method="get">
@@ -25,27 +26,80 @@
             </form>
         </div>
     </div>
+    <div class="change-info-popup popup" id="changeInfoPopup">
+        <div class="popup-content">
+            <button class="close-button" id="closeChangeInfo"
+                    th:onclick="'closeChangeInfoPopup(\'' + ${webUserId} + '\')'">
+                <i class="fa fa-close"></i>
+            </button>
+            <h1>Редактирование данных</h1>
+            <form class="uploadForm" th:action="@{/v1/testsys/viewer/info/change}" method="post">
+                <input type="text" name="accessToken" th:value="${accessToken}" placeholder="Код-доступа" required
+                       style="display: none"/>
+                <div class="input-name">
+                    <h2>Псевдоним</h2>
+                </div>
+                <input type="text" name="newUsername" th:value="${username}" placeholder="Псевдоним" required/>
+                <div class="input-name">
+                    <h2>Дополнительная информация</h2>
+                </div>
+                <input type="text" name="newAdditionalInfo" th:value="${additionalInfo}"
+                       placeholder="Дополнительная информация"/>
+                <input type="submit" value="Редактировать"/>
+            </form>
+        </div>
+    </div>
+
     <div class="main">
         <div class="info">
-            <div class="greeting">
-                <h3>Здравствуйте, <span th:text="${username}"></span>!</h3>
-                <p>На этой странице вы можете отслеживать процесс выполнения задач участниками:</p>
-                <ul>
-                    <li>По школе;</li>
-                    <li>По району.</li>
-                </ul>
+            <div class="avatar-container">
+                <img th:src="@{/v1/testsys/img/trik_testsys_logo.svg}" alt="avatar">
+                <div class="username">
+                    <p th:text="${username}"></p>
+                </div>
+                <button id="changeInfo" class="edit-button"
+                        th:onclick="'showChangeInfoPopup(\'' + ${webUserId} + '\')'">
+                    Редактировать
+                </button>
             </div>
-            <div class="user-data">
-                <p>Ваш Код-доступа: <b><span title="Нажмите, чтобы скопировать" th:text="${accessToken}"
-                                             id="accessToken" class="accessToken"
-                                             onclick="copy('accessToken')"></span>.</b>
-                </p>
-                <p>Код-регистрации Организатора: <b><span title="Нажмите, чтобы скопировать"
-                                                          th:text="${adminRegToken}"
-                                                          id="adminRegToken"
-                                                          class="accessToken"
-                                                          onclick="copy('adminRegToken')"></span>.</b>
-                </p>
+            <div class="additional-info">
+                <table class="table info-table" style="width: 100%;">
+                    <caption>
+                        Информация о Наблюдателе
+                    </caption>
+                    <tr>
+                        <td>Псевдоним</td>
+                        <td th:text="${username}"></td>
+                    </tr>
+                    <tr>
+                        <td>Код-доступа</td>
+                        <td th:text="${accessToken}"
+                            title="Нажмите, чтобы скопировать"
+                            id="accessToken" class="accessToken"
+                            onclick="copy('accessToken')">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Код-регистрации Организатора</td>
+                        <td th:text="${adminRegToken}"
+                            title="Нажмите, чтобы скопировать"
+                            id="adminRegistrationToken" class="accessToken"
+                            onclick="copy('adminRegistrationToken')">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Дополнительная информация</td>
+                        <td th:text="${additionalInfo}"></td>
+                    </tr>
+                    <tr>
+                        <td>Дата и время последнего входа</td>
+                        <td>
+                            <time th:datetime="${lastLoginDate}"
+                                  th:text="${#temporals.format(lastLoginDate, 'dd.MM.yyyy HH:mm')}">
+                            </time>
+                        </td>
+                    </tr>
+                </table>
             </div>
         </div>
     </div>
@@ -56,11 +110,13 @@
             <tr>
                 <th>ID</th>
                 <th>Псевдоним</th>
+                <th>Дополнительная информация</th>
                 <th style="width: 4%">Действия</th>
             </tr>
             <tr th:each="admin : ${admins}">
                 <td th:text="${admin.id}"></td>
                 <td th:text="${admin.webUser.username}"></td>
+                <td th:text="${admin.webUser.additionalInfo}"></td>
                 <td>
                     <div class="popup admin-result-popup"
                          th:id="'adminResultPopup' + ${admin.id}">
@@ -98,7 +154,7 @@
 
                     <div class="popup admin-groups-popup"
                          th:id="'adminGroupsPopup' + ${admin.id}">
-                        <div class="popup-content" style="width: 30%">
+                        <div class="popup-content" style="width: 50%">
                             <button class="close-button" title="Закрыть"
                                     id="closeAdminGroupsPopup"
                                     th:onclick="'closeAdminGroupsPopup(' + ${admin.id} + ')'">
@@ -110,11 +166,13 @@
                                 <table>
                                     <tr>
                                         <th>ID</th>
-                                        <th style="text-align: left">Название</th>
+                                        <th>Название</th>
+                                        <th style="text-align: left">Дополнительная информация</th>
                                     </tr>
                                     <tr th:each="group : ${admin.groups}">
                                         <td th:text="${group.id}"></td>
                                         <td th:text="${group.name}"></td>
+                                        <td th:text="${group.additionalInfo}"></td>
                                     </tr>
                                 </table>
                             </div>
@@ -132,28 +190,35 @@
                                 th:onclick="'showAdminGroupsPopup(' + ${admin.id} + ')'">
                             <i class="fa fa-users"></i>
                         </button>
+                        <button class="popup-button" title="Скачать отчет"
+                                id="downloadReport">
+                            <i class="fa fa-download"></i>
+                        </button>
                     </div>
                 </td>
             </tr>
-
         </table>
+        <button title="Скачать общий отчет"
+                id="downloadGlobalReport">
+            Скачать сводную таблицу
+        </button>
     </div>
 
     <div class="table groups-table">
         <table>
             <caption>Список Групп</caption>
             <tr>
-                <th style="width: 13%">ID Организатора</th>
-                <th style="width: 35%">Организатор</th>
                 <th style="width: 13%">ID Группы</th>
                 <th style="width: 35%">Название</th>
+                <th style="width: 20%">Организатор</th>
+                <th>Дополнительная информация</th>
                 <th style="width: 4%">Действия</th>
             </tr>
             <tr th:each="group : ${groups}">
-                <td th:text="${group.admin.id}"></td>
-                <td th:text="${group.admin.webUser.username}"></td>
                 <td th:text="${group.id}"></td>
                 <td th:text="${group.name}"></td>
+                <td th:text="${group.admin.webUser.id} + ': ' + ${group.admin.webUser.username}"></td>
+                <td th:text="${group.additionalInfo}"></td>
                 <td>
                     <div class="popup group-result"
                          th:id="'groupResultPopup' + ${group.id}">
@@ -191,7 +256,7 @@
 
                     <div class="popup group-members-popup"
                          th:id="'groupMembersPopup' + ${group.id}">
-                        <div class="popup-content" style="width: 30%">
+                        <div class="popup-content" style="width: 50%">
                             <button class="close-button" title="Закрыть"
                                     id="closeGroupMembersPopup"
                                     th:onclick="'closeGroupMembersPopup(' + ${group.id} + ')'">
@@ -203,11 +268,13 @@
                                 <table>
                                     <tr>
                                         <th>ID</th>
-                                        <th style="text-align: left">Псевдоним</th>
+                                        <th>Псевдоним</th>
+                                        <th style="text-align: left">Дополнительная информация</th>
                                     </tr>
                                     <tr th:each="student : ${group.students}">
                                         <td th:text="${student.id}"></td>
                                         <td th:text="${student.webUser.username}"></td>
+                                        <td th:text="${student.webUser.additionalInfo}"></td>
                                     </tr>
                                 </table>
                             </div>
@@ -224,6 +291,10 @@
                                 id="groupMembers"
                                 th:onclick="'showGroupMembersPopup(' + ${group.id} + ')'">
                             <i class="fa fa-users"></i>
+                        </button>
+                        <button class="popup-button" title="Скачать отчет"
+                                id="downloadGroupReport">
+                            <i class="fa fa-download"></i>
                         </button>
                     </div>
                 </td>

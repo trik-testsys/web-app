@@ -5,6 +5,7 @@ import trik.testsys.webclient.entity.impl.Admin
 import trik.testsys.webclient.entity.impl.Group
 import trik.testsys.webclient.model.TrikModel
 import trik.testsys.webclient.util.exception.TrikException
+import java.time.LocalDateTime
 
 /**
  * @author Roman Shishkin
@@ -14,10 +15,12 @@ class ViewerModel private constructor(
     val accessToken: String,
     val adminRegToken: String?,
     val username: String?,
+    val additionalInfo: String,
     val admins: Collection<Admin>,
     val groups: Collection<Group>,
     val groupsResult: Map<Long, ViewerController.Table>,
-    val adminsResult: Map<Long, ViewerController.Table>
+    val adminsResult: Map<Long, ViewerController.Table>,
+    val lastLoginDate: LocalDateTime?
 ) : TrikModel {
 
     class Builder internal constructor() {
@@ -25,16 +28,20 @@ class ViewerModel private constructor(
         private var accessToken: String? = null
         private var adminRegToken: String? = null
         private var username: String? = null
+        private var additionalInfo: String? = null
         private var admins: Collection<Admin>? = null
         private var groups: Collection<Group>? = null
         private var groupsResult: Map<Long, ViewerController.Table>? = null
         private var adminsResult: Map<Long, ViewerController.Table>? = null
+        private var lastLoginDate: LocalDateTime? = null
 
         fun accessToken(accessToken: String) = apply { this.accessToken = accessToken }
 
         fun adminRegToken(adminRegToken: String) = apply { this.adminRegToken = adminRegToken }
 
         fun username(username: String) = apply { this.username = username }
+
+        fun additionalInfo(additionalInfo: String?) = apply { this.additionalInfo = additionalInfo }
 
         fun admins(admins: Collection<Admin>) = apply { this.admins = admins }
 
@@ -44,14 +51,18 @@ class ViewerModel private constructor(
 
         fun adminsResult(adminsResult: Map<Long, ViewerController.Table>) = apply { this.adminsResult = adminsResult }
 
+        fun lastLoginDate(lastLoginDate: LocalDateTime?) = apply { this.lastLoginDate = lastLoginDate }
+
         fun build() = ViewerModel(
             accessToken ?: throw TrikException(String.format(PARAMETER_ERROR, ViewerModel::accessToken.name)),
             adminRegToken,
             username,
+            additionalInfo ?: "",
             admins ?: throw TrikException(String.format(PARAMETER_ERROR, ViewerModel::admins.name)),
             groups ?: throw TrikException(String.format(PARAMETER_ERROR, ViewerModel::groups.name)),
             groupsResult ?: throw TrikException(String.format(PARAMETER_ERROR, ViewerModel::groupsResult.name)),
-            adminsResult ?: throw TrikException(String.format(PARAMETER_ERROR, ViewerModel::adminsResult.name))
+            adminsResult ?: throw TrikException(String.format(PARAMETER_ERROR, ViewerModel::adminsResult.name)),
+            lastLoginDate
         )
     }
 
@@ -61,10 +72,12 @@ class ViewerModel private constructor(
         argsMap[this::accessToken.name] = accessToken
         argsMap[this::adminRegToken.name] = adminRegToken
         argsMap[this::username.name] = username
+        argsMap[this::additionalInfo.name] = additionalInfo
         argsMap[this::admins.name] = admins.sortedBy { it.id }
         argsMap[this::groups.name] = groups.sortedBy { it.admin.id }
         argsMap[this::groupsResult.name] = groupsResult
         argsMap[this::adminsResult.name] = adminsResult
+        argsMap[this::lastLoginDate.name] = lastLoginDate
 
         return argsMap
     }

@@ -2,10 +2,12 @@ package trik.testsys.webclient.controller.impl
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.servlet.ModelAndView
+import org.springframework.web.servlet.view.RedirectView
 import trik.testsys.webclient.controller.TrikUserController
 import trik.testsys.webclient.entity.impl.*
 
@@ -40,36 +42,56 @@ class ViewerController @Autowired constructor(
         }
         val viewer = eitherViewer.getRight()
 
-        val groups = mutableSetOf<Group>()
-        viewer.admins.forEach { admin ->
-            groups.addAll(admin.groups)
-        }
+        val groups = viewer.admins.flatMap { it.groups }
+        val groupsResult = generateGroupsResult(groups)
+        val adminsResult = generateAdminsResult(viewer.admins)
 
-        val groupsResult = mutableMapOf<Long, Table>()
-        groups.forEach { group ->
-            val groupResult = generateGroupResult(group)
-            groupsResult[group.id!!] = groupResult
-        }
-
-        val adminsResult = mutableMapOf<Long, Table>()
-        viewer.admins.forEach { admin ->
-            val adminResult = generateAdminResult(admin)
-            adminsResult[admin.id!!] = adminResult
-        }
-
-        val viewerModel = ViewerModel.Builder()
-            .accessToken(accessToken)
-            .username(viewer.webUser.username)
-            .adminRegToken(viewer.adminRegToken)
-            .admins(viewer.admins)
-            .groups(groups)
-            .groupsResult(groupsResult)
-            .adminsResult(adminsResult)
-            .build()
+        val viewerModel = getModel(viewer, groupsResult, adminsResult)
         modelAndView.viewName = VIEWER_VIEW_NAME
         modelAndView.addAllObjects(viewerModel.asMap())
 
         return modelAndView
+    }
+
+    @PostMapping("/info/change")
+    fun changeInfo(
+        @RequestParam accessToken: String,
+        @RequestParam newUsername: String,
+        @RequestParam newAdditionalInfo: String?,
+        modelAndView: ModelAndView
+    ): ModelAndView {
+        logger.info(accessToken, "Client trying to change viewer info.")
+
+        val eitherViewer = validateViewer(accessToken)
+        if (eitherViewer.isLeft()) {
+            return eitherViewer.getLeft()
+        }
+        val viewer = eitherViewer.getRight()
+        val webUser = viewer.webUser
+
+        webUser.username = newUsername
+        webUser.additionalInfo = newAdditionalInfo
+        webUserService.saveWebUser(webUser)
+
+        val groups = viewer.admins.flatMap { it.groups }
+        val groupsResult = generateGroupsResult(groups)
+        val adminsResult = generateAdminsResult(viewer.admins)
+
+        val viewerModel = getModel(viewer, groupsResult, adminsResult)
+        modelAndView.view = RedirectView("${SERVER_PREFIX}/v1/testsys/viewer")
+        modelAndView.addAllObjects(viewerModel.asMap())
+
+        return modelAndView
+    }
+
+    private fun generateAdminsResult(admins: Collection<Admin>): Map<Long, Table> {
+        val adminsResult = mutableMapOf<Long, Table>()
+        admins.forEach { admin ->
+            val adminResult = generateAdminResult(admin)
+            adminsResult[admin.id!!] = adminResult
+        }
+
+        return adminsResult
     }
 
     private fun generateAdminResult(admin: Admin): Table {
@@ -84,6 +106,16 @@ class ViewerController @Autowired constructor(
         val table = generateTable(tasks, students.toList().sortedBy { it.id })
 
         return table
+    }
+
+    private fun generateGroupsResult(group: Collection<Group>): Map<Long, Table> {
+        val groupsResult = mutableMapOf<Long, Table>()
+        group.forEach { group ->
+            val groupResult = generateGroupResult(group)
+            groupsResult[group.id!!] = groupResult
+        }
+
+        return groupsResult
     }
 
     private fun generateGroupResult(group: Group): Table {
@@ -146,6 +178,31 @@ class ViewerController @Autowired constructor(
         )
     }
 
+    private fun getModel(
+        viewer: Viewer,
+        groupsResult: Map<Long, Table>,
+        adminsResult: Map<Long, Table>
+    ): ViewerModel {
+        val webUser = viewer.webUser
+
+        val admins = viewer.admins.sortedBy { it.id }
+        val groups = admins.flatMap { it.groups }.sortedBy { it.id }
+
+        val viewerModel = ViewerModel.Builder()
+            .accessToken(webUser.accessToken)
+            .adminRegToken(viewer.adminRegToken)
+            .username(webUser.username)
+            .additionalInfo(webUser.additionalInfo)
+            .admins(admins)
+            .groups(groups)
+            .groupsResult(groupsResult)
+            .adminsResult(adminsResult)
+            .lastLoginDate(webUser.lastLoginDate)
+            .build()
+
+        return viewerModel
+    }
+
     fun validateViewer(accessToken: String): Either<ModelAndView, Viewer> {
         val modelAndView = ModelAndView("error")
         val webUser = webUserService.getWebUserByAccessToken(accessToken) ?: run {
@@ -170,5 +227,6 @@ class ViewerController @Autowired constructor(
         private val logger = TrikLogger(this::class.java)
 
         private const val VIEWER_VIEW_NAME = "viewer"
+        private const val SERVER_PREFIX = "http://localhost:8888"
     }
 }

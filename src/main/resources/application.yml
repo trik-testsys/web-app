@@ -5,7 +5,7 @@ spring:
     open-in-view: on                                            # Enable JPA open-in-view
     defer-datasource-initialization: true
   datasource:
-    url: jdbc:mysql://${MYSQL_HOST:localhost}:3306/testsys_db   # Database URL
+    url: jdbc:mysql://${MYSQL_HOST:mysql_host}:3306/testsys_db   # Database URL
     username: testsys                                           # Database username
     password: p@ssw0rd                                          # Database password
     driver-class-name: com.mysql.cj.jdbc.Driver                 # Driver for MySQL
@@ -32,3 +32,7 @@ app:
   testsys:
     api:
       prefix: /v1/testsys
+  avatar:
+    path: "${PWD}/src/main/resources/static/avatars"
+  utc:
+    plus: 3

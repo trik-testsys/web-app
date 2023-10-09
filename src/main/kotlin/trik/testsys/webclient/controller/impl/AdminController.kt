@@ -860,6 +860,6 @@ class AdminController @Autowired constructor(
         private val logger = TrikLogger(this::class.java)
 
         private const val ADMIN_VIEW_NAME = "admin"
-        private const val SERVER_PREFIX = "http://localhost:8888"
+        private const val SERVER_PREFIX = "https://testsys.trikset.com"
     }
 }
