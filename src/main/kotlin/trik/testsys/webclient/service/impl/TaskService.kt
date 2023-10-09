@@ -119,6 +119,11 @@ class TaskService @Autowired constructor(
         return group.tasks
     }
 
+    fun getAllPublic(): Set<Task> {
+        val allTasks = taskRepository.findAll()
+        return allTasks.filter { it.isPublic }.toSet()
+    }
+
     fun getTaskById(taskId: Long): Task? {
         return taskRepository.findTaskById(taskId)
     }

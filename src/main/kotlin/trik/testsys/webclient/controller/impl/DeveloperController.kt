@@ -60,17 +60,9 @@ class DeveloperController @Autowired constructor(
             return eitherDeveloperEntities.getLeft()
         }
 
-        val (developer, webUser) = eitherDeveloperEntities.getRight()
-        val username = webUser.username
+        val (developer, _) = eitherDeveloperEntities.getRight()
 
-        val admins = adminService.getAll()
-
-        val developerModel = DeveloperModel.Builder()
-            .accessToken(accessToken)
-            .username(username)
-            .tasks(developer.tasks)
-            .admins(admins)
-            .build()
+        val developerModel = getModel(developer)
 
         modelAndView.viewName = DEVELOPER_VIEW_NAME
         modelAndView.addAllObjects(developerModel.asMap())
@@ -190,7 +182,7 @@ class DeveloperController @Autowired constructor(
         }
         modelAndView.viewName = DEVELOPER_VIEW_NAME
 
-        val (_, webUser) = eitherDeveloperEntities.getRight()
+        val (developer, webUser) = eitherDeveloperEntities.getRight()
 
         val task = taskService.getTaskById(taskId)
         if (task != null) {
@@ -199,12 +191,9 @@ class DeveloperController @Autowired constructor(
             taskService.saveTask(task)
         }
 
-        val developerModelBuilder = DeveloperModel.Builder()
-            .accessToken(accessToken)
-            .username(webUser.username)
-            .build()
+        val developerModel = getModel(developer)
 
-        modelAndView.addAllObjects(developerModelBuilder.asMap())
+        modelAndView.addAllObjects(developerModel.asMap())
         return modelAndView
     }
 
@@ -320,13 +309,9 @@ class DeveloperController @Autowired constructor(
         if (task == null) {
             logger.warn(accessToken, "Task with id '$taskId' not found.")
 
-            val developerModelBuilder = DeveloperModel.Builder()
-                .accessToken(accessToken)
-                .username(webUser.username)
-                .postTaskMessage("Задача с id '$taskId' не найдена.")
-                .tasks(developer.tasks)
-                .admins(adminService.getAll())
-            val developerModel = developerModelBuilder.build()
+            val postTaskMessage = "Задача с id '$taskId' не найдена."
+
+            val developerModel = getModel(developer, postTaskMessage)
             modelAndView.addAllObjects(developerModel.asMap())
 
             return modelAndView
@@ -338,13 +323,9 @@ class DeveloperController @Autowired constructor(
 
         logger.info(accessToken, "Task '${task.getFullName()}' was successfully attached to admins.")
 
-        val developerModelBuilder = DeveloperModel.Builder()
-            .accessToken(accessToken)
-            .username(webUser.username)
-            .postTaskMessage("Задача '${task.getFullName()}' была успешно прикреплена к администраторам.")
-            .tasks(developer.tasks)
-            .admins(adminService.getAll())
-        val developerModel = developerModelBuilder.build()
+        val postTaskMessage = "Задача '${task.getFullName()}' была успешно прикреплена к администраторам."
+
+        val developerModel = getModel(developer, postTaskMessage)
         modelAndView.addAllObjects(developerModel.asMap())
 
         return modelAndView
@@ -371,13 +352,9 @@ class DeveloperController @Autowired constructor(
         if (task == null) {
             logger.warn(accessToken, "Task with id '$taskId' not found.")
 
-            val developerModelBuilder = DeveloperModel.Builder()
-                .accessToken(accessToken)
-                .username(webUser.username)
-                .postTaskMessage("Задача с id '$taskId' не найдена.")
-                .tasks(developer.tasks)
-                .admins(adminService.getAll())
-            val developerModel = developerModelBuilder.build()
+            val postTaskMessage = "Задача с id '$taskId' не найдена."
+
+            val developerModel = getModel(developer, postTaskMessage)
             modelAndView.addAllObjects(developerModel.asMap())
 
             return modelAndView
@@ -400,16 +377,124 @@ class DeveloperController @Autowired constructor(
 
         logger.info(accessToken, "Task '${task.getFullName()}' was successfully detached from admins.")
 
-        val developerModelBuilder = DeveloperModel.Builder()
-            .accessToken(accessToken)
-            .username(webUser.username)
-            .postTaskMessage("Задача '${task.getFullName()}' была успешно откреплена от администраторов.")
-            .tasks(developer.tasks)
-            .admins(adminService.getAll())
-        val developerModel = developerModelBuilder.build()
+        val postTaskMessage = "Задача '${task.getFullName()}' была успешно откреплена от администраторов."
+
+        val developerModel = getModel(developer, postTaskMessage)
         modelAndView.addAllObjects(developerModel.asMap())
 
         return modelAndView
+    }
+
+    @PostMapping("/info/change")
+    fun changeInfo(
+        @RequestParam accessToken: String,
+        @RequestParam newUsername: String,
+        @RequestParam newAdditionalInfo: String,
+        modelAndView: ModelAndView
+    ): ModelAndView {
+        logger.info(accessToken, "Developer trying to change info.")
+
+        val eitherDeveloperEntities = validateDeveloper(accessToken)
+        if (eitherDeveloperEntities.isLeft()) {
+            return eitherDeveloperEntities.getLeft()
+        }
+        modelAndView.view = REDIRECT_VIEW
+
+        val (developer, webUser) = eitherDeveloperEntities.getRight()
+
+        webUser.username = newUsername
+        webUser.additionalInfo = newAdditionalInfo
+        webUserService.saveWebUser(webUser)
+
+        logger.info(accessToken, "Developer info was successfully changed.")
+
+        val developerModel = getModel(developer)
+        modelAndView.addAllObjects(developerModel.asMap())
+
+        return modelAndView
+    }
+
+    @PostMapping("/task/visibility/change")
+    fun changeVisibility(
+        @RequestParam accessToken: String,
+        @RequestParam taskId: Long,
+        @RequestParam isPublic: Boolean,
+        modelAndView: ModelAndView
+    ): ModelAndView {
+        logger.info(accessToken, "Developer trying to make task public.")
+
+        val eitherDeveloperEntities = validateDeveloper(accessToken)
+        if (eitherDeveloperEntities.isLeft()) {
+            return eitherDeveloperEntities.getLeft()
+        }
+        modelAndView.view = REDIRECT_VIEW
+
+        val (developer, _) = eitherDeveloperEntities.getRight()
+
+        val task = taskService.getTaskById(taskId)
+        if (task == null) {
+            logger.warn(accessToken, "Task with id '$taskId' not found.")
+
+            val postTaskMessage = "Задача с id '$taskId' не найдена."
+
+            val developerModel = getModel(developer, postTaskMessage)
+            modelAndView.addAllObjects(developerModel.asMap())
+
+            return modelAndView
+        }
+
+        if (isPublic) {
+            val allAdmins = adminService.getAll()
+            task.admins.addAll(allAdmins)
+
+            allAdmins.forEach { admin ->
+                admin.tasks.add(task)
+                adminService.save(admin)
+            }
+
+            taskService.saveTask(task)
+        } else {
+            val allAdmins = adminService.getAll()
+            task.admins.removeAll(allAdmins.toSet())
+
+            allAdmins.forEach { admin ->
+                admin.tasks.remove(task)
+                adminService.save(admin)
+            }
+
+            taskService.saveTask(task)
+        }
+
+        task.isPublic = isPublic
+        taskService.saveTask(task)
+
+        logger.info(accessToken, "Task '${task.getFullName()}' was successfully made public.")
+
+        val postTaskMessage = "Задача '${task.getFullName()}' была успешно сделана публичной."
+
+        val developerModel = getModel(developer, postTaskMessage)
+        modelAndView.addAllObjects(developerModel.asMap())
+
+        return modelAndView
+    }
+
+    private fun getModel(developer: Developer, postTaskMessage: String? = null): DeveloperModel {
+        val webUser = developer.webUser
+
+        val publicTasks = taskService.getAllPublic()
+
+        val developerModel = DeveloperModel.Builder()
+            .accessToken(webUser.accessToken)
+            .username(webUser.username)
+            .postTaskMessage(postTaskMessage)
+            .tasks(developer.tasks)
+            .publicTasks(publicTasks)
+            .admins(adminService.getAll())
+            .additionalInfo(webUser.additionalInfo)
+            .lastLoginDate(webUser.lastLoginDate)
+            .build()
+
+        return developerModel
     }
 
     private fun validateDeveloper(accessToken: String): Either<ModelAndView, DeveloperEntities> {
@@ -442,7 +527,7 @@ class DeveloperController @Autowired constructor(
 
         private const val DEVELOPER_VIEW_NAME = "developer"
         private const val POST_TASK_MESSAGE = "postTaskMessage"
-        private const val SERVER_PREFIX = "https://srv3.trikset.com:8843"
+        private const val SERVER_PREFIX = "http://localhost:8888"
         private val REDIRECT_VIEW = RedirectView("${SERVER_PREFIX}/v1/testsys/$DEVELOPER_VIEW_NAME")
         private const val UTC_OFFSET = 3L
     }

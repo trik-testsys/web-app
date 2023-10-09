@@ -73,6 +73,9 @@ class Task(
     @Column(nullable = true)
     var deadline: LocalDateTime? = null
 
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    var isPublic: Boolean = false
+
     /**
      * @author Roman Shishkin
      * @since 1.1.0

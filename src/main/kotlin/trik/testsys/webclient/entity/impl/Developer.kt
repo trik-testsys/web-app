@@ -16,7 +16,7 @@ class Developer(
         referencedColumnName = "id",
         nullable = false,
         unique = true
-    ) val webUser: WebUser? = null
+    ) val webUser: WebUser
 ) {
 
     @Id

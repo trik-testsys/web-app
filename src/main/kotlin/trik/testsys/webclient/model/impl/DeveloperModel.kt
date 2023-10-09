@@ -4,6 +4,7 @@ import trik.testsys.webclient.entity.impl.Admin
 import trik.testsys.webclient.entity.impl.Task
 import trik.testsys.webclient.model.TrikModel
 import trik.testsys.webclient.util.exception.TrikException
+import java.time.LocalDateTime
 
 /**
  * @author Roman Shishkin
@@ -14,7 +15,10 @@ class DeveloperModel private constructor(
     val username: String,
     val postTaskMessage: String?,
     val tasks: Collection<Task>,
-    val admins: Collection<Admin>
+    val publicTasks: Collection<Task>,
+    val admins: Collection<Admin>,
+    val additionalInfo: String,
+    val lastLoginDate: LocalDateTime?
 ) : TrikModel {
 
     class Builder internal constructor() {
@@ -23,24 +27,36 @@ class DeveloperModel private constructor(
         private var username: String? = null
         private var postTaskMessage: String? = null
         private var tasks: Collection<Task>? = null
+        private var publicTasks: Collection<Task>? = null
         private var admins: Collection<Admin>? = null
+        private var additionalInfo: String? = null
+        private var lastLoginDate: LocalDateTime? = null
 
         fun accessToken(accessToken: String) = apply { this.accessToken = accessToken }
 
         fun username(username: String) = apply { this.username = username }
 
-        fun postTaskMessage(postTaskMessage: String) = apply { this.postTaskMessage = postTaskMessage }
+        fun postTaskMessage(postTaskMessage: String?) = apply { this.postTaskMessage = postTaskMessage }
 
         fun tasks(tasks: Collection<Task>) = apply { this.tasks = tasks }
 
+        fun publicTasks(publicTasks: Collection<Task>) = apply { this.publicTasks = publicTasks }
+
         fun admins(admins: Collection<Admin>) = apply { this.admins = admins }
+
+        fun additionalInfo(additionalInfo: String?) = apply { this.additionalInfo = additionalInfo }
+
+        fun lastLoginDate(lastLoginDate: LocalDateTime?) = apply { this.lastLoginDate = lastLoginDate }
 
         fun build() = DeveloperModel(
             accessToken ?: throw TrikException(String.format(PARAMETER_ERROR, DeveloperModel::accessToken.name)),
             username ?: throw TrikException(String.format(PARAMETER_ERROR, DeveloperModel::username.name)),
             postTaskMessage,
-            tasks ?: throw TrikException(String.format(PARAMETER_ERROR, DeveloperModel::tasks.name)),
-            admins ?: throw TrikException(String.format(PARAMETER_ERROR, DeveloperModel::admins.name))
+            tasks ?: emptySet(),
+            publicTasks ?: emptySet(),
+            admins ?: throw TrikException(String.format(PARAMETER_ERROR, DeveloperModel::admins.name)),
+            additionalInfo ?: "",
+            lastLoginDate
         )
 
     }
@@ -52,7 +68,10 @@ class DeveloperModel private constructor(
         argsMap[this::username.name] = username
         argsMap[this::postTaskMessage.name] = postTaskMessage
         argsMap[this::tasks.name] = tasks.sortedBy { it.id }
+        argsMap[this::publicTasks.name] = publicTasks.sortedBy { it.id }
         argsMap[this::admins.name] = admins.sortedBy { it.id }
+        argsMap[this::additionalInfo.name] = additionalInfo
+        argsMap[this::lastLoginDate.name] = lastLoginDate
 
         return argsMap
     }

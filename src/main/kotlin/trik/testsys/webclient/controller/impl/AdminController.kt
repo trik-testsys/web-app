@@ -55,10 +55,9 @@ class AdminController @Autowired constructor(
         }
 
         val admin = adminService.getByAccessToken(accessToken)!!
-        val webUser = admin.webUser
 
         modelAndView.viewName = ADMIN_VIEW_NAME
-        val adminModel = getModel(admin, webUser)
+        val adminModel = getModel(admin)
 
         modelAndView.addAllObjects(adminModel.asMap())
 
@@ -94,7 +93,7 @@ class AdminController @Autowired constructor(
         val group = groupService.createGroup(admin, name, additionalInfo)
         logger.info(accessToken, "Group created: $group")
 
-        val adminModel = getModel(admin, webUser)
+        val adminModel = getModel(admin)
 
         modelAndView.addAllObjects(adminModel.asMap())
         modelAndView.view = RedirectView("${SERVER_PREFIX}/v1/testsys/admin")
@@ -135,7 +134,7 @@ class AdminController @Autowired constructor(
         groupService.save(group)
         logger.info(accessToken, "Group edited: $group")
 
-        val adminModel = getModel(admin, webUser)
+        val adminModel = getModel(admin)
 
         modelAndView.addAllObjects(adminModel.asMap())
         modelAndView.view = RedirectView("${SERVER_PREFIX}/v1/testsys/admin")
@@ -172,7 +171,7 @@ class AdminController @Autowired constructor(
         groupService.delete(group)
         logger.info(accessToken, "Group deleted: $group")
 
-        val adminModel = getModel(admin, webUser)
+        val adminModel = getModel(admin)
 
         modelAndView.addAllObjects(adminModel.asMap())
         modelAndView.view = RedirectView("${SERVER_PREFIX}/v1/testsys/admin")
@@ -227,7 +226,7 @@ class AdminController @Autowired constructor(
         groupService.save(group)
         logger.info(accessToken, "Labels added to group: $group")
 
-        val adminModel = getModel(admin, webUser)
+        val adminModel = getModel(admin)
 
         modelAndView.addAllObjects(adminModel.asMap())
         modelAndView.view = RedirectView("${SERVER_PREFIX}/v1/testsys/admin")
@@ -268,7 +267,7 @@ class AdminController @Autowired constructor(
         groupService.save(group)
         logger.info(accessToken, "Labels deleted from group: $group")
 
-        val adminModel = getModel(admin, webUser)
+        val adminModel = getModel(admin)
 
         modelAndView.addAllObjects(adminModel.asMap())
         modelAndView.view = RedirectView("${SERVER_PREFIX}/v1/testsys/admin")
@@ -332,8 +331,13 @@ class AdminController @Autowired constructor(
         webUserService.saveWebUser(webUser)
 
         val admin = adminService.save(webUser, viewer)
+        val publicTasks = taskService.getAllPublic()
+        publicTasks.forEach { it.admins.add(admin) }
+        admin.tasks.addAll(publicTasks)
+        adminService.save(admin)
+        publicTasks.forEach { taskService.saveTask(it) }
 
-        val adminModel = getModel(admin, webUser)
+        val adminModel = getModel(admin)
         modelAndView.addAllObjects(adminModel.asMap())
         modelAndView.viewName = "create"
 
@@ -376,7 +380,7 @@ class AdminController @Autowired constructor(
 
         logger.info(accessToken, "Groups added to task: $task")
 
-        val adminModel = getModel(admin, webUser)
+        val adminModel = getModel(admin)
 
         modelAndView.addAllObjects(adminModel.asMap())
         modelAndView.view = RedirectView("${SERVER_PREFIX}/v1/testsys/admin")
@@ -420,7 +424,7 @@ class AdminController @Autowired constructor(
 
         logger.info(accessToken, "Groups removed from task: $task")
 
-        val adminModel = getModel(admin, webUser)
+        val adminModel = getModel(admin)
 
         modelAndView.addAllObjects(adminModel.asMap())
         modelAndView.view = RedirectView("${SERVER_PREFIX}/v1/testsys/admin")
@@ -464,7 +468,7 @@ class AdminController @Autowired constructor(
 
         logger.info(accessToken, "Info changed: $webUser")
 
-        val adminModel = getModel(admin, webUser)
+        val adminModel = getModel(admin)
 
         modelAndView.addAllObjects(adminModel.asMap())
         modelAndView.view = RedirectView("${SERVER_PREFIX}/v1/testsys/admin")
@@ -732,7 +736,8 @@ class AdminController @Autowired constructor(
      * @author Roman Shishkin
      * @since 1.1.0
      */
-    private fun getModel(admin: Admin, webUser: WebUser): AdminModel {
+    private fun getModel(admin: Admin): AdminModel {
+        val webUser = admin.webUser
         val adminModel = AdminModel.Builder()
             .accessToken(webUser.accessToken)
             .username(webUser.username)
