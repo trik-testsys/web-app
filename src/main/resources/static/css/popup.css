@@ -58,36 +58,6 @@
     background-color: var(--trik-green);
 }
 
-input[type="file"] {
-    display: none;
-}
-
-.popup-content form > label.upload-file {
-    width: 80%;
-    height: 30px;
-    border: 1px solid var(--trik-white);
-    border-radius: 5px;
-    padding: 5px;
-    cursor: pointer;
-}
-
-label.upload-file {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-/*change label.upload-file background if it has uploaded files*/
-.popup-content form > label.upload-file:has(input[type="file"]:valid) {
-    background-color: var(--trik-green);
-    color: var(--trik-blue);
-}
-
-.popup-content form > label.upload-file:hover {
-    background-color: var(--trik-blue);
-    color: var(--trik-white);
-}
-
 .show {
     display: block;
 }
