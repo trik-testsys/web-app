@@ -3,7 +3,7 @@ package trik.testsys.webclient.model.impl
 import trik.testsys.webclient.entity.impl.Admin
 import trik.testsys.webclient.entity.impl.Task
 import trik.testsys.webclient.model.TrikModel
-import trik.testsys.webclient.util.exception.TrikException
+import trik.testsys.webclient.util.exception.impl.TrikIllegalStateException
 import java.time.LocalDateTime
 
 /**
@@ -49,12 +49,12 @@ class DeveloperModel private constructor(
         fun lastLoginDate(lastLoginDate: LocalDateTime?) = apply { this.lastLoginDate = lastLoginDate }
 
         fun build() = DeveloperModel(
-            accessToken ?: throw TrikException(String.format(PARAMETER_ERROR, DeveloperModel::accessToken.name)),
-            username ?: throw TrikException(String.format(PARAMETER_ERROR, DeveloperModel::username.name)),
+            accessToken ?: throw TrikIllegalStateException(String.format(PARAMETER_ERROR, DeveloperModel::accessToken.name)),
+            username ?: throw TrikIllegalStateException(String.format(PARAMETER_ERROR, DeveloperModel::username.name)),
             postTaskMessage,
             tasks ?: emptySet(),
             publicTasks ?: emptySet(),
-            admins ?: throw TrikException(String.format(PARAMETER_ERROR, DeveloperModel::admins.name)),
+            admins ?: throw TrikIllegalStateException(String.format(PARAMETER_ERROR, DeveloperModel::admins.name)),
             additionalInfo ?: "",
             lastLoginDate
         )

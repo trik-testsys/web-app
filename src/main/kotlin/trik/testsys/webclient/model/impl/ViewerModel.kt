@@ -4,7 +4,7 @@ import trik.testsys.webclient.controller.impl.ViewerController
 import trik.testsys.webclient.entity.impl.Admin
 import trik.testsys.webclient.entity.impl.Group
 import trik.testsys.webclient.model.TrikModel
-import trik.testsys.webclient.util.exception.TrikException
+import trik.testsys.webclient.util.exception.impl.TrikIllegalStateException
 import java.time.LocalDateTime
 
 /**
@@ -54,14 +54,14 @@ class ViewerModel private constructor(
         fun lastLoginDate(lastLoginDate: LocalDateTime?) = apply { this.lastLoginDate = lastLoginDate }
 
         fun build() = ViewerModel(
-            accessToken ?: throw TrikException(String.format(PARAMETER_ERROR, ViewerModel::accessToken.name)),
+            accessToken ?: throw TrikIllegalStateException(String.format(PARAMETER_ERROR, ViewerModel::accessToken.name)),
             adminRegToken,
             username,
             additionalInfo ?: "",
-            admins ?: throw TrikException(String.format(PARAMETER_ERROR, ViewerModel::admins.name)),
-            groups ?: throw TrikException(String.format(PARAMETER_ERROR, ViewerModel::groups.name)),
-            groupsResult ?: throw TrikException(String.format(PARAMETER_ERROR, ViewerModel::groupsResult.name)),
-            adminsResult ?: throw TrikException(String.format(PARAMETER_ERROR, ViewerModel::adminsResult.name)),
+            admins ?: throw TrikIllegalStateException(String.format(PARAMETER_ERROR, ViewerModel::admins.name)),
+            groups ?: throw TrikIllegalStateException(String.format(PARAMETER_ERROR, ViewerModel::groups.name)),
+            groupsResult ?: throw TrikIllegalStateException(String.format(PARAMETER_ERROR, ViewerModel::groupsResult.name)),
+            adminsResult ?: throw TrikIllegalStateException(String.format(PARAMETER_ERROR, ViewerModel::adminsResult.name)),
             lastLoginDate
         )
     }

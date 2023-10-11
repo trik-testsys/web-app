@@ -4,7 +4,7 @@ import trik.testsys.webclient.entity.impl.Group
 import trik.testsys.webclient.entity.impl.Label
 import trik.testsys.webclient.entity.impl.Task
 import trik.testsys.webclient.model.TrikModel
-import trik.testsys.webclient.util.exception.TrikException
+import trik.testsys.webclient.util.exception.impl.TrikIllegalStateException
 import java.time.LocalDateTime
 
 /**
@@ -54,14 +54,14 @@ class AdminModel private constructor(
         fun lastLoginDate(lastLoginDate: LocalDateTime?) = apply { this.lastLoginDate = lastLoginDate }
 
         fun build() = AdminModel(
-            accessToken ?: throw TrikException(String.format(PARAMETER_ERROR, AdminModel::accessToken.name)),
-            username ?: throw TrikException(String.format(PARAMETER_ERROR, AdminModel::username.name)),
-            groups ?: throw TrikException(String.format(PARAMETER_ERROR, AdminModel::groups.name)),
-            tasks ?: throw TrikException(String.format(PARAMETER_ERROR, AdminModel::tasks.name)),
-            labels ?: throw TrikException(String.format(PARAMETER_ERROR, AdminModel::labels.name)),
+            accessToken ?: throw TrikIllegalStateException(String.format(PARAMETER_ERROR, AdminModel::accessToken.name)),
+            username ?: throw TrikIllegalStateException(String.format(PARAMETER_ERROR, AdminModel::username.name)),
+            groups ?: throw TrikIllegalStateException(String.format(PARAMETER_ERROR, AdminModel::groups.name)),
+            tasks ?: throw TrikIllegalStateException(String.format(PARAMETER_ERROR, AdminModel::tasks.name)),
+            labels ?: throw TrikIllegalStateException(String.format(PARAMETER_ERROR, AdminModel::labels.name)),
             webUserId,
             additionalInfo ?: "",
-            registrationDate ?: throw TrikException(String.format(PARAMETER_ERROR, AdminModel::registrationDate.name)),
+            registrationDate ?: throw TrikIllegalStateException(String.format(PARAMETER_ERROR, AdminModel::registrationDate.name)),
             lastLoginDate
         )
     }
