@@ -36,12 +36,19 @@ object AccessTokenGenerator {
         return digest.fold("") { str, it -> str + "%02x".format(it) }
     }
 
+    // generate token like a61d-e3f2-4b3a-8b1c
     private fun generateStudentAccessToken(word: String): String {
-        val saltedWord = word + Date().time + Random(Date().time).nextInt()
-        val md = MessageDigest.getInstance("MD5")
-        val digest = md.digest(saltedWord.toByteArray())
+        val uuid = UUID.randomUUID().toString()
+        val middleUUID = uuid.substringAfter("-").substringBeforeLast("-")
 
-        return digest.fold("") { str, it -> str + "%02x".format(it) }
+        val number = charsSum(word) % 10000
+        val numberString = number.toString().padStart(4, '0')
+
+        return "$numberString-$middleUUID"
+    }
+
+    private fun charsSum(word: String): Int {
+        return word.fold(0) { sum, char -> sum + char.toInt() }
     }
 
     enum class TokenType {
