@@ -46,21 +46,21 @@ class StudentService @Autowired constructor(
         val students = mutableListOf<Student>()
         val webUsers = mutableListOf<WebUser>()
 
-        val noramalizedAccessTokenPrefix = accessTokenPrefix.replace(" ", "-")
-        val noramalizedNamePrefix = namePrefix.replace(" ", "-")
+//        val noramalizedAccessTokenPrefix = accessTokenPrefix.replace(" ", "-")
+//        val noramalizedNamePrefix = namePrefix.replace(" ", "-")
 
-        val prefixRegex = "^$noramalizedNamePrefix\\d+$"
-        val startNumber = studentRepository.findMaxNumberWithSameNamePrefix(prefixRegex, group.id!!) ?: START_NUMBER_IF_NOT_FOUND
+//        val prefixRegex = "^$noramalizedNamePrefix\\d+$"
+//        val startNumber = studentRepository.findMaxNumberWithSameNamePrefix(prefixRegex, group.id!!) ?: START_NUMBER_IF_NOT_FOUND
 
         for (i in 1..count) {
-            val number = startNumber + i
+            val number = i
             val generatedToken = AccessTokenGenerator.generateAccessToken(
-                noramalizedAccessTokenPrefix + number,
-                AccessTokenGenerator.TokenType.WEB_USER
+                number.toString(),
+                AccessTokenGenerator.TokenType.STUDENT
             )
-            val accessToken = noramalizedAccessTokenPrefix + ACCESS_TOKEN_DELIMITER + generatedToken
+            val accessToken = generatedToken
 
-            val username = "${noramalizedAccessTokenPrefix}$NAME_DELIMITER$number"
+            val username = "st_${group.name}_$number"
 
             val webUser = WebUser(username, accessToken)
             webUsers.add(webUser)
