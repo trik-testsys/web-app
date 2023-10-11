@@ -50,6 +50,10 @@ class GroupService @Autowired constructor(
         return groupRepository.findAllById(ids).toList()
     }
 
+    fun getAll(): List<Group> {
+        return groupRepository.findAll().toList()
+    }
+
     /**
      * @author Roman Shishkin
      * @since 1.1.0
