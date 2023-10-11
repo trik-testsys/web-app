@@ -3,24 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <title>Кабинет Разработчика</title>
-    <link rel="icon" th:href="@{/v1/testsys/img/trik_testsys_logo.ico}">
-    <link rel="stylesheet" th:href="@{/v1/testsys/css/style.css}"/>
-    <link rel="stylesheet" th:href="@{/v1/testsys/css/popup.css}"/>
-    <link rel="stylesheet" th:href="@{/v1/testsys/css/table.css}"/>
+    <link rel="icon" th:href="@{/2023/img/trik_testsys_logo.ico}">
+    <link rel="stylesheet" th:href="@{/2023/css/style.css}"/>
+    <link rel="stylesheet" th:href="@{/2023/css/popup.css}"/>
+    <link rel="stylesheet" th:href="@{/2023/css/table.css}"/>
     <!--    <link rel="stylesheet" th:href="@{/fontawesome-free-6.4.2-web/css/all.min.css}">-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script th:src="@{/v1/testsys/js/popup.js}"></script>
+    <script th:src="@{/2023/js/popup.js}"></script>
+
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript" >
+        (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+            m[i].l=1*new Date();
+            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+        (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+        ym(95194065, "init", {
+            clickmap:true,
+            trackLinks:true,
+            accurateTrackBounce:true,
+            webvisor:true
+        });
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/95194065" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    <!-- /Yandex.Metrika counter -->
 </head>
 <body>
 <div class="container">
     <div class="header">
         <div class="page-type">
-            <img th:src="@{/v1/testsys/img/trik_testsys_logo.svg}" alt="logo">
+            <img th:src="@{/2023/img/trik_testsys_logo.svg}" alt="logo">
             <p>Кабинет Разработчика</p>
         </div>
         <div class="exit">
-            <form th:action="@{/v1/testsys}" method="get">
+            <form th:action="@{/2023}" method="get">
                 <input type="submit" value="Выйти"/>
             </form>
         </div>
@@ -33,7 +51,7 @@
                 <i class="fa fa-close"></i>
             </button>
             <h1>Редактирование данных</h1>
-            <form class="uploadForm" th:action="@{/v1/testsys/developer/info/change}" method="post">
+            <form class="uploadForm" th:action="@{/2023/developer/info/change}" method="post">
                 <input type="text" name="accessToken" th:value="${accessToken}" placeholder="Код-доступа" required
                        style="display: none"/>
                 <div class="input-name">
@@ -53,7 +71,7 @@
     <div class="main">
         <div class="info">
             <div class="avatar-container">
-                <img th:src="@{/v1/testsys/img/trik_testsys_logo.svg}" alt="avatar">
+                <img th:src="@{/2023/img/trik_testsys_logo.svg}" alt="avatar">
                 <div class="username">
                     <p th:text="${username}"></p>
                 </div>
@@ -102,7 +120,7 @@
                 <i class="fa fa-close"></i>
             </button>
             <h1>Загрузка задачи</h1>
-            <form class="uploadForm" id="uploadTaskForm" th:action="@{/v1/testsys/developer/task/create}" method="post"
+            <form class="uploadForm" id="uploadTaskForm" th:action="@{/2023/developer/task/create}" method="post"
                   enctype="multipart/form-data">
                 <div class="input-name">
                     <h2>Название Задачи</h2>
@@ -177,7 +195,7 @@
                             </button>
                             <h1>Редактирование задачи</h1>
                             <h1 th:text="${task.id} + ': ' + ${task.name}"></h1>
-                            <form class="uploadForm" id="editTaskForm" th:action="@{/v1/testsys/developer/task/edit}"
+                            <form class="uploadForm" id="editTaskForm" th:action="@{/2023/developer/task/edit}"
                                   method="post"
                                   enctype="multipart/form-data">
                                 <input type="number" name="taskId" th:value="${task.id}" required
@@ -221,7 +239,7 @@
                             <h1 th:text="${task.id} + ': ' + ${task.name}"></h1>
                             <p>Выберите Организаторов:</p>
                             <form class="uploadForm" id="attachTaskToAdminForm"
-                                  th:action="@{/v1/testsys/developer/task/attach}" method="post"
+                                  th:action="@{/2023/developer/task/attach}" method="post"
                                   enctype="multipart/form-data">
                                 <input type="number" name="taskId" th:value="${task.id}" required
                                        style="display: none"/>
@@ -246,7 +264,7 @@
                             <h1 th:text="${task.id} + ': ' + ${task.name}"></h1>
                             <p>Выберите Организаторов:</p>
                             <form class="uploadForm" id="detachTaskFromAdminForm"
-                                  th:action="@{/v1/testsys/developer/task/detach}" method="post"
+                                  th:action="@{/2023/developer/task/detach}" method="post"
                                   enctype="multipart/form-data">
                                 <input type="number" name="taskId" th:value="${task.id}" required
                                        style="display: none"/>
@@ -275,7 +293,7 @@
                                 <p>Вы уверены, что хотите удалить задачу?</p>
                             </div>
                             <form class="uploadForm" id="deleteTaskForm"
-                                  th:action="@{/v1/testsys/developer/task/delete}" method="post"
+                                  th:action="@{/2023/developer/task/delete}" method="post"
                                   enctype="multipart/form-data">
                                 <input type="number" name="taskId" th:value="${task.id}" required
                                        style="display: none"/>
@@ -297,7 +315,7 @@
                                 <p>Вы уверены, что хотите добавить задачу в публичный доступ?</p>
                             </div>
                             <form class="uploadForm" id="openTaskForm"
-                                  th:action="@{/v1/testsys/developer/task/visibility/change}" method="post"
+                                  th:action="@{/2023/developer/task/visibility/change}" method="post"
                                   enctype="multipart/form-data">
                                 <input type="number" name="taskId" th:value="${task.id}" required
                                        style="display: none"/>
@@ -322,7 +340,7 @@
                                 <p>Вы уверены, что хотите убрать задачу из публичного доступа?</p>
                             </div>
                             <form class="uploadForm" id="closeTaskForm"
-                                  th:action="@{/v1/testsys/developer/task/visibility/change}" method="post"
+                                  th:action="@{/2023/developer/task/visibility/change}" method="post"
                                   enctype="multipart/form-data">
                                 <input type="number" name="taskId" th:value="${task.id}" required
                                        style="display: none"/>

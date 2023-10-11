@@ -3,23 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <title>Кабинет Организатора</title>
-    <link rel="icon" th:href="@{/v1/testsys/img/trik_testsys_logo.ico}">
-    <link rel="stylesheet" th:href="@{/v1/testsys/css/style.css}"/>
-    <link rel="stylesheet" th:href="@{/v1/testsys/css/popup.css}"/>
-    <link rel="stylesheet" th:href="@{/v1/testsys/css/table.css}"/>
+    <link rel="icon" th:href="@{/2023/img/trik_testsys_logo.ico}">
+    <link rel="stylesheet" th:href="@{/2023/css/style.css}"/>
+    <link rel="stylesheet" th:href="@{/2023/css/popup.css}"/>
+    <link rel="stylesheet" th:href="@{/2023/css/table.css}"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript" >
+        (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+            m[i].l=1*new Date();
+            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+        (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+        ym(95194048, "init", {
+            clickmap:true,
+            trackLinks:true,
+            accurateTrackBounce:true,
+            webvisor:true
+        });
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/95194048" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    <!-- /Yandex.Metrika counter -->
 </head>
 <body>
 <div class="container">
     <div class="header">
         <div class="page-type">
-            <img th:src="@{/v1/testsys/img/trik_testsys_logo.svg}" alt="logo">
+            <img th:src="@{/2023/img/trik_testsys_logo.svg}" alt="logo">
             <p>Кабинет Организатора</p>
         </div>
         <div class="exit">
-            <form th:action="@{/v1/testsys}" method="get">
+            <form th:action="@{/2023}" method="get">
                 <input type="submit" value="Выйти"/>
             </form>
         </div>
@@ -32,7 +50,7 @@
                 <i class="fa fa-close"></i>
             </button>
             <h1>Редактирование данных</h1>
-            <form class="uploadForm" th:action="@{/v1/testsys/admin/info/change}" method="post">
+            <form class="uploadForm" th:action="@{/2023/admin/info/change}" method="post">
                 <input type="text" name="accessToken" th:value="${accessToken}" placeholder="Код-доступа" required
                        style="display: none"/>
                 <div class="input-name">
@@ -52,7 +70,7 @@
     <div class="main">
         <div class="info">
             <div class="avatar-container">
-                <img th:src="@{/v1/testsys/img/trik_testsys_logo.svg}" alt="avatar">
+                <img th:src="@{/2023/img/trik_testsys_logo.svg}" alt="avatar">
                 <div class="username">
                     <p th:text="${username}"></p>
                 </div>
@@ -109,7 +127,7 @@
                 <i class="fa fa-close"></i>
             </button>
             <h1>Создание Группы</h1>
-            <form class="uploadForm" th:action="@{/v1/testsys/admin/group/create}" method="post">
+            <form class="uploadForm" th:action="@{/2023/admin/group/create}" method="post">
                 <div class="input-name">
                     <h2>Название Группы</h2>
                 </div>
@@ -188,7 +206,7 @@
                             </button>
 
                             <h1>Редактирование Группы</h1>
-                            <form class="uploadForm" th:action="@{/v1/testsys/admin/group/edit}" method="post">
+                            <form class="uploadForm" th:action="@{/2023/admin/group/edit}" method="post">
                                 <input type="text" name="groupAccessToken" th:value="${group.accessToken}"
                                        style="display: none"/>
                                 <div class="input-name">
@@ -220,7 +238,7 @@
                             <h1>Изменение тегов Группы</h1>
                             <h1 th:text="${group.id} + ': ' + ${group.name}"></h1>
                             <div class="popup-forms">
-                                <form class="uploadForm" th:action="@{/v1/testsys/admin/group/labels/add}"
+                                <form class="uploadForm" th:action="@{/2023/admin/group/labels/add}"
                                       method="post">
                                     <p>Новый тег:</p>
                                     <input type="text" name="newLabel" placeholder="Новый тег"
@@ -239,7 +257,7 @@
                                     </select>
                                     <input type="submit" value="Добавить"/>
                                 </form>
-                                <form class="uploadForm" th:action="@{/v1/testsys/admin/group/labels/delete}"
+                                <form class="uploadForm" th:action="@{/2023/admin/group/labels/delete}"
                                       method="post">
                                     <p>Выберите теги для удаления:</p>
                                     <input type="text" name="groupAccessToken" th:value="${group.accessToken}"
@@ -271,7 +289,7 @@
                             <p>В Группе состоит <span th:text="${group.students.size()}"></span> участников.</p>
                             <p>В Группе находится <span th:text="${group.tasks.size()}"></span> задач.</p>
                             <p>Вы уверены, что хотите удалить Группу?</p>
-                            <form class="uploadForm" th:action="@{/v1/testsys/admin/group/delete}" method="post">
+                            <form class="uploadForm" th:action="@{/2023/admin/group/delete}" method="post">
                                 <input type="text" name="groupAccessToken" th:value="${group.accessToken}"
                                        style="display: none"/>
                                 <input type="text" name="accessToken" th:value="${accessToken}"
@@ -303,7 +321,7 @@
                                 th:onclick="'deleteGroupPopup(\'' + ${group.id} + '\')'">
                             <i class="fa fa-trash"></i>
                         </button>
-                        <form th:action="@{/v1/testsys/admin/group}" method="get">
+                        <form th:action="@{/2023/admin/group}" method="get">
                             <input type="text" name="groupAccessToken" th:value="${group.accessToken}"
                                    style="display: none"/>
                             <input type="text" name="accessToken" th:value="${accessToken}"
@@ -369,7 +387,7 @@
                             <h1>Добавление задачи в Группы</h1>
                             <h1 th:text="${task.id} + ': ' + ${task.name}"></h1>
                             <p>Выберите Группы, в которые нужно добавить задачу:</p>
-                            <form class="uploadForm" th:action="@{/v1/testsys/admin/task/groups/add}"
+                            <form class="uploadForm" th:action="@{/2023/admin/task/groups/add}"
                                   method="post">
                                 <input type="text" name="taskId" th:value="${task.id}"
                                        style="display: none"/>
@@ -396,7 +414,7 @@
                             <h1>Удаление задачи из Групп</h1>
                             <h1 th:text="${task.id} + ': ' + ${task.name}"></h1>
                             <p>Выберите Группы, из которых нужно удалить задачу:</p>
-                            <form class="uploadForm" th:action="@{/v1/testsys/admin/task/groups/remove}"
+                            <form class="uploadForm" th:action="@{/2023/admin/task/groups/remove}"
                                   method="post">
                                 <input type="text" name="taskId" th:value="${task.id}"
                                        style="display: none"/>
@@ -442,7 +460,7 @@
     <!--            </button>-->
     <!--            <h1>Создание наблюдателя</h1>-->
     <!--            <form class="uploadForm" id="create-viewer-form"-->
-    <!--                  th:action="@{/v1/testsys/admin/viewer/create}" method="post">-->
+    <!--                  th:action="@{/2023/admin/viewer/create}" method="post">-->
     <!--                <input type="text" name="accessToken" th:value="${accessToken}"-->
     <!--                       placeholder="Код-доступа" required-->
     <!--                       style="display: none"/>-->
