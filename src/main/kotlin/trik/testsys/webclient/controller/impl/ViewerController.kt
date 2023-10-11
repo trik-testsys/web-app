@@ -13,6 +13,7 @@ import trik.testsys.webclient.entity.impl.*
 
 import trik.testsys.webclient.model.impl.ViewerModel
 import trik.testsys.webclient.service.impl.*
+import trik.testsys.webclient.util.TrikRedirectView
 import trik.testsys.webclient.util.fp.Either
 import trik.testsys.webclient.util.logger.TrikLogger
 
@@ -78,7 +79,7 @@ class ViewerController @Autowired constructor(
         val adminsResult = generateAdminsResult(viewer.admins)
 
         val viewerModel = getModel(viewer, groupsResult, adminsResult)
-        modelAndView.view = RedirectView("${SERVER_PREFIX}/v1/testsys/viewer")
+        modelAndView.view = REDIRECT_VIEW
         modelAndView.addAllObjects(viewerModel.asMap())
 
         return modelAndView
@@ -227,6 +228,7 @@ class ViewerController @Autowired constructor(
         private val logger = TrikLogger(this::class.java)
 
         private const val VIEWER_VIEW_NAME = "viewer"
-        private const val SERVER_PREFIX = "http://localhost:8888"
+        private const val SERVER_PREFIX = "https://testsys.trikset.com/2023"
+        private val REDIRECT_VIEW = TrikRedirectView("/viewer")
     }
 }

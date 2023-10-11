@@ -13,6 +13,7 @@ import trik.testsys.webclient.entity.impl.*
 import trik.testsys.webclient.model.impl.AdminModel
 import trik.testsys.webclient.models.ResponseMessage
 import trik.testsys.webclient.service.impl.*
+import trik.testsys.webclient.util.TrikRedirectView
 import trik.testsys.webclient.util.logger.TrikLogger
 import trik.testsys.webclient.util.fp.Either
 import java.time.LocalDateTime
@@ -96,7 +97,7 @@ class AdminController @Autowired constructor(
         val adminModel = getModel(admin)
 
         modelAndView.addAllObjects(adminModel.asMap())
-        modelAndView.view = RedirectView("${SERVER_PREFIX}/v1/testsys/admin")
+        modelAndView.view = REDIRECT_VIEW
 
         return modelAndView
     }
@@ -137,7 +138,7 @@ class AdminController @Autowired constructor(
         val adminModel = getModel(admin)
 
         modelAndView.addAllObjects(adminModel.asMap())
-        modelAndView.view = RedirectView("${SERVER_PREFIX}/v1/testsys/admin")
+        modelAndView.view = REDIRECT_VIEW
 
         return modelAndView
     }
@@ -174,7 +175,7 @@ class AdminController @Autowired constructor(
         val adminModel = getModel(admin)
 
         modelAndView.addAllObjects(adminModel.asMap())
-        modelAndView.view = RedirectView("${SERVER_PREFIX}/v1/testsys/admin")
+        modelAndView.view = REDIRECT_VIEW
 
         return modelAndView
     }
@@ -229,7 +230,7 @@ class AdminController @Autowired constructor(
         val adminModel = getModel(admin)
 
         modelAndView.addAllObjects(adminModel.asMap())
-        modelAndView.view = RedirectView("${SERVER_PREFIX}/v1/testsys/admin")
+        modelAndView.view = REDIRECT_VIEW
 
         return modelAndView
     }
@@ -270,7 +271,7 @@ class AdminController @Autowired constructor(
         val adminModel = getModel(admin)
 
         modelAndView.addAllObjects(adminModel.asMap())
-        modelAndView.view = RedirectView("${SERVER_PREFIX}/v1/testsys/admin")
+        modelAndView.view = REDIRECT_VIEW
 
         return modelAndView
     }
@@ -383,7 +384,7 @@ class AdminController @Autowired constructor(
         val adminModel = getModel(admin)
 
         modelAndView.addAllObjects(adminModel.asMap())
-        modelAndView.view = RedirectView("${SERVER_PREFIX}/v1/testsys/admin")
+        modelAndView.view = REDIRECT_VIEW
 
         return modelAndView
     }
@@ -427,7 +428,7 @@ class AdminController @Autowired constructor(
         val adminModel = getModel(admin)
 
         modelAndView.addAllObjects(adminModel.asMap())
-        modelAndView.view = RedirectView("${SERVER_PREFIX}/v1/testsys/admin")
+        modelAndView.view = REDIRECT_VIEW
 
         return modelAndView
     }
@@ -471,7 +472,7 @@ class AdminController @Autowired constructor(
         val adminModel = getModel(admin)
 
         modelAndView.addAllObjects(adminModel.asMap())
-        modelAndView.view = RedirectView("${SERVER_PREFIX}/v1/testsys/admin")
+        modelAndView.view = REDIRECT_VIEW
 
         return modelAndView
     }
@@ -860,6 +861,7 @@ class AdminController @Autowired constructor(
         private val logger = TrikLogger(this::class.java)
 
         private const val ADMIN_VIEW_NAME = "admin"
-        private const val SERVER_PREFIX = "https://testsys.trikset.com"
+        private const val SERVER_PREFIX = "https://testsys.trikset.com/2023"
+        private val REDIRECT_VIEW = TrikRedirectView("/admin")
     }
 }

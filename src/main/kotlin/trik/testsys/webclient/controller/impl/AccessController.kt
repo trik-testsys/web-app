@@ -1,19 +1,21 @@
 package trik.testsys.webclient.controller.impl
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.ui.Model
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
-import org.springframework.web.servlet.view.RedirectView
-import trik.testsys.webclient.entity.impl.WebUser
-
 import trik.testsys.webclient.service.impl.*
 import trik.testsys.webclient.util.AvatarGenerator
+import trik.testsys.webclient.util.TrikRedirectView
 import trik.testsys.webclient.util.logger.TrikLogger
-import java.io.File
 import java.time.LocalDateTime
 import java.time.ZoneOffset.UTC
-import java.util.Random
+import java.util.*
+
 
 @RestController
 @RequestMapping("\${app.testsys.api.prefix}")
@@ -34,69 +36,63 @@ class AccessController @Autowired constructor(
         redirectAttributes: RedirectAttributes,
         model: Model
     ): Any {
-        logger.info(accessToken, "Client trying to access service.")
+        val lowerCasedToken = accessToken.lowercase(Locale.getDefault()).replace(" ", "")
+        logger.info(lowerCasedToken, "Client trying to access service.")
 
-        groupService.getGroupByAccessToken(accessToken)?.let {
-            logger.info(accessToken, "Client is a new student.")
+        groupService.getGroupByAccessToken(lowerCasedToken)?.let {
+            logger.info(lowerCasedToken, "Client is a new student.")
             if (!it.isRegistrationOpen) {
                 // TODO: Add message about closed registration.
-                logger.info(accessToken, "Registration is closed.")
+                logger.info(lowerCasedToken, "Registration is closed.")
                 return@let
             }
-            redirectAttributes.addAttribute("groupAccessToken", accessToken)
-            return RedirectView("$SERVER_PREFIX/registration")
-//            return RedirectView("/v1/testsys/student/registration")
+            redirectAttributes.addAttribute("groupAccessToken", lowerCasedToken)
+            return TrikRedirectView("/student/registration")
         }
-        redirectAttributes.addAttribute("accessToken", accessToken)
+        redirectAttributes.addAttribute("accessToken", lowerCasedToken)
 
-        viewerService.getByAdminRegToken(accessToken)?.let {
-            logger.info(accessToken, "Client is a new admin.")
-            return RedirectView("$SERVER_PREFIX/registration")
-//            return RedirectView("/v1/testsys/admin/registration")
+        viewerService.getByAdminRegToken(lowerCasedToken)?.let {
+            logger.info(lowerCasedToken, "Client is a new admin.")
+            return TrikRedirectView("/admin/registration")
         }
 
-        val webUser = webUserService.getWebUserByAccessToken(accessToken) ?: run {
-            logger.info(accessToken, "Client is not authorized.")
+        val webUser = webUserService.getWebUserByAccessToken(lowerCasedToken) ?: run {
+            logger.info(lowerCasedToken, "Client is not authorized.")
             return model
         }
         webUser.lastLoginDate = LocalDateTime.now(UTC).plusHours(3)
         webUserService.saveWebUser(webUser)
 
         superUserService.getSuperUserByWebUser(webUser)?.let {
-            logger.info(accessToken, "Client is a super user.")
-            return RedirectView("$SERVER_PREFIX/superuser")
-//            return RedirectView("/v1/testsys/superuser")
+            logger.info(lowerCasedToken, "Client is a super user.")
+            return TrikRedirectView("/superuser")
         }
 
         adminService.getAdminByWebUser(webUser)?.let {
-            logger.info(accessToken, "Client is an admin.")
-            return RedirectView("$SERVER_PREFIX/admin")
-//            return RedirectView("/v1/testsys/admin")
+            logger.info(lowerCasedToken, "Client is an admin.")
+            return TrikRedirectView("/admin")
         }
 
         developerService.getByWebUser(webUser)?.let {
-            logger.info(accessToken, "Client is a developer.")
-            return RedirectView("$SERVER_PREFIX/developer")
-//            return RedirectView("/v1/testsys/developer")
+            logger.info(lowerCasedToken, "Client is a developer.")
+            return TrikRedirectView("/developer")
         }
 
         studentService.getByWebUser(webUser)?.let {
-            logger.info(accessToken, "Client is a student.")
+            logger.info(lowerCasedToken, "Client is a student.")
             val group = it.group
             if (!group.isAccessible) {
                 //TODO: Add message about group is not accessible.
-                logger.info(accessToken, "Group is not accessible.")
+                logger.info(lowerCasedToken, "Group is not accessible.")
                 return@let
             }
-            return RedirectView("$SERVER_PREFIX/student")
-//            return RedirectView("/v1/testsys/student")
+            return TrikRedirectView("/student")
         }
 
         viewerService.getByWebUser(webUser)?.let {
-            logger.info(accessToken, "Client is a viewer.")
+            logger.info(lowerCasedToken, "Client is a viewer.")
 
-            return RedirectView("$SERVER_PREFIX/viewer")
-//            return RedirectView("/v1/testsys/viewer")
+            return TrikRedirectView("/viewer")
         }
 
         return model
@@ -109,6 +105,5 @@ class AccessController @Autowired constructor(
 
     companion object {
         private val logger = TrikLogger(this::class.java)
-        private const val SERVER_PREFIX = "https://testsys.trikset.com/v1/testsys"
     }
 }

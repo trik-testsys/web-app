@@ -12,12 +12,14 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.servlet.ModelAndView
 import trik.testsys.webclient.controller.TrikUserController
+import trik.testsys.webclient.entity.impl.Viewer
 import trik.testsys.webclient.entity.impl.WebUser
 
 import trik.testsys.webclient.service.impl.SuperUserService
 import trik.testsys.webclient.service.impl.WebUserService
 import trik.testsys.webclient.models.ResponseMessage
 import trik.testsys.webclient.service.impl.AdminService
+import trik.testsys.webclient.service.impl.ViewerService
 import trik.testsys.webclient.util.logger.TrikLogger
 
 
@@ -26,7 +28,8 @@ import trik.testsys.webclient.util.logger.TrikLogger
 class SuperUserController @Autowired constructor(
     private val superUserService: SuperUserService,
     private val webUserService: WebUserService,
-    private val adminService: AdminService
+    private val adminService: AdminService,
+    private val viewerService: ViewerService
 ) : TrikUserController {
 
     @GetMapping
@@ -35,6 +38,37 @@ class SuperUserController @Autowired constructor(
         modelAndView: ModelAndView
     ): ModelAndView {
         TODO("Not yet implemented")
+    }
+
+    @PostMapping("/viewer/create")
+    fun createViewers(
+        @RequestParam accessToken: String,
+        @RequestParam count: Long
+    ): ResponseEntity<Any> {
+        logger.info(accessToken, "Client trying to create viewers.")
+
+        val status = validateSuperUser(accessToken)
+        if (status != WebUser.Status.SUPER_USER) {
+            logger.info(accessToken, "Client is not a super user.")
+            return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ResponseMessage(403, "You are not a superuser!"))
+        }
+
+        val strings = mutableListOf<String>()
+
+        for (i in 1..count) {
+            val username = "$i"
+            val webUser = webUserService.saveWebUser(username)
+            val viewer = viewerService.save(webUser)
+
+            val viewerString = "${webUser.id}, ${webUser.accessToken}, ${viewer.adminRegToken}"
+            strings.add(viewerString)
+        }
+
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(strings)
     }
 
     @PostMapping("/webUser/create", produces = [MediaType.APPLICATION_JSON_VALUE])

@@ -3,6 +3,7 @@ package trik.testsys.webclient.controller.impl
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.format.annotation.DateTimeFormat
+import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -24,6 +25,7 @@ import trik.testsys.webclient.entity.impl.Developer
 import trik.testsys.webclient.entity.impl.WebUser
 import trik.testsys.webclient.model.impl.DeveloperModel
 import trik.testsys.webclient.service.impl.*
+import trik.testsys.webclient.util.TrikRedirectView
 import trik.testsys.webclient.util.fp.Either
 import trik.testsys.webclient.util.logger.TrikLogger
 import java.time.LocalDateTime
@@ -37,9 +39,6 @@ import java.time.LocalDateTime
 class DeveloperController @Autowired constructor(
     @Value("\${app.grading-system.path}")
     private val gradingSystemUrl: String,
-
-    @Value("\${app.testsys.api.prefix}")
-    private val apiPrefix: String,
 
     private val developerService: DeveloperService,
     private val webUserService: WebUserService,
@@ -94,8 +93,10 @@ class DeveloperController @Autowired constructor(
 
         modelAndView.addObject("accessToken", accessToken)
 
+        logger.info(accessToken, "Saving task $name.")
         val task = taskService.saveTask(name, description, developer, tests, training, benchmark)
-        postTask(name, tests, benchmark, training)
+
+        postTask("${task.id}: $name", tests, benchmark, training)
 //        val isTaskPosted = postTask(name, tests, benchmark, training)
 //        if (!isTaskPosted) {
 //            developerModelBuilder.postTaskMessage("Задача '${task.fullName}' не была загружена на сервер, попробуйте еще раз.")
@@ -217,10 +218,10 @@ class DeveloperController @Autowired constructor(
 //        benchmark?.let { body.add("benchmark", it.resource) }
 //        training?.let { body.add("training", it.resource) }
 
-        val url = "$gradingSystemUrl/task/create"
+        val url = "$gradingSystemUrl/tasks/create"
         val responseInfo = restTemplate.postForEntity(
             url,
-            body,
+            HttpEntity(body, headers),
             Map::class.java
         )
 
@@ -457,10 +458,14 @@ class DeveloperController @Autowired constructor(
             val allAdmins = adminService.getAll()
             task.admins.removeAll(allAdmins.toSet())
 
-            allAdmins.forEach { admin ->
-                admin.tasks.remove(task)
-                adminService.save(admin)
-            }
+            allAdmins.forEach { admin -> admin.tasks.remove(task) }
+            adminService.saveAll(allAdmins)
+
+            val allGroups = groupService.getAll()
+            task.groups.removeAll(allGroups)
+
+            allGroups.forEach{group -> group.tasks.remove(task) }
+            groupService.saveAll(allGroups)
 
             taskService.saveTask(task)
         }
@@ -527,8 +532,7 @@ class DeveloperController @Autowired constructor(
 
         private const val DEVELOPER_VIEW_NAME = "developer"
         private const val POST_TASK_MESSAGE = "postTaskMessage"
-        private const val SERVER_PREFIX = "https://testsys.trikset.com"
-        private val REDIRECT_VIEW = RedirectView("${SERVER_PREFIX}/v1/testsys/$DEVELOPER_VIEW_NAME")
+        private val REDIRECT_VIEW = TrikRedirectView("/developer")
         private const val UTC_OFFSET = 3L
     }
 }
