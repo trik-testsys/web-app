@@ -1,5 +1,7 @@
 package trik.testsys.webclient.config
 
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.scheduling.annotation.EnableScheduling
@@ -15,14 +17,16 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @Configuration
 @EnableWebSecurity
 @EnableScheduling
-class Configuration : WebMvcConfigurerAdapter() {
+class Configuration @Autowired constructor(
+    @Value("\${app.testsys.api.prefix}") private val serverPrefix: String,
+) : WebMvcConfigurerAdapter() {
 
     override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
         registry.addResourceHandler(
-            "/v1/testsys/img/**",
-            "/v1/testsys/css/**",
-            "/v1/testsys/js/**",
-            "/v1/testsys/avatars/**"
+            "$serverPrefix/img/**",
+            "$serverPrefix/css/**",
+            "$serverPrefix/js/**",
+            "$serverPrefix/avatars/**"
         ).addResourceLocations(
             "classpath:/static/img/",
             "classpath:/static/css/",
