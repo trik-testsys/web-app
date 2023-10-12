@@ -31,7 +31,7 @@ app:
     path: http://grading-system:8080/v3/grading-system
   testsys:
     api:
-      prefix: /v1/testsys
+      prefix: /2023
   avatar:
     path: "${PWD}/src/main/resources/static/avatars"
   utc:

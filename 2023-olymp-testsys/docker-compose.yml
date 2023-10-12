@@ -1,0 +1,45 @@
+version: '3'
+
+services:
+  mysql_host:
+    image: mysql
+    restart: always
+
+    environment:
+      MYSQL_USER: testsys
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+      MYSQL_DATABASE: testsys_db
+      MYSQL_PASSWORD: p@ssw0rd
+
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+
+  grading-system:
+    image: 5h15h4k1n9/trik-testsys-grading-system:3.0.0.1
+    restart: always
+
+    volumes:
+      - ./logs/grading-system:/logs
+      - ./data:/data
+      - ./data/tasks:/tasks
+      - ./data/submissions:/submissions
+
+    links:
+      - mysql_host:mysql_host
+
+  web-client:
+    image: 5h15h4k1n9/trik-testsys-web-client:1.1.0.13-beta
+    restart: always
+
+    ports:
+      - "8800:8888"
+    expose:
+      - "8800"
+
+    volumes:
+      - ./logs/web-client:/web-client/logs
+
+    links:
+      - grading-system:grading-system
+      - mysql_host:mysql_host
+

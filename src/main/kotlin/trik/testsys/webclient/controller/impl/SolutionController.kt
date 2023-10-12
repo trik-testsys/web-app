@@ -50,10 +50,11 @@ class SolutionController(@Value("\${app.grading-system.path}") val gradingSystem
             List::class.java
         )
 
-        val statuses = response.body!!.map { it as Map<*, *> }.associate { it["id"] as Int to it["status"] as Int }
+        val statuses = response.body!!.map { it as Map<*, *> }.associate { it["id"] as Long to it["status"] as Int }
+        val scores = response.body!!.map { it as Map<*, *> }.associate { it["id"] as Long to it["score"] as Long }
 
         for (solution in solutions) {
-            when (statuses[solution.gradingId.toInt()]) {
+            when (statuses[solution.gradingId]) {
                 100 -> {
                     logger.info("Solution ${solution.id} is in queue.")
                     solution.status = Solution.Status.NOT_STARTED
@@ -79,6 +80,12 @@ class SolutionController(@Value("\${app.grading-system.path}") val gradingSystem
                     solution.status = Solution.Status.ERROR
                 }
             }
+            val score = scores[solution.id] ?: 0
+            solution.score = score
+            if (score != 0L && (solution.status == Solution.Status.FAILED || solution.status == Solution.Status.ERROR)) {
+                solution.status = Solution.Status.PARTIAL
+            }
+
             solutionService.saveSolution(solution)
         }
 

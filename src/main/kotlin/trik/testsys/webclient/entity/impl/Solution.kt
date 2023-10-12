@@ -35,6 +35,9 @@ class Solution(
     @Column(nullable = false)
     var date: Date = Date()
 
+    @Column(nullable = false)
+    var score: Long = 0
+
     /**
      * @author Roman Shishkin
      * @since 1.1.0
@@ -44,6 +47,7 @@ class Solution(
         PASSED,
         IN_PROGRESS,
         NOT_STARTED,
-        ERROR
+        ERROR,
+        PARTIAL
     }
 }
