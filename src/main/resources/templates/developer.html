@@ -140,43 +140,16 @@
                 <div class="input-name">
                     <h2>Тестовые поля</h2>
                 </div>
-                <div class="upload-file">
-                    <div class="inputs" id="testInputs"></div>
-                    <button type="button" onclick="addFileInput('testInputs')">Добавить файл</button>
-                </div>
-
+                <input type="file" multiple="multiple" name="tests" accept=".xml" required/>
                 <div class="input-name">
                     <h2>Эталонное решение</h2>
                 </div>
-                <div class="upload-file">
-                    <input class="inputs" type="file" name="benchmark" accept=".qrs"/>
-                </div>
+                <input type="file" name="benchmark" accept=".qrs"/>
 
                 <div class="input-name">
-                    <h2>Упражнение EV3</h2>
+                    <h2>Файл с упражнением</h2>
                 </div>
-                <div class="upload-file">
-                    <input class="inputs" type="file" name="trainingEV3" accept=".qrs"/>
-                </div>
-
-                <div class="input-name">
-                    <h2>Упражнение TRIK</h2>
-                </div>
-                <div class="upload-file">
-                    <input class="inputs" type="file" name="trainingTRIK" accept=".qrs"/>
-                </div>
-<!--                <label class="upload-file">-->
-<!--                    Тестовые поля-->
-<!--                    <input type="file" multiple="multiple" name="tests" accept=".xml" required/>-->
-<!--                </label>-->
-<!--                <label class="upload-file">-->
-<!--                    Эталонное решение-->
-<!--                    <input type="file" name="benchmark" accept=".qrs"/>-->
-<!--                </label>-->
-<!--                <label class="upload-file">-->
-<!--                    Файл с упражнением-->
-<!--                    <input type="file" name="training" accept=".qrs"/>-->
-<!--                </label>-->
+                <input type="file" name="training" accept=".qrs"/>
                 <input type="submit" id="uploadTask" value="Загрузить"/>
             </form>
         </div>
