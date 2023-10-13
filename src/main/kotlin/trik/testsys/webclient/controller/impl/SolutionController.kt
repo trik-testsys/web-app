@@ -38,6 +38,11 @@ class SolutionController(@Value("\${app.grading-system.path}") val gradingSystem
         val submissionIds = solutions.map { it.gradingId }
         val idsString = submissionIds.joinToString(",")
 
+        logger.trace("[ Checking solutions ]")
+        solutions.forEach{
+            logger.trace("                       -- Solution id: ${it.id}, Submission id: ${it.gradingId}")
+        }
+
         val headers = HttpHeaders()
         headers.setBasicAuth("admin", "@dm1n")
 
@@ -50,11 +55,11 @@ class SolutionController(@Value("\${app.grading-system.path}") val gradingSystem
             List::class.java
         )
 
-        val statuses = response.body!!.map { it as Map<*, *> }.associate { it["id"] as Long to it["status"] as Int }
-        val scores = response.body!!.map { it as Map<*, *> }.associate { it["id"] as Long to it["score"] as Long }
+        val statuses = response.body!!.map { it as Map<*, *> }.associate { it["id"] as Int to it["status"] as Int }
+        val scores = response.body!!.map { it as Map<*, *> }.associate { it["id"] as Int to it["score"] as Int }
 
         for (solution in solutions) {
-            when (statuses[solution.gradingId]) {
+            when (statuses[solution.gradingId.toInt()]) {
                 100 -> {
                     logger.info("Solution ${solution.id} is in queue.")
                     solution.status = Solution.Status.NOT_STARTED
@@ -80,9 +85,9 @@ class SolutionController(@Value("\${app.grading-system.path}") val gradingSystem
                     solution.status = Solution.Status.ERROR
                 }
             }
-            val score = scores[solution.id] ?: 0
-            solution.score = score
-            if (score != 0L && (solution.status == Solution.Status.FAILED || solution.status == Solution.Status.ERROR)) {
+            val score = scores[solution.gradingId.toInt()] ?: 0
+            solution.score = score.toLong()
+            if (score != 0 && (solution.status == Solution.Status.FAILED || solution.status == Solution.Status.ERROR)) {
                 solution.status = Solution.Status.PARTIAL
             }
 

@@ -232,6 +232,7 @@ class StudentController(@Value("\${app.grading-system.path}") val gradingSystemU
 
         val solution =
             solutionService.saveSolution(student.id, taskId, submissionInfo.body!!["id"].toString().toLong())!!
+        logger.trace("[ Uploading solution ] -- Solution id: ${solution.id}, Submission id: ${solution.gradingId}.")
         logger.info("[${accessToken.padStart(80)}]: Solution uploaded.")
 
         model.addAttribute("id", solution.id)
