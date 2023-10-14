@@ -17,6 +17,7 @@ import trik.testsys.webclient.util.TrikRedirectView
 import trik.testsys.webclient.util.logger.TrikLogger
 import trik.testsys.webclient.util.fp.Either
 import java.time.LocalDateTime
+import java.util.*
 
 @RestController
 @RequestMapping("\${app.testsys.api.prefix}/admin")
@@ -697,7 +698,8 @@ class AdminController @Autowired constructor(
             .filename("${group.name}-студенты.csv")
             .build()
 
-        headers.acceptCharset = listOf(Charsets.UTF_8)
+        headers.acceptLanguage = Locale.LanguageRange.parse("ru-RU, en-US")
+        headers.acceptCharset = listOf(Charsets.UTF_8, Charsets.ISO_8859_1, Charsets.US_ASCII)
         val bytes = csv.toString().toByteArray()
 
         return ResponseEntity
