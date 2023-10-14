@@ -1,11 +1,16 @@
 package trik.testsys.webclient.controller.impl
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.ContentDisposition
+import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import trik.testsys.webclient.controller.TrikUserController
@@ -16,6 +21,9 @@ import trik.testsys.webclient.service.impl.*
 import trik.testsys.webclient.util.TrikRedirectView
 import trik.testsys.webclient.util.fp.Either
 import trik.testsys.webclient.util.logger.TrikLogger
+import java.time.LocalDateTime
+import java.time.ZoneOffset.UTC
+import java.util.*
 
 /**
  * @author Roman Shishkin
@@ -27,7 +35,8 @@ class ViewerController @Autowired constructor(
     private val webUserService: WebUserService,
     private val groupService: GroupService,
     private val viewerService: ViewerService,
-    private val adminService: AdminService
+    private val adminService: AdminService,
+    private val solutionService: SolutionService
 ) : TrikUserController {
 
     @GetMapping
@@ -109,9 +118,9 @@ class ViewerController @Autowired constructor(
         return table
     }
 
-    private fun generateGroupsResult(group: Collection<Group>): Map<Long, Table> {
+    private fun generateGroupsResult(groups: Collection<Group>): Map<Long, Table> {
         val groupsResult = mutableMapOf<Long, Table>()
-        group.forEach { group ->
+        groups.forEach { group ->
             val groupResult = generateGroupResult(group)
             groupsResult[group.id!!] = groupResult
         }
@@ -159,6 +168,79 @@ class ViewerController @Autowired constructor(
         }
 
         return Table(header, rows)
+    }
+
+    @RequestMapping("/results/download")
+    fun getAllResults(
+        @RequestParam accessToken: String,
+        modelAndView: ModelAndView
+    ): Any {
+        logger.info(accessToken, "Client trying to get all results.")
+
+        val eitherViewer = validateViewer(accessToken)
+        if (eitherViewer.isLeft()) {
+            return eitherViewer.getLeft()
+        }
+        val viewer = eitherViewer.getRight()
+        val admins = viewer.admins.sortedBy { it.id }
+        logger.info(accessToken, "Admins (${admins.size}): $admins")
+
+        val groups = admins.flatMap { it.groups }.sortedBy { it.id }
+        logger.info(accessToken, "Groups (${groups.size}): $groups")
+
+        val students = groups.flatMap { it.students }.sortedBy { it.id }
+        logger.info(accessToken, "Students (${students.size}): $students")
+
+        val tasks = groups.flatMap { it.tasks }.toSet().sortedBy { it.id }
+        logger.info(accessToken, "Tasks (${tasks.size}): $tasks")
+
+        val csvDelimiter = ";"
+        val csvHeader =
+            "student_id;student_name;group_id;group_name;${tasks.joinToString(csvDelimiter) { String.format("%d: %s", it.id, it.name) }}\n"
+
+        val studentsResults = mutableMapOf<Long, Map<Long, String>>()
+        students.forEach { student ->
+            val studentScores = mutableMapOf<Long, String>()
+            tasks.forEach { task ->
+                val bestSolution = solutionService.getBestSolutionByTaskAndStudent(task, student)
+                val score = bestSolution?.score?.toString() ?: "-"
+
+                studentScores[task.id!!] = score
+            }
+
+            studentsResults[student.id!!] = studentScores
+        }
+
+        val csvBody = mutableListOf<String>()
+        students.forEach { student ->
+            val studentScores = studentsResults[student.id!!]!!
+            val studentScoresString = studentScores.values.joinToString(csvDelimiter)
+
+            val webUser = student.webUser
+            val group = student.group
+
+            val studentInfo = "${student.id};${webUser.username};${group.id};${group.name};$studentScoresString"
+
+            csvBody.add(studentInfo)
+        }
+
+        val csv = csvHeader + csvBody.joinToString("\n")
+        val bytes = csv.toByteArray()
+
+        val headers = HttpHeaders()
+        headers.contentType = MediaType.APPLICATION_OCTET_STREAM
+        headers.contentDisposition = ContentDisposition.builder("attachment")
+            .filename("results-${LocalDateTime.now(UTC).plusHours(3)}.csv")
+            .build()
+
+        headers.acceptLanguage = Locale.LanguageRange.parse("ru-RU, en-US")
+        headers.acceptCharset = listOf(Charsets.UTF_8, Charsets.ISO_8859_1, Charsets.US_ASCII)
+
+        val responseEntity = ResponseEntity.ok()
+            .headers(headers)
+            .body(bytes)
+
+        return responseEntity
     }
 
     data class Table(
