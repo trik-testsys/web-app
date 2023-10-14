@@ -216,10 +216,11 @@
                 </td>
             </tr>
         </table>
-        <button title="Скачать общий отчет"
-                id="downloadGlobalReport">
-            Скачать сводную таблицу
-        </button>
+        <form th:action="@{/2023/viewer/results/download}" method="get" id="downloadReportForm">
+            <input type="text" name="accessToken" th:value="${accessToken}" placeholder="Код-доступа" required
+                   style="display: none"/>
+            <input type="submit" value="Скачать отчет" title="Скачать отчет"/>
+        </form>
     </div>
 
     <div class="table groups-table">
