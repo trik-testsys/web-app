@@ -3,6 +3,8 @@ package trik.testsys.webclient.service.impl
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import trik.testsys.webclient.entity.impl.Solution
+import trik.testsys.webclient.entity.impl.Student
+import trik.testsys.webclient.entity.impl.Task
 
 import trik.testsys.webclient.repository.impl.SolutionRepository
 import trik.testsys.webclient.repository.impl.StudentRepository
@@ -51,5 +53,9 @@ class SolutionService @Autowired constructor(
 
     fun getAllSolutions(): List<Solution> {
         return solutionRepository.findAll().toList()
+    }
+
+    fun getBestSolutionByTaskAndStudent(task: Task, student: Student): Solution? {
+        return solutionRepository.findSolutionsByStudentAndTask(student, task)?.maxByOrNull { it.score }
     }
 }
