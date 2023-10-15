@@ -76,6 +76,9 @@ class Task(
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
     var isPublic: Boolean = false
 
+    @OneToMany(mappedBy = "task", cascade = [CascadeType.ALL])
+    val taskActions: MutableSet<TaskAction> = mutableSetOf()
+
     /**
      * @author Roman Shishkin
      * @since 1.1.0
