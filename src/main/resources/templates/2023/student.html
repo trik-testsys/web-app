@@ -52,7 +52,8 @@
         </table>
     </div>
     <div class="creation">
-        <form id="task-creation" method="post" enctype="multipart/form-data">
+        <form id="task-creation" method="post" enctype="multipart/form-data"
+                th:action="@{/2023/student/solution/upload}">
             <p>Загрузите решение</p>
             <input style="display: none" type="text" name="accessToken" placeholder="Access token"
                    th:value="${accessToken}" readonly/>
@@ -63,9 +64,7 @@
             </select>
             <p style="font-size: 15px">Добавьте файл решения</p>
             <input type="file" name="file" placeholder="Файл c решением" required/>
-            <input type="submit" value="Загрузить EV3" name="EV3" onclick="uploadEv3()"/>
-            <input type="button" value="Загрузить TRIK" name="TRIK" onclick="uploadTrik()" disabled
-                   title="Загрузка задача TRIK будет доступна позже"/>
+            <input type="submit" value="Загрузить решение"/>
         </form>
     </div>
     <div class="tasks-table" th:styleappend="${tasks.size > 0} ? 'display: flex' : 'display: none'">
