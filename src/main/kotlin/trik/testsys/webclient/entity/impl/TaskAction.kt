@@ -29,12 +29,17 @@ class TaskAction(
     @JoinColumn(name = "solution_id", referencedColumnName = "id", nullable = true)
     var solution: Solution? = null
 
+    @Column(nullable = false, columnDefinition = "VARCHAR(50) DEFAULT ''")
+    var type: Type? = null
+
     constructor(student: Student, task: Task) : this(student) {
         this.task = task
+        this.type = Type.DOWNLOADED_TRAINING
     }
 
     constructor(student: Student, solution: Solution) : this(student) {
         this.solution = solution
+        this.type = Type.UPLOADED_SOLUTION
     }
 
     enum class Type {

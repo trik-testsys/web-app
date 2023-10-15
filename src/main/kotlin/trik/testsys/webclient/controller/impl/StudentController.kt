@@ -22,11 +22,15 @@ import trik.testsys.webclient.util.handler.GradingSystemErrorHandler
 import trik.testsys.webclient.entity.impl.WebUser
 import trik.testsys.webclient.models.ResponseMessage
 import trik.testsys.webclient.service.impl.*
+import java.io.File
 import java.time.LocalDateTime
 
 @RestController
 @RequestMapping("\${app.testsys.api.prefix}/student")
-class StudentController(@Value("\${app.grading-system.path}") val gradingSystemUrl: String) {
+class StudentController(
+    @Value("\${app.grading-system.path}") val gradingSystemUrl: String,
+    @Value("\${app.testsys.paths.training}") val trainingPath: String,
+) {
 
     private val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
@@ -44,6 +48,9 @@ class StudentController(@Value("\${app.grading-system.path}") val gradingSystemU
 
     @Autowired
     private lateinit var taskService: TaskService
+
+    @Autowired
+    private lateinit var taskActionService: TaskActionService
 
     private val restTemplate = RestTemplate()
 
@@ -142,6 +149,65 @@ class StudentController(@Value("\${app.grading-system.path}") val gradingSystemU
         return model
     }
 
+    @GetMapping("/task")
+    fun getTask(@RequestParam accessToken: String, @RequestParam taskId: Long, model: Model): Any {
+        logger.info("[${accessToken.padStart(80)}]: Client trying to access task page.")
+
+        val status = validateStudent(accessToken)
+        if (status == WebUser.Status.NOT_FOUND || status == WebUser.Status.ADMIN) {
+            logger.info("[${accessToken.padStart(80)}]: Client is not a student.")
+            return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ResponseMessage(403, "You are not a student!"))
+        }
+
+        logger.info("[${accessToken.padStart(80)}]: Client is a student.")
+        val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
+        val student = studentService.getByWebUser(webUser)!!
+        val group = student.group
+
+        if (!group.isAccessible) {
+            logger.info("[${group.accessToken.padStart(80)}]: Group is not accessible.")
+
+            return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ResponseMessage(403, "Group is not accessible!"))
+        }
+
+        val task = taskService.getTaskById(taskId) ?: run {
+            logger.info("[${accessToken.padStart(80)}]: Invalid task id.")
+            return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ResponseMessage(403, "Invalid task id!"))
+        }
+
+        val trainingFile = File("$trainingPath/$taskId.qrs")
+        if (!trainingFile.exists()) {
+            logger.info("[${accessToken.padStart(80)}]: Training file not found.")
+            return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ResponseMessage(403, "Training file not found!"))
+        }
+
+        val responseEntity = ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"${task.name}.qrs\"")
+            .body(trainingFile.readBytes())
+
+        //region TaskAction creation
+        logger.info("[${accessToken.padStart(80)}]: Creating task action.")
+        taskActionService.getDownloadedTrainingAction(student, task)?.let {
+            logger.info("[${accessToken.padStart(80)}]: Task action already exists ${it.id}.")
+            return responseEntity
+        }
+        val taskAction = taskActionService.save(student, task)
+
+        logger.info("[${accessToken.padStart(80)}]: Task action created ${taskAction.id}.")
+        //endregion
+
+        logger.info("[${accessToken.padStart(80)}]: Training file sent.")
+        return responseEntity
+    }
+
     @PostMapping("/solution/upload")
     fun uploadSolution(
         @RequestParam accessToken: String,
@@ -234,6 +300,13 @@ class StudentController(@Value("\${app.grading-system.path}") val gradingSystemU
             solutionService.saveSolution(student.id, taskId, submissionInfo.body!!["id"].toString().toLong())!!
         logger.trace("[ Uploading solution ] -- Solution id: ${solution.id}, Submission id: ${solution.gradingId}.")
         logger.info("[${accessToken.padStart(80)}]: Solution uploaded.")
+
+        //region TaskAction creation
+        logger.info("[${accessToken.padStart(80)}]: Creating task action.")
+        val taskAction = taskActionService.save(student, solution)
+
+        logger.info("[${accessToken.padStart(80)}]: Task action created ${taskAction.id}.")
+        //endregion
 
         model.addAttribute("id", solution.id)
         model.addAttribute("taskName", solution.task.name)

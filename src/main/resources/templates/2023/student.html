@@ -74,11 +74,23 @@
                 <th>ID</th>
                 <th>Название задачи</th>
                 <th>Описание</th>
+                <th style="width: 10%">
+                    Упражнение
+                </th>
             </tr>
             <tr th:each="task : ${tasks}">
                 <td th:text="${task.id}"></td>
                 <td th:text="${task.name}"></td>
                 <td style="text-align: justify; width: 40%" th:text="${task.description}"></td>
+                <td>
+                    <form method="get" th:action="@{/2023/student/task}">
+                        <input style="display: none" type="text" name="accessToken" placeholder="Access token"
+                               th:value="${accessToken}" readonly/>
+                        <input style="display: none" type="text" name="taskId" placeholder="Task ID"
+                               th:value="${task.id}" readonly/>
+                        <input type="submit" value="Скачать упражнение"/>
+                    </form>
+                </td>
             </tr>
         </table>
     </div>
