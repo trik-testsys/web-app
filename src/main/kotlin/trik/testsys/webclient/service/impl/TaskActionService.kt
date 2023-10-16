@@ -29,4 +29,10 @@ class TaskActionService @Autowired constructor(
 
         return allActions?.firstOrNull { it.type == TaskAction.Type.DOWNLOADED_TRAINING }
     }
+
+    fun getUploadedSolutionAction(student: Student, solution: Solution): TaskAction? {
+        val allActions = taskActionRepository.findAllByStudentAndSolution(student, solution)
+
+        return allActions?.firstOrNull { it.type == TaskAction.Type.UPLOADED_SOLUTION }
+    }
 }

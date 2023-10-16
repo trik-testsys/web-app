@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service
 import trik.testsys.webclient.entity.impl.Solution
 import trik.testsys.webclient.entity.impl.Student
 import trik.testsys.webclient.entity.impl.Task
+import trik.testsys.webclient.entity.impl.TaskAction
 
 import trik.testsys.webclient.repository.impl.SolutionRepository
 import trik.testsys.webclient.repository.impl.StudentRepository
@@ -16,7 +17,8 @@ import trik.testsys.webclient.service.TrikService
 class SolutionService @Autowired constructor(
     private val solutionRepository: SolutionRepository,
     private val studentRepository: StudentRepository,
-    private val taskRepository: TaskRepository
+    private val taskRepository: TaskRepository,
+    private val taskActionService: TaskActionService
 ) : TrikService {
 
     fun saveSolution(studentId: Long, taskId: Long, gradingId: Long): Solution? {
@@ -56,6 +58,36 @@ class SolutionService @Autowired constructor(
     }
 
     fun getBestSolutionByTaskAndStudent(task: Task, student: Student): Solution? {
-        return solutionRepository.findSolutionsByStudentAndTask(student, task)?.maxByOrNull { it.score }
+        val allTasks = taskRepository.findAll()
+        val downloadedTrainingActions = mutableListOf<TaskAction>()
+        allTasks.forEach{ task ->
+            val taskAction = taskActionService.getDownloadedTrainingAction(student, task)
+            if (taskAction != null) downloadedTrainingActions.add(taskAction)
+        }
+        val startTime = downloadedTrainingActions.maxByOrNull { it.dateTime }?.dateTime ?: return null
+        val maxEndTime = startTime.plusSeconds(maxTimeToSolve)
+
+        val solutions = solutionRepository.findSolutionsByStudent(student)?.filter { solution ->
+            solution.task == task
+        } ?: return null
+
+        val uploadedSolutionActions = mutableListOf<TaskAction>()
+        solutions.forEach { solution ->
+            val taskAction = taskActionService.getUploadedSolutionAction(student, solution)
+            if (taskAction != null) uploadedSolutionActions.add(taskAction)
+        }
+
+        val acceptedSolutionActions = uploadedSolutionActions.filter {
+            (it.dateTime.isAfter(startTime) || it.dateTime.isEqual(startTime)) &&
+            (it.dateTime.isBefore(maxEndTime) || it.dateTime.isEqual(maxEndTime))
+        }
+        val acceptedSolutions = acceptedSolutionActions.map { it.solution }
+        val bestScoreSolution = acceptedSolutions.maxByOrNull { it?.score ?: 0 } ?: return null
+
+        return bestScoreSolution
+    }
+
+    companion object {
+        private const val maxTimeToSolve = 90 * 60L
     }
 }

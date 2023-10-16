@@ -21,6 +21,7 @@ import trik.testsys.webclient.service.impl.*
 import trik.testsys.webclient.util.TrikRedirectView
 import trik.testsys.webclient.util.fp.Either
 import trik.testsys.webclient.util.logger.TrikLogger
+import java.nio.charset.Charset
 import java.time.LocalDateTime
 import java.time.ZoneOffset.UTC
 import java.util.*
@@ -191,35 +192,37 @@ class ViewerController @Autowired constructor(
         val students = groups.flatMap { it.students }.sortedBy { it.id }
         logger.info(accessToken, "Students (${students.size}): $students")
 
-        val tasks = groups.flatMap { it.tasks }.toSet().sortedBy { it.id }
-        logger.info(accessToken, "Tasks (${tasks.size}): $tasks")
+        val tasks = students.flatMap { it.solutions }.map { it.task }.distinct().sortedBy { it.id }
 
         val csvDelimiter = ";"
-        val csvHeader =
-            "student_id;student_name;group_id;group_name;${tasks.joinToString(csvDelimiter) { String.format("%d: %s", it.id, it.name) }}\n"
+        val tasksString = tasks.joinToString(csvDelimiter) { String.format("\"%d: %s\"", it.id, it.name) } + ";"
 
-        val studentsResults = mutableMapOf<Long, Map<Long, String>>()
+        val csvHeader =
+            "\"student_id\";\"student_name\";\"group_id\";\"group_name\";$tasksString\"best_score\"\n"
+
+        val studentsResults = mutableMapOf<Long, List<Long>>()
         students.forEach { student ->
-            val studentScores = mutableMapOf<Long, String>()
+            val studentScores = mutableListOf<Long>()
             tasks.forEach { task ->
                 val bestSolution = solutionService.getBestSolutionByTaskAndStudent(task, student)
-                val score = bestSolution?.score?.toString() ?: "-"
+                val score = bestSolution?.score ?: 0
 
-                studentScores[task.id!!] = score
+                studentScores.add(score)
             }
-
+            val maxScore = studentScores.maxOrNull() ?: 0
+            studentScores.add(maxScore)
             studentsResults[student.id!!] = studentScores
         }
 
         val csvBody = mutableListOf<String>()
         students.forEach { student ->
             val studentScores = studentsResults[student.id!!]!!
-            val studentScoresString = studentScores.values.joinToString(csvDelimiter)
+            val studentScoresString = studentScores.joinToString(csvDelimiter)
 
             val webUser = student.webUser
             val group = student.group
 
-            val studentInfo = "${student.id};${webUser.username};${group.id};${group.name};$studentScoresString"
+            val studentInfo = "\"${student.id}\";\"${webUser.username}\";\"${group.id}\";\"${group.name}\";$studentScoresString"
 
             csvBody.add(studentInfo)
         }
@@ -235,6 +238,16 @@ class ViewerController @Autowired constructor(
 
         headers.acceptLanguage = Locale.LanguageRange.parse("ru-RU, en-US")
         headers.acceptCharset = listOf(Charsets.UTF_8, Charsets.ISO_8859_1, Charsets.US_ASCII)
+
+        headers.acceptCharset.add(Charset.forName("windows-1251"))
+        headers.acceptCharset.add(Charset.forName("windows-1252"))
+        headers.acceptCharset.add(Charset.forName("windows-1254"))
+        headers.acceptCharset.add(Charset.forName("windows-1257"))
+        headers.acceptCharset.add(Charset.forName("windows-1258"))
+        headers.acceptCharset.add(Charset.forName("windows-874"))
+        headers.acceptCharset.add(Charset.forName("windows-949"))
+        headers.acceptCharset.add(Charset.forName("windows-950"))
+        headers.acceptCharset.add(Charset.forName("ANSI_X3.4-1968"))
 
         val responseEntity = ResponseEntity.ok()
             .headers(headers)
