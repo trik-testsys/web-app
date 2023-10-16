@@ -153,7 +153,9 @@ class StudentController(
         model.addAttribute("groupName", student.group.name)
 
         val taskTimes = generateTaskTimes(student, student.group.tasks)
-        model.addAttribute("taskTimes", taskTimes.minOfOrNull { it.value } ?: LocalDateTime.MIN)
+        val minTaskTime = taskTimes.minOfOrNull { it.value } ?: LocalDateTime.MIN
+        model.addAttribute("taskTimes", minTaskTime)
+        model.addAttribute("canUpload", minTaskTime != LocalDateTime.MIN)
 
         return model
     }
@@ -216,7 +218,9 @@ class StudentController(
         logger.info("[${accessToken.padStart(80)}]: Training file sent.")
 
         val taskTimes = generateTaskTimes(student, student.group.tasks)
-        model.addAttribute("taskTimes", taskTimes.minOfOrNull { it.value } ?: LocalDateTime.MIN)
+        val minTaskTime = taskTimes.minOfOrNull { it.value } ?: LocalDateTime.MIN
+        model.addAttribute("taskTimes", minTaskTime)
+        model.addAttribute("canUpload", minTaskTime != LocalDateTime.MIN)
 
         return responseEntity
     }

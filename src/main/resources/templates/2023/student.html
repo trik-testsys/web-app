@@ -34,7 +34,8 @@
 
     <script>
         function decreaseTime() {
-            const timeElements = document.querySelectorAll('time');
+            // select all time classes
+            const timeElements = document.querySelectorAll('.active');
             timeElements.forEach(function(timeElement) {
                 const timeParts = timeElement.textContent.split(':');
                 let hours = parseInt(timeParts[0], 10);
@@ -79,6 +80,15 @@
         // Запуск функции обновления каждые 5 секунд (5000 миллисекунд)
         setInterval(refreshPage, 300000);
     </script>
+
+    <script>
+        function addClassToTimeElements() {
+            const timeElements = document.querySelectorAll('time');
+            timeElements.forEach(function(timeElement) {
+                timeElement.classList.add('active');
+            });
+        }
+    </script>
 </head>
 <body>
 <div class="container">
@@ -112,7 +122,9 @@
             </select>
             <p style="font-size: 15px">Добавьте файл решения</p>
             <input type="file" name="file" placeholder="Файл c решением" required/>
-            <input type="submit" value="Загрузить решение"/>
+            <button type="submit" th:disabled="${canUpload} ? false : true">
+                Загрузить решение
+            </button>
         </form>
     </div>
     <div class="tasks-table" th:styleappend="${tasks.size > 0} ? 'display: flex' : 'display: none'">
@@ -136,7 +148,9 @@
                 <td>
 <!--                    <time th:datetime="${taskTime}"-->
                     <time th:datetime="${taskTimes}"
-                          th:text="${#temporals.format(taskTimes, 'HH:mm:ss')}">
+                          th:text="${#temporals.format(taskTimes, 'HH:mm:ss')}"
+                          th:style="${#temporals.format(taskTimes, 'HH:mm:ss')} == '00:00:00' ? 'color: red' : ''"
+                          th:class="${#temporals.format(taskTimes, 'HH:mm:ss')} != '01:30:00' ? 'active' : ''">
                         <!--                          th:text="${#temporals.format(taskTimes[task.id], 'HH:mm:ss')}">-->
                     </time>
                 </td>
@@ -146,7 +160,11 @@
                                th:value="${accessToken}" readonly/>
                         <input style="display: none" type="text" name="taskId" placeholder="Task ID"
                                th:value="${task.id}" readonly/>
-                        <input type="submit" value="Скачать упражнение"/>
+                        <button type="submit" th:disabled="${canUpload} ? false : true" onclick="addClassToTimeElements()">
+                            Скачать упражнение
+                        </button>
+<!--                        <input type="submit" value="Скачать упражнение"-->
+<!--                               th:disabled="${canUpload} ? false : true"/>-->
                     </form>
                 </td>
             </tr>
@@ -194,6 +212,13 @@
 
     $("input[name='TRIK']").prop('disabled', true);
 
+    function setTimeClassOnTimeTags() {
+        const timeElements = document.querySelector('time')
+        timeElements.forEach(function(timeElement) {
+            timeElement.classList.add('time');
+        });
+    }
+
 </script>
 
 <style>
@@ -226,7 +251,7 @@
         margin-top: 20px;
     }
 
-    .back input[type="submit"] {
+    .back input[type="submit"], button {
         width: 100%;
         padding: 12px 20px;
         margin: 8px 0;
@@ -237,7 +262,7 @@
 
     }
 
-    input[type="submit"] {
+    input[type="submit"], button {
         width: 100%;
         color: white;
         background-color: #4CAF50;
@@ -249,7 +274,7 @@
     }
 
     /*shaded style, like button disabled*/
-    input[type="button"]:disabled {
+    input[type="button"]:disabled, button:disabled {
         background-color: #cccccc;
         color: #666666;
         width: 100%;
@@ -257,9 +282,10 @@
         margin: 8px 0;
         border: none;
         border-radius: 4px;
+        cursor: not-allowed;
     }
 
-    input[type="submit"]:hover {
+    input[type="submit"]:hover, button:hover:not([disabled]) {
         background-color: #45a049;
     }
 
