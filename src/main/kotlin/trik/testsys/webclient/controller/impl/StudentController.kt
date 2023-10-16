@@ -17,13 +17,18 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.multipart.MultipartFile
+import trik.testsys.webclient.entity.impl.Student
+import trik.testsys.webclient.entity.impl.Task
 
 import trik.testsys.webclient.util.handler.GradingSystemErrorHandler
 import trik.testsys.webclient.entity.impl.WebUser
 import trik.testsys.webclient.models.ResponseMessage
 import trik.testsys.webclient.service.impl.*
 import java.io.File
+import java.sql.Time
 import java.time.LocalDateTime
+import java.time.ZoneOffset.UTC
+import java.util.concurrent.TimeUnit
 
 @RestController
 @RequestMapping("\${app.testsys.api.prefix}/student")
@@ -146,6 +151,10 @@ class StudentController(
         model.addAttribute("username", webUser.username)
         model.addAttribute("accessToken", accessToken)
         model.addAttribute("groupName", student.group.name)
+
+        val taskTimes = generateTaskTimes(student, student.group.tasks)
+        model.addAttribute("taskTimes", taskTimes)
+
         return model
     }
 
@@ -205,6 +214,10 @@ class StudentController(
         //endregion
 
         logger.info("[${accessToken.padStart(80)}]: Training file sent.")
+
+        val taskTimes = generateTaskTimes(student, student.group.tasks)
+        model.addAttribute("taskTimes", taskTimes)
+
         return responseEntity
     }
 
@@ -311,6 +324,43 @@ class StudentController(
         model.addAttribute("id", solution.id)
         model.addAttribute("taskName", solution.task.name)
         return model
+    }
+
+    private val timeToSolve = 90 * 60
+    private val dateTime = LocalDateTime.MIN.plusHours(1).plusMinutes(30)
+
+    private fun generateTaskTimes(student: Student, tasks: Collection<Task>): Map<Long, LocalDateTime> {
+        val currentTime = LocalDateTime.now(UTC).toEpochSecond(UTC)
+
+        logger.info("Current time: ${LocalDateTime.now(UTC)}")
+        logger.info("Date time: ${LocalDateTime.MIN.plusHours(1).plusMinutes(30)}")
+
+        val taskTimes = mutableMapOf<Long, LocalDateTime>()
+        tasks.forEach { task ->
+            val taskAction = taskActionService.getDownloadedTrainingAction(student, task) ?: run {
+                taskTimes[task.id!!] = dateTime
+                return@forEach
+            }
+
+            logger.info("Task action date time: ${taskAction.dateTime}")
+
+            val spentTime = currentTime - taskAction.dateTime.toEpochSecond(UTC)
+            if (spentTime > timeToSolve) {
+                taskTimes[task.id!!] = LocalDateTime.MIN
+            } else {
+                val hours = TimeUnit.SECONDS.toHours(timeToSolve - spentTime)
+                val minutes = TimeUnit.SECONDS.toMinutes(timeToSolve - spentTime) - TimeUnit.HOURS.toMinutes(hours)
+                val seconds = TimeUnit.SECONDS.toSeconds(timeToSolve - spentTime) -
+                        TimeUnit.MINUTES.toSeconds(minutes) - TimeUnit.HOURS.toSeconds(hours)
+
+                logger.info("Hours: $hours, minutes: $minutes, seconds: $seconds")
+
+                taskTimes[task.id!!] = LocalDateTime.MIN.plusHours(hours).plusMinutes(minutes).plusSeconds(seconds)
+            }
+
+            logger.info("Task time: ${taskTimes[task.id]}")
+        }
+        return taskTimes
     }
 
     private fun validateStudent(accessToken: String): Enum<*> {

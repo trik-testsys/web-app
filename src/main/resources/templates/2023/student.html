@@ -74,6 +74,9 @@
                 <th>ID</th>
                 <th>Название задачи</th>
                 <th>Описание</th>
+                <th style="width: 13%">
+                    Время на решение
+                </th>
                 <th style="width: 10%">
                     Упражнение
                 </th>
@@ -82,6 +85,11 @@
                 <td th:text="${task.id}"></td>
                 <td th:text="${task.name}"></td>
                 <td style="text-align: justify; width: 40%" th:text="${task.description}"></td>
+                <td>
+                    <time th:datetime="${taskTimes[task.id]}"
+                          th:text="${#temporals.format(taskTimes[task.id], 'HH:mm:ss')}">
+                    </time>
+                </td>
                 <td>
                     <form method="get" th:action="@{/2023/student/task}">
                         <input style="display: none" type="text" name="accessToken" placeholder="Access token"
