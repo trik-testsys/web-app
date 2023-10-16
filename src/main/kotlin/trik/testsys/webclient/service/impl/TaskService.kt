@@ -13,6 +13,7 @@ import trik.testsys.webclient.service.TrikService
 @Service
 class TaskService @Autowired constructor(
     private val taskRepository: TaskRepository,
+    private val adminService: AdminService,
     private val groupService: GroupService,
     private val trikFileService: TrikFileService,
 ) : TrikService {
@@ -68,6 +69,12 @@ class TaskService @Autowired constructor(
      */
     fun deleteTask(taskId: Long): Boolean {
         val task = taskRepository.findTaskById(taskId) ?: return false
+        val admins = adminService.getAll()
+        val groups = groupService.getAll()
+
+        admins.forEach { it.tasks.remove(task) }
+        groups.forEach { it.tasks.remove(task) }
+
         taskRepository.delete(task)
 
         return true
