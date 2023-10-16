@@ -31,6 +31,44 @@
         <div><img src="https://mc.yandex.ru/watch/95194076" style="position:absolute; left:-9999px;" alt=""/></div>
     </noscript>
     <!-- /Yandex.Metrika counter -->
+
+    <script>
+        function decreaseTime() {
+            const timeElements = document.querySelectorAll('time');
+            timeElements.forEach(function(timeElement) {
+                const timeParts = timeElement.textContent.split(':');
+                let hours = parseInt(timeParts[0], 10);
+                let minutes = parseInt(timeParts[1], 10);
+                let seconds = parseInt(timeParts[2], 10);
+
+                if (hours === 0 && minutes === 0 && seconds === 0) {
+                    clearInterval(intervalId); // Остановить интервал, когда время достигло 0
+                } else {
+                    if (seconds > 0) {
+                        seconds--;
+                    } else {
+                        if (minutes > 0) {
+                            minutes--;
+                            seconds = 59;
+                        } else {
+                            if (hours > 0) {
+                                hours--;
+                                minutes = 59;
+                                seconds = 59;
+                            }
+                        }
+                    }
+
+                    // Преобразовать числа обратно в строку формата HH:mm:ss
+                    const newTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                    timeElement.textContent = newTime;
+                }
+            });
+        }
+
+        // Вызываем функцию каждую секунду с использованием интервала
+        const intervalId = setInterval(decreaseTime, 1000);
+    </script>
 </head>
 <body>
 <div class="container">
@@ -86,8 +124,10 @@
                 <td th:text="${task.name}"></td>
                 <td style="text-align: justify; width: 40%" th:text="${task.description}"></td>
                 <td>
-                    <time th:datetime="${taskTimes[task.id]}"
-                          th:text="${#temporals.format(taskTimes[task.id], 'HH:mm:ss')}">
+<!--                    <time th:datetime="${taskTime}"-->
+                    <time th:datetime="${taskTimes}"
+                          th:text="${#temporals.format(taskTimes, 'HH:mm:ss')}">
+                        <!--                          th:text="${#temporals.format(taskTimes[task.id], 'HH:mm:ss')}">-->
                     </time>
                 </td>
                 <td>
@@ -143,6 +183,7 @@
     }
 
     $("input[name='TRIK']").prop('disabled', true);
+
 </script>
 
 <style>
