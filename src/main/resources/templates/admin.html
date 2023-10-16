@@ -336,6 +336,11 @@
                 </td>
             </tr>
         </table>
+        <form th:action="@{/2023/admin/results/download}" method="get" id="downloadReportForm">
+            <input type="text" name="accessToken" th:value="${accessToken}" placeholder="Код-доступа" required
+                   style="display: none"/>
+            <input type="submit" value="Скачать отчет" title="Скачать отчет"/>
+        </form>
         <div class="add-button">
             <button class="popup-button" id="createGroup">
                 <i class="fa fa-plus"></i>

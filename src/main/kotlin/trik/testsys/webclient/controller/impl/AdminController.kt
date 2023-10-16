@@ -16,7 +16,9 @@ import trik.testsys.webclient.service.impl.*
 import trik.testsys.webclient.util.TrikRedirectView
 import trik.testsys.webclient.util.logger.TrikLogger
 import trik.testsys.webclient.util.fp.Either
+import java.nio.charset.Charset
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.util.*
 
 @RestController
@@ -33,6 +35,7 @@ class AdminController @Autowired constructor(
     private val studentService: StudentService,
     private val labelService: LabelService,
     private val viewerService: ViewerService,
+    private val solutionService: SolutionService,
 ) : TrikUserController {
 
     /**
@@ -432,6 +435,95 @@ class AdminController @Autowired constructor(
         modelAndView.view = REDIRECT_VIEW
 
         return modelAndView
+    }
+
+    @RequestMapping("/results/download")
+    fun getAllResults(
+        @RequestParam accessToken: String,
+        modelAndView: ModelAndView
+    ): Any {
+        val isAdmin = isAdminAccessToken(accessToken)
+        if (!isAdmin) {
+            logger.info(accessToken, "Client is not an admin.")
+            modelAndView.viewName = "error"
+            modelAndView.addObject("message", "You are not an admin!")
+
+            return modelAndView
+        }
+
+        logger.info(accessToken, "Client is an admin.")
+
+        val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
+        val admin = adminService.getAdminByWebUser(webUser)!!
+
+        val groups = admin.groups
+        logger.info(accessToken, "Groups (${groups.size}): $groups")
+
+        val students = groups.flatMap { it.students }.sortedBy { it.id }
+        logger.info(accessToken, "Students (${students.size}): $students")
+
+        val tasks = students.flatMap { it.solutions }.map { it.task }.distinct().sortedBy { it.id }
+
+        val csvDelimiter = ";"
+        val tasksString = tasks.joinToString(csvDelimiter) { String.format("\"%d: %s\"", it.id, it.name) } + ";"
+
+        val csvHeader =
+            "\"student_id\";\"student_name\";\"group_id\";\"group_name\";$tasksString\"best_score\"\n"
+
+        val studentsResults = mutableMapOf<Long, List<Long>>()
+        students.forEach { student ->
+            val studentScores = mutableListOf<Long>()
+            tasks.forEach { task ->
+                val bestSolution = solutionService.getBestSolutionByTaskAndStudent(task, student)
+                val score = bestSolution?.score ?: 0
+
+                studentScores.add(score)
+            }
+            val maxScore = studentScores.maxOrNull() ?: 0
+            studentScores.add(maxScore)
+            studentsResults[student.id!!] = studentScores
+        }
+
+        val csvBody = mutableListOf<String>()
+        students.forEach { student ->
+            val studentScores = studentsResults[student.id!!]!!
+            val studentScoresString = studentScores.joinToString(csvDelimiter)
+
+            val studentWebUser = student.webUser
+            val group = student.group
+
+            val studentInfo = "\"${student.id}\";\"${studentWebUser.username}\";\"${group.id}\";\"${group.name}\";$studentScoresString"
+
+            csvBody.add(studentInfo)
+        }
+
+        val csv = csvHeader + csvBody.joinToString("\n")
+        val bytes = csv.toByteArray()
+
+        val headers = HttpHeaders()
+        headers.contentType = MediaType.APPLICATION_OCTET_STREAM
+        headers.contentDisposition = ContentDisposition.builder("attachment")
+            .filename("results-${LocalDateTime.now(ZoneOffset.UTC).plusHours(3)}.csv")
+            .build()
+
+        headers.acceptLanguage = Locale.LanguageRange.parse("ru-RU, en-US")
+        headers.acceptCharset = listOf(Charsets.UTF_8, Charsets.ISO_8859_1, Charsets.US_ASCII)
+
+        headers.acceptCharset.add(Charset.forName("windows-1251"))
+        headers.acceptCharset.add(Charset.forName("windows-1252"))
+        headers.acceptCharset.add(Charset.forName("windows-1254"))
+        headers.acceptCharset.add(Charset.forName("windows-1257"))
+        headers.acceptCharset.add(Charset.forName("windows-1258"))
+        headers.acceptCharset.add(Charset.forName("windows-874"))
+        headers.acceptCharset.add(Charset.forName("windows-949"))
+        headers.acceptCharset.add(Charset.forName("windows-950"))
+        headers.acceptCharset.add(Charset.forName("ANSI_X3.4-1968"))
+
+        val responseEntity = ResponseEntity.ok()
+            .headers(headers)
+            .body(bytes)
+
+        return responseEntity
     }
 
     @PostMapping("/info/change")
