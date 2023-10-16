@@ -34,6 +34,7 @@ app:
       prefix: /2023
     paths:
       training: "${PWD}/training"
+      benchmark: "${PWD}/benchmark"
   avatar:
     path: "${PWD}/src/main/resources/static/avatars"
   utc:

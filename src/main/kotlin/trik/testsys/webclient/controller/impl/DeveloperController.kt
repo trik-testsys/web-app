@@ -28,6 +28,7 @@ import trik.testsys.webclient.service.impl.*
 import trik.testsys.webclient.util.TrikRedirectView
 import trik.testsys.webclient.util.fp.Either
 import trik.testsys.webclient.util.logger.TrikLogger
+import java.io.File
 import java.time.LocalDateTime
 
 /**
@@ -39,6 +40,12 @@ import java.time.LocalDateTime
 class DeveloperController @Autowired constructor(
     @Value("\${app.grading-system.path}")
     private val gradingSystemUrl: String,
+
+    @Value("\${app.testsys.paths.training}")
+    private val trainingPath: String,
+
+    @Value("\${app.testsys.paths.benchmark}")
+    private val benchmarkPath: String,
 
     private val developerService: DeveloperService,
     private val webUserService: WebUserService,
@@ -96,7 +103,7 @@ class DeveloperController @Autowired constructor(
         logger.info(accessToken, "Saving task $name.")
         val task = taskService.saveTask(name, description, developer, tests, training, benchmark)
 
-        postTask("${task.id}: $name", tests, benchmark, training)
+        postTask("${task.id}: $name", tests)
 //        val isTaskPosted = postTask(name, tests, benchmark, training)
 //        if (!isTaskPosted) {
 //            developerModelBuilder.postTaskMessage("Задача '${task.fullName}' не была загружена на сервер, попробуйте еще раз.")
@@ -106,6 +113,26 @@ class DeveloperController @Autowired constructor(
 //            return modelAndView
 //        }
         logger.info(accessToken, "Task '${task.getFullName()}' was successfully posted.")
+
+        //region Training task saving
+        logger.info(accessToken, "Saving training file for task ${task.getFullName()}.")
+
+        val trainingFile = File("$trainingPath/${task.id}.qrs")
+        trainingFile.createNewFile()
+        training?.transferTo(trainingFile) ?: trainingFile.writeBytes(byteArrayOf())
+
+        logger.info(accessToken, "Training file for task ${task.getFullName()} was successfully saved.")
+        //endregion
+
+        //region Training task saving
+        logger.info(accessToken, "Saving benchmark file for task ${task.getFullName()}.")
+
+        val benchmarkFile = File("$benchmarkPath/${task.id}.qrs")
+        benchmarkFile.createNewFile()
+        benchmark?.transferTo(benchmarkFile) ?: benchmarkFile.writeBytes(byteArrayOf())
+
+        logger.info(accessToken, "Benchmark file for task ${task.getFullName()} was successfully saved.")
+        //endregion
 
         developerModelBuilder.postTaskMessage("Задача '${task.getFullName()}' была успешно загружена на сервер.")
         developerModelBuilder.tasks(developer.tasks)
@@ -200,9 +227,7 @@ class DeveloperController @Autowired constructor(
 
     private fun postTask(
         name: String,
-        tests: List<MultipartFile>,
-        benchmark: MultipartFile?,
-        training: MultipartFile?
+        tests: List<MultipartFile>
     ): Boolean {
         val restTemplate = RestTemplate()
         restTemplate.errorHandler = GradingSystemErrorHandler()
@@ -227,6 +252,39 @@ class DeveloperController @Autowired constructor(
 
         if (responseInfo.statusCode != HttpStatus.OK) {
             logger.error("Error while creating task '$name': ${responseInfo.statusCode}")
+            return false
+        }
+
+        return true
+    }
+
+    private fun changeTask(
+        name: String,
+        tests: List<MultipartFile>
+    ): Boolean  {
+        val restTemplate = RestTemplate()
+        restTemplate.errorHandler = GradingSystemErrorHandler()
+
+        val headers = HttpHeaders()
+        headers.contentType = MediaType.MULTIPART_FORM_DATA
+        headers.setBasicAuth("admin", "@dm1n") // TODO("Change to real credentials.")
+
+        val body = LinkedMultiValueMap<String, Any>()
+        body.add("taskName", name)
+
+        tests.forEach { body.add("files", it.resource) }
+//        benchmark?.let { body.add("benchmark", it.resource) }
+//        training?.let { body.add("training", it.resource) }
+
+        val url = "$gradingSystemUrl/tasks/change"
+        val responseInfo = restTemplate.postForEntity(
+            url,
+            HttpEntity(body, headers),
+            Map::class.java
+        )
+
+        if (responseInfo.statusCode != HttpStatus.OK) {
+            logger.error("Error while changing task '$name': ${responseInfo.statusCode}")
             return false
         }
 
@@ -270,6 +328,7 @@ class DeveloperController @Autowired constructor(
             return modelAndView
         }
 
+        changeTask("${task.id}: $name", tests)
 //        val isTaskPosted = postTask(name, tests, benchmark, training)
 //        if (!isTaskPosted) {
 //            developerModelBuilder.postTaskMessage("Задача '${task.fullName}' не была загружена на сервер, попробуйте еще раз.")
@@ -279,6 +338,34 @@ class DeveloperController @Autowired constructor(
 //            return modelAndView
 //        }
         logger.info(accessToken, "Task '${task.getFullName()}' was successfully updated.")
+
+        //region Training task saving
+        logger.info(accessToken, "Changing training file for task ${task.getFullName()}.")
+
+        val trainingFile = File("$trainingPath/${task.id}.qrs")
+        training ?.let {
+            trainingFile.delete()
+            trainingFile.createNewFile()
+
+            training.transferTo(trainingFile)
+        }
+
+        logger.info(accessToken, "Training file for task ${task.getFullName()} was successfully changed.")
+        //endregion
+
+        //region Training task saving
+        logger.info(accessToken, "Changing benchmark file for task ${task.getFullName()}.")
+
+        val benchmarkFile = File("$benchmarkPath/${task.id}.qrs")
+        benchmark ?.let {
+            benchmarkFile.delete()
+            benchmarkFile.createNewFile()
+
+            benchmark.transferTo(benchmarkFile)
+        }
+
+        logger.info(accessToken, "Benchmark file for task ${task.getFullName()} was successfully changed.")
+        //endregion
 
         developerModelBuilder.postTaskMessage("Задача '${task.getFullName()}' была успешно загружена на сервер.")
         developerModelBuilder.tasks(developer.tasks)
