@@ -69,6 +69,16 @@
         // Вызываем функцию каждую секунду с использованием интервала
         const intervalId = setInterval(decreaseTime, 1000);
     </script>
+
+    <script>
+        // Функция для обновления страницы
+        function refreshPage() {
+            location.reload(); // Эта команда перезагрузит страницу
+        }
+
+        // Запуск функции обновления каждые 5 секунд (5000 миллисекунд)
+        setInterval(refreshPage, 300000);
+    </script>
 </head>
 <body>
 <div class="container">
