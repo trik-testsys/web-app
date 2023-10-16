@@ -121,7 +121,7 @@
                 <option th:each="task : ${tasks}" th:value="${task.id}" th:text="${task.id} + ': ' + ${task.name}">
             </select>
             <p style="font-size: 15px">Добавьте файл решения</p>
-            <input type="file" name="file" placeholder="Файл c решением" required/>
+            <input type="file" name="file" placeholder="Файл c решением" required accept=".qrs"/>
             <button type="submit" th:disabled="${canUpload} ? false : true">
                 Загрузить решение
             </button>
