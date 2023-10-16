@@ -15,7 +15,7 @@ services:
       - ./data/mysql:/var/lib/mysql
 
   grading-system:
-    image: 5h15h4k1n9/trik-testsys-grading-system:3.0.0.1
+    image: 5h15h4k1n9/trik-testsys-grading-system:3.0.0.2
     restart: always
 
     volumes:
@@ -38,6 +38,8 @@ services:
 
     volumes:
       - ./logs/web-client:/web-client/logs
+      - ./training:/web-client/training
+      - ./benchmark:/web-client/benchmark
 
     links:
       - grading-system:grading-system
