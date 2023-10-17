@@ -202,6 +202,7 @@ class StudentController(
 
         val responseEntity = ResponseEntity.ok()
             .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"${task.name}.qrs\"")
+            .contentType(MediaType.APPLICATION_OCTET_STREAM)
             .body(trainingFile.readBytes())
 
         //region TaskAction creation
