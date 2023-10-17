@@ -101,10 +101,14 @@ body {
     font-size: 15px;
 }
 
+.accessToken {
+    filter: blur(5px);
+}
+
 .accessToken:hover {
     cursor: pointer;
     color: var(--trik-green);
-
+    filter: blur(0);
 }
 
 .data-header {

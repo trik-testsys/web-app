@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <title>Group page</title>
 </head>
+<style>
+    /*token must be blured when not hovered*/
+    .token {
+        filter: blur(5px);
+    }
+
+    .token:hover {
+        filter: blur(0);
+    }
+</style>
 <body>
 <div class="container">
     <h1>Панель управления группой</h1>
@@ -19,7 +29,7 @@
             <tr>
                 <td th:text="${id}"></td>
                 <td th:text="${name}"></td>
-                <td class="token" th:text="${groupAccessToken}"></td>
+                <td class="token" th:text="${groupAccessToken}">123f-aewa-133f-aefv</td>
             </tr>
         </table>
     </div>
