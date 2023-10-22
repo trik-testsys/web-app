@@ -455,11 +455,12 @@ class AdminController @Autowired constructor(
 
         val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
         val admin = adminService.getAdminByWebUser(webUser)!!
+        val viewer = admin.viewer
 
         val groups = admin.groups
         logger.info(accessToken, "Groups (${groups.size}): $groups")
 
-        val students = groups.flatMap { it.students }.sortedBy { it.id }
+        val students = groups.flatMap { it.students }.sortedBy { it.id }.filter { solutionService.countByStudent(it) > 0 }
         logger.info(accessToken, "Students (${students.size}): $students")
 
         val tasks = students.flatMap { it.solutions }.map { it.task }.distinct().sortedBy { it.id }
@@ -468,7 +469,7 @@ class AdminController @Autowired constructor(
         val tasksString = tasks.joinToString(csvDelimiter) { String.format("\"%d: %s\"", it.id, it.name) } + ";"
 
         val csvHeader =
-            "\"student_id\";\"student_name\";\"group_id\";\"group_name\";$tasksString\"best_score\"\n"
+            "\"student_id\";\"student_name\";\"district_id\";\"district_name\";\"school_id\";\"school_name\";\"group_id\";\"group_name\";$tasksString\"best_score\"\n"
 
         val studentsResults = mutableMapOf<Long, List<Long>>()
         students.forEach { student ->
@@ -492,7 +493,7 @@ class AdminController @Autowired constructor(
             val studentWebUser = student.webUser
             val group = student.group
 
-            val studentInfo = "\"${student.id}\";\"${studentWebUser.username}\";\"${group.id}\";\"${group.name}\";$studentScoresString"
+            val studentInfo = "\"${student.id}\";\"${studentWebUser.username}\";\"${viewer.id}\";\"${viewer.webUser.username}\";\"${admin.id}\";\"${webUser.username}\";\"${group.id}\";\"${group.name}\";$studentScoresString"
 
             csvBody.add(studentInfo)
         }

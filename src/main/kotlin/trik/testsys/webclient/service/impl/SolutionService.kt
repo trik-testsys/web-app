@@ -57,6 +57,10 @@ class SolutionService @Autowired constructor(
         return solutionRepository.findAll().toList()
     }
 
+    fun countByStudent(student: Student): Long {
+        return solutionRepository.countByStudent(student)
+    }
+
     fun getBestSolutionByTaskAndStudent(task: Task, student: Student): Solution? {
         val allTasks = taskRepository.findAll()
         val downloadedTrainingActions = mutableListOf<TaskAction>()

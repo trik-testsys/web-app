@@ -15,4 +15,6 @@ interface SolutionRepository : CrudRepository<Solution, Long> {
     fun findSolutionsByStudent(student: Student): List<Solution>?
 
     fun findSolutionsByStudentAndTask(student: Student, task: Task): List<Solution>?
+
+    fun countByStudent(student: Student): Long
 }
