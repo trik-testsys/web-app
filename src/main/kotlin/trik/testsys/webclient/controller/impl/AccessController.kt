@@ -27,7 +27,7 @@ class AccessController @Autowired constructor(
     private val groupService: GroupService,
     private val developerService: DeveloperService,
     private val viewerService: ViewerService,
-    private val avatarGenerator: AvatarGenerator
+    private val judgeService: JudgeService
 ) {
 
     @GetMapping("/access")
@@ -93,6 +93,11 @@ class AccessController @Autowired constructor(
             logger.info(lowerCasedToken, "Client is a viewer.")
 
             return TrikRedirectView("/viewer")
+        }
+
+        judgeService.getByWebUser(webUser)?.let {
+            logger.info(lowerCasedToken, "Client is a judge.")
+            return TrikRedirectView("/judge")
         }
 
         return model

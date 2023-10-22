@@ -48,6 +48,9 @@ class WebUser(
     @OneToOne(mappedBy = "webUser", cascade = [CascadeType.ALL])
     lateinit var viewer: Viewer
 
+    @OneToOne(mappedBy = "webUser", cascade = [CascadeType.ALL])
+    lateinit var judge: Judge
+
     /**
      * @author Roman Shishkin
      * @since 1.1.0
