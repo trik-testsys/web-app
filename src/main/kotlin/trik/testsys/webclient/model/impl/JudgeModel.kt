@@ -1,5 +1,6 @@
 package trik.testsys.webclient.model.impl
 
+import trik.testsys.webclient.controller.impl.JudgeController
 import trik.testsys.webclient.model.TrikModel
 import trik.testsys.webclient.util.exception.impl.TrikIllegalStateException
 import java.time.LocalDateTime
@@ -9,7 +10,9 @@ class JudgeModel private constructor(
     val username: String,
     val additionalInfo: String,
     val registrationDate: LocalDateTime?,
-    val lastLoginDate: LocalDateTime?
+    val lastLoginDate: LocalDateTime?,
+    val filterParams: Map<String, Any?>,
+    val solutions: Collection<JudgeController.SolutionRow>?
 ) : TrikModel {
 
     class Builder internal constructor() {
@@ -19,6 +22,8 @@ class JudgeModel private constructor(
         private var additionalInfo: String? = null
         private var registrationDate: LocalDateTime? = null
         private var lastLoginDate: LocalDateTime? = null
+        private var filterParams: Map<String, Any?>? = null
+        private var solutions: Collection<JudgeController.SolutionRow>? = null
 
         fun accessToken(accessToken: String) = apply { this.accessToken = accessToken }
 
@@ -30,12 +35,18 @@ class JudgeModel private constructor(
 
         fun lastLoginDate(lastLoginDate: LocalDateTime?) = apply { this.lastLoginDate = lastLoginDate }
 
+        fun filterParams(filterParams: Map<String, Any?>?) = apply { this.filterParams = filterParams }
+
+        fun solutions(solutions: Collection<JudgeController.SolutionRow>?) = apply { this.solutions = solutions }
+
         fun build() = JudgeModel(
             accessToken ?: throw TrikIllegalStateException(String.format(PARAMETER_ERROR, JudgeModel::accessToken.name)),
             username ?: throw TrikIllegalStateException(String.format(PARAMETER_ERROR, JudgeModel::username.name)),
             additionalInfo ?: throw TrikIllegalStateException(String.format(PARAMETER_ERROR, JudgeModel::additionalInfo.name)),
             registrationDate,
-            lastLoginDate
+            lastLoginDate,
+            filterParams ?: emptyMap(),
+            solutions
         )
     }
 
@@ -47,6 +58,8 @@ class JudgeModel private constructor(
         argsMap[this::additionalInfo.name] = additionalInfo
         argsMap[this::registrationDate.name] = registrationDate
         argsMap[this::lastLoginDate.name] = lastLoginDate
+        argsMap[this::filterParams.name] = filterParams
+        argsMap[this::solutions.name] = solutions
 
         return argsMap
     }

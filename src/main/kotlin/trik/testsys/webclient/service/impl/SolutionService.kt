@@ -91,6 +91,10 @@ class SolutionService @Autowired constructor(
         return bestScoreSolution
     }
 
+    fun getById(id: Long): Solution? {
+        return solutionRepository.findById(id).get()
+    }
+
     companion object {
         private const val maxTimeToSolve = 90 * 60L
     }
