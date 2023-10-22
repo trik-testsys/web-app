@@ -1,6 +1,10 @@
 package trik.testsys.webclient.controller.impl
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -17,12 +21,16 @@ import trik.testsys.webclient.service.impl.TaskActionService
 import trik.testsys.webclient.service.impl.WebUserService
 import trik.testsys.webclient.util.TrikRedirectView
 import trik.testsys.webclient.util.logger.TrikLogger
+import java.io.File
 import java.time.LocalDateTime
 import java.time.ZoneOffset.UTC
 
 @RestController
 @RequestMapping("\${app.testsys.api.prefix}/judge")
 class JudgeController @Autowired constructor(
+    @Value("\${app.testsys.paths.submission}")
+    private val submissionsPath: String,
+
     private val judgeService: JudgeService,
     private val webUserService: WebUserService,
     private val solutionService: SolutionService,
@@ -47,6 +55,62 @@ class JudgeController @Autowired constructor(
         modelAndView.addAllObjects(model.asMap())
 
         return modelAndView
+    }
+
+    @PostMapping("/info/change")
+    fun changeInfo(
+        @RequestParam accessToken: String,
+        @RequestParam newUsername: String,
+        @RequestParam newAdditionalInfo: String,
+        modelAndView: ModelAndView
+    ): ModelAndView {
+        logger.info(accessToken, "Client requested info change")
+        val judge = validateAccessToken(accessToken) ?: run {
+            logger.info(accessToken, "Client access token is invalid")
+            modelAndView.viewName = ERROR_VIEW_NAME
+            return modelAndView
+        }
+        logger.info(accessToken, "Client access token is valid")
+
+        judge.webUser.username = newUsername
+        judge.webUser.additionalInfo = newAdditionalInfo
+        webUserService.saveWebUser(judge.webUser)
+
+        val model = buildModel(judge)
+        modelAndView.view = REDIRECT_VIEW
+        modelAndView.addAllObjects(model.asMap())
+
+        return modelAndView
+    }
+
+    @GetMapping("/solution/download")
+    fun downloadSolutionFile(
+        @RequestParam accessToken: String,
+        @RequestParam solutionId: Long,
+        modelAndView: ModelAndView
+    ): Any {
+        logger.info(accessToken, "Client requested solution file download")
+        val judge = validateAccessToken(accessToken) ?: run {
+            logger.info(accessToken, "Client access token is invalid")
+            modelAndView.viewName = ERROR_VIEW_NAME
+            return modelAndView
+        }
+        logger.info(accessToken, "Client access token is valid")
+
+        val solution = solutionService.getById(solutionId) ?: run {
+            logger.info(accessToken, "Solution with id $solutionId not found")
+            modelAndView.viewName = ERROR_VIEW_NAME
+            return modelAndView
+        }
+
+        val solutionFile = File("$submissionsPath/${solution.gradingId}/submission.qrs")
+
+        val responseEntity = ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"${solutionId}.qrs\"")
+            .contentType(MediaType.APPLICATION_OCTET_STREAM)
+            .body(solutionFile.readBytes())
+
+        return responseEntity
     }
 
     @PostMapping("/solution/edit")
