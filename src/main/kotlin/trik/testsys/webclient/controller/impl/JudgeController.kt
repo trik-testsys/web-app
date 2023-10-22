@@ -15,10 +15,7 @@ import org.springframework.web.servlet.view.RedirectView
 import trik.testsys.webclient.controller.TrikUserController
 import trik.testsys.webclient.entity.impl.Judge
 import trik.testsys.webclient.model.impl.JudgeModel
-import trik.testsys.webclient.service.impl.JudgeService
-import trik.testsys.webclient.service.impl.SolutionService
-import trik.testsys.webclient.service.impl.TaskActionService
-import trik.testsys.webclient.service.impl.WebUserService
+import trik.testsys.webclient.service.impl.*
 import trik.testsys.webclient.util.TrikRedirectView
 import trik.testsys.webclient.util.logger.TrikLogger
 import java.io.File
@@ -34,7 +31,8 @@ class JudgeController @Autowired constructor(
     private val judgeService: JudgeService,
     private val webUserService: WebUserService,
     private val solutionService: SolutionService,
-    private val taskActionService: TaskActionService
+    private val taskActionService: TaskActionService,
+    private val solutionActionService: SolutionActionService
 ) : TrikUserController {
 
     @GetMapping
@@ -147,43 +145,14 @@ class JudgeController @Autowired constructor(
             modelAndView.viewName = ERROR_VIEW_NAME
             return modelAndView
         }
+        val prevScore = solutionToChange.score
         solutionToChange.score = newScore
         solutionService.saveSolution(solutionToChange)
 
-        val allSolutions = solutionService.getAllSolutions()
-        val filteredSolutions = allSolutions.filter { solution ->
-            (studentId == null || solution.student.id == studentId) &&
-                    (groupId == null || solution.student.group.id == groupId) &&
-                    (adminId == null || solution.student.group.admin.id == adminId) &&
-                    (taskId == null || solution.task.id == taskId) &&
-                    (solutionId == null || solution.id == solutionId)
-        }
-        val solutions = filteredSolutions.map { solution ->
-            val uploadedTaskAction = taskActionService.getUploadedSolutionAction(solution.student, solution)
-            val downloadedTaskAction = taskActionService.getDownloadedTrainingAction(solution.student, solution.task)
+        solutionActionService.save(solutionToChange, judge, prevScore, newScore)
 
-            val isInTime = if (uploadedTaskAction == null || downloadedTaskAction == null) {
-                false
-            } else {
-                uploadedTaskAction.dateTime.isBefore(downloadedTaskAction.dateTime.plusSeconds(maxTimeToSolve)) ||
-                        uploadedTaskAction.dateTime.isEqual(downloadedTaskAction.dateTime.plusSeconds(maxTimeToSolve))
-            }
-
-            SolutionRow(
-                solution.student.id!!,
-                solution.student.group.id!!,
-                solution.student.group.admin.id!!,
-                solution.task.id!!,
-                solution.id!!,
-                solution.score,
-                uploadedTaskAction?.dateTime?.plusHours(3)
-                    ?: solution.date.toInstant().atZone(UTC).toLocalDateTime().plusHours(3),
-                isInTime
-            )
-        }
-
-        val model = buildModel(judge, solutions, filterParams)
-        modelAndView.viewName = VIEW_NAME
+        val model = buildModel(judge, null, filterParams)
+        modelAndView.view = REDIRECT_VIEW
         modelAndView.addAllObjects(model.asMap())
 
         return modelAndView
@@ -289,6 +258,7 @@ class JudgeController @Autowired constructor(
             .lastLoginDate(webUser.lastLoginDate)
             .solutions(solutions)
             .filterParams(filterParams)
+            .actions(judge.solutionActions)
             .build()
 
         return judgeModel

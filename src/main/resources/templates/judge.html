@@ -100,6 +100,41 @@
         </div>
     </div>
 
+    <div class="table solution-actions-table">
+        <table>
+            <caption>
+                Последние изменения баллов
+            </caption>
+            <tr>
+                <th>Дата и время изменения</th>
+                <th>ID Участника</th>
+                <th>ID Группы</th>
+                <th>ID Организатора</th>
+                <th>ID Задачи</th>
+                <th>ID Посылки</th>
+                <th>Старый результат</th>
+                <th>Новый результат</th>
+            </tr>
+            <tr th:each="action : ${actions}">
+                <td>
+                    <time th:datetime="${action.dateTime}"
+                          th:text="${#temporals.format(action.dateTime, 'dd.MM.yyyy HH:mm')}">
+                    </time>
+                </td>
+                <td th:text="${action.solution.student.id}"></td>
+                <td th:text="${action.solution.student.group.id}"></td>
+                <td th:text="${action.solution.student.group.admin.id}"></td>
+                <td th:text="${action.solution.task.id}"></td>
+                <td th:text="${action.solution.id}"
+                    style="font-weight: bold"></td>
+                <td th:text="${action.prevScore}"
+                    style="font-weight: bold"></td>
+                <td th:text="${action.newScore}"
+                    style="font-weight: bold"></td>
+            </tr>
+        </table>
+    </div>
+
     <div class="filter-params">
         <div class="filter-header">
             <h1>Параметры фильтрации</h1>

@@ -38,6 +38,9 @@ class Solution(
     @Column(nullable = false)
     var score: Long = 0
 
+    @OneToMany(mappedBy = "solution", cascade = [CascadeType.ALL])
+    val solutionActions: MutableSet<SolutionAction> = mutableSetOf()
+
     /**
      * @author Roman Shishkin
      * @since 1.1.0

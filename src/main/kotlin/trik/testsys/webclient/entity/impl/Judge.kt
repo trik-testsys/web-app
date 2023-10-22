@@ -21,4 +21,7 @@ class Judge(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, unique = true)
     val id: Long? = null
+
+    @OneToMany(mappedBy = "judge", cascade = [CascadeType.ALL])
+    val solutionActions: MutableSet<SolutionAction> = mutableSetOf()
 }

@@ -1,6 +1,7 @@
 package trik.testsys.webclient.model.impl
 
 import trik.testsys.webclient.controller.impl.JudgeController
+import trik.testsys.webclient.entity.impl.SolutionAction
 import trik.testsys.webclient.model.TrikModel
 import trik.testsys.webclient.util.exception.impl.TrikIllegalStateException
 import java.time.LocalDateTime
@@ -12,7 +13,8 @@ class JudgeModel private constructor(
     val registrationDate: LocalDateTime?,
     val lastLoginDate: LocalDateTime?,
     val filterParams: Map<String, Any?>,
-    val solutions: Collection<JudgeController.SolutionRow>?
+    val solutions: Collection<JudgeController.SolutionRow>?,
+    val actions: Collection<SolutionAction>
 ) : TrikModel {
 
     class Builder internal constructor() {
@@ -24,6 +26,7 @@ class JudgeModel private constructor(
         private var lastLoginDate: LocalDateTime? = null
         private var filterParams: Map<String, Any?>? = null
         private var solutions: Collection<JudgeController.SolutionRow>? = null
+        private var actions: Collection<SolutionAction>? = null
 
         fun accessToken(accessToken: String) = apply { this.accessToken = accessToken }
 
@@ -39,6 +42,8 @@ class JudgeModel private constructor(
 
         fun solutions(solutions: Collection<JudgeController.SolutionRow>?) = apply { this.solutions = solutions }
 
+        fun actions(actions: Collection<SolutionAction>?) = apply { this.actions = actions }
+
         fun build() = JudgeModel(
             accessToken ?: throw TrikIllegalStateException(String.format(PARAMETER_ERROR, JudgeModel::accessToken.name)),
             username ?: throw TrikIllegalStateException(String.format(PARAMETER_ERROR, JudgeModel::username.name)),
@@ -46,7 +51,8 @@ class JudgeModel private constructor(
             registrationDate,
             lastLoginDate,
             filterParams ?: emptyMap(),
-            solutions
+            solutions,
+            actions ?: emptyList()
         )
     }
 
@@ -60,6 +66,7 @@ class JudgeModel private constructor(
         argsMap[this::lastLoginDate.name] = lastLoginDate
         argsMap[this::filterParams.name] = filterParams
         argsMap[this::solutions.name] = solutions
+        argsMap[this::actions.name] = actions.sortedByDescending { it.dateTime }
 
         return argsMap
     }
