@@ -33,6 +33,7 @@ app:
     api:
       prefix: /2023
     paths:
+      submission: "${PWD}/submissions"
       training: "${PWD}/training"
       benchmark: "${PWD}/benchmark"
   avatar:
