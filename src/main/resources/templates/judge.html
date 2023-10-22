@@ -161,7 +161,7 @@
                 </div>
             </div>
             <div class="filter-buttons">
-                <input type="button" class="filter-button" id="resetFilterButton" value="Сбросить"
+                <input type="button" class="filter-button" id="resetFilterButton" value="Сбросить фильтры"
                        onclick="resetFilter()"/>
                 <input type="submit" class="filter-button" id="filterButton" value="Поиск"/>
             </div>
@@ -241,7 +241,7 @@
                                 th:onclick="'showPopup(\'changeScorePopup' + ${solution.solutionId} + '\')'">
                             <i class="fa fa-edit"></i>
                         </button>
-                        <form th:action="@{/2023/judge/solution}" method="get">
+                        <form th:action="@{/2023/judge/solution/download}" method="get">
                             <input type="text" name="accessToken" th:value="${accessToken}" style="display: none"/>
                             <input type="text" name="solutionId" th:value="${solution.solutionId}" style="display: none"/>
                             <button type="submit" class="popup-button"
@@ -259,6 +259,17 @@
 </html>
 
 <script>
+    function copy(id) {
+        var copyText = document.getElementById(id);
+        var textArea = document.createElement("textarea");
+
+        textArea.value = copyText.textContent;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("Copy");
+        textArea.remove();
+    }
+
     function resetFilter() {
         var form = document.querySelector('.filter-form')
         for (var i = 0; i < form.length; i++) {
@@ -326,7 +337,7 @@
     }
 
     .filter-button, input[type=button] {
-        width: 150px;
+        width: 160px;
         height: 30px;
         border-radius: 5px;
         border: 1px solid var(--trik-blue);
