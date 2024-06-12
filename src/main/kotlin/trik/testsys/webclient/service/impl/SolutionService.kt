@@ -68,7 +68,7 @@ class SolutionService @Autowired constructor(
             val taskAction = taskActionService.getDownloadedTrainingAction(student, task)
             if (taskAction != null) downloadedTrainingActions.add(taskAction)
         }
-        val startTime = downloadedTrainingActions.maxByOrNull { it.dateTime }?.dateTime ?: return null
+        val startTime = downloadedTrainingActions.minByOrNull { it.dateTime }?.dateTime ?: return null
         val maxEndTime = startTime.plusSeconds(maxTimeToSolve)
 
         val solutions = solutionRepository.findSolutionsByStudent(student)?.filter { solution ->

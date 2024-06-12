@@ -31,7 +31,7 @@ app:
     path: http://grading-system:8080/v3/grading-system
   testsys:
     api:
-      prefix: /2023
+      prefix: /demo2024
     paths:
       submission: "${PWD}/submissions"
       training: "${PWD}/training"

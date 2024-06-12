@@ -4,18 +4,18 @@
     <meta charset="UTF-8">
     <title>Кабинет Разработчика</title>
 
-    <link rel="icon" th:href="@{/2023/img/trik_testsys_logo.ico}">
+    <link rel="icon" th:href="@{/demo2024/img/trik_testsys_logo.ico}">
 
-    <link rel="stylesheet" th:href="@{/2023/css/style.css}"/>
-    <link rel="stylesheet" th:href="@{/2023/css/popup.css}"/>
-    <link rel="stylesheet" th:href="@{/2023/css/table.css}"/>
+    <link rel="stylesheet" th:href="@{/demo2024/css/style.css}"/>
+    <link rel="stylesheet" th:href="@{/demo2024/css/popup.css}"/>
+    <link rel="stylesheet" th:href="@{/demo2024/css/table.css}"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
     <!--    <link rel="stylesheet" th:href="@{/fontawesome-free-6.4.2-web/css/all.min.css}">-->
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script th:src="@{/2023/js/popup.js}"></script>
-    <script th:src="@{/2023/js/main.js}"></script>
+    <script th:src="@{/demo2024/js/popup.js}"></script>
+    <script th:src="@{/demo2024/js/main.js}"></script>
 
     <!-- Yandex.Metrika counter -->
     <script type="text/javascript" >
@@ -39,11 +39,11 @@
 <div class="container">
     <div class="header">
         <div class="page-type">
-            <img th:src="@{/2023/img/trik_testsys_logo.svg}" alt="logo">
+            <img th:src="@{/demo2024/img/trik_testsys_logo.svg}" alt="logo">
             <p>Кабинет Разработчика</p>
         </div>
         <div class="exit">
-            <form th:action="@{/2023}" method="get">
+            <form th:action="@{/demo2024}" method="get">
                 <input type="submit" value="Выйти"/>
             </form>
         </div>
@@ -56,7 +56,7 @@
                 <i class="fa fa-close"></i>
             </button>
             <h1>Редактирование данных</h1>
-            <form class="uploadForm" th:action="@{/2023/developer/info/change}" method="post">
+            <form class="uploadForm" th:action="@{/demo2024/developer/info/change}" method="post">
                 <input type="text" name="accessToken" th:value="${accessToken}" placeholder="Код-доступа" required
                        style="display: none"/>
                 <div class="input-name">
@@ -76,7 +76,7 @@
     <div class="main">
         <div class="info">
             <div class="avatar-container">
-                <img th:src="@{/2023/img/trik_testsys_logo.svg}" alt="avatar">
+                <img th:src="@{/demo2024/img/trik_testsys_logo.svg}" alt="avatar">
                 <div class="username">
                     <p th:text="${username}"></p>
                 </div>
@@ -125,7 +125,7 @@
                 <i class="fa fa-close"></i>
             </button>
             <h1>Загрузка задачи</h1>
-            <form class="uploadForm" id="uploadTaskForm" th:action="@{/2023/developer/task/create}" method="post"
+            <form class="uploadForm" id="uploadTaskForm" th:action="@{/demo2024/developer/task/create}" method="post"
                   enctype="multipart/form-data">
                 <div class="input-name">
                     <h2>Название Задачи</h2>
@@ -202,7 +202,7 @@
                             </button>
                             <h1>Редактирование задачи</h1>
                             <h1 th:text="${task.id} + ': ' + ${task.name}"></h1>
-                            <form class="uploadForm" id="editTaskForm" th:action="@{/2023/developer/task/edit}"
+                            <form class="uploadForm" id="editTaskForm" th:action="@{/demo2024/developer/task/edit}"
                                   method="post"
                                   enctype="multipart/form-data">
                                 <input type="number" name="taskId" th:value="${task.id}" required
@@ -246,7 +246,7 @@
                             <h1 th:text="${task.id} + ': ' + ${task.name}"></h1>
                             <p>Выберите Организаторов:</p>
                             <form class="uploadForm" id="attachTaskToAdminForm"
-                                  th:action="@{/2023/developer/task/attach}" method="post"
+                                  th:action="@{/demo2024/developer/task/attach}" method="post"
                                   enctype="multipart/form-data">
                                 <input type="number" name="taskId" th:value="${task.id}" required
                                        style="display: none"/>
@@ -271,7 +271,7 @@
                             <h1 th:text="${task.id} + ': ' + ${task.name}"></h1>
                             <p>Выберите Организаторов:</p>
                             <form class="uploadForm" id="detachTaskFromAdminForm"
-                                  th:action="@{/2023/developer/task/detach}" method="post"
+                                  th:action="@{/demo2024/developer/task/detach}" method="post"
                                   enctype="multipart/form-data">
                                 <input type="number" name="taskId" th:value="${task.id}" required
                                        style="display: none"/>
@@ -300,7 +300,7 @@
                                 <p>Вы уверены, что хотите удалить задачу?</p>
                             </div>
                             <form class="uploadForm" id="deleteTaskForm"
-                                  th:action="@{/2023/developer/task/delete}" method="post"
+                                  th:action="@{/demo2024/developer/task/delete}" method="post"
                                   enctype="multipart/form-data">
                                 <input type="number" name="taskId" th:value="${task.id}" required
                                        style="display: none"/>
@@ -322,7 +322,7 @@
                                 <p>Вы уверены, что хотите добавить задачу в публичный доступ?</p>
                             </div>
                             <form class="uploadForm" id="openTaskForm"
-                                  th:action="@{/2023/developer/task/visibility/change}" method="post"
+                                  th:action="@{/demo2024/developer/task/visibility/change}" method="post"
                                   enctype="multipart/form-data">
                                 <input type="number" name="taskId" th:value="${task.id}" required
                                        style="display: none"/>
@@ -347,7 +347,7 @@
                                 <p>Вы уверены, что хотите убрать задачу из публичного доступа?</p>
                             </div>
                             <form class="uploadForm" id="closeTaskForm"
-                                  th:action="@{/2023/developer/task/visibility/change}" method="post"
+                                  th:action="@{/demo2024/developer/task/visibility/change}" method="post"
                                   enctype="multipart/form-data">
                                 <input type="number" name="taskId" th:value="${task.id}" required
                                        style="display: none"/>

@@ -9,18 +9,18 @@
     <h1>Панель управления группой</h1>
     <h2 th:styleappend="${solutions.size > 0} ? 'display: none' : 'display: block'">Пока решений нет</h2>
     <div class="solutions-table" th:styleappend="${solutions.size > 0} ? 'display: flex' : 'display: none'">
-        <h2>Решения ученика <span th:text="${studentId}"></span> по имени <span th:text="${studentName}"></span></h2>
+        <h2>Решения по задаче <span th:text="${taskId} + ': ' +${taskName}"></span></h2>
         <table>
             <tr>
                 <th>ID</th>
-                <th>ID задачи</th>
-                <th>Название задачи</th>
+                <th>ID ученика</th>
+                <th>Имя ученика</th>
                 <th>Статус</th>
             </tr>
             <tr th:each="solution : ${solutions}">
                 <td th:text="${solution.id}"></td>
-                <td th:text="${solution.task.id}"></td>
-                <td th:text="${solution.task.name}"></td>
+                <td th:text="${solution.student.id}"></td>
+                <td th:text="${solution.student.webUser.username}"></td>
                 <td th:switch="${solution.status.ordinal}">
                     <span th:case=0>Неверное решение</span>
                     <span th:case=1>Верное решение</span>
@@ -31,7 +31,7 @@
             </tr>
         </table>
     </div>
-    <form class="back" action="/2023/admin/group" method="get">
+    <form class="back" action="/demo2024/admin/group" method="get">
         <input style="display: none" type="text" name="accessToken" placeholder="Access token"
                th:value="${accessToken}" readonly/>
         <input style="display: none" type="text" name="groupAccessToken" placeholder="Group access token"

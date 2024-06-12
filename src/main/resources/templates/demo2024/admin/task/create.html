@@ -13,23 +13,26 @@
     </div>
 
     <div class="created web_user" th:styleappend="${isCreated}? 'display: block' : 'display: none;'">
-        <p>Группа создана!</p>
+        <p>Задача загружена!</p>
         <table>
             <tr>
                 <th>ID</th>
                 <th>Название</th>
-                <th>Код-доступа</th>
+                <th>Название группы</th>
             </tr>
             <tr>
                 <td th:text="${id}"></td>
                 <td th:text="${name}"></td>
-                <td th:text="${groupAccessToken}"></td>
+                <td th:text="${groupName}"></td>
             </tr>
         </table>
     </div>
-    <form class="back" action="/2023/admin" method="get">
+    <form class="back" action="/demo2024/admin/group" method="get">
         <input style="display: none" type="text" name="accessToken" placeholder="Access token"
                th:value="${accessToken}" readonly/>
+        <input style="display: none" type="text" name="groupAccessToken"
+               placeholder="Group access token"
+               th:value="${groupAccessToken}" readonly/>
         <input type="submit" value="Назад"/>
     </form>
 </div>

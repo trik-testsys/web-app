@@ -278,6 +278,7 @@ class StudentController(
 
         val headers = HttpHeaders()
         headers.setBasicAuth("user1", "super")
+        // 73d1b1b1bc1dabfb97f216d897b7968e44b06457920f00f2dc6c1ed3be25ad4c
         headers.contentType = MediaType.MULTIPART_FORM_DATA
 
         val body: MultiValueMap<String, Any> = LinkedMultiValueMap()

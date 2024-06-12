@@ -324,7 +324,7 @@ class ViewerController @Autowired constructor(
         private val logger = TrikLogger(this::class.java)
 
         private const val VIEWER_VIEW_NAME = "viewer"
-        private const val SERVER_PREFIX = "https://testsys.trikset.com/2023"
+        private const val SERVER_PREFIX = "https://testsys.trikset.com/demo2024"
         private val REDIRECT_VIEW = TrikRedirectView("/viewer")
     }
 }

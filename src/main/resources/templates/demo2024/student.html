@@ -121,7 +121,7 @@
     </div>
     <div class="creation">
         <form id="task-creation" method="post" enctype="multipart/form-data"
-                th:action="@{/2023/student/solution/upload}">
+                th:action="@{/demo2024/student/solution/upload}">
             <p>Загрузите решение</p>
             <input style="display: none" type="text" name="accessToken" placeholder="Access token"
                    th:value="${accessToken}" readonly/>
@@ -165,7 +165,7 @@
                     </time>
                 </td>
                 <td>
-                    <form method="get" th:action="@{/2023/student/task}">
+                    <form method="get" th:action="@{/demo2024/student/task}">
                         <input style="display: none" type="text" name="accessToken" placeholder="Access token"
                                th:value="${accessToken}" readonly/>
                         <input style="display: none" type="text" name="taskId" placeholder="Task ID"
@@ -213,11 +213,11 @@
 
     function uploadTrik() {
         // form.action="save_for_later.php";
-        // form.action="/2023/student/solution/upload2";
+        // form.action="/demo2024/student/solution/upload2";
     }
 
     function uploadEv3() {
-        form.action = "/2023/student/solution/upload";
+        form.action = "/demo2024/student/solution/upload";
     }
 
     $("input[name='TRIK']").prop('disabled', true);
