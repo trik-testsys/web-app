@@ -28,7 +28,7 @@ services:
       - mysql_host:mysql_host
 
   web-client:
-    image: 5h15h4k1n9/trik-testsys-web-client:1.1.0.14-beta
+    image: 5h15h4k1n9/trik-testsys-web-client:1.1.0.15-beta.2
     restart: always
 
     ports:

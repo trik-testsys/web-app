@@ -29,7 +29,7 @@ ENV LC_ALL ru_RU.UTF-8
 
 #Copying application
 WORKDIR /$APP_DIR
-ARG JAR_FILE=build/libs/trik-testsys-web-client-1.1.0.15-beta.1.jar
+ARG JAR_FILE=build/libs/trik-testsys-web-client-1.1.0.15-beta.2.jar
 ARG APP=app.jar
 COPY $JAR_FILE $APP
 
