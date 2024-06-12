@@ -9,7 +9,12 @@
     <h1>Страница доступа</h1>
     <div class="greeting">
         <p>Здравствуйте! Здесь вы можете получить доступ к тестирующей системе TRIK.</p>
-        <p>Для этого вам необходимо ввести код-доступа, который вы получили от администратора в поле ниже.</p>
+        <p>
+            Для регистрации на демо-версию системы необходимо заполнить
+            <a href="https://forms.yandex.ru/cloud/653a049cc417f3d3696d782d/"
+               target="_blank">форму</a>.
+        </p>
+        <p>При наличии кода-доступа введите его в поле ниже.</p>
         <div class="creation">
             <form th:action="@{/demo2024/access}" method="get">
                 <input type="text" name="accessToken" placeholder="Код-доступа" required/>
