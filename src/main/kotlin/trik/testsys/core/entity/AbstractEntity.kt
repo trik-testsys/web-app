@@ -18,6 +18,9 @@ abstract class AbstractEntity : Entity {
      * May be null if an entity doesn't persist in a database.
      *
      * The default value is null.
+     *
+     * @author Roman Shishkin
+     * @since 2.0.0
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
