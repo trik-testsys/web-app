@@ -7,6 +7,7 @@ import javax.persistence.*
 /**
  * Simple abstract entity class. Describes basic entity behavior.
  *
+ * @see Entity
  * @author Roman Shishkin
  * @since 2.0.0
  */

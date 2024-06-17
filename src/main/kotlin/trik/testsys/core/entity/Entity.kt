@@ -7,6 +7,7 @@ import java.time.LocalDateTime
  * Simple interface for entities. It inherits [getId] (val property id) and [isNew] (val property isNew) from [Persistable],
  * and extends it with [creationDate] field.
  *
+ * @see Persistable
  * @author Roman Shishkin
  * @since 2.0.0
  */

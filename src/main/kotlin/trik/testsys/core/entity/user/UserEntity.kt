@@ -8,6 +8,7 @@ typealias AccessToken = String
  * Simple interface for user entities. Extends [Entity] with [name] and [accessToken] properties.
  * In fact every entity that implements this can be identified by [accessToken].
  *
+ * @see Entity
  * @author Roman Shishkin
  * @since 2.0.0
  */
