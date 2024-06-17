@@ -25,8 +25,7 @@ abstract class AbstractEntity : Entity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, unique = true)
-    var id: Long? = null
-        private set
+    private var id: Long? = null
 
     override fun getId() = id
 
