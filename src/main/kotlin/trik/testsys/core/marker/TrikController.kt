@@ -6,5 +6,4 @@ package trik.testsys.core.marker
  * @author Roman Shishkin
  * @since 2.0.0
  */
-interface TrikController {
-}
+interface TrikController
