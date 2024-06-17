@@ -12,7 +12,7 @@ import java.time.LocalDateTime
  */
 interface Entity : Persistable<Long> {
 
-    /**
+     /**
      * Property which says date and time of entity creation.
      *
      * @author Roman Shishkin

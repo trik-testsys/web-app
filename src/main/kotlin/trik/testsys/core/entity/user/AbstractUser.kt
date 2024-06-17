@@ -4,6 +4,12 @@ import trik.testsys.core.entity.AbstractEntity
 import java.time.LocalDateTime
 import javax.persistence.*
 
+/**
+ * Simple abstract user entity class. Describes basic behavior.
+ *
+ * @author Roman Shishkin
+ * @since 2.0.0
+ */
 @MappedSuperclass
 abstract class AbstractUser : UserEntity, AbstractEntity() {
 
@@ -25,6 +31,12 @@ abstract class AbstractUser : UserEntity, AbstractEntity() {
         private const val NAME_MAX_LEN = 128
         private const val ACCESS_TOKEN_MAX_LEN = 256
 
+        /**
+         * Anonymous user entity for system usage.
+         *
+         * @author Roman Shishkin
+         * @since 2.0.0
+         */
         val System = object: AbstractUser() {
 
             override var name = "System User"

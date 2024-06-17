@@ -4,9 +4,21 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import javax.persistence.*
 
+/**
+ * Simple abstract entity class. Describes basic entity behavior.
+ *
+ * @author Roman Shishkin
+ * @since 2.0.0
+ */
 @MappedSuperclass
 abstract class AbstractEntity : Entity {
 
+    /**
+     * Entity ID field.
+     * May be null if an entity doesn't persist in a database.
+     *
+     * The default value is null.
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, unique = true)
