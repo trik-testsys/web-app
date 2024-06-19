@@ -11,7 +11,8 @@ import trik.testsys.core.repository.Repository
  *
  * 1. [findByAccessToken]
  * 2. [findAllByAccessTokenIn]
- * 3. [findByName]
+ * 3. [findByNameAndAccessToken]
+ * 4. [findByName]
  *
  * @param E user entity class, implements [UserEntity]
  *
@@ -47,6 +48,19 @@ interface UserRepository<E : UserEntity> : Repository<E> {
      * @since 2.0.0
      */
     fun findAllByAccessTokenIn(accessTokens: Collection<AccessToken>): Collection<E>
+
+    /**
+     * Finds entity by [UserEntity.name] and [UserEntity.accessToken].
+     *
+     * @param name name by which entity will be found
+     * @param accessToken access token by which entity will be found
+     * @return entity with [UserEntity.name] equals to [name] and [UserEntity.accessToken] equals to [accessToken]. If nothing was found - `null`
+     *
+     * @see [UserEntity.name]
+     * @see [UserEntity.accessToken]
+     * @since 2.0.0
+     */
+    fun findByNameAndAccessToken(name: String, accessToken: AccessToken): E?
 
     /**
      * Finds all entities by [UserEntity.name].
