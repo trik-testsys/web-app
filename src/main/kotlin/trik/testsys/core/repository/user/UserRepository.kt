@@ -28,7 +28,7 @@ interface UserRepository<E : UserEntity> : Repository<E> {
      * Finds entity by [UserEntity.accessToken].
      *
      * @param accessToken access token by which entity will be found.
-     * @return entity with [UserEntity.accessToken] equals to [accessToken]. If nothing was found - null
+     * @return entity with [UserEntity.accessToken] equals to [accessToken]. If nothing was found - `null`
      *
      * @see [UserEntity.accessToken]
      * @author Roman Shishkin
