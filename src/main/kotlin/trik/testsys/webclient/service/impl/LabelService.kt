@@ -1,9 +1,9 @@
-package trik.testsys.webclient.service
+package trik.testsys.webclient.service.impl
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import trik.testsys.webclient.entity.Group
-import trik.testsys.webclient.entity.Label
+import trik.testsys.webclient.entity.impl.Group
+import trik.testsys.webclient.entity.impl.Label
 import trik.testsys.webclient.repository.LabelRepository
 
 /**

@@ -1,7 +1,7 @@
 package trik.testsys.webclient.model
 
 import trik.testsys.webclient.controller.ViewerController
-import trik.testsys.webclient.entity.Label
+import trik.testsys.webclient.entity.impl.Label
 import trik.testsys.webclient.util.exception.TrikException
 
 /**

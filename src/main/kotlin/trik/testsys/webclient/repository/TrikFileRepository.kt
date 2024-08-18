@@ -2,9 +2,9 @@ package trik.testsys.webclient.repository
 
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
-import trik.testsys.webclient.entity.Task
+import trik.testsys.webclient.entity.impl.Task
 
-import trik.testsys.webclient.entity.TrikFile
+import trik.testsys.webclient.entity.impl.TrikFile
 
 /**
  * @author Roman Shishkin

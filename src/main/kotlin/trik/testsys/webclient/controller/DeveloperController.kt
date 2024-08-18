@@ -1,6 +1,5 @@
 package trik.testsys.webclient.controller
 
-import io.swagger.v3.oas.annotations.headers.Header
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.format.annotation.DateTimeFormat
@@ -11,7 +10,6 @@ import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -20,12 +18,12 @@ import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.servlet.ModelAndView
 
 import trik.testsys.webclient.util.handler.GradingSystemErrorHandler
-import trik.testsys.webclient.entity.Developer
-import trik.testsys.webclient.entity.WebUser
+import trik.testsys.webclient.entity.impl.Developer
+import trik.testsys.webclient.entity.impl.WebUser
 import trik.testsys.webclient.model.DeveloperModel
-import trik.testsys.webclient.service.DeveloperService
-import trik.testsys.webclient.service.TaskService
-import trik.testsys.webclient.service.WebUserService
+import trik.testsys.webclient.service.impl.DeveloperService
+import trik.testsys.webclient.service.impl.TaskService
+import trik.testsys.webclient.service.impl.WebUserService
 import trik.testsys.webclient.util.fp.Either
 import trik.testsys.webclient.util.logger.TrikLogger
 import java.time.LocalDateTime

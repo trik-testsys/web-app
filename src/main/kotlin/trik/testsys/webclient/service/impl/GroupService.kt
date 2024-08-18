@@ -1,11 +1,10 @@
-package trik.testsys.webclient.service
+package trik.testsys.webclient.service.impl
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
-import trik.testsys.webclient.entity.Admin
-import trik.testsys.webclient.entity.Group
-import trik.testsys.webclient.entity.Label
+import trik.testsys.webclient.entity.impl.Admin
+import trik.testsys.webclient.entity.impl.Group
 import trik.testsys.webclient.repository.GroupRepository
 import java.security.MessageDigest
 import java.util.*

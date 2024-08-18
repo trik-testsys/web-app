@@ -8,9 +8,9 @@ import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.client.RestTemplate
 
-import trik.testsys.webclient.entity.*
+import trik.testsys.webclient.entity.impl.*
 import trik.testsys.webclient.models.ResponseMessage
-import trik.testsys.webclient.service.*
+import trik.testsys.webclient.service.impl.*
 import trik.testsys.webclient.util.logger.TrikLogger
 import trik.testsys.webclient.util.fp.Either
 

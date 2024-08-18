@@ -1,4 +1,4 @@
-package trik.testsys.webclient.entity
+package trik.testsys.webclient.entity.impl
 
 import javax.persistence.*
 

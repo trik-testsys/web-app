@@ -6,13 +6,13 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.servlet.ModelAndView
-import trik.testsys.webclient.entity.*
+import trik.testsys.webclient.entity.impl.*
 
 import trik.testsys.webclient.model.ViewerModel
-import trik.testsys.webclient.service.GroupService
-import trik.testsys.webclient.service.LabelService
-import trik.testsys.webclient.service.ViewerService
-import trik.testsys.webclient.service.WebUserService
+import trik.testsys.webclient.service.impl.GroupService
+import trik.testsys.webclient.service.impl.LabelService
+import trik.testsys.webclient.service.impl.ViewerService
+import trik.testsys.webclient.service.impl.WebUserService
 import trik.testsys.webclient.util.fp.Either
 import trik.testsys.webclient.util.logger.TrikLogger
 
