@@ -9,7 +9,7 @@ import java.io.File
  */
 interface FileManager {
 
-    fun getTaskFiles(taskName: String): Collection<File>
+    fun getTaskFiles(taskName: String): Collection<File>?
 
-    fun getSolutionFile(solutionId: Long): File
+    fun getSolutionFile(solutionId: Long): File?
 }
