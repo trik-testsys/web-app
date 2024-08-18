@@ -26,7 +26,7 @@ interface Grader {
     )
 
     data class GradingOptions(
-        val shouldRecord: Boolean,
-        val trikStudioVersion: String
+        val shouldRecordRun: Boolean,
+        val trikStudioVersion: String,
     )
 }
