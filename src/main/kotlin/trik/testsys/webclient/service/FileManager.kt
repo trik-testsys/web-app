@@ -11,5 +11,5 @@ interface FileManager {
 
     fun getTaskFiles(taskName: String): Collection<File>
 
-    fun getSolutionFile(solutionName: String): File
+    fun getSolutionFile(solutionId: Long): File
 }
