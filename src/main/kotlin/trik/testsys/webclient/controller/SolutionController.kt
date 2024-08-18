@@ -11,7 +11,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.client.RestTemplate
 
 import trik.testsys.webclient.entity.impl.Solution
-import trik.testsys.webclient.service.SolutionService
+import trik.testsys.webclient.service.impl.SolutionService
 
 /**
  * @author Roman Shishkin

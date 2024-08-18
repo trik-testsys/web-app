@@ -14,10 +14,10 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import trik.testsys.webclient.entity.impl.WebUser
 
-import trik.testsys.webclient.service.SuperUserService
-import trik.testsys.webclient.service.WebUserService
+import trik.testsys.webclient.service.impl.SuperUserService
+import trik.testsys.webclient.service.impl.WebUserService
 import trik.testsys.webclient.models.ResponseMessage
-import trik.testsys.webclient.service.AdminService
+import trik.testsys.webclient.service.impl.AdminService
 
 
 @RequestMapping("\${app.testsys.api.prefix}/superuser")
