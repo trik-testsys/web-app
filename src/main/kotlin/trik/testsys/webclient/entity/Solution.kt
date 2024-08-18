@@ -1,4 +1,6 @@
 package trik.testsys.webclient.entity
 
-interface TrikEntity {
+interface Solution {
+
+    val id: Long
 }

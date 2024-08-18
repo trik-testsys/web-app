@@ -6,7 +6,7 @@ import javax.persistence.*
 @Entity
 @Table(name = "TASKS")
 class Task(
-    @Column(nullable = false, columnDefinition = "VARCHAR(50) DEFAULT ''")
+
     var name: String,
 
     @Column(nullable = false, columnDefinition = "VARCHAR(200) DEFAULT ''")
@@ -20,7 +20,7 @@ class Task(
     @JoinColumn(
         name = "developer_id", referencedColumnName = "id",
         nullable = false
-    ) val developer: Developer
+    ) val developer: Developer,
 ) {
 
     @Id
