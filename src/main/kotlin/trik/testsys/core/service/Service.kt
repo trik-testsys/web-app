@@ -6,10 +6,9 @@ import java.time.LocalDateTime
 
 /**
  * This is a generic service interface that defines common operations for a service.
- * It works with any type of `Entity` and `Repository`.
+ * It works with any type of `Entity`.
  *
  * @param E The type of the entity.
- * @param R The type of the repository.
  *
  * @see Entity
  * @see Repository
@@ -17,15 +16,7 @@ import java.time.LocalDateTime
  * @author Roman Shishkin
  * @since 2.0.0
  */
-interface Service<E : Entity, R : Repository<E>> {
-
-    /**
-     * The repository associated with the service.
-     *
-     * @author Roman Shishkin
-     * @since 2.0.0
-     */
-    val repository: R
+interface Service<E : Entity> {
 
     //region Save methods
 

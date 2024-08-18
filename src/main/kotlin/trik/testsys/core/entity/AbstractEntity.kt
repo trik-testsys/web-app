@@ -41,6 +41,7 @@ abstract class AbstractEntity : Entity {
     }
 
     companion object {
+        
         private const val DEFAULT_ZONE_ID = "UTC"
         private val DEFAULT_ZONE = ZoneId.of(DEFAULT_ZONE_ID)
     }

@@ -18,6 +18,14 @@ import trik.testsys.core.repository.user.UserRepository
  */
 abstract class AbstractUserService<E : AbstractUser, R : UserRepository<E>> : UserService<E, R> {
 
+    /**
+     * The repository associated with the service.
+     *
+     * @author Roman Shishkin
+     * @since 2.0.0
+     */
+    protected lateinit var repository: R
+
     override fun findByAccessToken(accessToken: String): E? {
         val entity = repository.findByAccessToken(accessToken)
         return entity

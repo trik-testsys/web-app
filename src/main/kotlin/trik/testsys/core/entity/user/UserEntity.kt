@@ -20,7 +20,7 @@ interface UserEntity : Entity {
      * @author Roman Shishkin
      * @since 2.0.0
      */
-    val name: String
+    var name: String
 
     /**
      * Property which contains unique access token.
@@ -31,5 +31,5 @@ interface UserEntity : Entity {
      * @author Roman Shishkin
      * @since 2.0.0
      */
-    val accessToken: AccessToken
+    var accessToken: AccessToken
 }

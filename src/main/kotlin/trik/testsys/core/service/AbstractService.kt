@@ -1,5 +1,6 @@
 package trik.testsys.core.service
 
+import org.springframework.beans.factory.annotation.Autowired
 import trik.testsys.core.entity.AbstractEntity
 import trik.testsys.core.repository.Repository
 import java.time.LocalDateTime
@@ -17,19 +18,22 @@ import java.time.LocalDateTime
  * @author Roman Shishkin
  * @since 2.0.0
  */
-abstract class AbstractService<E : AbstractEntity, R : Repository<E>> : Service<E, R> {
+abstract class AbstractService<E : AbstractEntity, R : Repository<E>> : Service<E> {
+
+    /**
+     * The repository associated with the service.
+     *
+     * @author Roman Shishkin
+     * @since 2.0.0
+     */
+    @Autowired
+    protected lateinit var repository: R
 
     //region Save methods
 
-    override fun save(entity: E): E {
-        val savedEntity = repository.save(entity)
-        return savedEntity
-    }
+    override fun save(entity: E) = repository.save(entity)
 
-    override fun saveAll(entities: Iterable<E>): Collection<E> {
-        val savedEntities = repository.saveAll(entities)
-        return savedEntities
-    }
+    override fun saveAll(entities: Iterable<E>): Collection<E> = repository.saveAll(entities)
 
     //endregion
 
@@ -40,10 +44,7 @@ abstract class AbstractService<E : AbstractEntity, R : Repository<E>> : Service<
         entity.orElse(null)
     }
 
-    override fun findAll(ids: Iterable<Long>): Collection<E> {
-        val entities = repository.findAllById(ids)
-        return entities
-    }
+    override fun findAll(ids: Iterable<Long>): Collection<E> = repository.findAllById(ids)
 
     override fun findAll(): Collection<E> {
         val entities = repository.findAll()

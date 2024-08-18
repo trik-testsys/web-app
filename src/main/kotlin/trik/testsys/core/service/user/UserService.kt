@@ -22,7 +22,7 @@ import trik.testsys.core.service.Service
  * @author Roman Shishkin
  * @since 2.0.0
  */
-interface UserService<E : UserEntity, R : UserRepository<E>> : Service<E, R> {
+interface UserService<E : UserEntity, R : UserRepository<E>> : Service<E> {
 
     /**
      * Finds entity by [UserEntity.accessToken].
