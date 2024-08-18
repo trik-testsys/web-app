@@ -5,8 +5,8 @@ import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 
-import trik.testsys.webclient.entity.Student
-import trik.testsys.webclient.entity.WebUser
+import trik.testsys.webclient.entity.impl.Student
+import trik.testsys.webclient.entity.impl.WebUser
 
 /**
  * @author Roman Shishkin

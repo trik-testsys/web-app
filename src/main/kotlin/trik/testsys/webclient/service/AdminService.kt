@@ -3,8 +3,8 @@ package trik.testsys.webclient.service
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
-import trik.testsys.webclient.entity.Admin
-import trik.testsys.webclient.entity.WebUser
+import trik.testsys.webclient.entity.impl.Admin
+import trik.testsys.webclient.entity.impl.WebUser
 import trik.testsys.webclient.repository.AdminRepository
 import trik.testsys.webclient.repository.StudentRepository
 import trik.testsys.webclient.repository.WebUserRepository

@@ -2,8 +2,8 @@ package trik.testsys.webclient.service
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import trik.testsys.webclient.entity.Viewer
-import trik.testsys.webclient.entity.WebUser
+import trik.testsys.webclient.entity.impl.Viewer
+import trik.testsys.webclient.entity.impl.WebUser
 import trik.testsys.webclient.repository.ViewerRepository
 
 @Service

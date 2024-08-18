@@ -4,9 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 
-import trik.testsys.webclient.entity.Developer
-import trik.testsys.webclient.entity.Task
-import trik.testsys.webclient.entity.TrikFile
+import trik.testsys.webclient.entity.impl.Developer
+import trik.testsys.webclient.entity.impl.Task
+import trik.testsys.webclient.entity.impl.TrikFile
 import trik.testsys.webclient.repository.TaskRepository
 
 @Service
