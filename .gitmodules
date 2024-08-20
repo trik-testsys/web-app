@@ -1,0 +1,3 @@
+[submodule "trik-testsys-protos"]
+	path = trik-testsys-protos
+	url = https://github.com/Pupsen-Vupsen/trik-testsys-protos.git
