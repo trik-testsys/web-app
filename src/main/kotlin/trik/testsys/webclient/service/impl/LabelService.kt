@@ -4,7 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import trik.testsys.webclient.entity.impl.Group
 import trik.testsys.webclient.entity.impl.Label
-import trik.testsys.webclient.repository.LabelRepository
+import trik.testsys.webclient.repository.impl.LabelRepository
+import trik.testsys.webclient.service.TrikService
 
 /**
  * @author Roman Shishkin
@@ -13,7 +14,7 @@ import trik.testsys.webclient.repository.LabelRepository
 @Service
 class LabelService @Autowired constructor(
     private val labelRepository: LabelRepository
-) {
+) : TrikService {
 
     fun getByName(name: String): Label? {
         return labelRepository.findLabelByName(name)
@@ -21,6 +22,14 @@ class LabelService @Autowired constructor(
 
     fun save(label: Label): Label {
         return labelRepository.save(label)
+    }
+
+    fun saveAll(labels: Collection<Label>): List<Label> {
+        return labelRepository.saveAll(labels).toList()
+    }
+
+    fun getAll(): List<Label> {
+        return labelRepository.findAll().toList()
     }
 
     /**

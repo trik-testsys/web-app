@@ -8,8 +8,8 @@ plugins {
 }
 
 group = "Pupsen&Vupsen"
-version = "1.1.0"
-java.sourceCompatibility = JavaVersion.VERSION_16
+version = "2.0.0"
+java.sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
     mavenCentral()

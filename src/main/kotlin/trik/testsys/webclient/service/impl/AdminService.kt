@@ -4,22 +4,19 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
 import trik.testsys.webclient.entity.impl.Admin
+import trik.testsys.webclient.entity.impl.Viewer
 import trik.testsys.webclient.entity.impl.WebUser
-import trik.testsys.webclient.repository.AdminRepository
-import trik.testsys.webclient.repository.StudentRepository
-import trik.testsys.webclient.repository.WebUserRepository
+import trik.testsys.webclient.repository.impl.AdminRepository
+import trik.testsys.webclient.repository.impl.StudentRepository
+import trik.testsys.webclient.repository.impl.WebUserRepository
+import trik.testsys.webclient.service.TrikService
 
 @Service
-class AdminService {
-
-    @Autowired
-    private lateinit var adminRepository: AdminRepository
-
-    @Autowired
-    private lateinit var webUserRepository: WebUserRepository
-
-    @Autowired
-    private lateinit var studentRepository: StudentRepository
+class AdminService @Autowired constructor(
+    private val adminRepository: AdminRepository,
+    private val webUserRepository: WebUserRepository,
+    private val studentRepository: StudentRepository
+) : TrikService {
 
     fun saveAdmin(webUserId: Long): Admin? {
         val webUser = webUserRepository.findWebUserById(webUserId) ?: return null
@@ -38,12 +35,65 @@ class AdminService {
         return adminRepository.save(admin)
     }
 
+    fun saveAll(admins: Collection<Admin>): List<Admin> {
+        return adminRepository.saveAll(admins).toList()
+    }
+
     fun getAdminByWebUserId(webUserId: Long): Admin? {
         val webUser = webUserRepository.findWebUserById(webUserId) ?: return null
         return adminRepository.findAdminByWebUser(webUser)
     }
 
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
+    fun save(admin: Admin): Admin {
+        return adminRepository.save(admin)
+    }
+
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
+    fun save(webUser: WebUser, viewer: Viewer): Admin {
+        val admin = Admin(webUser, viewer)
+        return adminRepository.save(admin)
+    }
+
     fun getAdminByWebUser(webUser: WebUser): Admin? {
         return adminRepository.findAdminByWebUser(webUser)
+    }
+
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
+    fun getAllByIds(ids: List<Long>): List<Admin> {
+        return adminRepository.findAllById(ids).toList()
+    }
+
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
+    fun getById(id: Long): Admin? {
+        return adminRepository.findAdminById(id)
+    }
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
+    fun getByAccessToken(accessToken: String): Admin? {
+        val webUser = webUserRepository.findWebUserByAccessToken(accessToken) ?: return null
+        return adminRepository.findAdminByWebUser(webUser)
+    }
+
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
+    fun getAll(): List<Admin> {
+        return adminRepository.findAll().toList()
     }
 }

@@ -1,6 +1,6 @@
 package trik.testsys.webclient.entity.impl
 
-import java.util.Date
+import java.util.*
 import javax.persistence.*
 
 @Entity
@@ -35,6 +35,12 @@ class Solution(
     @Column(nullable = false)
     var date: Date = Date()
 
+    @Column(nullable = false)
+    var score: Long = 0
+
+    @OneToMany(mappedBy = "solution", cascade = [CascadeType.ALL])
+    val solutionActions: MutableSet<SolutionAction> = mutableSetOf()
+
     /**
      * @author Roman Shishkin
      * @since 1.1.0
@@ -44,6 +50,7 @@ class Solution(
         PASSED,
         IN_PROGRESS,
         NOT_STARTED,
-        ERROR
+        ERROR,
+        PARTIAL
     }
 }

@@ -5,23 +5,33 @@ import org.springframework.stereotype.Service
 
 import trik.testsys.webclient.entity.impl.Admin
 import trik.testsys.webclient.entity.impl.Group
-import trik.testsys.webclient.repository.GroupRepository
-import java.security.MessageDigest
-import java.util.*
+import trik.testsys.webclient.repository.impl.GroupRepository
+import trik.testsys.webclient.service.TrikService
+import trik.testsys.webclient.util.AccessTokenGenerator
 
 @Service
 class GroupService @Autowired constructor(
    private val groupRepository: GroupRepository
-) {
+) : TrikService {
+
+    fun createGroup(admin: Admin, name: String, additionalInfo: String?): Group {
+        val accessToken = AccessTokenGenerator.generateAccessToken(name, AccessTokenGenerator.TokenType.GROUP)
+        val group = Group(admin, name, accessToken, additionalInfo)
+        return groupRepository.save(group)
+    }
 
     fun createGroup(admin: Admin, name: String): Group {
-        val accessToken = generateAccessToken(name)
+        val accessToken = AccessTokenGenerator.generateAccessToken(name, AccessTokenGenerator.TokenType.GROUP)
         val group = Group(admin, name, accessToken)
         return groupRepository.save(group)
     }
 
     fun save(group: Group): Group {
         return groupRepository.save(group)
+    }
+
+    fun saveAll(groups: Collection<Group>): List<Group> {
+        return groupRepository.saveAll(groups).toList()
     }
 
     fun getGroupByAccessToken(accessToken: String): Group? {
@@ -32,11 +42,23 @@ class GroupService @Autowired constructor(
         return groupRepository.findGroupById(id)
     }
 
-    private fun generateAccessToken(word: String): String {
-        val saltedWord = word + Date().time + Random(Date().time).nextInt()
-        val md = MessageDigest.getInstance("SHA-224")
-        val digest = md.digest(saltedWord.toByteArray())
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
+    fun getAllByIds(ids: List<Long>): List<Group> {
+        return groupRepository.findAllById(ids).toList()
+    }
 
-        return digest.fold("") { str, it -> str + "%02x".format(it) }
+    fun getAll(): List<Group> {
+        return groupRepository.findAll().toList()
+    }
+
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
+    fun delete(group: Group) {
+        groupRepository.delete(group)
     }
 }

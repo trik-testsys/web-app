@@ -6,7 +6,7 @@ import javax.persistence.*
 @Entity
 @Table(name = "TASKS")
 class Task(
-    @Column(nullable = false, columnDefinition = "VARCHAR(50) DEFAULT ''")
+
     var name: String,
 
     @Column(nullable = false, columnDefinition = "VARCHAR(200) DEFAULT ''")
@@ -16,11 +16,11 @@ class Task(
      * @author Roman Shishkin
      * @since 1.1.0
      */
-    @ManyToOne(cascade = [CascadeType.ALL])
+    @ManyToOne
     @JoinColumn(
         name = "developer_id", referencedColumnName = "id",
         nullable = false
-    ) val developer: Developer
+    ) val developer: Developer,
 ) {
 
     @Id
@@ -28,7 +28,7 @@ class Task(
     @Column(nullable = false, unique = true)
     val id: Long? = null
 
-    @ManyToMany(mappedBy = "tasks", cascade = [CascadeType.ALL])
+    @ManyToMany(mappedBy = "tasks")
     val groups: MutableSet<Group> = mutableSetOf()
 
     @Column(nullable = false, columnDefinition = "BIGINT DEFAULT 0")
@@ -62,7 +62,7 @@ class Task(
      * @author Roman Shishkin
      * @since 1.1.0
      */
-    @ManyToMany(cascade = [CascadeType.ALL])
+    @ManyToMany
     @JoinTable(
         name = "TASKS_BY_ADMINS",
         joinColumns = [JoinColumn(name = "task_id")],
@@ -72,6 +72,12 @@ class Task(
 
     @Column(nullable = true)
     var deadline: LocalDateTime? = null
+
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    var isPublic: Boolean = false
+
+    @OneToMany(mappedBy = "task", cascade = [CascadeType.ALL])
+    val taskActions: MutableSet<TaskAction> = mutableSetOf()
 
     /**
      * @author Roman Shishkin

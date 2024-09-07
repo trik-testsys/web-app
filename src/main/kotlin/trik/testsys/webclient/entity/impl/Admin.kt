@@ -1,5 +1,6 @@
 package trik.testsys.webclient.entity.impl
 
+import trik.testsys.webclient.entity.TrikEntity
 import javax.persistence.*
 
 @Entity
@@ -12,7 +13,7 @@ class Admin(
         nullable = false,
         unique = true
     ) val webUser: WebUser
-) {
+) : TrikEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,6 +29,24 @@ class Admin(
     @OneToMany(mappedBy = "admin", cascade = [CascadeType.ALL])
     val groups: MutableSet<Group> = mutableSetOf()
 
-    @ManyToMany(mappedBy = "admins", cascade = [CascadeType.ALL])
+    @ManyToMany(mappedBy = "admins")
     val tasks: MutableSet<Task> = mutableSetOf()
+
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
+    @ManyToOne
+    @JoinColumn(
+        name = "viewer_id",
+        referencedColumnName = "id"
+    ) lateinit var viewer: Viewer
+
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
+    constructor(webUser: WebUser, viewer: Viewer) : this(webUser) {
+        this.viewer = viewer
+    }
 }

@@ -21,4 +21,7 @@ class Student(
 
     @OneToMany(mappedBy = "student", cascade = [CascadeType.ALL])
     val solutions: MutableSet<Solution> = mutableSetOf()
+
+    @OneToMany(mappedBy = "student", cascade = [CascadeType.ALL])
+    val taskActions: MutableSet<TaskAction> = mutableSetOf()
 }

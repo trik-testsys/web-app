@@ -4,8 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
 import trik.testsys.webclient.entity.impl.TrikFile
-import trik.testsys.webclient.repository.TaskRepository
-import trik.testsys.webclient.repository.TrikFileRepository
+import trik.testsys.webclient.repository.impl.TaskRepository
+import trik.testsys.webclient.repository.impl.TrikFileRepository
+import trik.testsys.webclient.service.TrikService
 
 /**
  * @author Roman Shishkin
@@ -15,13 +16,13 @@ import trik.testsys.webclient.repository.TrikFileRepository
 class TrikFileService @Autowired constructor(
     private val trikFileRepository: TrikFileRepository,
     private val taskRepository: TaskRepository,
-) {
+) : TrikService {
 
     fun saveAll(files: Set<TrikFile>) {
         trikFileRepository.saveAll(files)
     }
 
-    fun deleteAllByTask(taskId: Long): Boolean {
+    fun deleteAllByTaskId(taskId: Long): Boolean {
         val task = taskRepository.findTaskById(taskId) ?: return false
         trikFileRepository.deleteAllByTask(task)
 

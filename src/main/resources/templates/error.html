@@ -3,8 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <title>Ошибка</title>
-    <link rel="icon" href="https://dl.trikset.com/logos/trik-studio/trik_studio_logo.png">
+    <link rel="icon" th:href="@{/demo2024/img/trik_testsys_logo.ico}">
+    <link rel="stylesheet" th:href="@{/demo2024/css/style.css}"/>
 </head>
 <body>
-<h1 th:text="${message}"></h1>
+<div class="container">
+    <div class="header">
+        <div class="page-type">
+            <img th:src="@{/demo2024/img/trik_testsys_logo.svg}" alt="logo">
+            <p>Ошибка</p>
+        </div>
+        <div class="exit">
+            <form th:action="@{/demo2024}" method="get">
+                <input type="submit" value="Выйти"/>
+            </form>
+        </div>
+    </div>
+    <div class="main">
+        <h1>Произошла непредвиденная ошибка: <span th:text="${message}"></span></h1>
+    </div>
+</div>
 </body>

@@ -7,14 +7,16 @@ import org.springframework.web.multipart.MultipartFile
 import trik.testsys.webclient.entity.impl.Developer
 import trik.testsys.webclient.entity.impl.Task
 import trik.testsys.webclient.entity.impl.TrikFile
-import trik.testsys.webclient.repository.TaskRepository
+import trik.testsys.webclient.repository.impl.TaskRepository
+import trik.testsys.webclient.service.TrikService
 
 @Service
 class TaskService @Autowired constructor(
     private val taskRepository: TaskRepository,
+    private val adminService: AdminService,
     private val groupService: GroupService,
     private val trikFileService: TrikFileService,
-) {
+) : TrikService {
 
     /**
      * @return Saved [Task] if it was saved, [null] otherwise
@@ -38,17 +40,17 @@ class TaskService @Autowired constructor(
 
         val allFiles = tests.map { TrikFile(task, it.originalFilename!!, TrikFile.Type.TEST) }.toMutableSet()
 
-        benchmark ?.let {
+        benchmark?.let {
             val benchmarkFile = TrikFile(task, benchmark.originalFilename!!, TrikFile.Type.BENCHMARK)
             allFiles.add(benchmarkFile)
         }
 
-        training ?.let {
+        training?.let {
             val trainingFile = TrikFile(task, training.originalFilename!!, TrikFile.Type.TRAINING)
             allFiles.add(trainingFile)
         }
 
-        task.trikFiles = allFiles
+        trikFileService.saveAll(allFiles)
         return taskRepository.save(task)
     }
 
@@ -67,35 +69,53 @@ class TaskService @Autowired constructor(
      */
     fun deleteTask(taskId: Long): Boolean {
         val task = taskRepository.findTaskById(taskId) ?: return false
+        val admins = adminService.getAll()
+        val groups = groupService.getAll()
+
+        admins.forEach { it.tasks.remove(task) }
+        groups.forEach { it.tasks.remove(task) }
+
         taskRepository.delete(task)
 
         return true
     }
 
     /**
-     * @return Updated [Task] if it was updated, null it was not found in database.
-     * @param newName New name of task
-     * @param taskId Id of task
-     * @since 1.1.0
      * @author Roman Shishkin
-     */
-    fun updateName(taskId: Long, newName: String): Task? {
-        val task = taskRepository.findTaskById(taskId) ?: return null
-        task.name = newName
-
-        return taskRepository.save(task)
-    }
-
-    /**
-     * @return Updated [Task] if it was updated, null it was not found in database.
      * @since 1.1.0
-     * @param newDescription New description of task
-     * @param taskId Id of task
-     * @author Roman Shiskin
      */
-    fun updateDescription(taskId: Long, newDescription: String): Task? {
+    fun update(
+        taskId: Long,
+        name: String,
+        description: String,
+        tests: List<MultipartFile>,
+        training: MultipartFile?,
+        benchmark: MultipartFile?,
+    ): Task? {
         val task = taskRepository.findTaskById(taskId) ?: return null
-        task.description = newDescription
+
+        task.name = name
+        task.description = description
+        task.countOfTests = tests.size.toLong()
+        task.hasBenchmark = benchmark != null
+        task.hasTraining = training != null
+        task.countOfTests = tests.size.toLong()
+
+//        trikFileService.deleteAllByTaskId(taskId)
+        val allFiles = tests.map { TrikFile(task, it.originalFilename!!, TrikFile.Type.TEST) }.toMutableSet()
+
+        benchmark?.let {
+            val benchmarkFile = TrikFile(task, benchmark.originalFilename!!, TrikFile.Type.BENCHMARK)
+            allFiles.add(benchmarkFile)
+        }
+
+        training?.let {
+            val trainingFile = TrikFile(task, training.originalFilename!!, TrikFile.Type.TRAINING)
+            allFiles.add(trainingFile)
+        }
+
+        task.trikFiles = allFiles
+        trikFileService.saveAll(allFiles)
 
         return taskRepository.save(task)
     }
@@ -104,6 +124,11 @@ class TaskService @Autowired constructor(
         val group = groupService.getGroupById(groupId) ?: return null
 
         return group.tasks
+    }
+
+    fun getAllPublic(): Set<Task> {
+        val allTasks = taskRepository.findAll()
+        return allTasks.filter { it.isPublic }.toSet()
     }
 
     fun getTaskById(taskId: Long): Task? {

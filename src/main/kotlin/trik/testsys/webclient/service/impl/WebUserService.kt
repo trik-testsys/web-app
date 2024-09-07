@@ -4,7 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
 import trik.testsys.webclient.entity.impl.WebUser
-import trik.testsys.webclient.repository.WebUserRepository
+import trik.testsys.webclient.repository.impl.WebUserRepository
+import trik.testsys.webclient.service.TrikService
+import trik.testsys.webclient.util.AccessTokenGenerator
+import trik.testsys.webclient.util.AvatarGenerator
 
 import java.security.MessageDigest
 import java.util.Date
@@ -15,22 +18,33 @@ import java.util.Random
  * @since 1.0.0
  */
 @Service
-class WebUserService {
+class WebUserService @Autowired constructor(
+    private val webUserRepository: WebUserRepository,
+    private val avatarGenerator: AvatarGenerator
+) : TrikService {
 
-    @Autowired
-    private lateinit var webUserRepository: WebUserRepository
-
-    fun saveWebUser(username: String): WebUser {
-        val accessToken = generateAccessToken(username)
-        val webUser = WebUser(username, accessToken)
-
-        return webUserRepository.save(webUser)
-    }
-
-    fun saveWebUser(username: String, accessToken: String): WebUser {
-        val webUser = WebUser(username, accessToken)
+    fun saveWebUser(webUser: WebUser): WebUser {
+        webUserRepository.save(webUser)
+//        avatarGenerator.generateShapedAvatar(webUser.id!!)
 
         return webUser
+    }
+
+    fun saveWebUser(username: String): WebUser {
+        val accessToken = AccessTokenGenerator.generateAccessToken(username, AccessTokenGenerator.TokenType.WEB_USER)
+        val webUser = WebUser(username, accessToken)
+        webUserRepository.save(webUser)
+
+//        avatarGenerator.generateShapedAvatar(webUser.id!!)
+
+        return webUser
+    }
+
+    fun saveAll(webUsers: Collection<WebUser>): List<WebUser> {
+        webUserRepository.saveAll(webUsers)
+//        webUsers.forEach { avatarGenerator.generateShapedAvatar(it.id!!) }
+
+        return webUsers.toList()
     }
 
     fun getWebUserByAccessToken(accessToken: String): WebUser? {
@@ -39,17 +53,5 @@ class WebUserService {
 
     fun getWebUserById(id: Long): WebUser? {
         return webUserRepository.findWebUserById(id)
-    }
-
-    private fun generateAccessToken(word: String): String {
-        val saltedWord = word + Date().time + Random(Date().time).nextInt()
-        val md = MessageDigest.getInstance(HASHING_ALGORITHM_NAME)
-        val digest = md.digest(saltedWord.toByteArray())
-
-        return digest.fold("") { str, it -> str + "%02x".format(it) }
-    }
-
-    companion object {
-        private const val HASHING_ALGORITHM_NAME = "SHA-256"
     }
 }

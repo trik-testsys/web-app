@@ -29,10 +29,11 @@ ENV LC_ALL ru_RU.UTF-8
 
 #Copying application
 WORKDIR /$APP_DIR
-ARG JAR_FILE=build/libs/trik-testsys-web-client-1.1.0.jar
+ARG JAR_FILE=build/libs/trik-testsys-web-client-2.0.0.jar
 ARG APP=app.jar
 COPY $JAR_FILE $APP
 
 #Running application
 EXPOSE 8888
+#ENV JAVA_TOOL_OPTIONS -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8889
 ENTRYPOINT java -jar app.jar

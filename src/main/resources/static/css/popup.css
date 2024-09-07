@@ -1,0 +1,150 @@
+.popup {
+    position: fixed;
+    z-index: 101;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: none;
+}
+
+.popup-content {
+    margin: 10% auto;
+    padding: 20px;
+    width: 30%;
+    background: var(--trik-white);
+    border-radius: 10px;
+    border: 2px solid var(--trik-blue);
+    position: relative;
+}
+
+.popup-content > h1 {
+    margin: 0;
+    font-size: 22px;
+    color: var(--trik-blue);
+    padding-bottom: 10px;
+}
+
+.popup-content form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.popup-content form > input {
+    margin: 10px;
+    width: 80%;
+    height: 30px;
+    border: 1px solid var(--trik-white);
+    border-radius: 5px;
+    padding: 5px;
+    font-size: 16px;
+}
+
+.popup-content form > input[type="submit"] {
+    width: 40%;
+    height: 40px;
+    background-color: var(--trik-blue);
+    color: var(--trik-white);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.popup-content form > input[type="submit"]:hover {
+    color: var(--trik-blue);
+    background-color: var(--trik-green);
+}
+
+.show {
+    display: block;
+}
+
+.taskInfo, .delete-task-info, .popup-content > div {
+    margin: 0 auto;
+    width: 80%;
+}
+
+.popup-content p {
+    margin: 0;
+    padding: 0;
+}
+
+.taskInfo p span, .popup-content p span {
+    font-weight: bold;
+}
+
+.popup-content .popup-forms {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.popup-content .popup-forms > form {
+    width: 40%;
+}
+
+/*attach it to top right corner of popup*/
+.popup-content .close-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 5px;
+    width: 25px;
+    height: 25px;
+    border: none;
+    color: var(--trik-blue);
+    font-size: 20px;
+    background: none;
+    cursor: pointer;
+}
+
+.uploadForm > select {
+    width: 100%;
+    height: 100px;
+    margin-bottom: 10px;
+}
+
+.admin-list {
+    width: 100%;
+    margin-top: 0;
+}
+
+.admin-list > li {
+    font-weight: bold;
+}
+
+.popup-button {
+    background: var(--trik-white);
+    border-radius: 25%;
+    width: 25px;
+    border: 1px solid var(--trik-blue);
+    outline: none;
+    cursor: pointer;
+    text-align: center;
+}
+
+.taskInfo p, .popup-content p {
+    margin: 5px;
+    color: var(--trik-blue);
+}
+
+.group-add-label-popup .popup-content {
+    width: 800px;
+}
+
+.popup-content .input-name {
+    width: 80%;
+    padding: 0;
+    color: var(--trik-blue);
+    text-align: left;
+    margin: 0 0 -2px;
+}
+
+.input-name h2 {
+    margin: 0;
+    padding: 0;
+    font-size: 18px;
+}

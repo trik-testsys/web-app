@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+<head>
+    <meta charset="UTF-8">
+    <title>Student page</title>
+
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+        (function (m, e, t, r, i, k, a) {
+            m[i] = m[i] || function () {
+                (m[i].a = m[i].a || []).push(arguments)
+            };
+            m[i].l = 1 * new Date();
+            for (var j = 0; j < document.scripts.length; j++) {
+                if (document.scripts[j].src === r) {
+                    return;
+                }
+            }
+            k = e.createElement(t), a = e.getElementsByTagName(t)[0], k.async = 1, k.src = r, a.parentNode.insertBefore(k, a)
+        })
+        (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+        ym(95194076, "init", {
+            clickmap: true,
+            trackLinks: true,
+            accurateTrackBounce: true,
+            webvisor: true
+        });
+    </script>
+    <noscript>
+        <div><img src="https://mc.yandex.ru/watch/95194076" style="position:absolute; left:-9999px;" alt=""/></div>
+    </noscript>
+    <!-- /Yandex.Metrika counter -->
+
+    <script>
+        function decreaseTime() {
+            // select all time classes
+            const timeElements = document.querySelectorAll('.active');
+            timeElements.forEach(function(timeElement) {
+                const timeParts = timeElement.textContent.split(':');
+                let hours = parseInt(timeParts[0], 10);
+                let minutes = parseInt(timeParts[1], 10);
+                let seconds = parseInt(timeParts[2], 10);
+
+                if (hours === 0 && minutes === 0 && seconds === 0) {
+                    clearInterval(intervalId); // Остановить интервал, когда время достигло 0
+                } else {
+                    if (seconds > 0) {
+                        seconds--;
+                    } else {
+                        if (minutes > 0) {
+                            minutes--;
+                            seconds = 59;
+                        } else {
+                            if (hours > 0) {
+                                hours--;
+                                minutes = 59;
+                                seconds = 59;
+                            }
+                        }
+                    }
+
+                    // Преобразовать числа обратно в строку формата HH:mm:ss
+                    const newTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                    timeElement.textContent = newTime;
+                }
+            });
+        }
+
+        // Вызываем функцию каждую секунду с использованием интервала
+        const intervalId = setInterval(decreaseTime, 1000);
+    </script>
+
+    <script>
+        // Функция для обновления страницы
+        function refreshPage() {
+            location.reload(); // Эта команда перезагрузит страницу
+        }
+
+        // Запуск функции обновления каждые 5 секунд (5000 миллисекунд)
+        setInterval(refreshPage, 300000);
+    </script>
+
+    <script>
+        function addClassToTimeElements() {
+            const timeElements = document.querySelectorAll('time');
+            timeElements.forEach(function(timeElement) {
+                timeElement.classList.add('active');
+            });
+        }
+    </script>
+</head>
+<style>
+    /*token must be blured when not hovered*/
+    .token {
+        filter: blur(5px);
+    }
+
+    .token:hover {
+        filter: blur(0);
+    }
+</style>
+<body>
+<div class="container">
+    <h1>Кабинет ученика</h1>
+    <div class="created web_user">
+        <h2>Здравствуйте, <span th:text="${username}"></span>!</h2>
+        <p>Здесь вы можете отправлять решения задач и отслеживать статус их проверки.</p>
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Название группы</th>
+                <th>Код-доступа</th>
+            </tr>
+            <tr>
+                <td th:text="${id}"></td>
+                <td th:text="${groupName}"></td>
+                <td class="token" th:text="${accessToken}"></td>
+            </tr>
+        </table>
+    </div>
+    <div class="creation">
+        <form id="task-creation" method="post" enctype="multipart/form-data"
+                th:action="@{/demo2024/student/solution/upload}">
+            <p>Загрузите решение</p>
+            <input style="display: none" type="text" name="accessToken" placeholder="Access token"
+                   th:value="${accessToken}" readonly/>
+            <!--            <input type="search" name="name" placeholder="ID задачи" required/>-->
+            <select name="taskId" required>
+                <option value="" disabled selected>Выберите задачу</option>
+                <option th:each="task : ${tasks}" th:value="${task.id}" th:text="${task.id} + ': ' + ${task.name}">
+            </select>
+            <p style="font-size: 15px">Добавьте файл решения</p>
+            <input type="file" name="file" placeholder="Файл c решением" required accept=".qrs"/>
+            <button type="submit" th:disabled="${canUpload} ? false : true">
+                Загрузить решение
+            </button>
+        </form>
+    </div>
+    <div class="tasks-table" th:styleappend="${tasks.size > 0} ? 'display: flex' : 'display: none'">
+        <h2>Задачи</h2>
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Название задачи</th>
+                <th>Описание</th>
+                <th style="width: 13%">
+                    Время на решение
+                </th>
+                <th style="width: 10%">
+                    Упражнение
+                </th>
+            </tr>
+            <tr th:each="task : ${tasks}">
+                <td th:text="${task.id}"></td>
+                <td th:text="${task.name}"></td>
+                <td style="text-align: justify; width: 40%" th:text="${task.description}"></td>
+                <td>
+<!--                    <time th:datetime="${taskTime}"-->
+                    <time th:datetime="${taskTimes}"
+                          th:text="${#temporals.format(taskTimes, 'HH:mm:ss')}"
+                          th:style="${#temporals.format(taskTimes, 'HH:mm:ss')} == '00:00:00' ? 'color: red' : ''"
+                          th:class="${#temporals.format(taskTimes, 'HH:mm:ss')} != '01:30:00' ? 'active' : ''">
+                        <!--                          th:text="${#temporals.format(taskTimes[task.id], 'HH:mm:ss')}">-->
+                    </time>
+                </td>
+                <td>
+                    <form method="get" th:action="@{/demo2024/student/task}">
+                        <input style="display: none" type="text" name="accessToken" placeholder="Access token"
+                               th:value="${accessToken}" readonly/>
+                        <input style="display: none" type="text" name="taskId" placeholder="Task ID"
+                               th:value="${task.id}" readonly/>
+                        <button type="submit" th:disabled="${canUpload} ? false : true" onclick="addClassToTimeElements()">
+                            Скачать упражнение
+                        </button>
+<!--                        <input type="submit" value="Скачать упражнение"-->
+<!--                               th:disabled="${canUpload} ? false : true"/>-->
+                    </form>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="solutions-table" th:styleappend="${solutions.size > 0} ? 'display: flex' : 'display: none'">
+        <h2>Ваши решения</h2>
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Название задачи</th>
+                <th>Количество баллов</th>
+                <th>Статус</th>
+            </tr>
+            <tr th:each="solution : ${solutions}">
+                <td th:text="${solution.id}"></td>
+                <td th:text="${solution.task.name}"></td>
+                <td th:text="${solution.score}"></td>
+                <td th:switch="${solution.status.ordinal}">
+                    <span th:case=0>Неверное решение</span>
+                    <span th:case=1>Верное решение</span>
+                    <span th:case=2>Тестируется</span>
+                    <span th:case=3>Ожидает проверки</span>
+                    <span th:case=4>Неверное решение</span>
+                    <span th:case=5>Неполное решение</span>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+</body>
+</html>
+
+<script>
+    form = document.getElementById("task-creation");
+
+    function uploadTrik() {
+        // form.action="save_for_later.php";
+        // form.action="/demo2024/student/solution/upload2";
+    }
+
+    function uploadEv3() {
+        form.action = "/demo2024/student/solution/upload";
+    }
+
+    $("input[name='TRIK']").prop('disabled', true);
+
+    function setTimeClassOnTimeTags() {
+        const timeElements = document.querySelector('time')
+        timeElements.forEach(function(timeElement) {
+            timeElement.classList.add('time');
+        });
+    }
+
+</script>
+
+<style>
+
+    body {
+        font-family: sans-serif;
+    }
+
+    .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .created table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    .created th, td {
+        text-align: center;
+        padding: 8px;
+    }
+
+    .created tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    .back {
+        margin-top: 20px;
+    }
+
+    .back input[type="submit"], button {
+        width: 100%;
+        padding: 12px 20px;
+        margin: 8px 0;
+        display: inline-block;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+
+    }
+
+    input[type="submit"], button {
+        width: 100%;
+        color: white;
+        background-color: #4CAF50;
+        padding: 14px 20px;
+        margin: 8px 0;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    /*shaded style, like button disabled*/
+    input[type="button"]:disabled, button:disabled {
+        background-color: #cccccc;
+        color: #666666;
+        width: 100%;
+        padding: 14px 20px;
+        margin: 8px 0;
+        border: none;
+        border-radius: 4px;
+        cursor: not-allowed;
+    }
+
+    input[type="submit"]:hover, button:hover:not([disabled]) {
+        background-color: #45a049;
+    }
+
+    .created p {
+        margin: 0;
+        text-align: center;
+    }
+
+    table th {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .token {
+        font-family: monospace;
+    }
+
+    .created h2 {
+        margin: 0;
+        text-align: center;
+    }
+
+    .solutions-table, .tasks-table {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .solutions-table table, .tasks-table table {
+        border-collapse: collapse;
+        width: 80%;
+    }
+
+    .solutions-table th, td, .tasks-table th, td {
+        text-align: center;
+        padding: 8px;
+    }
+
+    .solutions-table tr:nth-child(even), .tasks-table tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    .solutions-table th, .tasks-table th {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .creation input[type="submit"] {
+        width: 100%;
+        color: white;
+        background-color: #4CAF50;
+        padding: 10px 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .creation input[type="submit"]:hover {
+        background-color: #45a049;
+    }
+
+    .creation input[type="text"] {
+        width: 100%;
+        padding: 10px 10px;
+        margin: 5px 0;
+        display: inline-block;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    .creation {
+        width: 20%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+        margin-top: 10px;
+        text-align: center;
+        background: #f2f2f2;
+        border-radius: 5px;
+        padding: 15px 20px 20px;
+    }
+
+    .creation form p {
+        text-align: center;
+        margin-bottom: 5px;
+        margin-top: 0;
+    }
+
+    textarea {
+        width: 100%;
+        height: 100px;
+        padding: 10px 10px;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background-color: #f8f8f8;
+        resize: none;
+    }
+
+    .creation input[type="file"] {
+        width: 100%;
+        padding: 10px 10px;
+        margin: 5px 0;
+        display: inline-block;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    select {
+        width: 100%;
+        padding: 10px 10px;
+        margin: 5px 0;
+        display: inline-block;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+</style>

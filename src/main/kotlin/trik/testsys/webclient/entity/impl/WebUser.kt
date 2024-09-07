@@ -1,5 +1,7 @@
 package trik.testsys.webclient.entity.impl
 
+import java.time.LocalDateTime
+import java.time.ZoneOffset.UTC
 import javax.persistence.*
 
 @Entity
@@ -7,8 +9,8 @@ import javax.persistence.*
 class WebUser(
     @Column(
         nullable = false, length = 50,
-        columnDefinition = "VARCHAR(50) DEFAULT ''"
-    ) val username: String,
+        columnDefinition = "VARCHAR(300) DEFAULT ''"
+    ) var username: String,
 
     @Column(
         nullable = false, unique = true, length = 50,
@@ -20,6 +22,12 @@ class WebUser(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, unique = true)
     val id: Long? = null
+
+    @Column(columnDefinition = "VARCHAR(1000) DEFAULT ''", nullable = true)
+    var additionalInfo: String? = null
+
+    @Column(nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
+    var registrationDate: LocalDateTime = LocalDateTime.now(UTC).plusHours(3)
 
     @OneToOne(mappedBy = "webUser", cascade = [CascadeType.ALL])
     lateinit var admin: Admin
@@ -33,9 +41,22 @@ class WebUser(
     @OneToMany(mappedBy = "webUser", cascade = [CascadeType.ALL])
     val students: MutableSet<Student> = mutableSetOf()
 
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
     @OneToOne(mappedBy = "webUser", cascade = [CascadeType.ALL])
     lateinit var viewer: Viewer
 
+    @OneToOne(mappedBy = "webUser", cascade = [CascadeType.ALL])
+    lateinit var judge: Judge
+
+    /**
+     * @author Roman Shishkin
+     * @since 1.1.0
+     */
+    @Column(nullable = true, columnDefinition = "DATETIME")
+    var lastLoginDate: LocalDateTime? = null
     /**
      * @author Roman Shishkin
      * @since 1.1.0

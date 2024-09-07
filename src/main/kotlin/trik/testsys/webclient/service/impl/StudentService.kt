@@ -6,9 +6,10 @@ import org.springframework.stereotype.Service
 import trik.testsys.webclient.entity.impl.Group
 import trik.testsys.webclient.entity.impl.Student
 import trik.testsys.webclient.entity.impl.WebUser
-import trik.testsys.webclient.repository.StudentRepository
-import trik.testsys.webclient.repository.WebUserRepository
-import java.io.File
+import trik.testsys.webclient.repository.impl.StudentRepository
+import trik.testsys.webclient.repository.impl.WebUserRepository
+import trik.testsys.webclient.service.TrikService
+import trik.testsys.webclient.util.AccessTokenGenerator
 
 import java.security.MessageDigest
 import java.util.*
@@ -22,8 +23,8 @@ import kotlin.random.Random
 @Service
 class StudentService @Autowired constructor(
     private val studentRepository: StudentRepository,
-    private val webUserRepository: WebUserRepository
-) {
+    private val webUserService: WebUserService
+) : TrikService {
 
     fun getByWebUser(webUser: WebUser): Student? {
         return studentRepository.findByWebUser(webUser)
@@ -45,14 +46,21 @@ class StudentService @Autowired constructor(
         val students = mutableListOf<Student>()
         val webUsers = mutableListOf<WebUser>()
 
-        val prefixRegex = "^$namePrefix$NAME_DELIMITER\\d+$"
-        val startNumber = studentRepository.findMaxNumberWithSameNamePrefix(prefixRegex, group.id!!) ?: START_NUMBER_IF_NOT_FOUND
+//        val noramalizedAccessTokenPrefix = accessTokenPrefix.replace(" ", "-")
+//        val noramalizedNamePrefix = namePrefix.replace(" ", "-")
+
+//        val prefixRegex = "^$noramalizedNamePrefix\\d+$"
+//        val startNumber = studentRepository.findMaxNumberWithSameNamePrefix(prefixRegex, group.id!!) ?: START_NUMBER_IF_NOT_FOUND
 
         for (i in 1..count) {
-            val accessToken = generateAccessToken(accessTokenPrefix, namePrefix)
+            val number = i
+            val generatedToken = AccessTokenGenerator.generateAccessToken(
+                number.toString(),
+                AccessTokenGenerator.TokenType.STUDENT
+            )
+            val accessToken = generatedToken
 
-            val number = startNumber + i
-            val username = "${namePrefix}$NAME_DELIMITER$number"
+            val username = "st_${group.name}_$number"
 
             val webUser = WebUser(username, accessToken)
             webUsers.add(webUser)
@@ -61,37 +69,21 @@ class StudentService @Autowired constructor(
             students.add(student)
         }
 
-        webUserRepository.saveAll(webUsers)
+        webUserService.saveAll(webUsers)
         studentRepository.saveAll(students)
 
         return students
     }
 
     fun getById(id: Long): Student? {
-        return studentRepository.findById(id)
-    }
-
-    /**
-     * @author Roman Shishkin
-     * @since 1.1.0
-     * @param accessTokenPrefix prefix for access token
-     * @param usernamePrefix prefix for username
-     */
-    private fun generateAccessToken(accessTokenPrefix: String, usernamePrefix: String): String {
-        val saltedWord = usernamePrefix + Random(Date().time).nextInt()
-        val md = MessageDigest.getInstance(HASHING_ALGORITHM_NAME)
-
-        val hash = md.digest(saltedWord.toByteArray())
-        val foldedHash = hash.fold("") { str, it -> str + "%02x".format(it) }
-
-        return "$accessTokenPrefix$ACCESS_TOKEN_DELIMITER$foldedHash"
+        return studentRepository.findStudentById(id)
     }
 
     /**
      * @author Roman Shishkin
      * @since 1.1.0
      */
-    fun convertToCsv(students: List<Student>): File {
+    fun convertToCsv(students: List<Student>): StringBuilder {
         val csv = StringBuilder()
         csv.append("id,username,access_token,group_id,group_name\n")
         students.forEach { student ->
@@ -100,11 +92,7 @@ class StudentService @Autowired constructor(
             csv.append("${student.id},${webUser.username},${webUser.accessToken},${group.id},${group.name}\n")
         }
 
-        val uuid = UUID.randomUUID().toString()
-        val file = File("/tmp/students_$uuid.csv")
-        file.writeText(csv.toString())
-
-        return file
+        return csv
     }
 
     companion object {

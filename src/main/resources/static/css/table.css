@@ -1,0 +1,84 @@
+table {
+    width: 100%;
+    background: #f5ffff;
+    border-collapse: collapse;
+    text-align: left;
+}
+table th {
+    background: var(--trik-blue);
+    color: white;
+    padding: 10px 15px;
+    position: relative;
+}
+table th:after {
+    content: "";
+    display: block;
+    position: absolute;
+    z-index: 0;
+    left: 0;
+    top: 25%;
+    height: 25%;
+    width: 100%;
+}
+table tr:nth-child(odd) {
+    background: #ebf3f9;
+}
+table td {
+    border: 1px solid #e3eef7;
+    padding: 10px 15px;
+    position: relative;
+    transition: all 0.5s ease;
+    word-break: break-all;
+}
+table tbody:hover td {
+    color: transparent;
+    text-shadow: 0 0 3px #a09f9d;
+}
+table tbody:hover tr:hover td {
+    color: #444444;
+    text-shadow: none;
+}
+
+caption {
+    font-size: 24px;
+    font-weight: bold;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+/*center table*/
+.table {
+    margin: 0 auto;
+    width: 80%;
+
+}
+
+.buttons {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.add-button {
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 25px;
+}
+
+.add-button button {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: var(--trik-blue);
+    color: var(--trik-white);
+    border: none;
+    outline: none;
+    cursor: pointer;
+    font-size: 15px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+table th:last-child {
+    text-align: center;
+}

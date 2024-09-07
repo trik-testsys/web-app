@@ -9,7 +9,7 @@ import javax.persistence.*
 @Entity
 @Table(name = "TRIK_FILES")
 class TrikFile (
-    @ManyToOne(cascade = [CascadeType.ALL])
+    @ManyToOne
     @JoinColumn(
         name = "task_id", referencedColumnName = "id",
         nullable = false
