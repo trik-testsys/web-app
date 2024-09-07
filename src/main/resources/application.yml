@@ -25,6 +25,9 @@ logging:
 server:
   port: 8888                                                    # Entrypoint
 
+path:
+  l10n: "${PWD}/src/main/resources/static/l10n"
+
 app:
   version: 1.0.2
   grading-system:
