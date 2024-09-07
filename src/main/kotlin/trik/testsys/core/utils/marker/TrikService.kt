@@ -1,4 +1,4 @@
-package trik.testsys.core.marker
+package trik.testsys.core.utils.marker
 
 /**
  * Mark interface for every service implementation

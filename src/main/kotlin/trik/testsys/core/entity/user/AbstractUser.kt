@@ -39,7 +39,7 @@ abstract class AbstractUser : UserEntity, AbstractEntity() {
          * @author Roman Shishkin
          * @since 2.0.0
          */
-        val System = object: AbstractUser() {
+        object System: AbstractUser() {
 
             override var name = "System User"
 

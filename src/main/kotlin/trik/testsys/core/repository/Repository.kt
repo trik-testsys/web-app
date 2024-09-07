@@ -30,7 +30,7 @@ interface Repository<E : Entity> : JpaRepository<E, Long> {
      * @author Roman Shishkin
      * @since 2.0.0
      */
-    fun findByCreationDateAfter(creationDate: LocalDateTime): Collection<E>
+    fun findByCreationDateAfter(creationDate: LocalDateTime): List<E>
 
     /**
      * Finds entities with [Entity.creationDate] less than [creationDate].
@@ -41,7 +41,7 @@ interface Repository<E : Entity> : JpaRepository<E, Long> {
      * @author Roman Shishkin
      * @since 2.0.0
      */
-    fun findByCreationDateBefore(creationDate: LocalDateTime): Collection<E>
+    fun findByCreationDateBefore(creationDate: LocalDateTime): List<E>
 
     /**
      * Finds entities with [Entity.creationDate] greater than [creationDateFrom] and less than [creationDateTo].
@@ -53,5 +53,5 @@ interface Repository<E : Entity> : JpaRepository<E, Long> {
      * @author Roman Shishkin
      * @since 2.0.0
      */
-    fun findByCreationDateBetween(creationDateFrom: LocalDateTime, creationDateTo: LocalDateTime): Collection<E>
+    fun findByCreationDateBetween(creationDateFrom: LocalDateTime, creationDateTo: LocalDateTime): List<E>
 }

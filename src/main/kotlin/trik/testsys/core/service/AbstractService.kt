@@ -33,7 +33,7 @@ abstract class AbstractService<E : AbstractEntity, R : Repository<E>> : Service<
 
     override fun save(entity: E) = repository.save(entity)
 
-    override fun saveAll(entities: Iterable<E>): Collection<E> = repository.saveAll(entities)
+    override fun saveAll(entities: Iterable<E>): List<E> = repository.saveAll(entities)
 
     //endregion
 
@@ -44,19 +44,19 @@ abstract class AbstractService<E : AbstractEntity, R : Repository<E>> : Service<
         entity.orElse(null)
     }
 
-    override fun findAll(ids: Iterable<Long>): Collection<E> = repository.findAllById(ids)
+    override fun findAll(ids: Iterable<Long>): List<E> = repository.findAllById(ids)
 
-    override fun findAll(): Collection<E> {
+    override fun findAll(): List<E> {
         val entities = repository.findAll()
         return entities
     }
 
-    override fun findByCreationDateAfter(creationDate: LocalDateTime): Collection<E> {
+    override fun findByCreationDateAfter(creationDate: LocalDateTime): List<E> {
         val entities = repository.findByCreationDateAfter(creationDate)
         return entities
     }
 
-    override fun findByCreationDateBefore(creationDate: LocalDateTime): Collection<E> {
+    override fun findByCreationDateBefore(creationDate: LocalDateTime): List<E> {
         val entities = repository.findByCreationDateBefore(creationDate)
         return entities
     }
@@ -64,7 +64,7 @@ abstract class AbstractService<E : AbstractEntity, R : Repository<E>> : Service<
     override fun findByCreationDateBetween(
         creationDateFrom: LocalDateTime,
         creationDateTo: LocalDateTime
-    ): Collection<E> {
+    ): List<E> {
         val entities = repository.findByCreationDateBetween(creationDateFrom, creationDateTo)
         return entities
     }

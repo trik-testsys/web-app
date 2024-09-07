@@ -47,7 +47,7 @@ interface UserRepository<E : UserEntity> : Repository<E> {
      * @author Roman Shishkin
      * @since 2.0.0
      */
-    fun findAllByAccessTokenIn(accessTokens: Collection<AccessToken>): Collection<E>
+    fun findAllByAccessTokenIn(accessTokens: Collection<AccessToken>): List<E>
 
     /**
      * Finds entity by [UserEntity.name] and [UserEntity.accessToken].
@@ -71,5 +71,5 @@ interface UserRepository<E : UserEntity> : Repository<E> {
      * @author Roman Shishkin
      * @since 2.0.0
      */
-    fun findByName(name: String): Collection<E>
+    fun findByName(name: String): List<E>
 }

@@ -40,7 +40,7 @@ interface Service<E : Entity> {
      * @author Roman Shishkin
      * @since 2.0.0
      */
-    fun saveAll(entities: Iterable<E>): Collection<E>
+    fun saveAll(entities: Iterable<E>): List<E>
 
     //endregion
 
@@ -70,7 +70,7 @@ interface Service<E : Entity> {
      * @author Roman Shishkin
      * @since 2.0.0
      */
-    fun findAll(ids: Iterable<Long>): Collection<E>
+    fun findAll(ids: Iterable<Long>): List<E>
 
     /**
      * Finds all entities.
@@ -80,7 +80,7 @@ interface Service<E : Entity> {
      * @author Roman Shishkin
      * @since 2.0.0
      */
-    fun findAll(): Collection<E>
+    fun findAll(): List<E>
 
     /**
      * Finds entities with creation date after the given date.
@@ -93,7 +93,7 @@ interface Service<E : Entity> {
      * @author Roman Shishkin
      * @since 2.0.0
      */
-    fun findByCreationDateAfter(creationDate: LocalDateTime): Collection<E>
+    fun findByCreationDateAfter(creationDate: LocalDateTime): List<E>
 
     /**
      * Finds entities with creation date before the given date.
@@ -106,7 +106,7 @@ interface Service<E : Entity> {
      * @author Roman Shishkin
      * @since 2.0.0
      */
-    fun findByCreationDateBefore(creationDate: LocalDateTime): Collection<E>
+    fun findByCreationDateBefore(creationDate: LocalDateTime): List<E>
 
     /**
      * Finds entities with creation date between the given dates.
@@ -120,7 +120,7 @@ interface Service<E : Entity> {
      * @author Roman Shishkin
      * @since 2.0.0
      */
-    fun findByCreationDateBetween(creationDateFrom: LocalDateTime, creationDateTo: LocalDateTime): Collection<E>
+    fun findByCreationDateBetween(creationDateFrom: LocalDateTime, creationDateTo: LocalDateTime): List<E>
 
     //endregion
 
