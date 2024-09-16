@@ -2,6 +2,8 @@ package trik.testsys.webclient.service.impl
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import trik.testsys.core.service.user.AbstractUserService
+import trik.testsys.core.utils.marker.TrikService
 
 import trik.testsys.webclient.entity.impl.Group
 import trik.testsys.webclient.entity.impl.Student
@@ -21,17 +23,16 @@ import kotlin.random.Random
  * @since 1.0.0
  */
 @Service
-class StudentService @Autowired constructor(
-    private val studentRepository: StudentRepository,
+class StudentService(
     private val webUserService: WebUserService
-) : TrikService {
+) : AbstractUserService<Student, StudentRepository>(), TrikService {
 
     fun getByWebUser(webUser: WebUser): Student? {
-        return studentRepository.findByWebUser(webUser)
+        return repository.findByWebUser(webUser)
     }
 
     fun save(webUser: WebUser, group: Group): Student {
-        return studentRepository.save(Student(webUser, group))
+        return repository.save(Student(webUser, group))
     }
 
     /**
@@ -70,13 +71,9 @@ class StudentService @Autowired constructor(
         }
 
         webUserService.saveAll(webUsers)
-        studentRepository.saveAll(students)
+        repository.saveAll(students)
 
         return students
-    }
-
-    fun getById(id: Long): Student? {
-        return studentRepository.findStudentById(id)
     }
 
     /**
@@ -87,9 +84,8 @@ class StudentService @Autowired constructor(
         val csv = StringBuilder()
         csv.append("id,username,access_token,group_id,group_name\n")
         students.forEach { student ->
-            val webUser = student.webUser
             val group = student.group
-            csv.append("${student.id},${webUser.username},${webUser.accessToken},${group.id},${group.name}\n")
+            csv.append("${student.id},${student.name},${student.accessToken},${group.id},${group.name}\n")
         }
 
         return csv
