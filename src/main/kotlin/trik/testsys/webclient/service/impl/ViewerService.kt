@@ -1,11 +1,11 @@
 package trik.testsys.webclient.service.impl
 
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import trik.testsys.core.service.user.AbstractUserService
+import trik.testsys.core.utils.marker.TrikService
 import trik.testsys.webclient.entity.impl.Viewer
 import trik.testsys.webclient.entity.impl.WebUser
 import trik.testsys.webclient.repository.impl.ViewerRepository
-import trik.testsys.webclient.service.TrikService
 import java.security.MessageDigest
 import java.util.*
 
@@ -14,32 +14,26 @@ import java.util.*
  * @since 1.1.0
  */
 @Service
-class ViewerService @Autowired constructor(
-    private val viewerRepository: ViewerRepository
-) : TrikService {
+class ViewerService : AbstractUserService<Viewer, ViewerRepository>(), TrikService {
 
     fun getByWebUser(webUser: WebUser): Viewer? {
-        return viewerRepository.findViewerByWebUser(webUser)
-    }
-
-    fun save(viewer: Viewer): Viewer {
-        return viewerRepository.save(viewer)
+        return repository.findByWebUser(webUser)
     }
 
     fun save(webUser: WebUser): Viewer {
-        val viewer = Viewer(webUser)
-        val adminRegToken = generateAdminRegToken(webUser.accessToken)
+        val adminRegToken = generateAdminRegToken()
+        val viewer = Viewer(webUser, adminRegToken)
         viewer.adminRegToken = adminRegToken
 
-        return viewerRepository.save(viewer)
+        return repository.save(viewer)
     }
 
     fun getByAdminRegToken(adminRegToken: String): Viewer? {
-        return viewerRepository.findByAdminRegToken(adminRegToken)
+        return repository.findByAdminRegToken(adminRegToken)
     }
 
-    private fun generateAdminRegToken(word: String): String {
-        val saltedWord = word + Date().time + Random(Date().time).nextInt()
+    private fun generateAdminRegToken(): String {
+        val saltedWord = "" + Date().time + Random(Date().time).nextInt()
         val md = MessageDigest.getInstance(HASHING_ALGORITHM)
         val digest = md.digest(saltedWord.toByteArray())
 

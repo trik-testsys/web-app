@@ -1,7 +1,8 @@
 package trik.testsys.webclient.repository.impl
 
-import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
+import trik.testsys.core.repository.user.UserRepository
+import trik.testsys.core.utils.marker.TrikRepository
 import trik.testsys.webclient.entity.impl.Viewer
 import trik.testsys.webclient.entity.impl.WebUser
 
@@ -10,9 +11,9 @@ import trik.testsys.webclient.entity.impl.WebUser
  * @since 1.1.0
  */
 @Repository
-interface ViewerRepository : CrudRepository<Viewer, Long> {
+interface ViewerRepository : UserRepository<Viewer>, TrikRepository {
 
-    fun findViewerByWebUser(webUser: WebUser): Viewer?
+    fun findByWebUser(webUser: WebUser): Viewer?
 
     fun findByAdminRegToken(adminRegToken: String): Viewer?
 }

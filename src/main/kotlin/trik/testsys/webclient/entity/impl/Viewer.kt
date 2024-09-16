@@ -1,5 +1,7 @@
 package trik.testsys.webclient.entity.impl
 
+import trik.testsys.core.entity.user.AbstractUser
+import trik.testsys.core.utils.marker.TrikEntity
 import javax.persistence.*
 
 /**
@@ -7,7 +9,7 @@ import javax.persistence.*
  * @since 1.1.0
  */
 @Entity
-@Table(name = "VIEWERS")
+@Table(name = "TS_VIEWER")
 class Viewer(
     @OneToOne(cascade = [CascadeType.ALL])
     @JoinColumn(
@@ -16,16 +18,11 @@ class Viewer(
         nullable = false,
         unique = true
     ) val webUser: WebUser,
-) {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false, unique = true)
-    val id: Long? = null
+    @Column(nullable = false, columnDefinition = "VARCHAR(100)")
+    var adminRegToken: String
+) : AbstractUser(webUser.name, webUser.accessToken), TrikEntity {
 
     @OneToMany(mappedBy = "viewer", cascade = [CascadeType.ALL])
     val admins: MutableSet<Admin> = mutableSetOf()
-
-    @Column(nullable = false, name = "admin_reg_token", columnDefinition = "VARCHAR(100) DEFAULT ''")
-    var adminRegToken: String = ""
 }
