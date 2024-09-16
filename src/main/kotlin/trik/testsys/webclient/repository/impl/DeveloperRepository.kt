@@ -2,6 +2,8 @@ package trik.testsys.webclient.repository.impl
 
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
+import trik.testsys.core.repository.user.UserRepository
+import trik.testsys.core.utils.marker.TrikRepository
 import trik.testsys.webclient.entity.impl.Developer
 import trik.testsys.webclient.entity.impl.WebUser
 
@@ -10,7 +12,7 @@ import trik.testsys.webclient.entity.impl.WebUser
  * @since 1.1.0
  */
 @Repository
-interface DeveloperRepository: CrudRepository<Developer, Long> {
+interface DeveloperRepository: UserRepository<Developer>, TrikRepository {
 
     fun findByWebUser(webUser: WebUser): Developer?
 }
