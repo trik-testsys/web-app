@@ -1,17 +1,13 @@
 package trik.testsys.webclient.repository.impl
 
-import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
 import trik.testsys.webclient.entity.impl.WebUser
+import trik.testsys.core.repository.user.UserRepository
+import trik.testsys.core.utils.marker.TrikRepository
 
 /**
  * @author Roman Shishkin
  * @since 1.0.0
  */
 @Repository
-interface WebUserRepository : CrudRepository<WebUser, Long> {
-
-    fun findWebUserById(id: Long): WebUser?
-
-    fun findWebUserByAccessToken(accessToken: String): WebUser?
-}
+interface WebUserRepository : UserRepository<WebUser>, TrikRepository

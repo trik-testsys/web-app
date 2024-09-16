@@ -1,33 +1,16 @@
 package trik.testsys.webclient.entity.impl
 
-import java.time.LocalDateTime
-import java.time.ZoneOffset.UTC
+import trik.testsys.core.entity.user.AbstractUser
+import trik.testsys.core.entity.user.AccessToken
+import trik.testsys.core.utils.marker.TrikEntity
 import javax.persistence.*
 
 @Entity
-@Table(name = "WEB_USERS")
+@Table(name = "TS_WEB_USER")
 class WebUser(
-    @Column(
-        nullable = false, length = 50,
-        columnDefinition = "VARCHAR(300) DEFAULT ''"
-    ) var username: String,
-
-    @Column(
-        nullable = false, unique = true, length = 50,
-        columnDefinition = "VARCHAR(100) DEFAULT ''"
-    ) val accessToken: String
-) {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false, unique = true)
-    val id: Long? = null
-
-    @Column(columnDefinition = "VARCHAR(1000) DEFAULT ''", nullable = true)
-    var additionalInfo: String? = null
-
-    @Column(nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
-    var registrationDate: LocalDateTime = LocalDateTime.now(UTC).plusHours(3)
+    override var name: String,
+    override var accessToken: AccessToken
+) : AbstractUser(name, accessToken), TrikEntity {
 
     @OneToOne(mappedBy = "webUser", cascade = [CascadeType.ALL])
     lateinit var admin: Admin
@@ -51,21 +34,15 @@ class WebUser(
     @OneToOne(mappedBy = "webUser", cascade = [CascadeType.ALL])
     lateinit var judge: Judge
 
-    /**
-     * @author Roman Shishkin
-     * @since 1.1.0
-     */
-    @Column(nullable = true, columnDefinition = "DATETIME")
-    var lastLoginDate: LocalDateTime? = null
-    /**
-     * @author Roman Shishkin
-     * @since 1.1.0
-     */
-    enum class Status {
-        NOT_FOUND,
-        ADMIN,
-        SUPER_USER,
-        WEB_USER,
-        DEVELOPER
-    }
+//    /**
+//     * @author Roman Shishkin
+//     * @since 1.1.0
+//     */
+//    enum class Status {
+//        NOT_FOUND,
+//        ADMIN,
+//        SUPER_USER,
+//        WEB_USER,
+//        DEVELOPER
+//    }
 }
