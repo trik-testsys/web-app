@@ -32,8 +32,14 @@ abstract class AbstractEntity : Entity {
 
     override fun isNew() = id == null
 
-    @Column(nullable = false, columnDefinition = "DATETIME")
+    @Column(nullable = false, unique = false, columnDefinition = "DATETIME")
     override val creationDate: LocalDateTime = LocalDateTime.now(DEFAULT_ZONE)
+
+    @Column(
+        nullable = false, unique = false, length = ADDITIONAL_INFO_MAX_LENGTH,
+        columnDefinition = "VARCHAR(${ADDITIONAL_INFO_MAX_LENGTH}) DEFAULT ''"
+    )
+    override var additionalInfo: String = ADDITIONAL_INFO_DEFAULT
 
     override fun toString() = when (isNew) {
         true -> "New entity of type ${javaClass.name} and with hashcode: ${hashCode().toString(16)}"
@@ -41,8 +47,11 @@ abstract class AbstractEntity : Entity {
     }
 
     companion object {
-        
+
         private const val DEFAULT_ZONE_ID = "UTC"
         private val DEFAULT_ZONE = ZoneId.of(DEFAULT_ZONE_ID)
+
+        private const val ADDITIONAL_INFO_MAX_LENGTH = 1000
+        private const val ADDITIONAL_INFO_DEFAULT = ""
     }
 }

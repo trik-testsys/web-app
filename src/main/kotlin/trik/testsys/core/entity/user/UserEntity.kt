@@ -1,6 +1,7 @@
 package trik.testsys.core.entity.user
 
 import trik.testsys.core.entity.Entity
+import java.time.LocalDateTime
 
 typealias AccessToken = String
 
@@ -32,4 +33,12 @@ interface UserEntity : Entity {
      * @since 2.0.0
      */
     var accessToken: AccessToken
+
+    /**
+     * Property which contains date time of last user login.
+     *
+     * @author Roman Shishkin
+     * @since 2.0.0
+     */
+    var lastLoginDate: LocalDateTime
 }

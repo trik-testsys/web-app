@@ -2,6 +2,7 @@ package trik.testsys.core.service.user
 
 import trik.testsys.core.entity.user.AbstractUser
 import trik.testsys.core.repository.user.UserRepository
+import trik.testsys.core.service.AbstractService
 
 /**
  * Abstract implementation of [UserService] interface. Contains common methods for user services.
@@ -16,15 +17,8 @@ import trik.testsys.core.repository.user.UserRepository
  * @author Roman Shishkin
  * @since 2.0.0
  */
-abstract class AbstractUserService<E : AbstractUser, R : UserRepository<E>> : UserService<E, R> {
+abstract class AbstractUserService<E : AbstractUser, R : UserRepository<E>> : UserService<E, R>, AbstractService<E, R>() {
 
-    /**
-     * The repository associated with the service.
-     *
-     * @author Roman Shishkin
-     * @since 2.0.0
-     */
-    protected lateinit var repository: R
 
     override fun findByAccessToken(accessToken: String): E? {
         val entity = repository.findByAccessToken(accessToken)
