@@ -1,11 +1,12 @@
 package trik.testsys.webclient.entity.impl
 
-import trik.testsys.webclient.entity.TrikEntity
+import trik.testsys.core.entity.user.AbstractUser
+import trik.testsys.core.utils.marker.TrikEntity
 import javax.persistence.*
 
 
 @Entity
-@Table(name = "JUDGES")
+@Table(name = "TS_JUDGE")
 class Judge(
     @OneToOne(cascade = [CascadeType.ALL])
     @JoinColumn(
@@ -14,13 +15,7 @@ class Judge(
         nullable = false,
         unique = true
     ) val webUser: WebUser
-
-) : TrikEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false, unique = true)
-    val id: Long? = null
+) : AbstractUser(webUser.name, webUser.accessToken), TrikEntity {
 
     @OneToMany(mappedBy = "judge", cascade = [CascadeType.ALL])
     val solutionActions: MutableSet<SolutionAction> = mutableSetOf()

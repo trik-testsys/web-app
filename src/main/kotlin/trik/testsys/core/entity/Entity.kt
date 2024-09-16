@@ -20,4 +20,12 @@ interface Entity : Persistable<Long> {
      * @since 2.0.0
      */
     val creationDate: LocalDateTime
+
+    /**
+     * Property which contains any entity additional info.
+     *
+     * @author Roman Shishkin
+     * @since 2.0.0
+     */
+    var additionalInfo: String
 }
