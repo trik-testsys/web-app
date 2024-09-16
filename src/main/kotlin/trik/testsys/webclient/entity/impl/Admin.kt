@@ -1,10 +1,11 @@
 package trik.testsys.webclient.entity.impl
 
-import trik.testsys.webclient.entity.TrikEntity
+import trik.testsys.core.entity.user.AbstractUser
+import trik.testsys.core.utils.marker.TrikEntity
 import javax.persistence.*
 
 @Entity
-@Table(name = "ADMINS")
+@Table(name = "TS_ADMIN")
 class Admin(
     @OneToOne(cascade = [CascadeType.ALL])
     @JoinColumn(
@@ -13,18 +14,7 @@ class Admin(
         nullable = false,
         unique = true
     ) val webUser: WebUser
-) : TrikEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false, unique = true)
-    val id: Long? = null
-
-    @Column(
-        nullable = false, name = "count_of_groups",
-        columnDefinition = "BIGINT DEFAULT 0"
-    )
-    var countOfGroups: Long = 0L
+) : AbstractUser(webUser.name, webUser.accessToken), TrikEntity {
 
     @OneToMany(mappedBy = "admin", cascade = [CascadeType.ALL])
     val groups: MutableSet<Group> = mutableSetOf()

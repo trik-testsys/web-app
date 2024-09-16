@@ -1,7 +1,9 @@
 package trik.testsys.webclient.service.impl
 
-import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import trik.testsys.core.service.user.AbstractUserService
+import trik.testsys.core.utils.marker.TrikService
 
 import trik.testsys.webclient.entity.impl.Admin
 import trik.testsys.webclient.entity.impl.Viewer
@@ -9,47 +11,37 @@ import trik.testsys.webclient.entity.impl.WebUser
 import trik.testsys.webclient.repository.impl.AdminRepository
 import trik.testsys.webclient.repository.impl.StudentRepository
 import trik.testsys.webclient.repository.impl.WebUserRepository
-import trik.testsys.webclient.service.TrikService
 
 @Service
-class AdminService @Autowired constructor(
-    private val adminRepository: AdminRepository,
+class AdminService(
     private val webUserRepository: WebUserRepository,
     private val studentRepository: StudentRepository
-) : TrikService {
+) : AbstractUserService<Admin, AdminRepository>(), TrikService {
 
     fun saveAdmin(webUserId: Long): Admin? {
-        val webUser = webUserRepository.findWebUserById(webUserId) ?: return null
-        if (adminRepository.findAdminByWebUser(webUser) != null) return null
+        val webUser = webUserRepository.findByIdOrNull(webUserId) ?: return null
+        if (repository.findAdminByWebUser(webUser) != null) return null
         if (studentRepository.findByWebUser(webUser) != null) return null
 
         val admin = Admin(webUser)
-        return adminRepository.save(admin)
+        return repository.save(admin)
     }
 
     fun saveAdmin(webUser: WebUser): Admin? {
-        if (adminRepository.findAdminByWebUser(webUser) != null) return null
+        if (repository.findAdminByWebUser(webUser) != null) return null
         if (studentRepository.findByWebUser(webUser) != null) return null
 
         val admin = Admin(webUser)
-        return adminRepository.save(admin)
+        return repository.save(admin)
     }
 
     fun saveAll(admins: Collection<Admin>): List<Admin> {
-        return adminRepository.saveAll(admins).toList()
+        return repository.saveAll(admins).toList()
     }
 
     fun getAdminByWebUserId(webUserId: Long): Admin? {
-        val webUser = webUserRepository.findWebUserById(webUserId) ?: return null
-        return adminRepository.findAdminByWebUser(webUser)
-    }
-
-    /**
-     * @author Roman Shishkin
-     * @since 1.1.0
-     */
-    fun save(admin: Admin): Admin {
-        return adminRepository.save(admin)
+        val webUser = webUserRepository.findByIdOrNull(webUserId) ?: return null
+        return repository.findAdminByWebUser(webUser)
     }
 
     /**
@@ -58,11 +50,11 @@ class AdminService @Autowired constructor(
      */
     fun save(webUser: WebUser, viewer: Viewer): Admin {
         val admin = Admin(webUser, viewer)
-        return adminRepository.save(admin)
+        return repository.save(admin)
     }
 
     fun getAdminByWebUser(webUser: WebUser): Admin? {
-        return adminRepository.findAdminByWebUser(webUser)
+        return repository.findAdminByWebUser(webUser)
     }
 
     /**
@@ -70,7 +62,7 @@ class AdminService @Autowired constructor(
      * @since 1.1.0
      */
     fun getAllByIds(ids: List<Long>): List<Admin> {
-        return adminRepository.findAllById(ids).toList()
+        return repository.findAllById(ids).toList()
     }
 
     /**
@@ -78,15 +70,15 @@ class AdminService @Autowired constructor(
      * @since 1.1.0
      */
     fun getById(id: Long): Admin? {
-        return adminRepository.findAdminById(id)
+        return repository.findByIdOrNull(id)
     }
     /**
      * @author Roman Shishkin
      * @since 1.1.0
      */
     fun getByAccessToken(accessToken: String): Admin? {
-        val webUser = webUserRepository.findWebUserByAccessToken(accessToken) ?: return null
-        return adminRepository.findAdminByWebUser(webUser)
+        val webUser = webUserRepository.findByAccessToken(accessToken) ?: return null
+        return repository.findAdminByWebUser(webUser)
     }
 
     /**
@@ -94,6 +86,6 @@ class AdminService @Autowired constructor(
      * @since 1.1.0
      */
     fun getAll(): List<Admin> {
-        return adminRepository.findAll().toList()
+        return repository.findAll().toList()
     }
 }
