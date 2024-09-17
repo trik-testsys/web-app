@@ -1,16 +1,15 @@
-package trik.testsys.webclient.service.impl
+package trik.testsys.webclient.service.impl.user
 
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import trik.testsys.core.service.user.AbstractUserService
 import trik.testsys.core.utils.marker.TrikService
-
-import trik.testsys.webclient.entity.impl.Admin
-import trik.testsys.webclient.entity.impl.Viewer
-import trik.testsys.webclient.entity.impl.WebUser
-import trik.testsys.webclient.repository.impl.AdminRepository
-import trik.testsys.webclient.repository.impl.StudentRepository
-import trik.testsys.webclient.repository.impl.WebUserRepository
+import trik.testsys.webclient.entity.impl.user.Admin
+import trik.testsys.webclient.entity.impl.user.Viewer
+import trik.testsys.webclient.entity.impl.user.WebUser
+import trik.testsys.webclient.repository.user.AdminRepository
+import trik.testsys.webclient.repository.user.StudentRepository
+import trik.testsys.webclient.repository.user.WebUserRepository
 
 @Service
 class AdminService(

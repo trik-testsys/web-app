@@ -1,11 +1,11 @@
-package trik.testsys.webclient.service.impl
+package trik.testsys.webclient.service.impl.user
 
 import org.springframework.stereotype.Service
 import trik.testsys.core.service.user.AbstractUserService
 import trik.testsys.core.utils.marker.TrikService
-import trik.testsys.webclient.entity.impl.Judge
-import trik.testsys.webclient.entity.impl.WebUser
-import trik.testsys.webclient.repository.impl.JudgeRepository
+import trik.testsys.webclient.entity.impl.user.Judge
+import trik.testsys.webclient.entity.impl.user.WebUser
+import trik.testsys.webclient.repository.user.JudgeRepository
 
 @Service
 class JudgeService : AbstractUserService<Judge, JudgeRepository>(), TrikService {

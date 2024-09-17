@@ -1,22 +1,12 @@
-package trik.testsys.webclient.service.impl
+package trik.testsys.webclient.service.impl.user
 
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import trik.testsys.core.service.user.AbstractUserService
 import trik.testsys.core.utils.marker.TrikService
-
 import trik.testsys.webclient.entity.impl.Group
-import trik.testsys.webclient.entity.impl.Student
-import trik.testsys.webclient.entity.impl.WebUser
-import trik.testsys.webclient.repository.impl.StudentRepository
-import trik.testsys.webclient.repository.impl.WebUserRepository
-import trik.testsys.webclient.service.TrikService
-import trik.testsys.webclient.util.AccessTokenGenerator
-
-import java.security.MessageDigest
-import java.util.*
-
-import kotlin.random.Random
+import trik.testsys.webclient.entity.impl.user.Student
+import trik.testsys.webclient.entity.impl.user.WebUser
+import trik.testsys.webclient.repository.user.StudentRepository
 
 /**
  * @author Roman Shishkin

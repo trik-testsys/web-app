@@ -1,8 +1,9 @@
-package trik.testsys.webclient.entity.impl
+package trik.testsys.webclient.entity.impl.user
 
 import trik.testsys.core.entity.Entity.Companion.TABLE_PREFIX
 import trik.testsys.core.entity.user.AbstractUser
 import trik.testsys.core.utils.marker.TrikEntity
+import trik.testsys.webclient.entity.impl.Task
 import javax.persistence.*
 
 /**

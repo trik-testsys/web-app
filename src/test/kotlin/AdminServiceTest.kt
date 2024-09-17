@@ -1,10 +1,10 @@
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Assertions.*
 import org.mockito.InjectMocks
 import org.mockito.Mockito.*
-import trik.testsys.webclient.entity.impl.Admin
-import trik.testsys.webclient.entity.impl.WebUser
-import trik.testsys.webclient.service.impl.AdminService
+import trik.testsys.webclient.entity.impl.user.Admin
+import trik.testsys.webclient.entity.impl.user.WebUser
+import trik.testsys.webclient.service.impl.user.AdminService
 
 class AdminServiceTest {
 
