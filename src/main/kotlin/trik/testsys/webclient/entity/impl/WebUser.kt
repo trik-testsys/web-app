@@ -1,12 +1,13 @@
 package trik.testsys.webclient.entity.impl
 
+import trik.testsys.core.entity.Entity.Companion.TABLE_PREFIX
 import trik.testsys.core.entity.user.AbstractUser
 import trik.testsys.core.entity.user.AccessToken
 import trik.testsys.core.utils.marker.TrikEntity
 import javax.persistence.*
 
 @Entity
-@Table(name = "TS_WEB_USER")
+@Table(name = "${TABLE_PREFIX}_WEB_USER")
 class WebUser(
     override var name: String,
     override var accessToken: AccessToken

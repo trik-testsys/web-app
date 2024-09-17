@@ -1,11 +1,12 @@
 package trik.testsys.webclient.entity.impl
 
+import trik.testsys.core.entity.Entity.Companion.TABLE_PREFIX
 import trik.testsys.core.entity.user.AbstractUser
 import trik.testsys.core.utils.marker.TrikEntity
 import javax.persistence.*
 
 @Entity
-@Table(name = "TS_STUDENT")
+@Table(name = "${TABLE_PREFIX}_STUDENT")
 class Student(
     @ManyToOne
     @JoinColumn(name = "web_user_id", nullable = false, unique = true)

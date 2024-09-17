@@ -28,4 +28,9 @@ interface Entity : Persistable<Long> {
      * @since 2.0.0
      */
     var additionalInfo: String
+
+    companion object {
+
+        const val TABLE_PREFIX = "TRIK"
+    }
 }

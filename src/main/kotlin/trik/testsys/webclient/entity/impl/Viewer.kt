@@ -1,5 +1,6 @@
 package trik.testsys.webclient.entity.impl
 
+import trik.testsys.core.entity.Entity.Companion.TABLE_PREFIX
 import trik.testsys.core.entity.user.AbstractUser
 import trik.testsys.core.utils.marker.TrikEntity
 import javax.persistence.*
@@ -9,7 +10,7 @@ import javax.persistence.*
  * @since 1.1.0
  */
 @Entity
-@Table(name = "TS_VIEWER")
+@Table(name = "${TABLE_PREFIX}_VIEWER")
 class Viewer(
     @OneToOne(cascade = [CascadeType.ALL])
     @JoinColumn(

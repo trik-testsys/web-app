@@ -1,11 +1,12 @@
 package trik.testsys.webclient.entity.impl
 
+import trik.testsys.core.entity.Entity.Companion.TABLE_PREFIX
 import trik.testsys.core.entity.user.AbstractUser
 import trik.testsys.core.utils.marker.TrikEntity
 import javax.persistence.*
 
 @Entity
-@Table(name = "TS_ADMIN")
+@Table(name = "${TABLE_PREFIX}_ADMIN")
 class Admin(
     @OneToOne(cascade = [CascadeType.ALL])
     @JoinColumn(
