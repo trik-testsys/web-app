@@ -1,4 +1,4 @@
-package trik.testsys.webclient.controller
+package trik.testsys.webclient.controller.user
 
 import org.springframework.web.servlet.ModelAndView
 
