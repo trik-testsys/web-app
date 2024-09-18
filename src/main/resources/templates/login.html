@@ -5,12 +5,11 @@
     <title>Title</title>
 </head>
 <body>
-<p>Это страница регистрации в лк</p>
+<p>Это страница входа в лк</p>
 <p th:if="${message != null}" th:text="${message}">
-<p>Введи Код-регистрации и имя в поле ниже</p>
-<form th:action="@{/registration}" method="post">
-    <input type="password" name="regToken"/>
-    <input type="text" name="name">
+<p>Введи Код-доступа в поле ниже</p>
+<form th:action="@{/login}" method="post">
+    <input type="password" name="accessToken"/>
     <button type="submit">Войти</button>
 </form>
 </body>
