@@ -14,4 +14,8 @@ import trik.testsys.webclient.security.SessionData
 class LoginData : SessionData {
 
     var webUser: WebUser? = null
+
+    override fun invalidate() {
+        webUser = null
+    }
 }

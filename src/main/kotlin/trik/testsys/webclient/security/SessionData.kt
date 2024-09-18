@@ -4,4 +4,13 @@ package trik.testsys.webclient.security
  * @author Roman Shishkin
  * @since 2.0.0
  */
-interface SessionData
+interface SessionData {
+
+    /**
+     * Sets all fields to null.
+     *
+     * @author Roman Shishkin
+     * @since 2.0.0
+     */
+    fun invalidate()
+}
