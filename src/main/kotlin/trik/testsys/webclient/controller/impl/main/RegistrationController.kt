@@ -20,6 +20,7 @@ import trik.testsys.webclient.service.impl.user.StudentService
 import trik.testsys.webclient.service.impl.user.ViewerService
 import trik.testsys.webclient.service.impl.user.WebUserService
 import trik.testsys.webclient.service.token.access.AccessTokenGenerator
+import trik.testsys.webclient.util.addPopupMessage
 import javax.servlet.http.HttpServletRequest
 
 /**
@@ -50,10 +51,7 @@ class RegistrationController(
         request: HttpServletRequest
     ): String {
         if (name == regToken) {
-            redirectAttributes.addFlashAttribute(
-                "message",
-                "Имя не должно совпадать с Кодом-регистрации. Попробуйте другой вариант."
-            )
+            redirectAttributes.addPopupMessage("Имя не должно совпадать с Кодом-регистрации. Попробуйте другой вариант.")
             return "redirect:$REGISTRATION_PATH"
         }
 
@@ -79,7 +77,7 @@ class RegistrationController(
             return getLoginRedirection(accessToken, redirectAttributes, request)
         }
 
-        redirectAttributes.addFlashAttribute("message", "Некорретный Код-доступа. Попробуйте еще раз.")
+        redirectAttributes.addPopupMessage("Некорретный Код-доступа. Попробуйте еще раз.")
         return "redirect:$REGISTRATION_PATH"
     }
 

@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import trik.testsys.webclient.security.login.LoginData
 import trik.testsys.webclient.service.impl.user.*
+import trik.testsys.webclient.util.addPopupMessage
+import trik.testsys.webclient.util.addSessionExpiredMessage
 
 /**
  * @author Roman Shishkin
@@ -27,7 +29,7 @@ class RedirectController(
     @GetMapping
     fun redirectGet(redirectAttributes: RedirectAttributes): String {
         val webUser = loginData.webUser ?: run {
-            redirectAttributes.addFlashAttribute("message", "Истекла сессия")
+            redirectAttributes.addSessionExpiredMessage()
             return "redirect:${LoginController.LOGIN_PATH}"
         }
 
@@ -38,7 +40,7 @@ class RedirectController(
         judgeService.getByWebUser(webUser)?.let { return "redirect:/judge" }
         superUserService.getSuperUserByWebUser(webUser)?.let { return "redirect:/superuser" }
 
-        redirectAttributes.addFlashAttribute("message", "Некорретный Код-доступа. Попробуйте еще раз.")
+        redirectAttributes.addPopupMessage("Некорретный Код-доступа. Попробуйте еще раз.")
         return "redirect:${LoginController.LOGIN_PATH}"
     }
 

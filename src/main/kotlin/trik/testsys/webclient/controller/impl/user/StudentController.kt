@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import trik.testsys.webclient.controller.impl.main.LoginController
 import trik.testsys.webclient.security.login.LoginData
+import trik.testsys.webclient.util.addExitMessage
+import trik.testsys.webclient.util.addSessionExpiredMessage
 
 
 @Controller
@@ -23,13 +25,13 @@ class StudentController(
         model: Model
     ): String {
         if (logout != null) {
-            loginData.webUser = null
-            redirectAttributes.addFlashAttribute("message", "Успешно вышли")
+            loginData.invalidate()
+            redirectAttributes.addExitMessage()
             return "redirect:${LoginController.LOGIN_PATH}"
         }
 
         val webUser = loginData.webUser ?: run {
-            redirectAttributes.addFlashAttribute("message", "Истекла сессия")
+            redirectAttributes.addSessionExpiredMessage()
             return "redirect:${LoginController.LOGIN_PATH}"
         }
 
