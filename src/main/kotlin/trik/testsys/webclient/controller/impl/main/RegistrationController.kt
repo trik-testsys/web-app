@@ -65,8 +65,7 @@ class RegistrationController(
             webUserService.save(webUser)
             studentService.save(student)
 
-            request.setAttribute(View.RESPONSE_STATUS_ATTRIBUTE, HttpStatus.TEMPORARY_REDIRECT);
-            return getLoginRedirection(accessToken)
+            return getLoginRedirection(accessToken, redirectAttributes, request)
         }
 
         viewerService.getByAdminRegToken(regToken)?.let {
@@ -77,16 +76,23 @@ class RegistrationController(
             webUserService.save(webUser)
             adminService.save(admin)
 
-            request.setAttribute(View.RESPONSE_STATUS_ATTRIBUTE, HttpStatus.TEMPORARY_REDIRECT)
-            return getLoginRedirection(accessToken)
+            return getLoginRedirection(accessToken, redirectAttributes, request)
         }
 
         redirectAttributes.addFlashAttribute("message", "Некорретный Код-доступа. Попробуйте еще раз.")
         return "redirect:$REGISTRATION_PATH"
     }
 
-    private fun getLoginRedirection(accessToken: AccessToken) =
-        "redirect:${LoginController.LOGIN_PATH}?${UserEntity::accessToken.name}=$accessToken"
+    private fun getLoginRedirection(
+        accessToken: AccessToken,
+        redirectAttributes: RedirectAttributes,
+        request: HttpServletRequest
+    ): String {
+        redirectAttributes.addAttribute(UserEntity::accessToken.name, accessToken)
+        request.setAttribute(View.RESPONSE_STATUS_ATTRIBUTE, HttpStatus.TEMPORARY_REDIRECT)
+
+        return "redirect:${LoginController.LOGIN_PATH}"
+    }
 
     companion object {
 
