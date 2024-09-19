@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import trik.testsys.webclient.security.login.LoginProcessor
 import trik.testsys.webclient.util.addPopupMessage
-import trik.testsys.webclient.util.logger.TrikLogger
 
 /**
  * @author Roman Shishkin
@@ -38,8 +37,6 @@ class LoginController(
     }
 
     companion object {
-
-        private val logger = TrikLogger(this::class.java)
 
         internal const val LOGIN_PAGE = "login"
         internal const val LOGIN_PATH = "/login"
