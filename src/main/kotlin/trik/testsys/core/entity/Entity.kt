@@ -13,6 +13,12 @@ import java.time.LocalDateTime
  */
 interface Entity : Persistable<Long> {
 
+    /**
+     * @author Roman Shishkin
+     * @since 2.0.0
+    **/
+    fun setId(id: Long?)
+
      /**
      * Property which says date and time of entity creation.
      *

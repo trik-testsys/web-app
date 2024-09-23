@@ -28,6 +28,10 @@ abstract class AbstractEntity : Entity {
     @Column(nullable = false, unique = true)
     private var id: Long? = null
 
+    override fun setId(id: Long?) {
+        this.id = id
+    }
+
     override fun getId() = id
 
     override fun isNew() = id == null
@@ -48,7 +52,7 @@ abstract class AbstractEntity : Entity {
 
     companion object {
 
-        private const val DEFAULT_ZONE_ID = "UTC"
+        const val DEFAULT_ZONE_ID = "UTC"
         val DEFAULT_ZONE: ZoneId = ZoneId.of(DEFAULT_ZONE_ID)
 
         private const val ADDITIONAL_INFO_MAX_LENGTH = 1000
