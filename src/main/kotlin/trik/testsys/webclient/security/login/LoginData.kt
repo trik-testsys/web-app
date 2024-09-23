@@ -2,7 +2,7 @@ package trik.testsys.webclient.security.login
 
 import org.springframework.stereotype.Component
 import org.springframework.web.context.annotation.SessionScope
-import trik.testsys.webclient.entity.impl.user.WebUser
+import trik.testsys.core.entity.user.AccessToken
 import trik.testsys.webclient.security.SessionData
 
 /**
@@ -13,9 +13,9 @@ import trik.testsys.webclient.security.SessionData
 @SessionScope
 class LoginData : SessionData {
 
-    var webUser: WebUser? = null
+    var accessToken: AccessToken? = null
 
     override fun invalidate() {
-        webUser = null
+        accessToken = null
     }
 }

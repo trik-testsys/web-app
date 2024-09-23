@@ -2,6 +2,7 @@ package trik.testsys.webclient.entity.impl.user
 
 import trik.testsys.core.entity.Entity.Companion.TABLE_PREFIX
 import trik.testsys.core.entity.user.AbstractUser
+import trik.testsys.core.entity.user.AccessToken
 import trik.testsys.core.utils.marker.TrikEntity
 import javax.persistence.*
 
@@ -12,17 +13,12 @@ import javax.persistence.*
 @Entity
 @Table(name = "${TABLE_PREFIX}_VIEWER")
 class Viewer(
-    @OneToOne(cascade = [CascadeType.ALL])
-    @JoinColumn(
-        name = "web_user_id",
-        referencedColumnName = "id",
-        nullable = false,
-        unique = true
-    ) val webUser: WebUser,
+    override var name: String,
+    override var accessToken: AccessToken,
 
     @Column(nullable = false, columnDefinition = "VARCHAR(100)")
     var adminRegToken: String
-) : AbstractUser(webUser.name, webUser.accessToken), TrikEntity {
+) : AbstractUser(name, accessToken), TrikEntity {
 
     @OneToMany(mappedBy = "viewer", cascade = [CascadeType.ALL])
     val admins: MutableSet<Admin> = mutableSetOf()

@@ -6,7 +6,6 @@ import org.springframework.stereotype.Repository
 import trik.testsys.core.repository.user.UserRepository
 import trik.testsys.core.utils.marker.TrikRepository
 import trik.testsys.webclient.entity.impl.user.Student
-import trik.testsys.webclient.entity.impl.user.WebUser
 
 /**
  * @author Roman Shishkin
@@ -14,8 +13,6 @@ import trik.testsys.webclient.entity.impl.user.WebUser
  */
 @Repository
 interface StudentRepository : UserRepository<Student>, TrikRepository {
-
-    fun findByWebUser(webUser: WebUser): Student?
 
     /**
      * Returns max number of student with same username prefix.

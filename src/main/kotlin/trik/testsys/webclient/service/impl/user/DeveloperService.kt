@@ -4,7 +4,6 @@ import org.springframework.stereotype.Service
 import trik.testsys.core.service.user.AbstractUserService
 import trik.testsys.core.utils.marker.TrikService
 import trik.testsys.webclient.entity.impl.user.Developer
-import trik.testsys.webclient.entity.impl.user.WebUser
 import trik.testsys.webclient.repository.user.DeveloperRepository
 
 /**
@@ -12,10 +11,5 @@ import trik.testsys.webclient.repository.user.DeveloperRepository
  * @since 1.1.0
  */
 @Service
-class DeveloperService : AbstractUserService<Developer, DeveloperRepository>(), TrikService {
-
-    fun getByWebUser(webUser: WebUser): Developer? {
-        return repository.findByWebUser(webUser)
-    }
-}
+class DeveloperService : AbstractUserService<Developer, DeveloperRepository>(), TrikService
 

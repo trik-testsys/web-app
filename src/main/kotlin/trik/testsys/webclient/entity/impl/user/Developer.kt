@@ -2,8 +2,9 @@ package trik.testsys.webclient.entity.impl.user
 
 import trik.testsys.core.entity.Entity.Companion.TABLE_PREFIX
 import trik.testsys.core.entity.user.AbstractUser
+import trik.testsys.core.entity.user.AccessToken
 import trik.testsys.core.utils.marker.TrikEntity
-import trik.testsys.webclient.entity.impl.Task
+//import trik.testsys.webclient.entity.impl.Task
 import javax.persistence.*
 
 /**
@@ -13,15 +14,10 @@ import javax.persistence.*
 @Entity
 @Table(name = "${TABLE_PREFIX}_DEVELOPER")
 class Developer(
-    @OneToOne(cascade = [CascadeType.ALL])
-    @JoinColumn(
-        name = "web_user_id",
-        referencedColumnName = "id",
-        nullable = false,
-        unique = true
-    ) val webUser: WebUser
-) : AbstractUser(webUser.name, webUser.accessToken), TrikEntity {
+    override var name: String,
+    override var accessToken: AccessToken
+) : AbstractUser(name, accessToken), TrikEntity {
 
-    @OneToMany(mappedBy = "developer", cascade = [CascadeType.ALL])
-    val tasks: MutableSet<Task> = mutableSetOf()
+//    @OneToMany(mappedBy = "developer", cascade = [CascadeType.ALL])
+//    val tasks: MutableSet<Task> = mutableSetOf()
 }

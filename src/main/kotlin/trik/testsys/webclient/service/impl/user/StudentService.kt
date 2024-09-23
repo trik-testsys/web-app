@@ -3,9 +3,7 @@ package trik.testsys.webclient.service.impl.user
 import org.springframework.stereotype.Service
 import trik.testsys.core.service.user.AbstractUserService
 import trik.testsys.core.utils.marker.TrikService
-import trik.testsys.webclient.entity.impl.Group
 import trik.testsys.webclient.entity.impl.user.Student
-import trik.testsys.webclient.entity.impl.user.WebUser
 import trik.testsys.webclient.repository.user.StudentRepository
 
 /**
@@ -13,58 +11,48 @@ import trik.testsys.webclient.repository.user.StudentRepository
  * @since 1.0.0
  */
 @Service
-class StudentService(
-    private val webUserService: WebUserService
-) : AbstractUserService<Student, StudentRepository>(), TrikService {
+class StudentService: AbstractUserService<Student, StudentRepository>(), TrikService {
 
-    fun getByWebUser(webUser: WebUser): Student? {
-        return repository.findByWebUser(webUser)
-    }
-
-    fun save(webUser: WebUser, group: Group): Student {
-        return repository.save(Student(webUser, group))
-    }
-
-    /**
-     * @author Roman Shishkin
-     * @since 1.1.0
-     * @param count count of students to generate
-     * @param accessTokenPrefix prefix for access token
-     * @param namePrefix prefix for username
-     * @param group group to attach students to
-     */
-    fun generateStudents(count: Long, accessTokenPrefix: String, namePrefix: String, group: Group): List<Student> {
-        val students = mutableListOf<Student>()
-        val webUsers = mutableListOf<WebUser>()
-
-//        val noramalizedAccessTokenPrefix = accessTokenPrefix.replace(" ", "-")
-//        val noramalizedNamePrefix = namePrefix.replace(" ", "-")
-
-//        val prefixRegex = "^$noramalizedNamePrefix\\d+$"
-//        val startNumber = studentRepository.findMaxNumberWithSameNamePrefix(prefixRegex, group.id!!) ?: START_NUMBER_IF_NOT_FOUND
-
-        for (i in 1..count) {
-            val number = i
-            val generatedToken = AccessTokenGenerator.generateAccessToken(
-                number.toString(),
-                AccessTokenGenerator.TokenType.STUDENT
-            )
-            val accessToken = generatedToken
-
-            val username = "st_${group.name}_$number"
-
-            val webUser = WebUser(username, accessToken)
-            webUsers.add(webUser)
-
-            val student = Student(webUser, group)
-            students.add(student)
-        }
-
-        webUserService.saveAll(webUsers)
-        repository.saveAll(students)
-
-        return students
-    }
+//    /**
+//     * @author Roman Shishkin
+//     * @since 1.1.0
+//     * @param count count of students to generate
+//     * @param accessTokenPrefix prefix for access token
+//     * @param namePrefix prefix for username
+//     * @param group group to attach students to
+//     */
+//    fun generateStudents(count: Long, accessTokenPrefix: String, namePrefix: String, group: Group): List<Student> {
+//        val students = mutableListOf<Student>()
+//        val webUsers = mutableListOf<WebUser>()
+//
+////        val noramalizedAccessTokenPrefix = accessTokenPrefix.replace(" ", "-")
+////        val noramalizedNamePrefix = namePrefix.replace(" ", "-")
+//
+////        val prefixRegex = "^$noramalizedNamePrefix\\d+$"
+////        val startNumber = studentRepository.findMaxNumberWithSameNamePrefix(prefixRegex, group.id!!) ?: START_NUMBER_IF_NOT_FOUND
+//
+//        for (i in 1..count) {
+//            val number = i
+//            val generatedToken = AccessTokenGenerator.generateAccessToken(
+//                number.toString(),
+//                AccessTokenGenerator.TokenType.STUDENT
+//            )
+//            val accessToken = generatedToken
+//
+//            val username = "st_${group.name}_$number"
+//
+//            val webUser = WebUser(username, accessToken)
+//            webUsers.add(webUser)
+//
+//            val student = Student(webUser, group)
+//            students.add(student)
+//        }
+//
+//        webUserService.saveAll(webUsers)
+//        repository.saveAll(students)
+//
+//        return students
+//    }
 
     /**
      * @author Roman Shishkin

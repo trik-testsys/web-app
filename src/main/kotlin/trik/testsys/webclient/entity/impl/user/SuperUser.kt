@@ -1,18 +1,16 @@
 package trik.testsys.webclient.entity.impl.user
 
+import trik.testsys.core.entity.user.AbstractUser
+import trik.testsys.core.entity.user.AccessToken
+import trik.testsys.core.utils.marker.TrikEntity
 import javax.persistence.*
 
 @Entity
 @Table(name = "SUPER_USERS")
 class SuperUser(
-    @OneToOne(cascade = [CascadeType.ALL])
-    @JoinColumn(
-        name = "web_user_id",
-        referencedColumnName = "id",
-        nullable = false,
-        unique = true
-    ) val webUser: WebUser
-) {
+    override var name: String,
+    override var accessToken: AccessToken
+): AbstractUser(name, accessToken), TrikEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

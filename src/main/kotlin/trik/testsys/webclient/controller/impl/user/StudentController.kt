@@ -1,22 +1,28 @@
 package trik.testsys.webclient.controller.impl.user
 
+import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import trik.testsys.webclient.controller.impl.main.LoginController
+import trik.testsys.webclient.controller.user.UserController
 import trik.testsys.webclient.security.login.LoginData
 import trik.testsys.webclient.util.addExitMessage
 import trik.testsys.webclient.util.addSessionExpiredMessage
+import java.io.File
 
 
 @Controller
 @RequestMapping(StudentController.STUDENT_PATH)
 class StudentController(
-    private val loginData: LoginData
-) {
+    override val loginData: LoginData
+) : UserController {
 
     @GetMapping
     fun mainGet(
@@ -30,13 +36,29 @@ class StudentController(
             return "redirect:${LoginController.LOGIN_PATH}"
         }
 
-        val webUser = loginData.webUser ?: run {
+        val webUser = loginData.accessToken ?: run {
             redirectAttributes.addSessionExpiredMessage()
             return "redirect:${LoginController.LOGIN_PATH}"
         }
 
         model.addAttribute("webUser", webUser)
         return STUDENT_PAGE
+    }
+
+    @ResponseBody
+    @GetMapping("/task/download")
+    fun downloadTask(
+        redirectAttributes: RedirectAttributes,
+        model: Model
+    ): Any {
+        val file = File("/Users/shisha/Projects/Kotlin/trik-testsys-web-client2/Dockerfile")
+
+        val responseEntity = ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"task.qrs\"")
+            .contentType(MediaType.APPLICATION_OCTET_STREAM)
+            .body(file.readBytes())
+
+        return responseEntity
     }
 
     companion object {
