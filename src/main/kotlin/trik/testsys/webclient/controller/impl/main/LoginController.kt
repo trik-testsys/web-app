@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
-import trik.testsys.webclient.security.login.LoginProcessor
-import trik.testsys.webclient.util.addPopupMessage
+import trik.testsys.webclient.service.security.login.impl.LoginProcessor
+import trik.testsys.webclient.util.addInvalidAccessTokenMessage
 
 /**
  * @author Roman Shishkin
@@ -32,7 +32,7 @@ class LoginController(
         val isLoggedIn = loginProcessor.login()
         if (isLoggedIn) return "redirect:${RedirectController.REDIRECT_PATH}"
 
-        redirectAttributes.addPopupMessage("Некорретный Код-доступа. Попробуйте еще раз.")
+        redirectAttributes.addInvalidAccessTokenMessage()
         return "redirect:/$LOGIN_PAGE"
     }
 

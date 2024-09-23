@@ -1,9 +1,10 @@
-package trik.testsys.webclient.entity.impl.user
+package trik.testsys.webclient.entity.user.impl
 
 import trik.testsys.core.entity.Entity.Companion.TABLE_PREFIX
-import trik.testsys.core.entity.user.AbstractUser
 import trik.testsys.core.entity.user.AccessToken
 import trik.testsys.core.utils.marker.TrikEntity
+import trik.testsys.webclient.entity.user.WebUser
+import trik.testsys.webclient.enums.UserType
 //import trik.testsys.webclient.entity.impl.SolutionAction
 import javax.persistence.*
 
@@ -13,8 +14,13 @@ import javax.persistence.*
 class Judge(
     override var name: String,
     override var accessToken: AccessToken
-) : AbstractUser(name, accessToken), TrikEntity {
+) : WebUser(name, accessToken), TrikEntity {
 
+    /**
+     * @author Roman Shishkin
+     * @since 2.0.0
+     **/
+    override val type = UserType.JUDGE
 //    @OneToMany(mappedBy = "judge", cascade = [CascadeType.ALL])
 //    val solutionActions: MutableSet<SolutionAction> = mutableSetOf()
 }

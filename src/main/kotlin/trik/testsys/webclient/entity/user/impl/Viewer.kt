@@ -1,9 +1,10 @@
-package trik.testsys.webclient.entity.impl.user
+package trik.testsys.webclient.entity.user.impl
 
 import trik.testsys.core.entity.Entity.Companion.TABLE_PREFIX
-import trik.testsys.core.entity.user.AbstractUser
 import trik.testsys.core.entity.user.AccessToken
 import trik.testsys.core.utils.marker.TrikEntity
+import trik.testsys.webclient.entity.user.WebUser
+import trik.testsys.webclient.enums.UserType
 import javax.persistence.*
 
 /**
@@ -18,8 +19,14 @@ class Viewer(
 
     @Column(nullable = false, columnDefinition = "VARCHAR(100)")
     var adminRegToken: String
-) : AbstractUser(name, accessToken), TrikEntity {
+) : WebUser(name, accessToken), TrikEntity {
 
     @OneToMany(mappedBy = "viewer", cascade = [CascadeType.ALL])
     val admins: MutableSet<Admin> = mutableSetOf()
+
+    /**
+     * @author Roman Shishkin
+     * @since 2.0.0
+     **/
+    override val type = UserType.VIEWER
 }

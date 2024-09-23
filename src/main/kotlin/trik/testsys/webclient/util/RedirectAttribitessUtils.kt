@@ -21,3 +21,9 @@ fun RedirectAttributes.addSessionExpiredMessage() = addPopupMessage("Ваша с
  * @since 2.0.0
  */
 fun RedirectAttributes.addExitMessage() = addPopupMessage("Вы успешно вышли из своего кабинета.")
+
+/**
+ * @author Roman Shishkin
+ * @since 2.0.0
+**/
+fun RedirectAttributes.addInvalidAccessTokenMessage() = addPopupMessage("Некорректный Код-доступа. Попробуйте еще раз.")

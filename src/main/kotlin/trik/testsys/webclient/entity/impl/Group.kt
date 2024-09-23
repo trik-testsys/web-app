@@ -1,9 +1,12 @@
 package trik.testsys.webclient.entity.impl
 
+import trik.testsys.core.entity.Entity.Companion.TABLE_PREFIX
+import trik.testsys.webclient.entity.user.impl.Admin
+import trik.testsys.webclient.entity.user.impl.Student
 import javax.persistence.*
 
 @Entity
-@Table(name = "GROUPZ")
+@Table(name = "${TABLE_PREFIX}_GROUP")
 class Group(
     @ManyToOne
     @JoinColumn(
@@ -20,11 +23,6 @@ class Group(
         nullable = false, unique = true, length = 50,
         columnDefinition = "VARCHAR(100) DEFAULT ''"
     ) val accessToken: String,
-
-    @Column(
-        nullable = false,
-        columnDefinition = "BIGINT DEFAULT 100"
-    ) var studentsLimit: Long = 100L
 ) {
 
     @Id
@@ -42,14 +40,6 @@ class Group(
         inverseJoinColumns = [JoinColumn(name = "task_id")]
     )
     lateinit var tasks: MutableSet<Task>
-
-    @ManyToMany
-    @JoinTable(
-        name = "GROUPS_BY_LABELS",
-        joinColumns = [JoinColumn(name = "group_id")],
-        inverseJoinColumns = [JoinColumn(name = "label_id")]
-    )
-    val labels = mutableSetOf<Label>()
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
     var isAccessible: Boolean = true

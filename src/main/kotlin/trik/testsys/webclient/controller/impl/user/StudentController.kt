@@ -12,7 +12,10 @@ import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import trik.testsys.webclient.controller.impl.main.LoginController
 import trik.testsys.webclient.controller.user.UserController
-import trik.testsys.webclient.security.login.LoginData
+import trik.testsys.webclient.entity.user.impl.Student
+import trik.testsys.webclient.service.entity.user.impl.StudentService
+import trik.testsys.webclient.service.security.UserValidator
+import trik.testsys.webclient.service.security.login.impl.LoginData
 import trik.testsys.webclient.util.addExitMessage
 import trik.testsys.webclient.util.addSessionExpiredMessage
 import java.io.File
@@ -21,8 +24,25 @@ import java.io.File
 @Controller
 @RequestMapping(StudentController.STUDENT_PATH)
 class StudentController(
-    override val loginData: LoginData
+    private val loginData: LoginData,
+    private val userValidator: UserValidator,
+
+    private val studentService: StudentService
 ) : UserController {
+
+    @GetMapping("/login")
+    fun loginGet(
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val student = userValidator.validateExistence(loginData.accessToken) as? Student ?: run {
+            redirectAttributes.addSessionExpiredMessage()
+            return "redirect:${LoginController.LOGIN_PATH}"
+        }
+        student.updateLastLoginDate()
+        studentService.save(student)
+
+        return "redirect:$STUDENT_PATH"
+    }
 
     @GetMapping
     fun mainGet(
@@ -36,7 +56,7 @@ class StudentController(
             return "redirect:${LoginController.LOGIN_PATH}"
         }
 
-        val webUser = loginData.accessToken ?: run {
+        val webUser = userValidator.validateExistence(loginData.accessToken) as? Student ?: run {
             redirectAttributes.addSessionExpiredMessage()
             return "redirect:${LoginController.LOGIN_PATH}"
         }
@@ -88,14 +108,14 @@ class StudentController(
 //import org.springframework.web.bind.annotation.RestController
 //import org.springframework.web.client.RestTemplate
 //import org.springframework.web.multipart.MultipartFile
-//import trik.testsys.webclient.entity.impl.user.Student
-//import trik.testsys.webclient.entity.impl.Task
+//import trik.testsys.webclient.entity.user.impl.Student
+//import trik.testsys.webclient.entity.Task
 //
 //import trik.testsys.webclient.util.handler.GradingSystemErrorHandler
 //import trik.testsys.webclient.entity.impl.user.WebUser
 //import trik.testsys.webclient.models.ResponseMessage
 //import trik.testsys.webclient.service.impl.*
-//import trik.testsys.webclient.service.impl.user.StudentService
+//import trik.testsys.webclient.service.user.impl.StudentService
 //import trik.testsys.webclient.service.impl.user.WebUserService
 //import java.io.File
 //import java.time.LocalDateTime

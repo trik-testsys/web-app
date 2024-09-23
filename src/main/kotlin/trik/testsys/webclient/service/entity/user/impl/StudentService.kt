@@ -1,17 +1,17 @@
-package trik.testsys.webclient.service.impl.user
+package trik.testsys.webclient.service.entity.user.impl
 
 import org.springframework.stereotype.Service
-import trik.testsys.core.service.user.AbstractUserService
 import trik.testsys.core.utils.marker.TrikService
-import trik.testsys.webclient.entity.impl.user.Student
+import trik.testsys.webclient.entity.user.impl.Student
 import trik.testsys.webclient.repository.user.StudentRepository
+import trik.testsys.webclient.service.entity.user.WebUserService
 
 /**
  * @author Roman Shishkin
  * @since 1.0.0
  */
 @Service
-class StudentService: AbstractUserService<Student, StudentRepository>(), TrikService {
+class StudentService: WebUserService<Student, StudentRepository>(), TrikService {
 
 //    /**
 //     * @author Roman Shishkin

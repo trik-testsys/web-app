@@ -1,11 +1,10 @@
-package trik.testsys.webclient.security.login
+package trik.testsys.webclient.service.security.login.impl
 
 import org.springframework.stereotype.Service
 import org.springframework.web.context.annotation.RequestScope
 import trik.testsys.core.entity.user.AccessToken
-import trik.testsys.webclient.security.SecurityProcessor
-import trik.testsys.webclient.service.impl.user.WebUserService
-import java.time.LocalDateTime
+import trik.testsys.webclient.service.security.UserValidator
+import trik.testsys.webclient.service.security.login.SecurityProcessor
 
 /**
  * @author Roman Shishkin
@@ -15,18 +14,15 @@ import java.time.LocalDateTime
 @RequestScope
 class LoginProcessor(
     private val loginData: LoginData,
-    private val webUserService: WebUserService
+    private val userValidator: UserValidator
 ) : SecurityProcessor {
 
     private lateinit var accessToken: String
 
     fun login(): Boolean {
-        val webUser = webUserService.findByAccessToken(accessToken) ?: return false
+        val webUser = userValidator.validateExistence(accessToken) ?: return false
 
-        webUser.lastLoginDate = LocalDateTime.now()
-        webUserService.save(webUser)
-
-        loginData.webUser = webUser
+        loginData.accessToken = webUser.accessToken
         return true
     }
 

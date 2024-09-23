@@ -1,13 +1,17 @@
 package trik.testsys.webclient.controller.impl.main
 
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.servlet.View
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
-import trik.testsys.webclient.security.login.LoginData
-import trik.testsys.webclient.service.impl.user.*
-import trik.testsys.webclient.util.addPopupMessage
+import trik.testsys.webclient.enums.UserType
+import trik.testsys.webclient.service.security.login.impl.LoginData
+import trik.testsys.webclient.service.security.UserValidator
+import trik.testsys.webclient.util.addInvalidAccessTokenMessage
 import trik.testsys.webclient.util.addSessionExpiredMessage
+import javax.servlet.http.HttpServletRequest
 
 /**
  * @author Roman Shishkin
@@ -17,31 +21,32 @@ import trik.testsys.webclient.util.addSessionExpiredMessage
 @RequestMapping(RedirectController.REDIRECT_PATH)
 class RedirectController(
     private val loginData: LoginData,
-
-    private val superUserService: SuperUserService,
-    private val adminService: AdminService,
-    private val studentService: StudentService,
-    private val developerService: DeveloperService,
-    private val viewerService: ViewerService,
-    private val judgeService: JudgeService,
+    private val userValidator: UserValidator
 ) {
 
     @GetMapping
-    fun redirectGet(redirectAttributes: RedirectAttributes): String {
-        val webUser = loginData.webUser ?: run {
+    fun redirectGet(
+        request: HttpServletRequest,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = loginData.accessToken ?: run {
             redirectAttributes.addSessionExpiredMessage()
             return "redirect:${LoginController.LOGIN_PATH}"
         }
+        val user = userValidator.validateExistence(accessToken) ?: run {
+            redirectAttributes.addInvalidAccessTokenMessage()
+            return "redirect:${LoginController.LOGIN_PATH}"
+        }
 
-        studentService.getByWebUser(webUser)?.let { return "redirect:/student" }
-        adminService.getAdminByWebUser(webUser)?.let { return "redirect:/admin" }
-        viewerService.getByWebUser(webUser)?.let { return "redirect:/viewer" }
-        developerService.getByWebUser(webUser)?.let { return "redirect:/developer" }
-        judgeService.getByWebUser(webUser)?.let { return "redirect:/judge" }
-        superUserService.getSuperUserByWebUser(webUser)?.let { return "redirect:/superuser" }
-
-        redirectAttributes.addPopupMessage("Некорретный Код-доступа. Попробуйте еще раз.")
-        return "redirect:${LoginController.LOGIN_PATH}"
+        request.setAttribute(View.RESPONSE_STATUS_ATTRIBUTE, HttpStatus.TEMPORARY_REDIRECT)
+        return when (user.type) {
+            UserType.ADMIN -> "redirect:admin"
+            UserType.DEVELOPER -> "redirect:developer"
+            UserType.JUDGE -> "redirect:judge"
+            UserType.STUDENT -> "redirect:student"
+            UserType.SUPER_USER -> "redirect:superUser"
+            UserType.VIEWER -> "redirect:viewer"
+        }
     }
 
     companion object {

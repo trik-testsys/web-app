@@ -1,4 +1,4 @@
-package trik.testsys.webclient.security
+package trik.testsys.webclient.service.security.login
 
 /**
  * @author Roman Shishkin

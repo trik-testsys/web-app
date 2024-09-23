@@ -11,14 +11,12 @@ import org.springframework.web.servlet.View
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import trik.testsys.core.entity.user.AccessToken
 import trik.testsys.core.entity.user.UserEntity
-import trik.testsys.webclient.entity.impl.user.Admin
-import trik.testsys.webclient.entity.impl.user.Student
-import trik.testsys.webclient.entity.impl.user.WebUser
-import trik.testsys.webclient.service.impl.GroupService
-import trik.testsys.webclient.service.impl.user.AdminService
-import trik.testsys.webclient.service.impl.user.StudentService
-import trik.testsys.webclient.service.impl.user.ViewerService
-import trik.testsys.webclient.service.impl.user.WebUserService
+import trik.testsys.webclient.entity.user.impl.Admin
+import trik.testsys.webclient.entity.user.impl.Student
+import trik.testsys.webclient.service.entity.impl.GroupService
+import trik.testsys.webclient.service.entity.user.impl.AdminService
+import trik.testsys.webclient.service.entity.user.impl.StudentService
+import trik.testsys.webclient.service.entity.user.impl.ViewerService
 import trik.testsys.webclient.service.token.access.AccessTokenGenerator
 import trik.testsys.webclient.util.addPopupMessage
 import javax.servlet.http.HttpServletRequest
@@ -30,7 +28,6 @@ import javax.servlet.http.HttpServletRequest
 @Controller
 @RequestMapping(RegistrationController.REGISTRATION_PATH)
 class RegistrationController(
-    private val webUserService: WebUserService,
     private val studentService: StudentService,
     private val adminService: AdminService,
     private val groupService: GroupService,
@@ -57,10 +54,7 @@ class RegistrationController(
 
         groupService.getGroupByAccessToken(regToken)?.let {
             val accessToken = studentAccessTokenGenerator.generate(name)
-            val webUser = WebUser(name, accessToken)
-            val student = Student(webUser, it)
-
-            webUserService.save(webUser)
+            val student = Student(name, accessToken, it)
             studentService.save(student)
 
             return getLoginRedirection(accessToken, redirectAttributes, request)
@@ -68,10 +62,7 @@ class RegistrationController(
 
         viewerService.getByAdminRegToken(regToken)?.let {
             val accessToken = webUserAccessTokenGenerator.generate(name)
-            val webUser = WebUser(name, accessToken)
-            val admin = Admin(webUser, it)
-
-            webUserService.save(webUser)
+            val admin = Admin(name, accessToken, it)
             adminService.save(admin)
 
             return getLoginRedirection(accessToken, redirectAttributes, request)
