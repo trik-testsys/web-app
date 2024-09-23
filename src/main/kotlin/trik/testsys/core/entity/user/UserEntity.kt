@@ -41,4 +41,12 @@ interface UserEntity : Entity {
      * @since 2.0.0
      */
     var lastLoginDate: LocalDateTime
+
+    /**
+     * Update [lastLoginDate] field. Should be used when used logging in.
+     *
+     * @author Roman Shishkin
+     * @since 2.0.0
+     */
+    fun updateLastLoginDate()
 }

@@ -28,6 +28,10 @@ abstract class AbstractUser(
     @Column(nullable = false, unique = false, columnDefinition = "DATETIME")
     override var lastLoginDate: LocalDateTime = creationDate
 
+    override fun updateLastLoginDate() {
+        lastLoginDate = LocalDateTime.now(DEFAULT_ZONE)
+    }
+
     companion object {
 
         private const val NAME_MAX_LEN = 128
