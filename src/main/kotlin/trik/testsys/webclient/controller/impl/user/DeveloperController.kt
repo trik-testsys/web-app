@@ -1,82 +1,44 @@
-package trik.testsys.webclient.controller.impl.user//package trik.testsys.webclient.controller.impl
-//
-//import org.springframework.beans.factory.annotation.Autowired
-//import org.springframework.beans.factory.annotation.Value
-//import org.springframework.format.annotation.DateTimeFormat
-//import org.springframework.http.HttpEntity
-//import org.springframework.http.HttpHeaders
-//import org.springframework.http.HttpStatus
-//import org.springframework.http.MediaType
-//import org.springframework.util.LinkedMultiValueMap
-//import org.springframework.web.bind.annotation.GetMapping
-//import org.springframework.web.bind.annotation.PostMapping
-//import org.springframework.web.bind.annotation.RequestBody
-//import org.springframework.web.bind.annotation.RequestMapping
-//import org.springframework.web.bind.annotation.RequestParam
-//import org.springframework.web.bind.annotation.RestController
-//import org.springframework.web.client.RestTemplate
-//import org.springframework.web.multipart.MultipartFile
-//import org.springframework.web.servlet.ModelAndView
-//import trik.testsys.webclient.controller.user.TrikUserController
-//
-//import trik.testsys.webclient.util.handler.GradingSystemErrorHandler
-//import trik.testsys.webclient.entity.user.impl.Developer
-//import trik.testsys.webclient.entity.impl.user.WebUser
-//import trik.testsys.webclient.model.impl.DeveloperModel
-//import trik.testsys.webclient.service.impl.*
-//import trik.testsys.webclient.service.user.impl.AdminService
-//import trik.testsys.webclient.service.user.impl.DeveloperService
-//import trik.testsys.webclient.service.impl.user.WebUserService
-//import trik.testsys.webclient.util.TrikRedirectView
-//import trik.testsys.webclient.util.fp.Either
-//import trik.testsys.webclient.util.logger.TrikLogger
-//import java.io.File
-//import java.time.LocalDateTime
-//
-///**
-// * @author Roman Shishkin
-// * @since 1.1.0
-// */
-//@RestController
-//@RequestMapping("\${app.testsys.api.prefix}/developer")
-//class DeveloperController @Autowired constructor(
-//    @Value("\${app.grading-system.path}")
-//    private val gradingSystemUrl: String,
-//
-//    @Value("\${app.testsys.paths.training}")
-//    private val trainingPath: String,
-//
-//    @Value("\${app.testsys.paths.benchmark}")
-//    private val benchmarkPath: String,
-//
-//    private val developerService: DeveloperService,
-//    private val webUserService: WebUserService,
-//    private val taskService: TaskService,
-//    private val adminService: AdminService,
-//    private val groupService: GroupService
-//) : TrikUserController {
-//
-//    @GetMapping
-//    override fun getAccess(
-//        @RequestParam accessToken: String,
-//        modelAndView: ModelAndView
-//    ): ModelAndView {
-//        logger.info(accessToken, "Client trying to access developer page.")
-//
-//        val eitherDeveloperEntities = validateDeveloper(accessToken)
-//        if (eitherDeveloperEntities.isLeft()) {
-//            return eitherDeveloperEntities.getLeft()
-//        }
-//
-//        val (developer, _) = eitherDeveloperEntities.getRight()
-//
-//        val developerModel = getModel(developer)
-//
-//        modelAndView.viewName = DEVELOPER_VIEW_NAME
-//        modelAndView.addAllObjects(developerModel.asMap())
-//        return modelAndView
-//    }
-//
+package trik.testsys.webclient.controller.impl.user
+
+import org.springframework.stereotype.Controller
+import org.springframework.web.bind.annotation.RequestMapping
+import trik.testsys.webclient.controller.user.UserController
+import trik.testsys.webclient.entity.user.impl.Developer
+import trik.testsys.webclient.service.entity.user.impl.DeveloperService
+import trik.testsys.webclient.service.security.UserValidator
+import trik.testsys.webclient.service.security.login.impl.LoginData
+import trik.testsys.webclient.util.atTimeZone
+import trik.testsys.webclient.view.DeveloperView
+import java.util.*
+
+
+@Controller
+@RequestMapping(DeveloperController.DEVELOPER_PATH)
+class DeveloperController(
+    userValidator: UserValidator,
+    loginData: LoginData
+) : UserController<Developer, DeveloperView, DeveloperService>(userValidator, loginData) {
+
+    override val MAIN_PATH = DEVELOPER_PATH
+
+    override val MAIN_PAGE = DEVELOPER_PAGE
+
+    override fun Developer.toView(timeZone: TimeZone) = DeveloperView(
+        id = this.id,
+        name = this.name,
+        accessToken = this.accessToken,
+        lastLoginDate = this.lastLoginDate.atTimeZone(timeZone),
+        creationDate = this.creationDate?.atTimeZone(timeZone)
+    )
+
+    companion object {
+
+        const val DEVELOPER_PATH = "/developer"
+
+        const val DEVELOPER_PAGE = "developer"
+    }
+}
+
 //    @PostMapping("/task/create")
 //    fun createTask(
 //        @RequestParam accessToken: String,
@@ -475,35 +437,6 @@ package trik.testsys.webclient.controller.impl.user//package trik.testsys.webcli
 //        return modelAndView
 //    }
 //
-//    @PostMapping("/info/change")
-//    fun changeInfo(
-//        @RequestParam accessToken: String,
-//        @RequestParam newUsername: String,
-//        @RequestParam newAdditionalInfo: String,
-//        modelAndView: ModelAndView
-//    ): ModelAndView {
-//        logger.info(accessToken, "Developer trying to change info.")
-//
-//        val eitherDeveloperEntities = validateDeveloper(accessToken)
-//        if (eitherDeveloperEntities.isLeft()) {
-//            return eitherDeveloperEntities.getLeft()
-//        }
-//        modelAndView.view = REDIRECT_VIEW
-//
-//        val (developer, webUser) = eitherDeveloperEntities.getRight()
-//
-//        webUser.username = newUsername
-//        webUser.additionalInfo = newAdditionalInfo
-//        webUserService.saveWebUser(webUser)
-//
-//        logger.info(accessToken, "Developer info was successfully changed.")
-//
-//        val developerModel = getModel(developer)
-//        modelAndView.addAllObjects(developerModel.asMap())
-//
-//        return modelAndView
-//    }
-//
 //    @PostMapping("/task/visibility/change")
 //    fun changeVisibility(
 //        @RequestParam accessToken: String,
@@ -570,58 +503,5 @@ package trik.testsys.webclient.controller.impl.user//package trik.testsys.webcli
 //        modelAndView.addAllObjects(developerModel.asMap())
 //
 //        return modelAndView
-//    }
-//
-//    private fun getModel(developer: Developer, postTaskMessage: String? = null): DeveloperModel {
-//        val webUser = developer.webUser
-//
-//        val publicTasks = taskService.getAllPublic()
-//
-//        val developerModel = DeveloperModel.Builder()
-//            .accessToken(webUser.accessToken)
-//            .username(webUser.username)
-//            .postTaskMessage(postTaskMessage)
-//            .tasks(developer.tasks)
-//            .publicTasks(publicTasks)
-//            .admins(adminService.getAll())
-//            .additionalInfo(webUser.additionalInfo)
-//            .lastLoginDate(webUser.lastLoginDate)
-//            .build()
-//
-//        return developerModel
-//    }
-//
-//    private fun validateDeveloper(accessToken: String): Either<ModelAndView, DeveloperEntities> {
-//        val modelAndView = ModelAndView("error")
-//        val webUser = webUserService.getWebUserByAccessToken(accessToken) ?: run {
-//            logger.info(accessToken, "Client not found.")
-//            modelAndView.addObject("message", "Client not found.")
-//
-//            return Either.left(modelAndView)
-//        }
-//        val developer = developerService.getByWebUser(webUser) ?: run {
-//            logger.info(accessToken, "Client is not a developer.")
-//            modelAndView.addObject("message", "You are not a developer.")
-//
-//            return Either.left(modelAndView)
-//        }
-//        val developerEntities = DeveloperEntities(developer, webUser)
-//
-//        logger.info(accessToken, "Client is a developer.")
-//        return Either.right(developerEntities)
-//    }
-//
-//    private data class DeveloperEntities(
-//        val developer: Developer,
-//        val webUser: WebUser,
-//    )
-//
-//    companion object {
-//        private val logger = TrikLogger(this::class.java)
-//
-//        private const val DEVELOPER_VIEW_NAME = "developer"
-//        private const val POST_TASK_MESSAGE = "postTaskMessage"
-//        private val REDIRECT_VIEW = TrikRedirectView("/developer")
-//        private const val UTC_OFFSET = 3L
 //    }
 //}
