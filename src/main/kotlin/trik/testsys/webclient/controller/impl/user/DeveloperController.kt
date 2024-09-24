@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.RequestMapping
 import trik.testsys.webclient.controller.user.UserController
 import trik.testsys.webclient.entity.user.impl.Developer
 import trik.testsys.webclient.service.entity.user.impl.DeveloperService
-import trik.testsys.webclient.service.security.UserValidator
 import trik.testsys.webclient.service.security.login.impl.LoginData
 import trik.testsys.webclient.util.atTimeZone
 import trik.testsys.webclient.view.DeveloperView

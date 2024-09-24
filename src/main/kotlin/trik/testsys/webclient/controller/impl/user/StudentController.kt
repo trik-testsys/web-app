@@ -12,7 +12,6 @@ import trik.testsys.webclient.controller.impl.main.LoginController
 import trik.testsys.webclient.controller.user.UserController
 import trik.testsys.webclient.entity.user.impl.Student
 import trik.testsys.webclient.service.entity.user.impl.StudentService
-import trik.testsys.webclient.service.security.UserValidator
 import trik.testsys.webclient.service.security.login.impl.LoginData
 import trik.testsys.webclient.util.atTimeZone
 import trik.testsys.webclient.view.StudentView
