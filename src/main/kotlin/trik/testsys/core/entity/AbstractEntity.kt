@@ -2,6 +2,7 @@ package trik.testsys.core.entity
 
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.util.TimeZone
 import javax.persistence.*
 
 /**
@@ -28,6 +29,12 @@ abstract class AbstractEntity : Entity {
     @Column(nullable = false, unique = true)
     private var id: Long? = null
 
+    @Column(
+        updatable = false,
+        nullable = false, unique = false, columnDefinition = "DATETIME"
+    )
+    override var creationDate: LocalDateTime? = null
+
     override fun setId(id: Long?) {
         this.id = id
     }
@@ -35,9 +42,6 @@ abstract class AbstractEntity : Entity {
     override fun getId() = id
 
     override fun isNew() = id == null
-
-    @Column(nullable = false, unique = false, columnDefinition = "DATETIME")
-    override val creationDate: LocalDateTime = LocalDateTime.now(DEFAULT_ZONE)
 
     @Column(
         nullable = false, unique = false, length = ADDITIONAL_INFO_MAX_LENGTH,
@@ -50,10 +54,16 @@ abstract class AbstractEntity : Entity {
         false -> "Entity of type ${javaClass.name} and with ID: $id"
     }
 
+    @PrePersist
+    fun onCreate() {
+        creationDate = LocalDateTime.now(DEFAULT_ZONE_ID)
+    }
+
     companion object {
 
-        const val DEFAULT_ZONE_ID = "UTC"
-        val DEFAULT_ZONE: ZoneId = ZoneId.of(DEFAULT_ZONE_ID)
+        const val DEFAULT_ZONE_CODE = "UTC"
+        val DEFAULT_ZONE_ID: ZoneId = ZoneId.of(DEFAULT_ZONE_CODE)
+        val DEFAULT_TIME_ZONE: TimeZone = TimeZone.getTimeZone(DEFAULT_ZONE_ID)
 
         private const val ADDITIONAL_INFO_MAX_LENGTH = 1000
         private const val ADDITIONAL_INFO_DEFAULT = ""

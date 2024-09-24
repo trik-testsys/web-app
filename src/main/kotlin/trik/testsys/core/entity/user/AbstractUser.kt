@@ -26,10 +26,10 @@ abstract class AbstractUser(
 ) : UserEntity, AbstractEntity() {
 
     @Column(nullable = false, unique = false, columnDefinition = "DATETIME")
-    override var lastLoginDate: LocalDateTime = creationDate
+    final override var lastLoginDate: LocalDateTime = LocalDateTime.now(DEFAULT_ZONE_ID)
 
     override fun updateLastLoginDate() {
-        lastLoginDate = LocalDateTime.now(DEFAULT_ZONE)
+        lastLoginDate = LocalDateTime.now(DEFAULT_ZONE_ID)
     }
 
     companion object {
@@ -46,11 +46,6 @@ abstract class AbstractUser(
         object System : AbstractUser(
             name = "System User",
             accessToken = "system-user-non-accessible-token"
-        ) {
-
-            override val creationDate: LocalDateTime = LocalDateTime.MIN
-
-            override var lastLoginDate: LocalDateTime = LocalDateTime.MAX
-        }
+        )
     }
 }
