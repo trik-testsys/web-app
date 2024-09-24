@@ -26,10 +26,8 @@ server:
   port: 8888                                                    # Entrypoint
   servlet:
     context-path: /test
+    session:
+      timeout: 3h
 
 path:
   l10n: "${PWD}/src/main/resources/static/l10n"
-  task:
-    submission: "${PWD}/submissions"
-    training: "${PWD}/training"
-    benchmark: "${PWD}/benchmark"
