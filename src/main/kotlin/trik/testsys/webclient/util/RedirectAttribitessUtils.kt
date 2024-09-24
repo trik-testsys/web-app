@@ -14,7 +14,7 @@ fun RedirectAttributes.addPopupMessage(message: String?) = addFlashAttribute("me
  * @author Roman Shishkin
  * @since 2.0.0
  */
-fun RedirectAttributes.addSessionExpiredMessage() = addPopupMessage("Ваша сессия истекла, введите код повторно.")
+fun RedirectAttributes.addSessionExpiredMessage() = addPopupMessage("Ваша сессия истекла, введите Код-доступа повторно.")
 
 /**
  * @author Roman Shishkin
