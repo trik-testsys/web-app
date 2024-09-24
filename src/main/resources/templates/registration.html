@@ -8,14 +8,19 @@
 
     <link rel="stylesheet" th:href="@{/css/newStyle.css}"/>
     <link rel="stylesheet" th:href="@{/css/modal.css}"/>
+    <link rel="stylesheet" th:href="@{/css/popup.css}"/>
 
     <script th:src="@{/js/scripts.js}"></script>
-    <script th:inline="javascript">
-        const alertMessage = [[${message}]]
-        showAlert(alertMessage !== 'null' ? alertMessage : null);
-    </script>
+    <script th:src="@{/js/popup.js}"></script>
 </head>
 <body>
+
+<div id="popup" class="popup" th:if="${message != null}">
+    <div class="popup-content">
+        <span class="popup-close" onclick="closePopup()">&times;</span>
+        <p th:text="${message}">Это текст сообщения попапа.</p>
+    </div>
+</div>
 
 <div class="modal-container">
     <div class="modal">
@@ -42,6 +47,9 @@
                 </button>
             </form>
             <a th:href="@{/}" class="button">Вернуться на главную страницу</a>
+            <a th:if="${hasActiveSession}"
+               th:href="@{/redirect}"
+               class="button">Вернуться в активную сессию</a>
         </div>
     </div>
 </div>

@@ -2,394 +2,52 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
 <head>
     <meta charset="UTF-8">
-    <title>Кабинет районного Наблюдателя</title>
-    <link rel="icon" th:href="@{/demo2024/img/trik_testsys_logo.ico}">
-    <link rel="stylesheet" th:href="@{/demo2024/css/style.css}"/>
-    <link rel="stylesheet" th:href="@{/demo2024/css/popup.css}"/>
-    <link rel="stylesheet" th:href="@{/demo2024/css/table.css}"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <title>Кабинет Районного Наблюдателя</title>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js">
-    </script>
-    <script th:src="@{/demo2024/js/popup.js}"></script>
+    <link rel="icon" th:href="@{/img/trik_testsys_logo.ico}">
 
-    <!-- Yandex.Metrika counter -->
-    <script type="text/javascript" >
-        (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-            m[i].l=1*new Date();
-            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
-        (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+    <link rel="stylesheet" th:href="@{/css/newStyle.css}"/>
+    <link rel="stylesheet" th:href="@{/css/popup.css}"/>
 
-        ym(95194073, "init", {
-            clickmap:true,
-            trackLinks:true,
-            accurateTrackBounce:true,
-            webvisor:true
-        });
-    </script>
-    <noscript><div><img src="https://mc.yandex.ru/watch/95194073" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
-    <!-- /Yandex.Metrika counter -->
+    <script th:src="@{/js/scripts.js}"></script>
+    <script th:src="@{/js/popup.js}"></script>
 </head>
 <body>
-<div class="container">
-    <div class="header">
-        <div class="page-type">
-            <img th:src="@{/demo2024/img/trik_testsys_logo.svg}" alt="logo">
-            <p>Кабинет районного Наблюдателя</p>
-        </div>
-        <div class="exit">
-            <form th:action="@{/demo2024}" method="get">
-                <input type="submit" value="Выйти"/>
-            </form>
-        </div>
-    </div>
-    <div class="change-info-popup popup" id="changeInfoPopup">
-        <div class="popup-content">
-            <button class="close-button" id="closeChangeInfo"
-                    th:onclick="'closeChangeInfoPopup(\'' + ${webUserId} + '\')'">
-                <i class="fa fa-close"></i>
-            </button>
-            <h1>Редактирование данных</h1>
-            <form class="uploadForm" th:action="@{/demo2024/viewer/info/change}" method="post">
-                <input type="text" name="accessToken" th:value="${accessToken}" placeholder="Код-доступа" required
-                       style="display: none"/>
-                <div class="input-name">
-                    <h2>Псевдоним</h2>
-                </div>
-                <input type="text" name="newUsername" th:value="${username}" placeholder="Псевдоним" required/>
-                <div class="input-name">
-                    <h2>Дополнительная информация</h2>
-                </div>
-                <input type="text" name="newAdditionalInfo" th:value="${additionalInfo}"
-                       placeholder="Дополнительная информация"/>
-                <input type="submit" value="Редактировать"/>
-            </form>
-        </div>
-    </div>
+<div class="background-container"></div>
 
-    <div class="main">
-        <div class="info">
-            <div class="avatar-container">
-                <img th:src="@{/demo2024/img/trik_testsys_logo.svg}" alt="avatar">
-                <div class="username">
-                    <p th:text="${username}"></p>
-                </div>
-                <button id="changeInfo" class="edit-button"
-                        th:onclick="'showChangeInfoPopup(\'' + ${webUserId} + '\')'">
-                    Редактировать
-                </button>
-            </div>
-            <div class="additional-info">
-                <table class="table info-table" style="width: 100%;">
-                    <caption>
-                        Районный Наблюдатель
-                    </caption>
-                    <tr>
-                        <td>Псевдоним</td>
-                        <td th:text="${username}"></td>
-                    </tr>
-                    <tr>
-                        <td>Код-доступа</td>
-                        <td th:text="${accessToken}"
-                            title="Нажмите, чтобы скопировать"
-                            id="accessToken" class="accessToken"
-                            onclick="copy('accessToken')">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Код-регистрации Организатора</td>
-                        <td th:text="${adminRegToken}"
-                            title="Нажмите, чтобы скопировать"
-                            id="adminRegistrationToken" class="accessToken"
-                            onclick="copy('adminRegistrationToken')">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Дополнительная информация</td>
-                        <td th:text="${additionalInfo}"></td>
-                    </tr>
-                    <tr>
-                        <td>Дата и время последнего входа</td>
-                        <td>
-                            <time th:datetime="${lastLoginDate}"
-                                  th:text="${#temporals.format(lastLoginDate, 'dd.MM.yyyy HH:mm')}">
-                            </time>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div class="table admins-table">
-        <table>
-            <caption>Список Организаторов</caption>
-            <tr>
-                <th>ID</th>
-                <th>Псевдоним</th>
-                <th>Дополнительная информация</th>
-                <th style="width: 4%">Действия</th>
-            </tr>
-            <tr th:each="admin : ${admins}">
-                <td th:text="${admin.id}"></td>
-                <td th:text="${admin.webUser.username}"></td>
-                <td th:text="${admin.webUser.additionalInfo}"></td>
-                <td>
-                    <div class="popup admin-result-popup"
-                         th:id="'adminResultPopup' + ${admin.id}">
-                        <div class="popup-content" style="width: 80%">
-                            <button class="close-button" title="Закрыть"
-                                    id="closeAdminResultPopup"
-                                    th:onclick="'closeAdminResultPopup(' + ${admin.id} + ')'">
-                                <i class="fa fa-close"></i>
-                            </button>
-                            <h1>Результаты всех групп Организатора</h1>
-                            <h1 th:text="${admin.id} + ': ' + ${admin.webUser.username}"></h1>
-                            <div class="table group-results-table">
-                                <table>
-                                    <tr>
-                                        <th>Участник</th>
-                                        <th th:each="taskName: ${adminsResult.get(admin.id).header}">
-                                            <span th:text="${taskName}"></span>
-                                        </th>
-                                    </tr>
-                                    <tr th:each="row: ${adminsResult.get(admin.id).rows}">
-                                        <td th:text="${row.username}"></td>
-                                        <td th:each="info: ${row.tasksInfo}" style="text-align: center">
-                                            <span th:switch="${info}">
-                                                <span th:case=0>❌</span>
-                                                <span th:case=1>✅</span>
-                                                <span th:case=2>🔄</span>
-                                                <span th:case=-1>⬜</span>
-                                            </span>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="popup admin-groups-popup"
-                         th:id="'adminGroupsPopup' + ${admin.id}">
-                        <div class="popup-content" style="width: 50%">
-                            <button class="close-button" title="Закрыть"
-                                    id="closeAdminGroupsPopup"
-                                    th:onclick="'closeAdminGroupsPopup(' + ${admin.id} + ')'">
-                                <i class="fa fa-close"></i>
-                            </button>
-                            <h1>Группы Организатора</h1>
-                            <h1 th:text="${admin.id} + ': ' + ${admin.webUser.username}"></h1>
-                            <div class="table admin-groups-table">
-                                <table>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Название</th>
-                                        <th style="text-align: left">Дополнительная информация</th>
-                                    </tr>
-                                    <tr th:each="group : ${admin.groups}">
-                                        <td th:text="${group.id}"></td>
-                                        <td th:text="${group.name}"></td>
-                                        <td th:text="${group.additionalInfo}"></td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="buttons">
-                        <button class="popup-button" title="Результаты всех групп"
-                                id="adminResults"
-                                th:onclick="'showAdminResultsPopup(' + ${admin.id} + ')'">
-                            <i class="fa fa-table"></i>
-                        </button>
-                        <button class="popup-button" title="Группы Организатора"
-                                id="adminsGroups"
-                                th:onclick="'showAdminGroupsPopup(' + ${admin.id} + ')'">
-                            <i class="fa fa-users"></i>
-                        </button>
-                        <button class="popup-button" title="Скачать отчет"
-                                id="downloadReport">
-                            <i class="fa fa-download"></i>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-        </table>
-        <form th:action="@{/demo2024/viewer/results/download}" method="get" id="downloadReportForm">
-            <input type="text" name="accessToken" th:value="${accessToken}" placeholder="Код-доступа" required
-                   style="display: none"/>
-            <input type="submit" value="Скачать отчет" title="Скачать отчет"/>
-        </form>
-    </div>
-
-    <div class="table groups-table">
-        <table>
-            <caption>Список Групп</caption>
-            <tr>
-                <th style="width: 13%">ID Группы</th>
-                <th style="width: 20%">Организатор</th>
-                <th style="width: 35%">Название</th>
-                <th>Дополнительная информация</th>
-                <th style="width: 4%">Действия</th>
-            </tr>
-            <tr th:each="group : ${groups}">
-                <td th:text="${group.id}"></td>
-                <td th:text="'00' + ${group.admin.webUser.id} + ': ' + ${group.admin.webUser.username}"></td>
-                <td th:text="${group.name}"></td>
-                <td th:text="${group.additionalInfo}"></td>
-                <td>
-                    <div class="popup group-result"
-                         th:id="'groupResultPopup' + ${group.id}">
-                        <div class="popup-content" style="width: 80%">
-                            <button class="close-button" title="Закрыть"
-                                    id="closeGroupResultPopup"
-                                    th:onclick="'closeGroupResultPopup(' + ${group.id} + ')'">
-                                <i class="fa fa-close"></i>
-                            </button>
-                            <h1>Результаты группы</h1>
-                            <h1 th:text="${group.id} + ': ' + ${group.name}"></h1>
-                            <div class="table group-results-table">
-                                <table>
-                                    <tr>
-                                        <th>Участник</th>
-                                        <th th:each="taskName: ${groupsResult.get(group.id).header}">
-                                            <span th:text="${taskName}" style="text-align: center"></span>
-                                        </th>
-                                    </tr>
-                                    <tr th:each="row: ${groupsResult.get(group.id).rows}">
-                                        <td th:text="${row.username}"></td>
-                                        <td th:each="info: ${row.tasksInfo}" style="text-align: center">
-                                            <span th:switch="${info}">
-                                                <span th:case=0>❌</span>
-                                                <span th:case=1>✅</span>
-                                                <span th:case=2>🔄</span>
-                                                <span th:case=-1>⬜</span>
-                                            </span>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="popup group-members-popup"
-                         th:id="'groupMembersPopup' + ${group.id}">
-                        <div class="popup-content" style="width: 50%">
-                            <button class="close-button" title="Закрыть"
-                                    id="closeGroupMembersPopup"
-                                    th:onclick="'closeGroupMembersPopup(' + ${group.id} + ')'">
-                                <i class="fa fa-close"></i>
-                            </button>
-                            <h1>Участники группы</h1>
-                            <h1 th:text="${group.id} + ': ' + ${group.name}"></h1>
-                            <div class="table group-members-table">
-                                <table>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Псевдоним</th>
-                                        <th style="text-align: left">Дополнительная информация</th>
-                                    </tr>
-                                    <tr th:each="student : ${group.students}">
-                                        <td th:text="${student.id}"></td>
-                                        <td th:text="${student.webUser.username}"></td>
-                                        <td th:text="${student.webUser.additionalInfo}"></td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="buttons">
-                        <button class="popup-button" title="Результаты группы"
-                                id="groupResults"
-                                th:onclick="'showGroupResultsPopup(' + ${group.id} + ')'">
-                            <i class="fa fa-table"></i>
-                        </button>
-                        <button class="popup-button" title="Участники группы"
-                                id="groupMembers"
-                                th:onclick="'showGroupMembersPopup(' + ${group.id} + ')'">
-                            <i class="fa fa-users"></i>
-                        </button>
-                        <button class="popup-button" title="Скачать отчет"
-                                id="downloadGroupReport">
-                            <i class="fa fa-download"></i>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-        </table>
+<div id="popup" class="popup" th:if="${message != null}">
+    <div class="popup-content">
+        <span class="popup-close" onclick="closePopup()">&times;</span>
+        <p th:text="${message}">Это текст сообщения попапа.</p>
     </div>
 </div>
+
+<!--/*@thymesVar id="webUser" type="trik.testsys.webclient.view.ViewerView"*/-->
+<form action="#" th:action="@{/viewer/update}" th:object="${webUser}" method="post">
+    <input th:field="*{id}" type="text" id="viewer.id" hidden/>
+    <input th:field="*{creationDate}" type="text" id="viewer.creationDate" hidden/>
+
+    <label for="viewer.name">Имя:</label>
+    <input th:field="*{name}" type="text" id="viewer.name"/>
+
+    <label for="viewer.accessToken">Код-доступа:</label>
+    <input th:field="*{accessToken}" type="text" id="viewer.accessToken" readonly
+           class="accessToken"
+           onclick="copy('viewer.accessToken')"
+    />
+
+    <label for="viewer.adminRegToken">Код-регистрации Организатора</label>
+    <input th:field="*{adminRegToken}" type="text" id="viewer.adminRegToken" readonly
+           class="accessToken"
+           onclick="copy('viewer.adminRegToken')"
+    />
+
+    <label for="viewer.lastLoginDate">Дата входа:</label>
+    <input th:field="*{lastLoginDate}" type="text" id="viewer.lastLoginDate" readonly/>
+
+    <button type="submit">Сохранить</button>
+</form>
+
+<a th:href="@{/viewer?Logout=''}">Выйти</a>
 </body>
 </html>
-
-<script>
-    function copy(id) {
-        var copyText = document.getElementById(id);
-        var textArea = document.createElement("textarea");
-
-        textArea.value = copyText.textContent;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand("Copy");
-        textArea.remove();
-    }
-
-    //region Scripts for group members popup
-    function showGroupMembersPopup(groupId) {
-        var popup = document.getElementById("groupMembersPopup" + groupId);
-        popup.style.display = "block";
-    }
-
-    function closeGroupMembersPopup(groupId) {
-        var popup = document.getElementById("groupMembersPopup" + groupId);
-        popup.style.display = "none";
-    }
-
-    //endregion
-
-    //region Scripts for admin groups popup
-    function showAdminGroupsPopup(adminId) {
-        var popup = document.getElementById("adminGroupsPopup" + adminId);
-        popup.style.display = "block";
-    }
-
-    function closeAdminGroupsPopup(adminId) {
-        var popup = document.getElementById("adminGroupsPopup" + adminId);
-        popup.style.display = "none";
-    }
-
-    //endregion
-
-    //region Scripts for group results popup
-    function showGroupResultsPopup(groupId) {
-        var popup = document.getElementById("groupResultPopup" + groupId);
-        popup.style.display = "block";
-    }
-
-    function closeGroupResultPopup(groupId) {
-        var popup = document.getElementById("groupResultPopup" + groupId);
-        popup.style.display = "none";
-    }
-
-    //endregion
-
-    //region Scripts for admin results popup
-    function showAdminResultsPopup(adminId) {
-        var popup = document.getElementById("adminResultPopup" + adminId);
-        popup.style.display = "block";
-    }
-
-    function closeAdminResultPopup(adminId) {
-        var popup = document.getElementById("adminResultPopup" + adminId);
-        popup.style.display = "none";
-    }
-
-    //endregion
-
-</script>
-
-<style>
-
-</style>
