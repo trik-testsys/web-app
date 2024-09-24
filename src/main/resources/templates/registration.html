@@ -2,16 +2,49 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Регистрация в TestSys</title>
+
+    <link rel="icon" th:href="@{/img/trik_testsys_logo.ico}">
+
+    <link rel="stylesheet" th:href="@{/css/newStyle.css}"/>
+    <link rel="stylesheet" th:href="@{/css/modal.css}"/>
+
+    <script th:src="@{/js/scripts.js}"></script>
+    <script th:inline="javascript">
+        const alertMessage = [[${message}]]
+        showAlert(alertMessage !== 'null' ? alertMessage : null);
+    </script>
 </head>
 <body>
-<p>Это страница регистрации в лк</p>
-<p th:if="${message != null}" th:text="${message}">
-<p>Введи Код-регистрации и имя в поле ниже</p>
-<form th:action="@{/registration}" method="post">
-    <input type="password" name="regToken"/>
-    <input type="text" name="name">
-    <button type="submit">Войти</button>
-</form>
+
+<div class="modal-container">
+    <div class="modal">
+        <div class="modal-header">
+            <h1>Регистрация в TestSys</h1>
+        </div>
+        <div class="modal-body">
+            <form th:action="@{/registration}" method="post"
+                  class="modal-form">
+                <label for="regToken">Код-регистрации</label>
+                <input type="password"
+                       name="regToken" id="regToken"
+                       placeholder="Введите Код-регистрации"
+                       required/>
+                <label for="name">Псевдоним</label>
+                <input type="text"
+                       name="name" id="name"
+                       placeholder="Введите псевдоним"
+                       required/>
+
+                <button type="submit"
+                        class="button">
+                    Зарегистрироваться
+                </button>
+            </form>
+            <a th:href="@{/}" class="button">Вернуться на главную страницу</a>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>

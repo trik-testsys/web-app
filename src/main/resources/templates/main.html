@@ -2,16 +2,32 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Главная страница TestSys</title>
+
+    <link rel="icon" th:href="@{/img/trik_testsys_logo.ico}">
+
+    <link rel="stylesheet" th:href="@{/css/newStyle.css}"/>
+    <link rel="stylesheet" th:href="@{/css/modal.css}"/>
+
+    <script th:src="@{/js/scripts.js}"></script>
+    <script th:inline="javascript">
+        const alertMessage = [[${message}]]
+        showAlert(alertMessage !== 'null' ? alertMessage : null);
+    </script>
 </head>
 <body>
-<p>Привет</p>
-<p>Выбери что хочешь</p>
-<form th:action="@{/login}" method="get">
-    <button type="submit">Войти</button>
-</form>
-<form th:action="@{/registration}" method="get">
-    <button type="submit">Регистрация</button>
-</form>
+
+<div class="modal-container">
+    <div class="modal">
+        <div class="modal-header">
+            <h1>Тестирующая система TestSys</h1>
+        </div>
+        <div class="modal-body">
+            <a th:href="@{/login}" class="button">Войти</a>
+            <a th:href="@{registration}" class="button">Зарегистрироваться</a>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>

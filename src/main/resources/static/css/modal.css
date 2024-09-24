@@ -1,0 +1,80 @@
+/* Стиль для основного контейнера, который занимает весь экран */
+.modal-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--trik-blue);
+    background-image: url("../img/trik_testsys_logo.svg");
+    background-repeat: no-repeat;
+    background-size: 50%;
+    background-position: center;
+    opacity: 0.8;
+}
+
+/* Окно (модальное) */
+.modal {
+    background-color: var(--trik-white);
+    width: 400px;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    animation: fadeIn 0.3s ease; /* Анимация появления */
+}
+
+/* Заголовок окна */
+.modal-header h1 {
+    font-size: 24px;
+    margin: 0 0 15px;
+    font-weight: 500;
+    color: var(--trik-blue);
+}
+
+/* Тело окна */
+.modal-body {
+    font-size: 16px;
+    color: var(--trik-blue);
+    line-height: 1.5;
+}
+
+/* Форма внутри окна */
+.modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: 10px;
+}
+
+.modal-form label {
+    text-align: left;
+    font-weight: 500;
+}
+
+.modal-form input, .modal-form textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+.modal-form textarea {
+    resize: none; /* Запретить изменение размера текстового поля */
+}
+
+/* Анимация для плавного появления окна */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
