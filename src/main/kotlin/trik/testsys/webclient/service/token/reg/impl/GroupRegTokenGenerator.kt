@@ -1,22 +1,18 @@
 package trik.testsys.webclient.service.token.reg.impl
 
 import org.springframework.stereotype.Service
+import trik.testsys.webclient.service.token.AbstractTokenGenerator
 import trik.testsys.webclient.service.token.reg.RegTokenGenerator
-import java.security.MessageDigest
-import java.util.*
 
 /**
  * @author Roman Shishkin
  * @since 2.0.0
  */
 @Service("groupRegTokenGenerator")
-class GroupRegTokenGenerator : RegTokenGenerator {
+class GroupRegTokenGenerator : RegTokenGenerator, AbstractTokenGenerator(GROUP_REG_TOKEN_PREFIX) {
 
-    override fun generate(string: String): String {
-        val saltedWord = string + Date().time + Random(Date().time).nextInt()
-        val md = MessageDigest.getInstance("SHA-224")
-        val digest = md.digest(saltedWord.toByteArray())
+    companion object {
 
-        return digest.fold("") { str, it -> str + "%02x".format(it) }
+        const val GROUP_REG_TOKEN_PREFIX = "grp"
     }
 }

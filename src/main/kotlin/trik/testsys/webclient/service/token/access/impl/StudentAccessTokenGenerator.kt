@@ -1,27 +1,18 @@
 package trik.testsys.webclient.service.token.access.impl
 
 import org.springframework.stereotype.Service
-import trik.testsys.core.entity.user.AccessToken
+import trik.testsys.webclient.service.token.AbstractTokenGenerator
 import trik.testsys.webclient.service.token.access.AccessTokenGenerator
-import java.util.*
 
 /**
  * @author Roman Shishkin
  * @since 2.0.0
  */
 @Service("studentAccessTokenGenerator")
-class StudentAccessTokenGenerator : AccessTokenGenerator {
+class StudentAccessTokenGenerator : AccessTokenGenerator, AbstractTokenGenerator(STUDENT_ACCESS_TOKEN_PREFIX) {
 
-    // generate token like a61d-e3f2-4b3a-8b1c
-    override fun generate(string: String): AccessToken {
-        val uuid = UUID.randomUUID().toString()
-        val middleUUID = uuid.substringAfter("-").substringBeforeLast("-")
+    companion object {
 
-        val number = string.charsSum() % 10000
-        val numberString = number.toString().padStart(4, '0')
-
-        return "$numberString-$middleUUID"
+        const val STUDENT_ACCESS_TOKEN_PREFIX = "st"
     }
-
-    private fun String.charsSum() = fold(0) { sum, char -> sum + char.code }
 }

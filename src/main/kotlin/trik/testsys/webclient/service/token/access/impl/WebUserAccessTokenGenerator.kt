@@ -1,23 +1,18 @@
 package trik.testsys.webclient.service.token.access.impl
 
 import org.springframework.stereotype.Service
-import trik.testsys.core.entity.user.AccessToken
+import trik.testsys.webclient.service.token.AbstractTokenGenerator
 import trik.testsys.webclient.service.token.access.AccessTokenGenerator
-import java.security.MessageDigest
-import java.util.*
 
 /**
  * @author Roman Shishkin
  * @since 2.0.0
  */
 @Service("webUserAccessTokenGenerator")
-class WebUserAccessTokenGenerator : AccessTokenGenerator {
+class WebUserAccessTokenGenerator : AccessTokenGenerator, AbstractTokenGenerator(WEB_USER_ACCESS_TOKEN_PREFIX) {
 
-    override fun generate(string: String): AccessToken {
-        val saltedWord = string + Date().time + Random(Date().time).nextInt()
-        val md = MessageDigest.getInstance("SHA-256")
-        val digest = md.digest(saltedWord.toByteArray())
+    companion object {
 
-        return digest.fold("") { str, it -> str + "%02x".format(it) }
+        const val WEB_USER_ACCESS_TOKEN_PREFIX = "wu"
     }
 }
