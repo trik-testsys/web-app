@@ -1,6 +1,7 @@
 package trik.testsys.core.view
 
 import trik.testsys.core.entity.Entity
+import java.time.LocalDateTime
 import java.util.TimeZone
 
 /**
@@ -10,6 +11,8 @@ import java.util.TimeZone
 interface View<T : Entity> {
 
     val id: Long?
+
+    val creationDate: LocalDateTime?
 
     fun toEntity(timeZone: TimeZone): T
 }

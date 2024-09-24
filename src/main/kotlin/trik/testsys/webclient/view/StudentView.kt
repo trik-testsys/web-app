@@ -7,15 +7,13 @@ import trik.testsys.webclient.entity.user.impl.Student
 import trik.testsys.webclient.util.fromTimeZone
 import java.time.LocalDateTime
 import java.util.TimeZone
-import javax.xml.bind.annotation.XmlRootElement
 
-@XmlRootElement
 data class StudentView(
     override val id: Long?,
     override val name: String,
     override val accessToken: AccessToken,
-    val creationDate: LocalDateTime?,
-    val lastLoginDate: LocalDateTime,
+    override val creationDate: LocalDateTime?,
+    override val lastLoginDate: LocalDateTime,
     val group: Group
 ) : UserView<Student> {
 
