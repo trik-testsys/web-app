@@ -1,8 +1,9 @@
 :root {
-    --trik-blue: #001A42;
+    --trik-blue:  #001A42;
     --trik-green: #99CC00;
     --trik-white: #f2f3f4;
-    --trik-grey: #e6e6e6;
+    --trik-grey:  #e6e6e6;
+    --trik-red:   #ff5e5e;
 }
 
 body {

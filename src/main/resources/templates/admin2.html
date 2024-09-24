@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+<head>
+    <meta charset="UTF-8">
+    <title>Кабинет Организатора</title>
+    <link rel="icon" th:href="@{/demo2024/img/trik_testsys_logo.ico}">
+    <link rel="stylesheet" th:href="@{/demo2024/css/style.css}"/>
+    <link rel="stylesheet" th:href="@{/demo2024/css/popup.css}"/>
+    <link rel="stylesheet" th:href="@{/demo2024/css/table.css}"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript" >
+        (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+            m[i].l=1*new Date();
+            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+        (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+        ym(95194048, "init", {
+            clickmap:true,
+            trackLinks:true,
+            accurateTrackBounce:true,
+            webvisor:true
+        });
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/95194048" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    <!-- /Yandex.Metrika counter -->
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="page-type">
+            <img th:src="@{/demo2024/img/trik_testsys_logo.svg}" alt="logo">
+            <p>Кабинет Организатора</p>
+        </div>
+        <div class="exit">
+            <form th:action="@{/demo2024}" method="get">
+                <input type="submit" value="Выйти"/>
+            </form>
+        </div>
+    </div>
+
+    <div class="change-info-popup popup" id="changeInfoPopup">
+        <div class="popup-content">
+            <button class="close-button" id="closeChangeInfo"
+                    th:onclick="'closeChangeInfoPopup(\'' + ${webUserId} + '\')'">
+                <i class="fa fa-close"></i>
+            </button>
+            <h1>Редактирование данных</h1>
+            <form class="uploadForm" th:action="@{/demo2024/admin/info/change}" method="post">
+                <input type="text" name="accessToken" th:value="${accessToken}" placeholder="Код-доступа" required
+                       style="display: none"/>
+                <div class="input-name">
+                    <h2>Псевдоним</h2>
+                </div>
+                <input type="text" name="newUsername" th:value="${username}" placeholder="Псевдоним" required/>
+                <div class="input-name">
+                    <h2>Дополнительная информация</h2>
+                </div>
+                <input type="text" name="newAdditionalInfo" th:value="${additionalInfo}"
+                       placeholder="Дополнительная информация"/>
+                <input type="submit" value="Редактировать"/>
+            </form>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="info">
+            <div class="avatar-container">
+                <img th:src="@{/demo2024/img/trik_testsys_logo.svg}" alt="avatar">
+                <div class="username">
+                    <p th:text="${username}"></p>
+                </div>
+                <button id="changeInfo" class="edit-button"
+                        th:onclick="'showChangeInfoPopup(\'' + ${webUserId} + '\')'">
+                    Редактировать
+                </button>
+            </div>
+            <div class="additional-info">
+                <table class="table info-table" style="width: 100%;">
+                    <caption>
+                        Информация об Организаторе
+                    </caption>
+                    <tr>
+                        <td>Псевдоним</td>
+                        <td th:text="${username}"></td>
+                    </tr>
+                    <tr>
+                        <td>Код-доступа</td>
+                        <td th:text="${accessToken}"
+                            title="Нажмите, чтобы скопировать"
+                            id="accessToken" class="accessToken"
+                            onclick="copy('accessToken')">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Дополнительная информация</td>
+                        <td th:text="${additionalInfo}"></td>
+                    </tr>
+                    <tr>
+                        <td>Дата и время регистрации</td>
+                        <td>
+                            <time th:datetime="${registrationDate}"
+                                  th:text="${#temporals.format(registrationDate, 'dd.MM.yyyy HH:mm')}">
+                            </time>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Дата и время последнего входа</td>
+                        <td>
+                            <time th:datetime="${lastLoginDate}"
+                                  th:text="${#temporals.format(lastLoginDate, 'dd.MM.yyyy HH:mm')}">
+                            </time>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="create-group-popup popup" id="createGroupPopup">
+        <div class="popup-content">
+            <button class="close-button" id="closeCreateGroup">
+                <i class="fa fa-close"></i>
+            </button>
+            <h1>Создание Группы</h1>
+            <form class="uploadForm" th:action="@{/demo2024/admin/group/create}" method="post">
+                <div class="input-name">
+                    <h2>Название Группы</h2>
+                </div>
+                <input type="text" name="name" placeholder="Название Группы" required/>
+                <div class="input-name">
+                    <h2>Дополнительная информация</h2>
+                </div>
+                <input type="text" name="additionalInfo" placeholder="Дополнительная информация"/>
+                <input type="text" name="accessToken" th:value="${accessToken}" placeholder="Код-доступа" required
+                       style="display: none"/>
+                <input type="submit" value="Создать"/>
+            </form>
+        </div>
+    </div>
+
+    <div class="table groups-table">
+        <table>
+            <caption>Список Групп</caption>
+            <tr>
+                <th>ID</th>
+                <th>Название Группы</th>
+                <th>Код-доступа</th>
+                <th>Дополнительная информация</th>
+                <th style="text-align: center">
+                    Действия
+                </th>
+            </tr>
+            <tr th:each="group : ${groups}">
+                <td th:text="${group.id}"></td>
+                <td th:text="${group.name}"></td>
+                <td th:text="${group.accessToken}" th:id="'groupAccessToken' + ${group.id}"
+                    th:onclick="'copyGroupAccessToken(\'' + ${group.id} + '\')'"
+                    class="accessToken" title="Нажмите, чтобы скопировать"></td>
+                <!--                <td style="width: 30%">-->
+                <!--                    <span th:each="label : ${group.labels}"-->
+                <!--                          th:text="${label.name}" class="label"></span>-->
+                <!--                </td>-->
+                <td th:text="${group.additionalInfo}"></td>
+
+                <td style="width: 10%">
+
+                    <div class="popup group-info-popup"
+                         th:id="'groupInfoPopup' + ${group.id}">
+                        <div class="popup-content">
+                            <button id="close-group-info-popup" class="close-button"
+                                    th:onclick="'closeGroupInfoPopup(\'' + ${group.id} + '\')'">
+                                <i class="fa fa-close"></i>
+                            </button>
+                            <h1>Информация о Группе</h1>
+                            <div>
+                                <p>Название: <span th:text="${group.name}"></span></p>
+                                </p>
+                                <!--                                <p>-->
+                                <!--                                    Теги:-->
+                                <!--                                    <span th:if="${group.labels.size() == 0}">Отсутствуют</span>-->
+                                <!--                                    <span class="label" th:each="label: ${group.labels}"-->
+                                <!--                                          th:text="${label.name} + ' '"></span>-->
+                                <!--                                </p>-->
+                                <p>Дополнительная информация: <span th:text="${group.additionalInfo}"></span></p>
+                                <p>Количество участников: <span th:text="${group.students.size()}"></span></p>
+                                <p>Количество задач: <span th:text="${group.tasks.size()}"></span></p>
+                                <p>Задачи: <span th:if="${group.tasks.size() == 0}">Отсутствуют</span></p>
+                                <ul th:each="task: ${group.tasks}">
+                                    <li th:text="${task.name}"></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="popup group-edit-popup"
+                         th:id="'groupEditPopup' + ${group.id}">
+                        <div class="popup-content">
+                            <button id="close-group-edit-popup" class="close-button"
+                                    th:onclick="'closeGroupEditPopup(\'' + ${group.id} + '\')'">
+                                <i class="fa fa-close"></i>
+                            </button>
+
+                            <h1>Редактирование Группы</h1>
+                            <form class="uploadForm" th:action="@{/demo2024/admin/group/edit}" method="post">
+                                <input type="text" name="groupAccessToken" th:value="${group.accessToken}"
+                                       style="display: none"/>
+                                <div class="input-name">
+                                    <h2>Название Группы</h2>
+                                </div>
+                                <input type="text" name="name" th:value="${group.name}" placeholder="Название Группы"
+                                       required/>
+                                <div class="input-name">
+                                    <h2>Дополнительная информация</h2>
+                                </div>
+                                <input type="text" name="additionalInfo" th:value="${group.additionalInfo}"
+                                       placeholder="Дополнительная информация"/>
+                                <input type="text" name="accessToken" th:value="${accessToken}"
+                                       placeholder="Код-доступа" required
+                                       style="display: none"/>
+                                <input type="submit" value="Сохранить"/>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="popup group-add-label-popup"
+                         th:id="'groupEditLabelPopup' + ${group.id}">
+                        <div class="popup-content">
+                            <button id="close-group-add-label-popup" class="close-button"
+                                    th:onclick="'closeGroupEditLabelPopup(\'' + ${group.id} + '\')'">
+                                <i class="fa fa-close"></i>
+                            </button>
+
+                            <h1>Изменение тегов Группы</h1>
+                            <h1 th:text="${group.id} + ': ' + ${group.name}"></h1>
+                            <div class="popup-forms">
+                                <form class="uploadForm" th:action="@{/demo2024/admin/group/labels/add}"
+                                      method="post">
+                                    <p>Новый тег:</p>
+                                    <input type="text" name="newLabel" placeholder="Новый тег"
+                                           th:required="${labels.size() == 0}"
+                                    />
+                                    <input type="text" name="groupAccessToken" th:value="${group.accessToken}"
+                                           style="display: none"/>
+                                    <input type="text" name="accessToken" th:value="${accessToken}"
+                                           placeholder="Код-доступа" required
+                                           style="display: none"/>
+                                    <p>Выберите из существующих:</p>
+                                    <select name="labels" multiple>
+                                        <option th:each="label : ${labels}" th:if="${!group.labels.contains(label)}"
+                                                th:value="${label.name}"
+                                                th:text="${label.name}"></option>
+                                    </select>
+                                    <input type="submit" value="Добавить"/>
+                                </form>
+                                <form class="uploadForm" th:action="@{/demo2024/admin/group/labels/delete}"
+                                      method="post">
+                                    <p>Выберите теги для удаления:</p>
+                                    <input type="text" name="groupAccessToken" th:value="${group.accessToken}"
+                                           style="display: none"/>
+                                    <input type="text" name="accessToken" th:value="${accessToken}"
+                                           placeholder="Код-доступа" required
+                                           style="display: none"/>
+                                    <select name="labels" multiple>
+                                        <option th:each="label : ${group.labels}"
+                                                th:value="${label.name}"
+                                                th:text="${label.name}"></option>
+                                    </select>
+                                    <input type="submit" value="Удалить"/>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="popup group-delete-popup"
+                         th:id="'groupDeletePopup' + ${group.id}">
+                        <div class="popup-content">
+                            <button id="close-group-delete-popup" class="close-button"
+                                    th:onclick="'closeGroupDeletePopup(\'' + ${group.id} + '\')'">
+                                <i class="fa fa-close"></i>
+                            </button>
+
+                            <h1>Удаление Группы</h1>
+                            <h1 th:text="${group.id} + ': ' + ${group.name}"></h1>
+                            <p>В Группе состоит <span th:text="${group.students.size()}"></span> участников.</p>
+                            <p>В Группе находится <span th:text="${group.tasks.size()}"></span> задач.</p>
+                            <p>Вы уверены, что хотите удалить Группу?</p>
+                            <form class="uploadForm" th:action="@{/demo2024/admin/group/delete}" method="post">
+                                <input type="text" name="groupAccessToken" th:value="${group.accessToken}"
+                                       style="display: none"/>
+                                <input type="text" name="accessToken" th:value="${accessToken}"
+                                       placeholder="Код-доступа" required
+                                       style="display: none"/>
+                                <input type="submit" value="Удалить"/>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="buttons">
+                        <button class="popup-button" title="Подробная информация"
+                                id="groupInfo"
+                                th:onclick="'showGroupInfoPopup(\'' + ${group.id} + '\')'">
+                            <i class="fa fa-info"></i>
+                        </button>
+                        <button class="popup-button" title="Редактировать Группу"
+                                id="editGroup"
+                                th:onclick="'showGroupEditPopup(\'' + ${group.id} + '\')'">
+                            <i class="fa fa-pencil"></i>
+                        </button>
+                        <!--                        <button class="popup-button" title="Изменить теги Группы"-->
+                        <!--                                id="editGroupLabels"-->
+                        <!--                                th:onclick="'groupEditLabelPopup(\'' + ${group.id} + '\')'">-->
+                        <!--                            <i class="fa fa-tag"></i>-->
+                        <!--                        </button>-->
+                        <button class="popup-button" title="Удалить Группу"
+                                id="deleteGroup"
+                                th:onclick="'deleteGroupPopup(\'' + ${group.id} + '\')'">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                        <form th:action="@{/demo2024/admin/group}" method="get">
+                            <input type="text" name="groupAccessToken" th:value="${group.accessToken}"
+                                   style="display: none"/>
+                            <input type="text" name="accessToken" th:value="${accessToken}"
+                                   placeholder="Код-доступа" required
+                                   style="display: none"/>
+                            <button type="submit" class="popup-button" title="Перейти в Группу"
+                                    id="goToGroup">
+                                <i class="fa fa-arrow-right"></i>
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+        </table>
+        <form th:action="@{/demo2024/admin/results/download}" method="get" id="downloadReportForm">
+            <input type="text" name="accessToken" th:value="${accessToken}" placeholder="Код-доступа" required
+                   style="display: none"/>
+            <input type="submit" value="Скачать отчет" title="Скачать отчет"/>
+        </form>
+        <div class="add-button">
+            <button class="popup-button" id="createGroup">
+                <i class="fa fa-plus"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="table tasks-table">
+        <table>
+            <caption>Список задач</caption>
+            <tr>
+                <th>ID</th>
+                <th>Название</th>
+                <th>Описание</th>
+                <th>Действия</th>
+            </tr>
+            <tr th:each="task: ${tasks}" th:id="'task' + ${task.id}">
+                <td th:text="${task.id}"></td>
+                <td th:text="${task.name}"></td>
+                <td th:text="${task.description}"></td>
+                <td style="width: 5%">
+
+                    <!--                    <div class="task-info-popup popup" th:id="'taskInfoPopup' + ${task.id}">-->
+                    <!--                        <div class="popup-content">-->
+                    <!--                            <button id="closeTaskInfoPopup" class="close-button"-->
+                    <!--                                    th:onclick="'closeTaskInfoPopup(\'' + ${task.id} + '\')'">-->
+                    <!--                                <i class="fa fa-close"></i>-->
+                    <!--                            </button>-->
+
+                    <!--                            <h1>Информация о задаче</h1>-->
+                    <!--                            <h1 th:text="${task.id} + ': ' + ${task.name}"></h1>-->
+                    <!--                            <p th:text="${task.description}"></p>-->
+                    <!--                            <p>В задаче участвуют <span th:text="${task.groups.size()}"></span> Групп.</p>-->
+                    <!--                            <p>В задаче участвуют <span th:text="${task.students.size()}"></span> участников.</p>-->
+                    <!--                            <p>В задаче участвуют <span th:text="${task.labels.size()}"></span> тегов.</p>-->
+                    <!--                            <p>В задаче участвуют <span th:text="${task.tests.size()}"></span> тестов.</p>-->
+                    <!--                            <p>В задаче участвуют <span th:text="${task.answers.size()}"></span> ответов.</p>-->
+                    <!--                            <p>В задаче участвуют <span th:text="${task.results.size()}"></span> результатов.</p>-->
+                    <!--                        </div>-->
+                    <!--                    </div>-->
+
+                    <div class="add-task-to-group-popup popup" th:id="'addTaskToGroupsPopup' + ${task.id}">
+                        <div class="popup-content">
+                            <button id="closeAddTaskToGroupsPopup" class="close-button"
+                                    th:onclick="'closeAddTaskToGroupsPopup(\'' + ${task.id} + '\')'">
+                                <i class="fa fa-close"></i>
+                            </button>
+
+                            <h1>Добавление задачи в Группы</h1>
+                            <h1 th:text="${task.id} + ': ' + ${task.name}"></h1>
+                            <p>Выберите Группы, в которые нужно добавить задачу:</p>
+                            <form class="uploadForm" th:action="@{/demo2024/admin/task/groups/add}"
+                                  method="post">
+                                <input type="text" name="taskId" th:value="${task.id}"
+                                       style="display: none"/>
+                                <input type="text" name="accessToken" th:value="${accessToken}"
+                                       placeholder="Код-доступа" required
+                                       style="display: none"/>
+                                <select name="groupIds" multiple required>
+                                    <option th:each="group : ${groups}" th:if="${!group.tasks.contains(task)}"
+                                            th:value="${group.id}"
+                                            th:text="${group.id} + ': ' + ${group.name}"></option>
+                                </select>
+                                <input type="submit" value="Добавить"/>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="remove-task-from-groups-popup popup" th:id="'removeTaskFromGroupsPopup' + ${task.id}">
+                        <div class="popup-content">
+                            <button id="closeRemoveTaskFromGroupsPopup" class="close-button"
+                                    th:onclick="'closeRemoveTaskFromGroupsPopup(\'' + ${task.id} + '\')'">
+                                <i class="fa fa-close"></i>
+                            </button>
+
+                            <h1>Удаление задачи из Групп</h1>
+                            <h1 th:text="${task.id} + ': ' + ${task.name}"></h1>
+                            <p>Выберите Группы, из которых нужно удалить задачу:</p>
+                            <form class="uploadForm" th:action="@{/demo2024/admin/task/groups/remove}"
+                                  method="post">
+                                <input type="text" name="taskId" th:value="${task.id}"
+                                       style="display: none"/>
+                                <input type="text" name="accessToken" th:value="${accessToken}"
+                                       placeholder="Код-доступа" required
+                                       style="display: none"/>
+                                <select name="groupIds" multiple required>
+                                    <option th:each="group : ${groups}" th:if="${group.tasks.contains(task)}"
+                                            th:value="${group.id}"
+                                            th:text="${group.id} + ': ' + ${group.name}"></option>
+                                </select>
+                                <input type="submit" value="Удалить"/>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="buttons">
+                        <button class="popup-button" title="Подробная информация"
+                                id="taskInfo" th:onclick="'taskInfoPopup(\'' + ${task.id} + '\')'">
+                            <i class="fa fa-info"></i>
+                        </button>
+                        <button class="popup-button" title="Добавить в Группы"
+                                id="addTaskToGroups" th:onclick="'addTaskToGroupsPopup(\'' + ${task.id} + '\')'">
+                            <i class="fa fa-paperclip"></i>
+                        </button>
+                        <button class="popup-button" title="Убрать из Групп"
+                                id="removeTaskFromGroups"
+                                th:onclick="'removeTaskFromGroupsPopup(\'' + ${task.id} + '\')'">
+                            <i class="fa fa-chain-broken"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+
+    <!--    <div class="popup create-viewer-popup" id="createViewerPopup">-->
+    <!--        <div class="popup-content">-->
+    <!--            <button id="closeCreateViewer" class="close-button"-->
+    <!--                    onclick="closeCreateViewerPopup()">-->
+    <!--                <i class="fa fa-close"></i>-->
+    <!--            </button>-->
+    <!--            <h1>Создание наблюдателя</h1>-->
+    <!--            <form class="uploadForm" id="create-viewer-form"-->
+    <!--                  th:action="@{/demo2024/admin/viewer/create}" method="post">-->
+    <!--                <input type="text" name="accessToken" th:value="${accessToken}"-->
+    <!--                       placeholder="Код-доступа" required-->
+    <!--                       style="display: none"/>-->
+    <!--                <input type="text" name="username" placeholder="Имя пользователя" required/>-->
+    <!--                <input type="submit" value="Создать"/>-->
+    <!--            </form>-->
+    <!--        </div>-->
+    <!--    </div>-->
+
+    <!--    <div class="table viewers-tables">-->
+    <!--        <table>-->
+    <!--            <caption>Список наблюдателей</caption>-->
+    <!--            <tr>-->
+    <!--                <th>ID</th>-->
+    <!--                <th>Имя</th>-->
+    <!--                <th>Код-доступа</th>-->
+    <!--                <th>Действия</th>-->
+    <!--            </tr>-->
+    <!--            <tbody>-->
+    <!--            <tr th:each="viewer: ${viewers}" th:id="'viewer' + ${viewer.id}">-->
+    <!--                <td th:text="${viewer.id}"></td>-->
+    <!--                <td th:text="${viewer.webUser.username}"></td>-->
+    <!--                <td class="accessToken" th:id="'viewerAccessToken' + ${viewer.id}"-->
+    <!--                    title="Нажмите, чтобы скопировать" th:onclick="'copyViewerAccessToken(\'' + ${viewer.id} + '\')'"-->
+    <!--                    th:text="${viewer.webUser.accessToken}">-->
+    <!--                </td>-->
+    <!--                <td>-->
+    <!--                </td>-->
+    <!--            </tr>-->
+    <!--            </tbody>-->
+    <!--        </table>-->
+    <!--        <div class="add-button">-->
+    <!--            <button class="popup-button" id="createViewer">-->
+    <!--                <i class="fa fa-plus"></i>-->
+    <!--            </button>-->
+    <!--        </div>-->
+    <!--    </div>-->
+</div>
+</body>
+</html>
+
+<script>
+    function copy(id) {
+        var copyText = document.getElementById(id);
+        var textArea = document.createElement("textarea");
+
+        textArea.value = copyText.textContent;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("Copy");
+        textArea.remove();
+    }
+
+    function copyGroupAccessToken(id) {
+        var copyText = document.getElementById("groupAccessToken" + id);
+        var textArea = document.createElement("textarea");
+
+        textArea.value = copyText.textContent;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("Copy");
+        textArea.remove();
+    }
+
+    function copyViewerAccessToken(id) {
+        var copyText = document.getElementById("viewerAccessToken" + id);
+        var textArea = document.createElement("textarea");
+
+        textArea.value = copyText.textContent;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("Copy");
+        textArea.remove();
+    }
+
+    //region Scripts for group create popup
+    createGroup.addEventListener("click", function () {
+        createGroupPopup.classList.add("show");
+    });
+
+    closeCreateGroup.addEventListener("click", function () {
+        createGroupPopup.classList.remove("show");
+    });
+
+    function resetPopupForm(formId) {
+        document.getElementById(formId).reset();
+    }
+
+    //endregion
+
+    //region Scripts for create viewer popup
+    createViewer.addEventListener("click", function () {
+        createViewerPopup.classList.add("show");
+    });
+
+    closeCreateViewer.addEventListener("click", function () {
+        createViewerPopup.classList.remove("show");
+    });
+    //endregion
+
+    //region Scripts for group info popup
+    function showGroupInfoPopup(groupId) {
+        var groupInfoPopup = document.getElementById("groupInfoPopup" + groupId);
+        groupInfoPopup.classList.add("show");
+    }
+
+    function closeGroupInfoPopup(groupId) {
+        var groupInfoPopup = document.getElementById("groupInfoPopup" + groupId);
+        groupInfoPopup.classList.remove("show");
+
+        var form = groupInfoPopup.querySelector("form");
+        form.reset();
+    }
+
+    //endregion
+
+    //region Scripts for group edit popup
+    function showGroupEditPopup(groupId) {
+        var groupEditPopup = document.getElementById("groupEditPopup" + groupId);
+        groupEditPopup.classList.add("show");
+    }
+
+    function closeGroupEditPopup(groupId) {
+        var groupEditPopup = document.getElementById("groupEditPopup" + groupId);
+        groupEditPopup.classList.remove("show");
+
+        var form = groupEditPopup.querySelector("form");
+        form.reset();
+    }
+
+    //endregion
+
+    //region Scripts for group delete popup
+    function deleteGroupPopup(groupId) {
+        var groupDeletePopup = document.getElementById("groupDeletePopup" + groupId);
+        groupDeletePopup.classList.add("show");
+    }
+
+    function closeGroupDeletePopup(groupId) {
+        var groupDeletePopup = document.getElementById("groupDeletePopup" + groupId);
+        groupDeletePopup.classList.remove("show");
+
+        var form = groupDeletePopup.querySelector("form");
+        form.reset();
+    }
+
+    //endregion
+
+    //region Scripts for add tag to group popup
+    function groupEditLabelPopup(groupId) {
+        var addLabelPopup = document.getElementById("groupEditLabelPopup" + groupId);
+        addLabelPopup.classList.add("show");
+    }
+
+    function closeGroupEditLabelPopup(groupId) {
+        var addLabelPopup = document.getElementById("groupEditLabelPopup" + groupId);
+        addLabelPopup.classList.remove("show");
+
+        var form = addLabelPopup.querySelector("form");
+        form.reset();
+    }
+
+    //endregion
+
+    //region Scripts for add tasks to group popup
+    function addTaskToGroupsPopup(taskId) {
+        var addTaskToGroupsPopup = document.getElementById("addTaskToGroupsPopup" + taskId);
+        addTaskToGroupsPopup.classList.add("show");
+    }
+
+    function closeAddTaskToGroupsPopup(taskId) {
+        var addTaskToGroupsPopup = document.getElementById("addTaskToGroupsPopup" + taskId);
+        addTaskToGroupsPopup.classList.remove("show");
+
+        var form = addTaskToGroupsPopup.querySelector("form");
+        form.reset();
+    }
+
+    //endregion
+
+    //region Scripts for remove task from groups popup
+    function removeTaskFromGroupsPopup(taskId) {
+        var removeTaskFromGroupsPopup = document.getElementById("removeTaskFromGroupsPopup" + taskId);
+        removeTaskFromGroupsPopup.classList.add("show");
+    }
+
+    function closeRemoveTaskFromGroupsPopup(taskId) {
+        var removeTaskFromGroupsPopup = document.getElementById("removeTaskFromGroupsPopup" + taskId);
+        removeTaskFromGroupsPopup.classList.remove("show");
+
+        var form = removeTaskFromGroupsPopup.querySelector("form");
+        form.reset();
+    }
+
+    //endregion
+
+    //region Scripts for change info popup
+    function showChangeInfoPopup() {
+        var changeInfoPopup = document.getElementById("changeInfoPopup");
+        changeInfoPopup.classList.add("show");
+    }
+
+    function closeChangeInfoPopup() {
+        var changeInfoPopup = document.getElementById("changeInfoPopup");
+        changeInfoPopup.classList.remove("show");
+
+        var form = changeInfoPopup.querySelector("form");
+        form.reset();
+    }
+
+    closeChangeInfo.addEventListener("click", function () {
+        var changeInfoPopup = document.getElementById("changeInfoPopup");
+        changeInfoPopup.classList.remove("show");
+    });
+
+    //endregion
+</script>
+
+<style>
+    .label {
+        display: inline-block;
+        padding: 2px 5px;
+        margin: 2px;
+        border-radius: 5px;
+        background-color: var(--trik-grey);
+        color: var(--trik-blue);
+        font-size: 12px;
+    }
+</style>
