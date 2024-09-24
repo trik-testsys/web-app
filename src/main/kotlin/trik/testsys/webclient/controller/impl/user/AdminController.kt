@@ -1,78 +1,44 @@
-package trik.testsys.webclient.controller.impl.user//package trik.testsys.webclient.controller.impl
-//
-//import org.springframework.beans.factory.annotation.Autowired
-//import org.springframework.beans.factory.annotation.Value
-//import org.springframework.http.*
-//import org.springframework.ui.Model
-//import org.springframework.web.bind.annotation.*
-//import org.springframework.web.servlet.ModelAndView
-//import trik.testsys.webclient.controller.user.TrikUserController
-//
-//import trik.testsys.webclient.entity.impl.*
-//import trik.testsys.webclient.entity.user.impl.Admin
-//import trik.testsys.webclient.entity.impl.user.WebUser
-//import trik.testsys.webclient.model.impl.AdminModel
-//import trik.testsys.webclient.models.ResponseMessage
-//import trik.testsys.webclient.service.impl.*
-//import trik.testsys.webclient.service.user.impl.AdminService
-//import trik.testsys.webclient.service.user.impl.StudentService
-//import trik.testsys.webclient.service.user.impl.ViewerService
-//import trik.testsys.webclient.service.impl.user.WebUserService
-//import trik.testsys.webclient.util.TrikRedirectView
-//import trik.testsys.webclient.util.logger.TrikLogger
-//import trik.testsys.webclient.util.fp.Either
-//import java.nio.charset.Charset
-//import java.time.LocalDateTime
-//import java.time.ZoneOffset
-//import java.util.*
-//
-//@RestController
-//@RequestMapping("\${app.testsys.api.prefix}/admin")
-//@Suppress("UnnecessaryVariable", "DuplicatedCode")
-//class AdminController @Autowired constructor(
-//    @Value("\${app.grading-system.path}")
-//    private val gradingSystemUrl: String,
-//
-//    private val adminService: AdminService,
-//    private val webUserService: WebUserService,
-//    private val groupService: GroupService,
-//    private val taskService: TaskService,
-//    private val studentService: StudentService,
-//    private val viewerService: ViewerService,
-//    private val solutionService: SolutionService,
-//) : TrikUserController {
-//
-//    /**
-//     * @author Roman Shishkin
-//     * @since 1.1.0
-//     */
-//    @GetMapping
-//    override fun getAccess(
-//        @RequestParam accessToken: String,
-//        modelAndView: ModelAndView
-//    ): ModelAndView {
-//        logger.info(accessToken, "Client trying to access admin page.")
-//
-//        val isAdmin = isAdminAccessToken(accessToken)
-//        if (!isAdmin) {
-//            logger.info(accessToken, "Client is not an admin.")
-//
-//            modelAndView.viewName = "error"
-//            modelAndView.addObject("message", "You are not an admin!")
-//
-//            return modelAndView
-//        }
-//
-//        val admin = adminService.getByAccessToken(accessToken)!!
-//
-//        modelAndView.viewName = ADMIN_VIEW_NAME
-//        val adminModel = getModel(admin)
-//
-//        modelAndView.addAllObjects(adminModel.asMap())
-//
-//        return modelAndView
-//    }
-//
+package trik.testsys.webclient.controller.impl.user
+
+import org.springframework.stereotype.Controller
+import org.springframework.web.bind.annotation.RequestMapping
+import trik.testsys.webclient.controller.user.UserController
+import trik.testsys.webclient.entity.user.impl.Admin
+import trik.testsys.webclient.service.entity.user.impl.AdminService
+import trik.testsys.webclient.service.security.UserValidator
+import trik.testsys.webclient.service.security.login.impl.LoginData
+import trik.testsys.webclient.util.atTimeZone
+import trik.testsys.webclient.view.AdminView
+import java.util.*
+
+@Controller
+@RequestMapping(AdminController.ADMIN_PATH)
+class AdminController(
+    userValidator: UserValidator,
+    loginData: LoginData
+) : UserController<Admin, AdminView, AdminService>(userValidator, loginData) {
+
+    override val MAIN_PATH = ADMIN_PATH
+
+    override val MAIN_PAGE = ADMIN_PAGE
+
+    override fun Admin.toView(timeZone: TimeZone) = AdminView(
+        id = this.id,
+        name = this.name,
+        accessToken = this.accessToken,
+        creationDate = this.creationDate?.atTimeZone(timeZone),
+        lastLoginDate = this.lastLoginDate.atTimeZone(timeZone),
+        viewer = this.viewer
+    )
+
+    companion object {
+
+        const val ADMIN_PATH = "/admin"
+
+        const val ADMIN_PAGE = "admin"
+    }
+}
+
 //    /**
 //     * @author Roman Shishkin
 //     * @since 1.1.0
@@ -319,40 +285,6 @@ package trik.testsys.webclient.controller.impl.user//package trik.testsys.webcli
 //        return modelAndView
 //    }
 //
-//    @PostMapping("/create")
-//    fun create(
-//        @RequestParam accessToken: String,
-//        @RequestParam username: String,
-//        modelAndView: ModelAndView
-//    ): ModelAndView {
-//        logger.info(accessToken, "Admin trying to create.")
-//
-//        val viewer = viewerService.getByAdminRegToken(accessToken) ?: run {
-//            logger.info(accessToken, "No viewer with such regToken.")
-//            modelAndView.viewName = "error"
-//            modelAndView.addObject("message", "No viewer with such regToken!")
-//
-//            return modelAndView
-//        }
-//
-//        val webUser = webUserService.saveWebUser(username)
-//        webUser.lastLoginDate = LocalDateTime.now()
-//        webUserService.saveWebUser(webUser)
-//
-//        val admin = adminService.save(webUser, viewer)
-//        val publicTasks = taskService.getAllPublic()
-//        publicTasks.forEach { it.admins.add(admin) }
-//        admin.tasks.addAll(publicTasks)
-//        adminService.save(admin)
-//        publicTasks.forEach { taskService.saveTask(it) }
-//
-//        val adminModel = getModel(admin)
-//        modelAndView.addAllObjects(adminModel.asMap())
-//        modelAndView.viewName = "create"
-//
-//        return modelAndView
-//    }
-//
 //    /**
 //     * @author Roman Shishkin
 //     * @since 1.1.0
@@ -529,50 +461,6 @@ package trik.testsys.webclient.controller.impl.user//package trik.testsys.webcli
 //            .body(bytes)
 //
 //        return responseEntity
-//    }
-//
-//    @PostMapping("/info/change")
-//    fun changeInfo(
-//        @RequestParam accessToken: String,
-//        @RequestParam newUsername: String?,
-//        @RequestParam newAdditionalInfo: String?,
-//        modelAndView: ModelAndView
-//    ): ModelAndView {
-//        logger.info(accessToken, "Admin trying to change info.")
-//
-//        val isAdmin = isAdminAccessToken(accessToken)
-//
-//        if (!isAdmin) {
-//            logger.info(accessToken, "Client is not an admin.")
-//            modelAndView.viewName = "error"
-//            modelAndView.addObject("message", "You are not an admin!")
-//
-//            return modelAndView
-//        }
-//
-//        logger.info(accessToken, "Client is an admin.")
-//
-//        val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
-//        val admin = adminService.getAdminByWebUser(webUser)!!
-//
-//        if (newUsername != null) {
-//            webUser.username = newUsername
-//        }
-//
-//        if (newAdditionalInfo != null) {
-//            webUser.additionalInfo = newAdditionalInfo
-//        }
-//
-//        webUserService.saveWebUser(webUser)
-//
-//        logger.info(accessToken, "Info changed: $webUser")
-//
-//        val adminModel = getModel(admin)
-//
-//        modelAndView.addAllObjects(adminModel.asMap())
-//        modelAndView.view = REDIRECT_VIEW
-//
-//        return modelAndView
 //    }
 //
 //    @Deprecated("")
@@ -806,161 +694,4 @@ package trik.testsys.webclient.controller.impl.user//package trik.testsys.webcli
 //            .body(bytes)
 //    }
 //
-//    @Deprecated("")
-//    @PostMapping("/group/change/access")
-//    fun changeAccess(
-//        @RequestParam accessToken: String,
-//        @RequestParam groupAccessToken: String,
-//        @RequestParam isAccessible: Boolean,
-//        @RequestParam isRegistrationOpen: Boolean,
-//        model: Model
-//    ): ResponseEntity<out Any> {
-//        logger.info(accessToken, "Client trying to change group access.")
-//
-//        val eitherEntities = getAdminEntities(accessToken, groupAccessToken)
-//        if (eitherEntities.isLeft()) {
-//            return eitherEntities.getLeft()
-//        }
-//        val (_, _, group) = eitherEntities.getRight()
-//
-//        group.isAccessible = isAccessible
-//        group.isRegistrationOpen = isRegistrationOpen
-//        groupService.save(group)
-//
-//        logger.info(accessToken, "Group access changed.")
-//
-//        return ResponseEntity.ok().build()
-//    }
-//
-//    /**
-//     * @author Roman Shishkin
-//     * @since 1.1.0
-//     */
-//    private fun getModel(admin: Admin): AdminModel {
-//        val webUser = admin.webUser
-//        val adminModel = AdminModel.Builder()
-//            .accessToken(webUser.accessToken)
-//            .username(webUser.username)
-//            .groups(admin.groups)
-//            .tasks(admin.tasks)
-//            .labels(labelService.getAll())
-//            .webUserId(webUser.id)
-//            .additionalInfo(webUser.additionalInfo)
-//            .registrationDate(webUser.registrationDate)
-//            .lastLoginDate(webUser.lastLoginDate)
-//            .build()
-//
-//        return adminModel
-//    }
-//
-//    /**
-//     * @author Roman Shishkin
-//     * @since 1.1.0
-//     */
-//    private fun isAdminAccessToken(accessToken: String): Boolean {
-//        val webUser = webUserService.getWebUserByAccessToken(accessToken) ?: run {
-//            logger.info(accessToken, "Client not found.")
-//            return false
-//        }
-//        adminService.getAdminByWebUser(webUser) ?: run {
-//            logger.info(accessToken, "Client is not an admin.")
-//            return false
-//        }
-//
-//        logger.info(accessToken, "Client is an admin.")
-//        return true
-//    }
-//
-//    /**
-//     * Validates if [accessToken] belongs to an [Admin].
-//     * @return null if client is an admin, else [ResponseEntity] with status 403 and message "You are not an admin!".
-//     * @author Roman Shishkin
-//     * @since 1.1.0
-//     */
-//    private fun validateAdminByAccessToken(accessToken: String): ResponseEntity<ResponseMessage>? {
-//        if (isAdminAccessToken(accessToken)) return null
-//
-//        return ResponseEntity
-//            .status(HttpStatus.FORBIDDEN)
-//            .body(ResponseMessage(403, "You are not an admin!"))
-//    }
-//
-//    /**
-//     * Validates if [accessToken] belongs to a [Group].
-//     * @return [Either] with [ResponseEntity] with status 404 and message "Group not found!" if group not found,
-//     * else [Either] with null and [Group] if group found.
-//     * @see Either
-//     * @author Roman Shishkin
-//     * @since 1.1.0
-//     */
-//    private fun validateGroupAccessToken(
-//        accessToken: String,
-//        admin: Admin
-//    ): Either<ResponseEntity<ResponseMessage>, Group> {
-//        val group = groupService.getGroupByAccessToken(accessToken) ?: run {
-//            logger.info(accessToken, "Group not found.")
-//
-//            val responseEntity = ResponseEntity
-//                .status(HttpStatus.NOT_FOUND)
-//                .body(ResponseMessage(404, "Group not found!"))
-//
-//            return Either.left(responseEntity)
-//        }
-//
-//        if (group.admin != admin) {
-//            logger.info(accessToken, "Group not found.")
-//
-//            val responseEntity = ResponseEntity
-//                .status(HttpStatus.NOT_FOUND)
-//                .body(ResponseMessage(404, "Group not found!"))
-//
-//            return Either.left(responseEntity)
-//        }
-//
-//        logger.info(accessToken, "Group found.")
-//        return Either.right(group)
-//    }
-//
-//    /**
-//     * Validates everything belongs to an [Admin] by [accessToken] and [groupAccessToken].
-//     * @return [Either] with [ResponseEntity], else [Either] with null and [Entities].
-//     * @see Either
-//     * @see Entities
-//     * @author Roman Shishkin
-//     */
-//    private fun getAdminEntities(
-//        accessToken: String,
-//        groupAccessToken: String
-//    ): Either<ResponseEntity<ResponseMessage>, Entities> {
-//        logger.info(accessToken, "Validating admin access token.")
-//        validateAdminByAccessToken(accessToken)?.let { responseEntity ->
-//            return Either.left(responseEntity)
-//        }
-//
-//        val webUser = webUserService.getWebUserByAccessToken(accessToken)
-//            ?: logger.errorAndThrow(accessToken, "Web user not found.")
-//
-//        val admin = adminService.getAdminByWebUser(webUser)
-//            ?: logger.errorAndThrow(accessToken, "Admin not found.")
-//
-//        val eitherGroup = validateGroupAccessToken(groupAccessToken, admin)
-//        return eitherGroup.bind { group ->
-//            val entities = Entities(webUser, admin, group)
-//            Either.right(entities)
-//        }
-//    }
-//
-//    private data class Entities(
-//        val webUser: WebUser,
-//        val admin: Admin,
-//        val group: Group
-//    )
-//
-//    companion object {
-//        private val logger = TrikLogger(this::class.java)
-//
-//        private const val ADMIN_VIEW_NAME = "admin"
-//        private const val SERVER_PREFIX = "https://testsys.trikset.com/demo2024"
-//        private val REDIRECT_VIEW = TrikRedirectView("/admin")
-//    }
 //}
