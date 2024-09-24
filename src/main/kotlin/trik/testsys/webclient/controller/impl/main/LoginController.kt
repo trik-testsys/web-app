@@ -1,13 +1,16 @@
 package trik.testsys.webclient.controller.impl.main
 
 import org.springframework.stereotype.Controller
+import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
+import trik.testsys.webclient.service.security.login.impl.LoginData
 import trik.testsys.webclient.service.security.login.impl.LoginProcessor
 import trik.testsys.webclient.util.addInvalidAccessTokenMessage
+import trik.testsys.webclient.util.addSessionActiveInfo
 
 /**
  * @author Roman Shishkin
@@ -16,11 +19,15 @@ import trik.testsys.webclient.util.addInvalidAccessTokenMessage
 @Controller
 @RequestMapping("/login")
 class LoginController(
+    private val loginData: LoginData,
     private val loginProcessor: LoginProcessor
 ) {
 
     @GetMapping
-    fun loginGet() = LOGIN_PAGE
+    fun loginGet(model: Model): String {
+        loginData.accessToken?.let { model.addSessionActiveInfo() }
+        return LOGIN_PAGE
+    }
 
     @PostMapping
     fun loginPost(

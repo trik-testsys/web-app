@@ -3,6 +3,7 @@ package trik.testsys.webclient.controller.impl.main
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
+import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -17,8 +18,10 @@ import trik.testsys.webclient.service.entity.impl.GroupService
 import trik.testsys.webclient.service.entity.user.impl.AdminService
 import trik.testsys.webclient.service.entity.user.impl.StudentService
 import trik.testsys.webclient.service.entity.user.impl.ViewerService
+import trik.testsys.webclient.service.security.login.impl.LoginData
 import trik.testsys.webclient.service.token.access.AccessTokenGenerator
 import trik.testsys.webclient.util.addPopupMessage
+import trik.testsys.webclient.util.addSessionActiveInfo
 import javax.servlet.http.HttpServletRequest
 
 /**
@@ -28,6 +31,8 @@ import javax.servlet.http.HttpServletRequest
 @Controller
 @RequestMapping(RegistrationController.REGISTRATION_PATH)
 class RegistrationController(
+    private val loginData: LoginData,
+
     private val studentService: StudentService,
     private val adminService: AdminService,
     private val groupService: GroupService,
@@ -38,7 +43,10 @@ class RegistrationController(
 ) {
 
     @GetMapping
-    fun registrationGet() = REGISTRATION_PAGE
+    fun registrationGet(model: Model): String {
+        loginData.accessToken?.let { model.addSessionActiveInfo() }
+        return REGISTRATION_PAGE
+    }
 
     @PostMapping
     fun registrationPost(
@@ -68,7 +76,7 @@ class RegistrationController(
             return getLoginRedirection(accessToken, redirectAttributes, request)
         }
 
-        redirectAttributes.addPopupMessage("Некорретный Код-доступа. Попробуйте еще раз.")
+        redirectAttributes.addPopupMessage("Некорректный Код-доступа. Попробуйте еще раз.")
         return "redirect:$REGISTRATION_PATH"
     }
 
