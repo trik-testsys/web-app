@@ -11,7 +11,7 @@
 //import org.springframework.stereotype.Controller
 //import org.springframework.web.client.RestTemplate
 //
-//import trik.testsys.webclient.entity.impl.Solution
+//import trik.testsys.webclient.entity.Solution
 //import trik.testsys.webclient.service.impl.SolutionService
 //import trik.testsys.webclient.util.handler.GradingSystemErrorHandler
 //

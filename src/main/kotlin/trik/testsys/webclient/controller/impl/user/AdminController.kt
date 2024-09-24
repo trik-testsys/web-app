@@ -9,14 +9,14 @@ package trik.testsys.webclient.controller.impl.user//package trik.testsys.webcli
 //import trik.testsys.webclient.controller.user.TrikUserController
 //
 //import trik.testsys.webclient.entity.impl.*
-//import trik.testsys.webclient.entity.impl.user.Admin
+//import trik.testsys.webclient.entity.user.impl.Admin
 //import trik.testsys.webclient.entity.impl.user.WebUser
 //import trik.testsys.webclient.model.impl.AdminModel
 //import trik.testsys.webclient.models.ResponseMessage
 //import trik.testsys.webclient.service.impl.*
-//import trik.testsys.webclient.service.impl.user.AdminService
-//import trik.testsys.webclient.service.impl.user.StudentService
-//import trik.testsys.webclient.service.impl.user.ViewerService
+//import trik.testsys.webclient.service.user.impl.AdminService
+//import trik.testsys.webclient.service.user.impl.StudentService
+//import trik.testsys.webclient.service.user.impl.ViewerService
 //import trik.testsys.webclient.service.impl.user.WebUserService
 //import trik.testsys.webclient.util.TrikRedirectView
 //import trik.testsys.webclient.util.logger.TrikLogger

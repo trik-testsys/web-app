@@ -1,10 +1,13 @@
 package trik.testsys.webclient.entity.impl
 
+import trik.testsys.core.entity.AbstractEntity
+import trik.testsys.webclient.entity.user.impl.Admin
+import trik.testsys.webclient.entity.user.impl.Developer
 import java.time.LocalDateTime
 import javax.persistence.*
 
 @Entity
-@Table(name = "TASKS")
+@Table(name = "TRIK_TASK")
 class Task(
 
     var name: String,
@@ -20,13 +23,8 @@ class Task(
     @JoinColumn(
         name = "developer_id", referencedColumnName = "id",
         nullable = false
-    ) val developer: Developer,
-) {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false, unique = true)
-    val id: Long? = null
+    ) val developer: Developer
+) : AbstractEntity() {
 
     @ManyToMany(mappedBy = "tasks")
     val groups: MutableSet<Group> = mutableSetOf()
@@ -55,8 +53,8 @@ class Task(
      * @author Roman Shishkin
      * @since 1.1.0
      */
-    @OneToMany(mappedBy = "task", cascade = [CascadeType.ALL])
-    lateinit var trikFiles: MutableSet<TrikFile>
+//    @OneToMany(mappedBy = "task", cascade = [CascadeType.ALL])
+//    lateinit var trikFiles: MutableSet<TrikFile>
 
     /**
      * @author Roman Shishkin
@@ -76,8 +74,8 @@ class Task(
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
     var isPublic: Boolean = false
 
-    @OneToMany(mappedBy = "task", cascade = [CascadeType.ALL])
-    val taskActions: MutableSet<TaskAction> = mutableSetOf()
+//    @OneToMany(mappedBy = "task", cascade = [CascadeType.ALL])
+//    val taskActions: MutableSet<TaskAction> = mutableSetOf()
 
     /**
      * @author Roman Shishkin

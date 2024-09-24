@@ -20,12 +20,12 @@ package trik.testsys.webclient.controller.impl.user//package trik.testsys.webcli
 //import trik.testsys.webclient.controller.user.TrikUserController
 //
 //import trik.testsys.webclient.util.handler.GradingSystemErrorHandler
-//import trik.testsys.webclient.entity.impl.user.Developer
+//import trik.testsys.webclient.entity.user.impl.Developer
 //import trik.testsys.webclient.entity.impl.user.WebUser
 //import trik.testsys.webclient.model.impl.DeveloperModel
 //import trik.testsys.webclient.service.impl.*
-//import trik.testsys.webclient.service.impl.user.AdminService
-//import trik.testsys.webclient.service.impl.user.DeveloperService
+//import trik.testsys.webclient.service.user.impl.AdminService
+//import trik.testsys.webclient.service.user.impl.DeveloperService
 //import trik.testsys.webclient.service.impl.user.WebUserService
 //import trik.testsys.webclient.util.TrikRedirectView
 //import trik.testsys.webclient.util.fp.Either

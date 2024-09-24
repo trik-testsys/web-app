@@ -13,14 +13,14 @@ package trik.testsys.webclient.controller.impl.user//package trik.testsys.webcli
 //import org.springframework.web.servlet.ModelAndView
 //import trik.testsys.webclient.controller.user.TrikUserController
 //import trik.testsys.webclient.entity.impl.*
-//import trik.testsys.webclient.entity.impl.user.Admin
-//import trik.testsys.webclient.entity.impl.user.Student
-//import trik.testsys.webclient.entity.impl.user.Viewer
+//import trik.testsys.webclient.entity.user.impl.Admin
+//import trik.testsys.webclient.entity.user.impl.Student
+//import trik.testsys.webclient.entity.user.impl.Viewer
 //
 //import trik.testsys.webclient.model.impl.ViewerModel
 //import trik.testsys.webclient.service.impl.*
-//import trik.testsys.webclient.service.impl.user.AdminService
-//import trik.testsys.webclient.service.impl.user.ViewerService
+//import trik.testsys.webclient.service.user.impl.AdminService
+//import trik.testsys.webclient.service.user.impl.ViewerService
 //import trik.testsys.webclient.service.impl.user.WebUserService
 //import trik.testsys.webclient.util.TrikRedirectView
 //import trik.testsys.webclient.util.fp.Either

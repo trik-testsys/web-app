@@ -12,10 +12,10 @@ package trik.testsys.webclient.controller.impl.user//package trik.testsys.webcli
 //import org.springframework.web.bind.annotation.RestController
 //import org.springframework.web.servlet.ModelAndView
 //import trik.testsys.webclient.controller.user.TrikUserController
-//import trik.testsys.webclient.entity.impl.user.Judge
+//import trik.testsys.webclient.entity.user.impl.Judge
 //import trik.testsys.webclient.model.impl.JudgeModel
 //import trik.testsys.webclient.service.impl.*
-//import trik.testsys.webclient.service.impl.user.JudgeService
+//import trik.testsys.webclient.service.user.impl.JudgeService
 //import trik.testsys.webclient.service.impl.user.WebUserService
 //import trik.testsys.webclient.util.TrikRedirectView
 //import trik.testsys.webclient.util.logger.TrikLogger

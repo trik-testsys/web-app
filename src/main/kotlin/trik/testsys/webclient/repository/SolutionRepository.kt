@@ -3,9 +3,9 @@ package trik.testsys.webclient.repository//package trik.testsys.webclient.reposi
 //import org.springframework.data.repository.CrudRepository
 //import org.springframework.stereotype.Repository
 //
-//import trik.testsys.webclient.entity.impl.Solution
-//import trik.testsys.webclient.entity.impl.user.Student
-//import trik.testsys.webclient.entity.impl.Task
+//import trik.testsys.webclient.entity.Solution
+//import trik.testsys.webclient.entity.user.impl.Student
+//import trik.testsys.webclient.entity.Task
 //
 //@Repository
 //interface SolutionRepository : CrudRepository<Solution, Long> {

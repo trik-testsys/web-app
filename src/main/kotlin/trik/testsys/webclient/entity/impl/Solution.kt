@@ -1,10 +1,11 @@
 package trik.testsys.webclient.entity.impl
 
-import java.util.*
+import trik.testsys.core.entity.AbstractEntity
+import trik.testsys.webclient.entity.user.impl.Student
 import javax.persistence.*
 
 @Entity
-@Table(name = "SOLUTIONS")
+@Table(name = "TRIK_SOLUTION")
 class Solution(
     @ManyToOne
     @JoinColumn(name = "student_id", nullable = false)
@@ -12,16 +13,8 @@ class Solution(
 
     @ManyToOne
     @JoinColumn(name = "task_id", nullable = false)
-    val task: Task,
-
-    @Column(nullable = false, unique = true)
-    val gradingId: Long
-) {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false, unique = true)
-    val id: Long? = null
+    val task: Task
+) : AbstractEntity() {
 
     @Column(nullable = false, columnDefinition = "BIGINT DEFAULT 0")
     var countOfTests: Long = 0L
@@ -33,13 +26,10 @@ class Solution(
     var status: Status = Status.NOT_STARTED
 
     @Column(nullable = false)
-    var date: Date = Date()
-
-    @Column(nullable = false)
     var score: Long = 0
 
-    @OneToMany(mappedBy = "solution", cascade = [CascadeType.ALL])
-    val solutionActions: MutableSet<SolutionAction> = mutableSetOf()
+//    @OneToMany(mappedBy = "solution", cascade = [CascadeType.ALL])
+//    val solutionActions: MutableSet<SolutionAction> = mutableSetOf()
 
     /**
      * @author Roman Shishkin
