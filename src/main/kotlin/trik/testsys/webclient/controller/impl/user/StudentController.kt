@@ -5,65 +5,31 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.ResponseBody
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
+import org.springframework.web.servlet.view.RedirectView
 import trik.testsys.webclient.controller.impl.main.LoginController
 import trik.testsys.webclient.controller.user.UserController
 import trik.testsys.webclient.entity.user.impl.Student
 import trik.testsys.webclient.service.entity.user.impl.StudentService
 import trik.testsys.webclient.service.security.UserValidator
 import trik.testsys.webclient.service.security.login.impl.LoginData
-import trik.testsys.webclient.util.addExitMessage
-import trik.testsys.webclient.util.addSessionExpiredMessage
+import trik.testsys.webclient.util.atTimeZone
+import trik.testsys.webclient.view.StudentView
 import java.io.File
+import java.util.TimeZone
 
 
 @Controller
 @RequestMapping(StudentController.STUDENT_PATH)
 class StudentController(
-    private val loginData: LoginData,
-    private val userValidator: UserValidator,
+    userValidator: UserValidator,
+    loginData: LoginData,
+) : UserController<Student, StudentView, StudentService>(userValidator, loginData) {
 
-    private val studentService: StudentService
-) : UserController {
+    override val MAIN_PATH = STUDENT_PATH
 
-    @GetMapping("/login")
-    fun loginGet(
-        redirectAttributes: RedirectAttributes
-    ): String {
-        val student = userValidator.validateExistence(loginData.accessToken) as? Student ?: run {
-            redirectAttributes.addSessionExpiredMessage()
-            return "redirect:${LoginController.LOGIN_PATH}"
-        }
-        student.updateLastLoginDate()
-        studentService.save(student)
-
-        return "redirect:$STUDENT_PATH"
-    }
-
-    @GetMapping
-    fun mainGet(
-        @RequestParam(required = false, name = "Logout") logout: String?,
-        redirectAttributes: RedirectAttributes,
-        model: Model
-    ): String {
-        if (logout != null) {
-            loginData.invalidate()
-            redirectAttributes.addExitMessage()
-            return "redirect:${LoginController.LOGIN_PATH}"
-        }
-
-        val webUser = userValidator.validateExistence(loginData.accessToken) as? Student ?: run {
-            redirectAttributes.addSessionExpiredMessage()
-            return "redirect:${LoginController.LOGIN_PATH}"
-        }
-
-        model.addAttribute("webUser", webUser)
-        return STUDENT_PAGE
-    }
+    override val MAIN_PAGE = STUDENT_PAGE
 
     @ResponseBody
     @GetMapping("/task/download")
@@ -71,6 +37,7 @@ class StudentController(
         redirectAttributes: RedirectAttributes,
         model: Model
     ): Any {
+        validate(redirectAttributes) ?: return RedirectView(LoginController.LOGIN_PATH)
         val file = File("/Users/shisha/Projects/Kotlin/trik-testsys-web-client2/Dockerfile")
 
         val responseEntity = ResponseEntity.ok()
@@ -80,6 +47,15 @@ class StudentController(
 
         return responseEntity
     }
+
+    override fun Student.toView(timeZone: TimeZone) = StudentView(
+        id = this.id,
+        name = this.name,
+        accessToken = this.accessToken,
+        creationDate = this.creationDate?.atTimeZone(timeZone),
+        lastLoginDate = this.lastLoginDate.atTimeZone(timeZone),
+        group = this.group
+    )
 
     companion object {
 
@@ -91,65 +67,7 @@ class StudentController(
 
 
 //
-//import org.slf4j.Logger
-//import org.slf4j.LoggerFactory
-//
-//import org.springframework.beans.factory.annotation.Autowired
-//import org.springframework.beans.factory.annotation.Value
-//import org.springframework.http.*
-//import org.springframework.ui.Model
-//import org.springframework.util.LinkedMultiValueMap
-//import org.springframework.util.MultiValueMap
-//import org.springframework.web.bind.annotation.GetMapping
-//import org.springframework.web.bind.annotation.PostMapping
-//import org.springframework.web.bind.annotation.RequestBody
-//import org.springframework.web.bind.annotation.RequestMapping
-//import org.springframework.web.bind.annotation.RequestParam
-//import org.springframework.web.bind.annotation.RestController
-//import org.springframework.web.client.RestTemplate
-//import org.springframework.web.multipart.MultipartFile
-//import trik.testsys.webclient.entity.user.impl.Student
-//import trik.testsys.webclient.entity.Task
-//
-//import trik.testsys.webclient.util.handler.GradingSystemErrorHandler
-//import trik.testsys.webclient.entity.impl.user.WebUser
-//import trik.testsys.webclient.models.ResponseMessage
-//import trik.testsys.webclient.service.impl.*
-//import trik.testsys.webclient.service.user.impl.StudentService
-//import trik.testsys.webclient.service.impl.user.WebUserService
-//import java.io.File
-//import java.time.LocalDateTime
-//import java.time.ZoneOffset.UTC
-//import java.util.concurrent.TimeUnit
-//
-//@RestController
-//@RequestMapping("\${app.testsys.api.prefix}/student")
-//class StudentController(
-//    @Value("\${app.grading-system.path}") val gradingSystemUrl: String,
-//    @Value("\${app.testsys.paths.training}") val trainingPath: String,
-//) {
-//
-//    private val logger: Logger = LoggerFactory.getLogger(this::class.java)
-//
-//    @Autowired
-//    private lateinit var studentService: StudentService
-//
-//    @Autowired
-//    private lateinit var groupService: GroupService
-//
-//    @Autowired
-//    private lateinit var webUserService: WebUserService
-//
-//    @Autowired
-//    private lateinit var solutionService: SolutionService
-//
-//    @Autowired
-//    private lateinit var taskService: TaskService
-//
-//    @Autowired
-//    private lateinit var taskActionService: TaskActionService
-//
-//    private val restTemplate = RestTemplate()
+//class StudentController
 //
 //    @GetMapping("/registration")
 //    fun registration(@RequestParam groupAccessToken: String, model: Model): Any {
@@ -209,46 +127,6 @@ class StudentController(
 //        model.addAttribute("id", student.id)
 //        model.addAttribute("username", username)
 //        model.addAttribute("accessToken", webUser.accessToken)
-//        return model
-//    }
-//
-//    @GetMapping
-//    fun getAccess(@RequestParam accessToken: String, model: Model): Any {
-//        logger.info("[${accessToken.padStart(80)}]: Client trying to access student page.")
-//
-//        val status = validateStudent(accessToken)
-//        if (status == WebUser.Status.NOT_FOUND || status == WebUser.Status.ADMIN) {
-//            logger.info("[${accessToken.padStart(80)}]: Client is not a student.")
-//            return ResponseEntity
-//                .status(HttpStatus.FORBIDDEN)
-//                .body(ResponseMessage(403, "You are not a student!"))
-//        }
-//
-//        logger.info("[${accessToken.padStart(80)}]: Client is a student.")
-//        val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
-//        val student = studentService.getByWebUser(webUser)!!
-//        val group = student.group
-//
-//        if (!group.isAccessible) {
-//            logger.info("[${group.accessToken.padStart(80)}]: Group is not accessible.")
-//
-//            return ResponseEntity
-//                .status(HttpStatus.FORBIDDEN)
-//                .body(ResponseMessage(403, "Group is not accessible!"))
-//        }
-//
-//        model.addAttribute("tasks", student.group.tasks.sortedBy { it.id })
-//        model.addAttribute("solutions", student.solutions.sortedBy { it.date })
-//        model.addAttribute("id", student.id)
-//        model.addAttribute("username", webUser.username)
-//        model.addAttribute("accessToken", accessToken)
-//        model.addAttribute("groupName", student.group.name)
-//
-//        val taskTimes = generateTaskTimes(student, student.group.tasks)
-//        val minTaskTime = taskTimes.minOfOrNull { it.value } ?: LocalDateTime.MIN
-//        model.addAttribute("taskTimes", minTaskTime)
-//        model.addAttribute("canUpload", minTaskTime != LocalDateTime.MIN)
-//
 //        return model
 //    }
 //
@@ -459,17 +337,5 @@ class StudentController(
 //            logger.info("Task time: ${taskTimes[task.id]}")
 //        }
 //        return taskTimes
-//    }
-//
-//    private fun validateStudent(accessToken: String): Enum<*> {
-//        val webUser = webUserService.getWebUserByAccessToken(accessToken) ?: run {
-//            return WebUser.Status.NOT_FOUND
-//        }
-//
-//        val student = studentService.getByWebUser(webUser) ?: run {
-//            return WebUser.Status.ADMIN
-//        }
-//
-//        return WebUser.Status.WEB_USER
 //    }
 //}

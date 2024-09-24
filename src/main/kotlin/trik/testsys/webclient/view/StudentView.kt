@@ -1,11 +1,9 @@
 package trik.testsys.webclient.view
 
-import trik.testsys.core.entity.AbstractEntity
 import trik.testsys.core.entity.user.AccessToken
 import trik.testsys.core.view.user.UserView
 import trik.testsys.webclient.entity.impl.Group
 import trik.testsys.webclient.entity.user.impl.Student
-import trik.testsys.webclient.util.atTimeZone
 import trik.testsys.webclient.util.fromTimeZone
 import java.time.LocalDateTime
 import java.util.TimeZone
@@ -27,17 +25,5 @@ data class StudentView(
     ).also {
         it.id = id
         it.lastLoginDate = lastLoginDate.fromTimeZone(timeZone)
-    }
-
-    companion object {
-
-        fun Student.toView(timeZone: TimeZone) = StudentView(
-            id = this.id,
-            name = this.name,
-            accessToken = this.accessToken,
-            creationDate = this.creationDate?.atTimeZone(timeZone),
-            lastLoginDate = this.lastLoginDate.atTimeZone(timeZone),
-            group = this.group
-        )
     }
 }
