@@ -1,104 +1,45 @@
-package trik.testsys.webclient.controller.impl.user//package trik.testsys.webclient.controller.impl
-//
-//import org.springframework.beans.factory.annotation.Autowired
-//import org.springframework.http.ContentDisposition
-//import org.springframework.http.HttpHeaders
-//import org.springframework.http.MediaType
-//import org.springframework.http.ResponseEntity
-//import org.springframework.web.bind.annotation.GetMapping
-//import org.springframework.web.bind.annotation.PostMapping
-//import org.springframework.web.bind.annotation.RequestMapping
-//import org.springframework.web.bind.annotation.RequestParam
-//import org.springframework.web.bind.annotation.RestController
-//import org.springframework.web.servlet.ModelAndView
-//import trik.testsys.webclient.controller.user.TrikUserController
-//import trik.testsys.webclient.entity.impl.*
-//import trik.testsys.webclient.entity.user.impl.Admin
-//import trik.testsys.webclient.entity.user.impl.Student
-//import trik.testsys.webclient.entity.user.impl.Viewer
-//
-//import trik.testsys.webclient.model.impl.ViewerModel
-//import trik.testsys.webclient.service.impl.*
-//import trik.testsys.webclient.service.user.impl.AdminService
-//import trik.testsys.webclient.service.user.impl.ViewerService
-//import trik.testsys.webclient.service.impl.user.WebUserService
-//import trik.testsys.webclient.util.TrikRedirectView
-//import trik.testsys.webclient.util.fp.Either
-//import trik.testsys.webclient.util.logger.TrikLogger
-//import java.nio.charset.Charset
-//import java.time.LocalDateTime
-//import java.time.ZoneOffset.UTC
-//import java.util.*
-//
-///**
-// * @author Roman Shishkin
-// * @since 1.1.0
-// */
-//@RestController
-//@RequestMapping("\${app.testsys.api.prefix}/viewer")
-//class ViewerController @Autowired constructor(
-//    private val webUserService: WebUserService,
-//    private val groupService: GroupService,
-//    private val viewerService: ViewerService,
-//    private val adminService: AdminService,
-//    private val solutionService: SolutionService
-//) : TrikUserController {
-//
-//    @GetMapping
-//    override fun getAccess(
-//        @RequestParam accessToken: String,
-//        modelAndView: ModelAndView
-//    ): ModelAndView {
-//        logger.info(accessToken, "Client trying to access viewer page.")
-//
-//        val eitherViewer = validateViewer(accessToken)
-//        if (eitherViewer.isLeft()) {
-//            return eitherViewer.getLeft()
-//        }
-//        val viewer = eitherViewer.getRight()
-//
-//        val groups = viewer.admins.flatMap { it.groups }
-//        val groupsResult = generateGroupsResult(groups)
-//        val adminsResult = generateAdminsResult(viewer.admins)
-//
-//        val viewerModel = getModel(viewer, groupsResult, adminsResult)
-//        modelAndView.viewName = VIEWER_VIEW_NAME
-//        modelAndView.addAllObjects(viewerModel.asMap())
-//
-//        return modelAndView
-//    }
-//
-//    @PostMapping("/info/change")
-//    fun changeInfo(
-//        @RequestParam accessToken: String,
-//        @RequestParam newUsername: String,
-//        @RequestParam newAdditionalInfo: String?,
-//        modelAndView: ModelAndView
-//    ): ModelAndView {
-//        logger.info(accessToken, "Client trying to change viewer info.")
-//
-//        val eitherViewer = validateViewer(accessToken)
-//        if (eitherViewer.isLeft()) {
-//            return eitherViewer.getLeft()
-//        }
-//        val viewer = eitherViewer.getRight()
-//        val webUser = viewer.webUser
-//
-//        webUser.name = newUsername
-//        webUser.additionalInfo = newAdditionalInfo
-//        webUserService.saveWebUser(webUser)
-//
-//        val groups = viewer.admins.flatMap { it.groups }
-//        val groupsResult = generateGroupsResult(groups)
-//        val adminsResult = generateAdminsResult(viewer.admins)
-//
-//        val viewerModel = getModel(viewer, groupsResult, adminsResult)
-//        modelAndView.view = REDIRECT_VIEW
-//        modelAndView.addAllObjects(viewerModel.asMap())
-//
-//        return modelAndView
-//    }
-//
+package trik.testsys.webclient.controller.impl.user
+
+import org.springframework.stereotype.Controller
+import org.springframework.web.bind.annotation.RequestMapping
+import trik.testsys.webclient.controller.user.UserController
+import trik.testsys.webclient.entity.user.impl.Viewer
+import trik.testsys.webclient.service.entity.user.impl.ViewerService
+import trik.testsys.webclient.service.security.UserValidator
+import trik.testsys.webclient.service.security.login.impl.LoginData
+import trik.testsys.webclient.util.atTimeZone
+import trik.testsys.webclient.view.ViewerView
+import java.util.*
+
+
+@Controller
+@RequestMapping(ViewerController.VIEWER_PATH)
+class ViewerController(
+    userValidator: UserValidator,
+    loginData: LoginData
+) : UserController<Viewer, ViewerView, ViewerService>(userValidator, loginData) {
+
+    override val MAIN_PATH = VIEWER_PATH
+
+    override val MAIN_PAGE = VIEWER_PAGE
+
+    override fun Viewer.toView(timeZone: TimeZone) = ViewerView(
+        id = this.id,
+        name = this.name,
+        accessToken = this.accessToken,
+        lastLoginDate = this.lastLoginDate.atTimeZone(timeZone),
+        creationDate = this.creationDate?.atTimeZone(timeZone),
+        adminRegToken = this.adminRegToken
+    )
+
+    companion object {
+
+        const val VIEWER_PATH = "/viewer"
+
+        const val VIEWER_PAGE = "viewer"
+    }
+}
+
 //    private fun generateAdminsResult(admins: Collection<Admin>): Map<Long, Table> {
 //        val adminsResult = mutableMapOf<Long, Table>()
 //        admins.forEach { admin ->
@@ -303,32 +244,3 @@ package trik.testsys.webclient.controller.impl.user//package trik.testsys.webcli
 //
 //        return viewerModel
 //    }
-//
-//    fun validateViewer(accessToken: String): Either<ModelAndView, Viewer> {
-//        val modelAndView = ModelAndView("error")
-//        val webUser = webUserService.getWebUserByAccessToken(accessToken) ?: run {
-//            logger.info(accessToken, "Client is not found.")
-//            modelAndView.addObject("message", "Client not found.")
-//
-//            return Either.left(modelAndView)
-//        }
-//
-//        val viewer = viewerService.getByWebUser(webUser) ?: run {
-//            logger.info(accessToken, "Client is not a viewer.")
-//            modelAndView.addObject("message", "Client is not a viewer.")
-//
-//            return Either.left(modelAndView)
-//        }
-//
-//        logger.info(accessToken, "Client is a viewer.")
-//        return Either.right(viewer)
-//    }
-//
-//    companion object {
-//        private val logger = TrikLogger(this::class.java)
-//
-//        private const val VIEWER_VIEW_NAME = "viewer"
-//        private const val SERVER_PREFIX = "https://testsys.trikset.com/demo2024"
-//        private val REDIRECT_VIEW = TrikRedirectView("/viewer")
-//    }
-//}
