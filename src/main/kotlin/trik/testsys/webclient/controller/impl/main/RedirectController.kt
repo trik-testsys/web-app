@@ -40,12 +40,12 @@ class RedirectController(
 
         request.setAttribute(View.RESPONSE_STATUS_ATTRIBUTE, HttpStatus.TEMPORARY_REDIRECT)
         return when (user.type) {
-            UserType.ADMIN -> "redirect:admin"
-            UserType.DEVELOPER -> "redirect:developer"
-            UserType.JUDGE -> "redirect:judge"
-            UserType.STUDENT -> "redirect:student"
-            UserType.SUPER_USER -> "redirect:superUser"
-            UserType.VIEWER -> "redirect:viewer"
+            UserType.ADMIN -> "redirect:/admin/login"
+            UserType.DEVELOPER -> "redirect:/developer/login"
+            UserType.JUDGE -> "redirect:/judge/login"
+            UserType.STUDENT -> "redirect:/student/login"
+            UserType.SUPER_USER -> "redirect:/superuser/login"
+            UserType.VIEWER -> "redirect:/viewer/login"
         }
     }
 
