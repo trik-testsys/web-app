@@ -23,9 +23,8 @@ import java.util.TimeZone
 @Controller
 @RequestMapping(StudentController.STUDENT_PATH)
 class StudentController(
-    userValidator: UserValidator,
     loginData: LoginData,
-) : UserController<Student, StudentView, StudentService>(userValidator, loginData) {
+) : UserController<Student, StudentView, StudentService>(loginData) {
 
     override val MAIN_PATH = STUDENT_PATH
 

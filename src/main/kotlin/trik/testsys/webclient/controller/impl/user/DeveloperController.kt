@@ -15,9 +15,8 @@ import java.util.*
 @Controller
 @RequestMapping(DeveloperController.DEVELOPER_PATH)
 class DeveloperController(
-    userValidator: UserValidator,
     loginData: LoginData
-) : UserController<Developer, DeveloperView, DeveloperService>(userValidator, loginData) {
+) : UserController<Developer, DeveloperView, DeveloperService>(loginData) {
 
     override val MAIN_PATH = DEVELOPER_PATH
 

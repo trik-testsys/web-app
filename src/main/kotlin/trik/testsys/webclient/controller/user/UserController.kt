@@ -13,7 +13,6 @@ import trik.testsys.core.view.user.UserView
 import trik.testsys.webclient.controller.impl.main.LoginController
 import trik.testsys.webclient.entity.user.WebUser
 import trik.testsys.webclient.service.entity.user.WebUserService
-import trik.testsys.webclient.service.security.UserValidator
 import trik.testsys.webclient.service.security.login.impl.LoginData
 import trik.testsys.webclient.util.addExitMessage
 import trik.testsys.webclient.util.addPopupMessage
@@ -23,9 +22,8 @@ import java.util.TimeZone
 /**
  * @author Roman Shishkin
  * @since 2.0.0
-**/
-abstract class UserController<U: WebUser, V: UserView<U>, S: WebUserService<U, out UserRepository<U>>>(
-    private val userValidator: UserValidator,
+ **/
+abstract class UserController<U : WebUser, V : UserView<U>, S : WebUserService<U, out UserRepository<U>>>(
     private val loginData: LoginData
 ) : TrikController {
 
@@ -43,7 +41,10 @@ abstract class UserController<U: WebUser, V: UserView<U>, S: WebUserService<U, o
         redirectAttributes: RedirectAttributes,
         model: Model
     ): String {
-        if (logout.checkLogout(redirectAttributes)) return "redirect:${LoginController.LOGIN_PATH}"
+        if (logout.checkLogout(redirectAttributes)) {
+            loginData.invalidate()
+            return "redirect:${LoginController.LOGIN_PATH}"
+        }
         val webUser = validate(redirectAttributes) ?: return "redirect:${LoginController.LOGIN_PATH}"
 
         model.addAttribute(WEB_USER, webUser.toView(timeZone))
@@ -53,6 +54,7 @@ abstract class UserController<U: WebUser, V: UserView<U>, S: WebUserService<U, o
     @GetMapping(LOGIN_PATH)
     open fun loginGet(redirectAttributes: RedirectAttributes): String {
         val webUser = validate(redirectAttributes) ?: return "redirect:${LoginController.LOGIN_PATH}"
+        firstTimeCheck(webUser, redirectAttributes)
         webUser.updateLastLoginDate()
         service.save(webUser)
 
@@ -79,20 +81,21 @@ abstract class UserController<U: WebUser, V: UserView<U>, S: WebUserService<U, o
     /**
      * @author Roman Shishkin
      * @since 2.0.0
-    **/
+     **/
     protected fun validate(redirectAttributes: RedirectAttributes): U? {
-        val webUser = userValidator.validateExistence(loginData.accessToken) ?: run {
+        val webUser = loginData.accessToken?.let { service.findByAccessToken(it) } ?: run {
+            loginData.invalidate()
             redirectAttributes.addSessionExpiredMessage()
             return null
         }
 
-        return webUser as U
+        return webUser
     }
 
     /**
      * @author Roman Shishkin
      * @since 2.0.0
-    **/
+     **/
     protected fun String?.checkLogout(redirectAttributes: RedirectAttributes): Boolean {
         if (this != null) {
             redirectAttributes.addExitMessage()
@@ -100,6 +103,16 @@ abstract class UserController<U: WebUser, V: UserView<U>, S: WebUserService<U, o
         }
 
         return false
+    }
+
+    private fun firstTimeCheck(webUser: U, redirectAttributes: RedirectAttributes) {
+        if (webUser.lastLoginDate.isEqual(webUser.creationDate)) {
+            redirectAttributes.addPopupMessage(
+                "Вы успешно зарегистрировались в системе! \n\n" +
+                "Пожалуйста, сохраните сгенерированный Код-доступа, чтобы не потерять его: \n\n" +
+                webUser.accessToken
+            )
+        }
     }
 
     companion object {

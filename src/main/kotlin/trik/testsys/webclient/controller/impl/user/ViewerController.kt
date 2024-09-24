@@ -15,9 +15,8 @@ import java.util.*
 @Controller
 @RequestMapping(ViewerController.VIEWER_PATH)
 class ViewerController(
-    userValidator: UserValidator,
     loginData: LoginData
-) : UserController<Viewer, ViewerView, ViewerService>(userValidator, loginData) {
+) : UserController<Viewer, ViewerView, ViewerService>(loginData) {
 
     override val MAIN_PATH = VIEWER_PATH
 
