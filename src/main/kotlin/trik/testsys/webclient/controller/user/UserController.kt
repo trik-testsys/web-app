@@ -54,7 +54,15 @@ abstract class UserController<U : WebUser, V : UserView<U>, S : WebUserService<U
     @GetMapping(LOGIN_PATH)
     open fun loginGet(redirectAttributes: RedirectAttributes): String {
         val webUser = validate(redirectAttributes) ?: return "redirect:${LoginController.LOGIN_PATH}"
-        firstTimeCheck(webUser, redirectAttributes)
+
+        if (service.firstTimeCheck(webUser)) {
+            redirectAttributes.addPopupMessage(
+                "Вы успешно зарегистрировались в системе! \n\n" +
+                "Пожалуйста, сохраните сгенерированный Код-доступа, чтобы не потерять его: \n\n" +
+                webUser.accessToken
+            )
+        }
+
         webUser.updateLastLoginDate()
         service.save(webUser)
 
@@ -70,6 +78,11 @@ abstract class UserController<U : WebUser, V : UserView<U>, S : WebUserService<U
         validate(redirectAttributes) ?: return "redirect:${LoginController.LOGIN_PATH}"
 
         val updatedWebUser = webUserView.toEntity(timeZone)
+        if (!service.validateName(updatedWebUser)) {
+            redirectAttributes.addPopupMessage("Псевдоним не должен быть пустым или совпадать с Кодом-доступа. Попробуйте другой вариант.")
+            return "redirect:$MAIN_PATH"
+        }
+
         service.save(updatedWebUser)
 
         redirectAttributes.addPopupMessage("Данные успешно изменены.")
@@ -103,16 +116,6 @@ abstract class UserController<U : WebUser, V : UserView<U>, S : WebUserService<U
         }
 
         return false
-    }
-
-    private fun firstTimeCheck(webUser: U, redirectAttributes: RedirectAttributes) {
-        if (webUser.lastLoginDate.isEqual(webUser.creationDate)) {
-            redirectAttributes.addPopupMessage(
-                "Вы успешно зарегистрировались в системе! \n\n" +
-                "Пожалуйста, сохраните сгенерированный Код-доступа, чтобы не потерять его: \n\n" +
-                webUser.accessToken
-            )
-        }
     }
 
     companion object {
