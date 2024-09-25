@@ -68,7 +68,7 @@ class RegistrationController(
             return getLoginRedirection(accessToken, redirectAttributes, request)
         }
 
-        viewerService.getByAdminRegToken(regToken)?.let {
+        viewerService.findByAdminRegToken(regToken)?.let {
             val accessToken = webUserAccessTokenGenerator.generate(name)
             val admin = Admin(name, accessToken, it)
             adminService.save(admin)

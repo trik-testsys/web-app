@@ -13,7 +13,13 @@ import trik.testsys.webclient.service.entity.user.WebUserService
 @Service
 class ViewerService : WebUserService<Viewer, ViewerRepository>(), TrikService {
 
-    fun getByAdminRegToken(adminRegToken: String): Viewer? {
+    fun findByAdminRegToken(adminRegToken: String): Viewer? {
         return repository.findByAdminRegToken(adminRegToken)
     }
+
+    override fun validateName(entity: Viewer) =
+        !entity.name.contains(entity.adminRegToken, ignoreCase = true) && super.validateName(entity)
+
+    override fun validateAdditionalInfo(entity: Viewer) =
+        !entity.additionalInfo.contains(entity.adminRegToken, ignoreCase = true) && super.validateAdditionalInfo(entity)
 }

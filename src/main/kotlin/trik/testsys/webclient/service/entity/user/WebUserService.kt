@@ -7,7 +7,7 @@ import trik.testsys.webclient.entity.user.WebUser
 /**
  * @author Roman Shishkin
  * @since 2.0.0
-**/
+ **/
 abstract class WebUserService<E : WebUser, R : UserRepository<E>> : AbstractUserService<E, R>() {
 
     /**
@@ -27,7 +27,8 @@ abstract class WebUserService<E : WebUser, R : UserRepository<E>> : AbstractUser
      * @author Roman Shishkin
      * @since 2.0.0
      **/
-    fun validateName(entity: E) = entity.name.isNotEmpty() && !entity.name.contains(entity.accessToken)
+    open fun validateName(entity: E) =
+        entity.name.isNotEmpty() && !entity.name.contains(entity.accessToken, ignoreCase = true)
 
     /**
      * Validates the [WebUser.additionalInfo] of the [entity]. The additional info should not contain the [WebUser.accessToken].
@@ -37,5 +38,5 @@ abstract class WebUserService<E : WebUser, R : UserRepository<E>> : AbstractUser
      * @author Roman Shishkin
      * @since 2.0.0
      **/
-    fun validateAdditionalInfo(entity: E) = !entity.additionalInfo.contains(entity.accessToken)
+    open fun validateAdditionalInfo(entity: E) = !entity.additionalInfo.contains(entity.accessToken, ignoreCase = true)
 }
