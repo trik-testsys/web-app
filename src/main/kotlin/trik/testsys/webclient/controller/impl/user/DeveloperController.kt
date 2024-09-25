@@ -26,7 +26,8 @@ class DeveloperController(
         name = this.name,
         accessToken = this.accessToken,
         lastLoginDate = this.lastLoginDate.atTimeZone(timeZone),
-        creationDate = this.creationDate?.atTimeZone(timeZone)
+        creationDate = this.creationDate?.atTimeZone(timeZone),
+        additionalInfo = this.additionalInfo
     )
 
     companion object {

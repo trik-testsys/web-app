@@ -12,7 +12,8 @@ data class DeveloperView(
     override val name: String,
     override val accessToken: AccessToken,
     override val lastLoginDate: LocalDateTime,
-    override val creationDate: LocalDateTime?
+    override val creationDate: LocalDateTime?,
+    val additionalInfo: String
 ) : UserView<Developer> {
 
     override fun toEntity(timeZone: TimeZone) = Developer(
@@ -20,5 +21,6 @@ data class DeveloperView(
     ).also {
         it.id = id
         it.lastLoginDate = lastLoginDate.fromTimeZone(timeZone)
+        it.additionalInfo = additionalInfo
     }
 }
