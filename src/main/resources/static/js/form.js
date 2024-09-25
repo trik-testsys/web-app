@@ -1,6 +1,6 @@
 function enableForm(id) {
     const formElements = document.querySelectorAll('#' + id + ' input');
-    formElements.forEach(input => input.className !== "readonly" ? input.readOnly = false : input.readOnly = true);
+    formElements.forEach(input => input.className.includes('readonly') ? input.readOnly = true : input.readOnly = false);
 
     // Включаем кнопки "Сохранить" и "Отменить"
     document.getElementById(id + '-save').style.display = 'inline-block';
