@@ -25,11 +25,13 @@ form {
 }
 
 .form-field label {
+    margin-left: 10px;
     flex-basis: 30%;
     font-weight: bold;
 }
 
 .form-field input {
+    margin-right: 10px;
     flex-basis: 70%;
     padding: 8px;
     font-size: 1rem;
