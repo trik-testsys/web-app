@@ -4,8 +4,8 @@
     bottom: 30px;
     right: 30px;
     width: 300px;
-    background: rgba(0, 0, 0, 0.75); /* Полупрозрачный чёрный фон */
-    color: #fff;
+    background: var(--trik-blue); /* Полупрозрачный чёрный фон */
+    color: var(--trik-white);
     padding: 20px;
     border-radius: 15px; /* Закруглённые углы */
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); /* Плавная тень */
@@ -32,7 +32,7 @@
     font-size: 18px;
     font-weight: bold;
     cursor: pointer;
-    color: #ff5e5e; /* Красный цвет для контраста */
+    color: var(--trik-red); /* Красный цвет для контраста */
     background: none;
     border: none;
     outline: none;
