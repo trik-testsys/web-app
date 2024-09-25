@@ -8,9 +8,14 @@
 
     <link rel="stylesheet" th:href="@{/css/main.css}"/>
     <link rel="stylesheet" th:href="@{/css/popup.css}"/>
+    <link rel="stylesheet" th:href="@{/css/form.css}"/>
+    <link rel="stylesheet" th:href="@{/css/menu.css}">
+    <link rel="stylesheet" th:href="@{/css/block.css}">
 
     <script th:src="@{/js/scripts.js}"></script>
     <script th:src="@{/js/popup.js}"></script>
+    <script th:src="@{/js/form.js}"></script>
+    <script th:src="@{/js/menu.js}"></script>
 </head>
 <body>
 <div class="background-container"></div>
@@ -22,32 +27,80 @@
     </div>
 </div>
 
-<!--/*@thymesVar id="webUser" type="trik.testsys.webclient.view.ViewerView"*/-->
-<form action="#" th:action="@{/viewer/update}" th:object="${webUser}" method="post">
-    <input th:field="*{id}" type="text" id="viewer.id" hidden/>
-    <input th:field="*{creationDate}" type="text" id="viewer.creationDate" hidden/>
 
-    <label for="viewer.name">Имя:</label>
-    <input th:field="*{name}" type="text" id="viewer.name"/>
+<header class="header">
+    <div class="logo">
+        <img th:src="@{/img/trik_testsys_logo.svg}" alt="Лого" class="logo-img">
+        <span class="cabinet-name">Кабинет Районного Наблюдателя</span>
+    </div>
+    <button class="menu-button" onclick="toggleMenu()">≡</button>
+</header>
 
-    <label for="viewer.accessToken">Код-доступа:</label>
-    <input th:field="*{accessToken}" type="text" id="viewer.accessToken" readonly
-           class="accessToken"
-           onclick="copy('viewer.accessToken')"
-    />
+<div class="side-menu" id="side-menu">
+    <ul>
+        <li><a th:href="@{/viewer}">Профиль</a></li>
+        <li><a th:href="@{/viewer?Logout=''}">Выход</a></li>
+    </ul>
+</div>
 
-    <label for="viewer.adminRegToken">Код-регистрации Организатора</label>
-    <input th:field="*{adminRegToken}" type="text" id="viewer.adminRegToken" readonly
-           class="accessToken"
-           onclick="copy('viewer.adminRegToken')"
-    />
+<div class="container">
+    <!-- Первый блок -->
+    <div class="block">
+        <div class="block-title">Профиль</div>
 
-    <label for="viewer.lastLoginDate">Дата входа:</label>
-    <input th:field="*{lastLoginDate}" type="text" id="viewer.lastLoginDate" readonly/>
+        <div class="form-container">
+            <!--/*@thymesVar id="webUser" type="trik.testsys.webclient.view.ViewerView"*/-->
+            <form id="viewer-info" action="#" th:action="@{/viewer/update}" th:object="${webUser}" method="post">
+                <input th:field="*{id}" type="text" id="viewer.id" hidden/>
 
-    <button type="submit">Сохранить</button>
-</form>
+                <div class="form-field" style="flex-basis: 50%">
+                    <label for="viewer.name"
+                           style="flex-basis: 20%">Имя</label>
+                    <input th:field="*{name}" type="text" id="viewer.name" readonly
+                           required
+                           style="flex-basis: 80%"/>
+                </div>
+                <div class="form-field" style="flex-basis: 50%">
+                    <label for="viewer.accessToken"
+                           style="flex-basis: 20%">Код-доступа</label>
+                    <input th:field="*{accessToken}" type="text" id="viewer.accessToken" class="readonly accessToken" readonly
+                           style="flex-basis: 80%"/>
+                </div>
+                <div class="form-field" style="flex-basis: 25%">
+                    <label for="viewer.lastLoginDate"
+                           style="flex-basis: 41%">Дата и время входа</label>
+                    <input th:field="*{lastLoginDate}" type="text" id="viewer.lastLoginDate" class="readonly" readonly
+                           style="flex-basis: 59%"/>
+                </div>
+                <div class="form-field" style="flex-basis: 25%">
+                    <label for="viewer.creationDate"
+                           style="flex-basis: 40%">Дата и время регистрации</label>
+                    <input th:field="*{creationDate}" type="text" id="viewer.creationDate" class="readonly" readonly
+                           style="flex-basis: 60%"/>
+                </div>
+                <div class="form-field" style="flex-basis: 50%">
+                    <label for="viewer.adminRegToken"
+                           style="flex-basis: 20%">Код-регистрации Организатора</label>
+                    <input th:field="*{adminRegToken}" type="text" id="viewer.adminRegToken" class="readonly accessToken" readonly
+                           style="flex-basis: 80%"/>
+                </div>
+                <div class="form-field" style="flex-basis: 100%">
+                    <label for="viewer.additionalInfo"
+                           style="flex-basis: 20%">Дополнительная информация</label>
+                    <input th:field="*{additionalInfo}" type="text" id="viewer.additionalInfo" readonly
+                           style="flex-basis: 80%"/>
+                </div>
 
-<a th:href="@{/viewer?Logout=''}">Выйти</a>
+                <!-- Кнопки редактирования, отправки и отмены -->
+                <div class="form-buttons">
+                    <button type="button" class="edit-button" id="viewer-info-edit" onclick="enableForm('viewer-info')">Редактировать</button>
+                    <button type="submit" class="save-button" id="viewer-info-save">Сохранить</button>
+                    <button type="button" class="cancel-button" id="viewer-info-cancel" onclick="disableForm('viewer-info')">Отменить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>

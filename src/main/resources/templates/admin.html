@@ -8,11 +8,17 @@
 
     <link rel="stylesheet" th:href="@{/css/main.css}"/>
     <link rel="stylesheet" th:href="@{/css/popup.css}"/>
+    <link rel="stylesheet" th:href="@{/css/form.css}"/>
+    <link rel="stylesheet" th:href="@{/css/menu.css}">
+    <link rel="stylesheet" th:href="@{/css/block.css}">
 
     <script th:src="@{/js/scripts.js}"></script>
     <script th:src="@{/js/popup.js}"></script>
+    <script th:src="@{/js/form.js}"></script>
+    <script th:src="@{/js/menu.js}"></script>
 </head>
 <body>
+
 <div class="background-container"></div>
 
 <div id="popup" class="popup" th:if="${message != null}">
@@ -22,24 +28,81 @@
     </div>
 </div>
 
-<!--/*@thymesVar id="webUser" type="trik.testsys.webclient.view.AdminView"*/-->
-<form action="#" th:action="@{/admin/update}" th:object="${webUser}" method="post">
-    <input th:field="*{id}" type="text" id="admin.id" hidden/>
-    <input th:field="*{creationDate}" type="text" id="admin.creationDate" hidden/>
-    <input th:field="*{viewer}" type="text" id="admin.viewer" hidden/>
+<header class="header">
+    <div class="logo">
+        <img th:src="@{/img/trik_testsys_logo.svg}" alt="Лого" class="logo-img">
+        <span class="cabinet-name">Кабинет Организатора</span>
+    </div>
+    <button class="menu-button" onclick="toggleMenu()">≡</button>
+</header>
 
-    <label for="admin.name">Имя:</label>
-    <input th:field="*{name}" type="text" id="admin.name"/>
+<div class="side-menu" id="side-menu">
+    <ul>
+        <li><a th:href="@{/admin}">Профиль</a></li>
+        <li><a th:href="@{/admin?Logout=''}">Выход</a></li>
+    </ul>
+</div>
 
-    <label for="admin.accessToken">Код-доступа:</label>
-    <input th:field="*{accessToken}" type="text" id="admin.accessToken" readonly/>
+<!-- Контент -->
+<div class="container">
+    <!-- Первый блок -->
+    <div class="block">
+        <div class="block-title">Профиль</div>
 
-    <label for="admin.lastLoginDate">Дата входа:</label>
-    <input th:field="*{lastLoginDate}" type="text" id="admin.lastLoginDate" readonly/>
+        <div class="form-container">
+            <!--/*@thymesVar id="webUser" type="trik.testsys.webclient.view.AdminView"*/-->
+            <form id="admin-info" action="#" th:action="@{/admin/update}" th:object="${webUser}" method="post">
+                <input th:field="*{id}" type="text" id="admin.id" hidden/>
+                <input th:field="*{viewer}" type="text" id="admin.viewer" hidden/>
 
-    <button type="submit">Сохранить</button>
-</form>
+                <div class="form-field" style="flex-basis: 50%">
+                    <label for="admin.name"
+                           style="flex-basis: 20%">Имя</label>
+                    <input th:field="*{name}" type="text" id="admin.name" readonly
+                           required
+                           style="flex-basis: 80%"/>
+                </div>
+                <div class="form-field" style="flex-basis: 50%">
+                    <label for="admin.accessToken"
+                           style="flex-basis: 20%">Код-доступа</label>
+                    <input th:field="*{accessToken}" type="text" id="admin.accessToken" class="readonly accessToken" readonly
+                           style="flex-basis: 80%"/>
+                </div>
+                <div class="form-field" style="flex-basis: 25%">
+                    <label for="admin.lastLoginDate"
+                           style="flex-basis: 41%">Дата и время входа</label>
+                    <input th:field="*{lastLoginDate}" type="text" id="admin.lastLoginDate" class="readonly" readonly
+                           style="flex-basis: 59%"/>
+                </div>
+                <div class="form-field" style="flex-basis: 25%">
+                    <label for="admin.creationDate"
+                           style="flex-basis: 40%">Дата и время регистрации</label>
+                    <input th:field="*{creationDate}" type="text" id="admin.creationDate" class="readonly" readonly
+                           style="flex-basis: 60%"/>
+                </div>
+                <div class="form-field" style="flex-basis: 50%">
+                    <label for="admin.viewer.name"
+                           style="flex-basis: 20%">Закреплен за Наблюдателем</label>
+                    <input th:field="*{viewer.name}" type="text" id="admin.viewer.name" class="readonly" readonly
+                           style="flex-basis: 80%"/>
+                </div>
+                <div class="form-field" style="flex-basis: 100%">
+                    <label for="admin.additionalInfo"
+                           style="flex-basis: 20%">Дополнительная информация</label>
+                    <input th:field="*{additionalInfo}" type="text" id="admin.additionalInfo" readonly
+                           style="flex-basis: 80%"/>
+                </div>
 
+                <!-- Кнопки редактирования, отправки и отмены -->
+                <div class="form-buttons">
+                    <button type="button" class="edit-button" id="admin-info-edit" onclick="enableForm('admin-info')">Редактировать</button>
+                    <button type="submit" class="save-button" id="admin-info-save">Сохранить</button>
+                    <button type="button" class="cancel-button" id="admin-info-cancel" onclick="disableForm('admin-info')">Отменить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 <a th:href="@{/admin?Logout=''}">Выйти</a>
 
 </body>

@@ -37,7 +37,6 @@
 </header>
 
 <div class="side-menu" id="side-menu">
-    <button class="close-button" onclick="toggleMenu()">×</button>
     <ul>
         <li><a th:href="@{/student}">Профиль</a></li>
         <li><a th:href="@{/student?Logout=''}">Выход</a></li>
@@ -54,20 +53,44 @@
             <!--/*@thymesVar id="webUser" type="trik.testsys.webclient.view.StudentView"*/-->
             <form id="student-info" action="#" th:action="@{/student/update}" th:object="${webUser}" method="post">
                 <input th:field="*{id}" type="text" id="student.id" hidden/>
-                <input th:field="*{creationDate}" type="text" id="student.creationDate" hidden/>
                 <input th:field="*{group}" type="text" id="student.group" hidden/>
 
-                <div class="form-field">
-                    <label for="student.name">Имя</label>
-                    <input th:field="*{name}" type="text" id="student.name" readonly/>
+                <div class="form-field" style="flex-basis: 50%">
+                    <label for="student.name"
+                           style="flex-basis: 20%">Имя</label>
+                    <input th:field="*{name}" type="text" id="student.name" readonly
+                           required
+                           style="flex-basis: 80%"/>
                 </div>
-                <div class="form-field">
-                    <label for="student.accessToken">Код-доступа:</label>
-                    <input th:field="*{accessToken}" type="text" id="student.accessToken" class="readonly" readonly/>
+                <div class="form-field" style="flex-basis: 50%">
+                    <label for="student.accessToken"
+                           style="flex-basis: 20%">Код-доступа</label>
+                    <input th:field="*{accessToken}" type="text" id="student.accessToken" class="readonly accessToken" readonly
+                           style="flex-basis: 80%"/>
                 </div>
-                <div class="form-field">
-                    <label for="student.lastLoginDate">Дата входа:</label>
-                    <input th:field="*{lastLoginDate}" type="text" id="student.lastLoginDate" class="readonly" readonly/>
+                <div class="form-field" style="flex-basis: 25%">
+                    <label for="student.lastLoginDate"
+                           style="flex-basis: 41%">Дата и время входа</label>
+                    <input th:field="*{lastLoginDate}" type="text" id="student.lastLoginDate" class="readonly" readonly
+                           style="flex-basis: 59%"/>
+                </div>
+                <div class="form-field" style="flex-basis: 25%">
+                    <label for="student.creationDate"
+                           style="flex-basis: 40%">Дата и время регистрации</label>
+                    <input th:field="*{creationDate}" type="text" id="student.creationDate" class="readonly" readonly
+                           style="flex-basis: 60%"/>
+                </div>
+                <div class="form-field" style="flex-basis: 50%">
+                    <label for="student.group.name"
+                           style="flex-basis: 20%">Группа</label>
+                    <input th:field="*{group.name}" type="text" id="student.group.name" class="readonly" readonly
+                           style="flex-basis: 80%"/>
+                </div>
+                <div class="form-field" style="flex-basis: 100%">
+                    <label for="student.additionalInfo"
+                           style="flex-basis: 20%">Дополнительная информация</label>
+                    <input th:field="*{additionalInfo}" type="text" id="student.additionalInfo" readonly
+                           style="flex-basis: 80%"/>
                 </div>
 
                 <!-- Кнопки редактирования, отправки и отмены -->
@@ -80,8 +103,6 @@
         </div>
     </div>
 </div>
-
-<a th:href="@{/student/task/download}" target="_self">Скачать файл</a>
 
 </body>
 </html>
