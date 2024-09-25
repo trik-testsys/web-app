@@ -20,12 +20,22 @@ abstract class WebUserService<E : WebUser, R : UserRepository<E>> : AbstractUser
     fun firstTimeCheck(entity: E) = entity.lastLoginDate.isEqual(entity.creationDate)
 
     /**
-     * Validates the [WebUser.name] of the [entity]. The name should not be empty or equals to [WebUser.accessToken].
+     * Validates the [WebUser.name] of the [entity]. The name should not be empty or contain the [WebUser.accessToken].
      *
      *
      * @return `true` if the [WebUser.name] is valid, `false` otherwise.
      * @author Roman Shishkin
      * @since 2.0.0
      **/
-    fun validateName(entity: E) = entity.name.isNotEmpty() && entity.name != entity.accessToken
+    fun validateName(entity: E) = entity.name.isNotEmpty() && !entity.name.contains(entity.accessToken)
+
+    /**
+     * Validates the [WebUser.additionalInfo] of the [entity]. The additional info should not contain the [WebUser.accessToken].
+     *
+     *
+     * @return `true` if the [WebUser.additionalInfo] is valid, `false` otherwise.
+     * @author Roman Shishkin
+     * @since 2.0.0
+     **/
+    fun validateAdditionalInfo(entity: E) = !entity.additionalInfo.contains(entity.accessToken)
 }

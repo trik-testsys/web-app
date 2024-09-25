@@ -55,8 +55,8 @@ class RegistrationController(
         redirectAttributes: RedirectAttributes,
         request: HttpServletRequest
     ): String {
-        if (name == regToken) {
-            redirectAttributes.addPopupMessage("Псевдоним не должен совпадать с Кодом-регистрации. Попробуйте другой вариант.")
+        if (name.contains(regToken)) {
+            redirectAttributes.addPopupMessage("Псевдоним не должен содержать Код-регистрации. Попробуйте другой вариант.")
             return "redirect:$REGISTRATION_PATH"
         }
 
