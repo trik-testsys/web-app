@@ -14,7 +14,8 @@ data class StudentView(
     override val accessToken: AccessToken,
     override val creationDate: LocalDateTime?,
     override val lastLoginDate: LocalDateTime,
-    val group: Group
+    val group: Group,
+    val additionalInfo: String
 ) : UserView<Student> {
 
 
@@ -23,5 +24,6 @@ data class StudentView(
     ).also {
         it.id = id
         it.lastLoginDate = lastLoginDate.fromTimeZone(timeZone)
+        it.additionalInfo = additionalInfo
     }
 }
