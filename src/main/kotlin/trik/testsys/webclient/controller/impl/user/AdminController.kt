@@ -26,7 +26,8 @@ class AdminController(
         accessToken = this.accessToken,
         creationDate = this.creationDate?.atTimeZone(timeZone),
         lastLoginDate = this.lastLoginDate.atTimeZone(timeZone),
-        viewer = this.viewer
+        viewer = this.viewer,
+        additionalInfo = this.additionalInfo
     )
 
     companion object {
