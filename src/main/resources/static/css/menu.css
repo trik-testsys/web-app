@@ -1,0 +1,95 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background-color: var(--trik-blue);
+    color: var(--trik-white);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+}
+
+.logo-img {
+    height: 40px;
+    margin-right: 10px;
+}
+
+.cabinet-name {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.menu-button {
+    font-size: 1.8rem;
+    background: none;
+    border: none;
+    color: var(--trik-white);
+    cursor: pointer;
+    padding: 5px;
+}
+
+.menu-button:hover {
+    opacity: 0.8;
+}
+
+.side-menu {
+    position: fixed;
+    right: -250px;
+    top: 0;
+    height: 100%;
+    width: 250px;
+    background-color: var(--trik-blue);
+    color: var(--trik-white);
+    transition: right 0.3s ease;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.side-menu ul {
+    list-style: none;
+    text-align: center;
+}
+
+.side-menu ul li {
+    margin: 20px 0;
+}
+
+.side-menu ul li a {
+    text-decoration: none;
+    color: var(--trik-white);
+    font-size: 1.2rem;
+    transition: color 0.3s ease;
+}
+
+.side-menu ul li a:hover {
+    color: var(--trik-green);
+}
+
+.side-menu.active {
+    right: 0;
+}
+
+.close-button {
+    background: none;
+    border: none;
+    color: var(--trik-red);
+    font-size: 2rem;
+    align-self: flex-end;
+    cursor: pointer;
+}
+
+.close-button:hover {
+    opacity: 0.8;
+}
