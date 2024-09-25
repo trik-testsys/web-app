@@ -53,35 +53,44 @@
                 <input th:field="*{id}" type="text" id="developer.id" hidden/>
 
                 <div class="form-field" style="flex-basis: 50%">
-                    <label for="developer.name"
-                           style="flex-basis: 20%">Имя</label>
-                    <input th:field="*{name}" type="text" id="developer.name" readonly
-                           required
-                           style="flex-basis: 80%"/>
+                    <div class="form-label" style="flex-basis: 20%">
+                        <label for="developer.name">Имя</label>
+                    </div>
+                    <div class="form-input" style="flex-basis: 80%">
+                        <input th:field="*{name}" type="text" id="developer.name" readonly required/>
+                    </div>
                 </div>
                 <div class="form-field" style="flex-basis: 50%">
-                    <label for="developer.accessToken"
-                           style="flex-basis: 20%">Код-доступа</label>
-                    <input th:field="*{accessToken}" type="text" id="developer.accessToken" class="readonly accessToken" readonly
-                           style="flex-basis: 80%"/>
+                    <div class="form-label" style="flex-basis: 20%">
+                        <label for="developer.accessToken">Код-доступа</label>
+                    </div>
+                    <div class="form-input" style="flex-basis: 80%">
+                        <input th:field="*{accessToken}" type="text" id="developer.accessToken" class="readonly accessToken" readonly/>
+                    </div>
                 </div>
                 <div class="form-field" style="flex-basis: 25%">
-                    <label for="developer.lastLoginDate"
-                           style="flex-basis: 41%">Дата и время входа</label>
-                    <input th:field="*{lastLoginDate}" type="text" id="developer.lastLoginDate" class="readonly" readonly
-                           style="flex-basis: 59%"/>
+                    <div class="form-label" style="flex-basis: 40%">
+                        <label for="developer.lastLoginDate">Дата и время входа</label>
+                    </div>
+                    <div class="form-input" style="flex-basis: 60%">
+                        <input th:field="*{lastLoginDate}" type="text" id="developer.lastLoginDate" class="readonly" readonly/>
+                    </div>
                 </div>
                 <div class="form-field" style="flex-basis: 25%">
-                    <label for="developer.creationDate"
-                           style="flex-basis: 40%">Дата и время регистрации</label>
-                    <input th:field="*{creationDate}" type="text" id="developer.creationDate" class="readonly" readonly
-                           style="flex-basis: 60%"/>
+                    <div class="form-label" style="flex-basis: 40%">
+                        <label for="developer.creationDate">Дата и время регистрации</label>
+                    </div>
+                    <div class="form-input" style="flex-basis: 60%">
+                        <input th:field="*{creationDate}" type="text" id="developer.creationDate" class="readonly" readonly/>
+                    </div>
                 </div>
                 <div class="form-field" style="flex-basis: 100%">
-                    <label for="developer.additionalInfo"
-                           style="flex-basis: 20%">Дополнительная информация</label>
-                    <input th:field="*{additionalInfo}" type="text" id="developer.additionalInfo" readonly
-                           style="flex-basis: 80%"/>
+                    <div class="form-label" style="flex-basis: 20%">
+                        <label for="developer.additionalInfo">Дополнительная информация</label>
+                    </div>
+                    <div class="form-input" style="flex-basis: 80%">
+                        <input th:field="*{additionalInfo}" type="text" id="developer.additionalInfo" readonly/>
+                    </div>
                 </div>
 
                 <!-- Кнопки редактирования, отправки и отмены -->

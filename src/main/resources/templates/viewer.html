@@ -54,41 +54,52 @@
                 <input th:field="*{id}" type="text" id="viewer.id" hidden/>
 
                 <div class="form-field" style="flex-basis: 50%">
-                    <label for="viewer.name"
-                           style="flex-basis: 20%">Имя</label>
-                    <input th:field="*{name}" type="text" id="viewer.name" readonly
-                           required
-                           style="flex-basis: 80%"/>
+                    <div class="form-label" style="flex-basis: 20%">
+                        <label for="viewer.name">Имя</label>
+                    </div>
+                    <div class="form-input" style="flex-basis: 80%">
+                        <input th:field="*{name}" type="text" id="viewer.name" readonly required/>
+                    </div>
                 </div>
                 <div class="form-field" style="flex-basis: 50%">
-                    <label for="viewer.accessToken"
-                           style="flex-basis: 20%">Код-доступа</label>
-                    <input th:field="*{accessToken}" type="text" id="viewer.accessToken" class="readonly accessToken" readonly
-                           style="flex-basis: 80%"/>
+                    <div class="form-label" style="flex-basis: 20%">
+                        <label for="viewer.accessToken">Код-доступа</label>
+                    </div>
+                    <div class="form-input" style="flex-basis: 80%">
+                        <input th:field="*{accessToken}" type="text" id="viewer.accessToken" class="readonly accessToken" readonly/>
+                    </div>
                 </div>
                 <div class="form-field" style="flex-basis: 25%">
-                    <label for="viewer.lastLoginDate"
-                           style="flex-basis: 41%">Дата и время входа</label>
-                    <input th:field="*{lastLoginDate}" type="text" id="viewer.lastLoginDate" class="readonly" readonly
-                           style="flex-basis: 59%"/>
+                    <div class="form-label" style="flex-basis: 40%">
+                        <label for="viewer.lastLoginDate">Дата и время входа</label>
+                    </div>
+                    <div class="form-input" style="flex-basis: 60%">
+                        <input th:field="*{lastLoginDate}" type="text" id="viewer.lastLoginDate" class="readonly" readonly/>
+                    </div>
                 </div>
                 <div class="form-field" style="flex-basis: 25%">
-                    <label for="viewer.creationDate"
-                           style="flex-basis: 40%">Дата и время регистрации</label>
-                    <input th:field="*{creationDate}" type="text" id="viewer.creationDate" class="readonly" readonly
-                           style="flex-basis: 60%"/>
+                    <div class="form-label" style="flex-basis: 40%">
+                        <label for="viewer.creationDate">Дата и время регистрации</label>
+                    </div>
+                    <div class="form-input" style="flex-basis: 60%">
+                        <input th:field="*{creationDate}" type="text" id="viewer.creationDate" class="readonly" readonly/>
+                    </div>
                 </div>
                 <div class="form-field" style="flex-basis: 50%">
-                    <label for="viewer.adminRegToken"
-                           style="flex-basis: 20%">Код-регистрации Организатора</label>
-                    <input th:field="*{adminRegToken}" type="text" id="viewer.adminRegToken" class="readonly accessToken" readonly
-                           style="flex-basis: 80%"/>
+                    <div class="form-label" style="flex-basis: 20%">
+                        <label for="viewer.adminRegToken">Группа</label>
+                    </div>
+                    <div class="form-input" style="flex-basis: 80%">
+                        <input th:field="*{adminRegToken}" type="text" id="viewer.adminRegToken" class="accessToken readonly" readonly/>
+                    </div>
                 </div>
                 <div class="form-field" style="flex-basis: 100%">
-                    <label for="viewer.additionalInfo"
-                           style="flex-basis: 20%">Дополнительная информация</label>
-                    <input th:field="*{additionalInfo}" type="text" id="viewer.additionalInfo" readonly
-                           style="flex-basis: 80%"/>
+                    <div class="form-label" style="flex-basis: 20%">
+                        <label for="viewer.additionalInfo">Дополнительная информация</label>
+                    </div>
+                    <div class="form-input" style="flex-basis: 80%">
+                        <input th:field="*{additionalInfo}" type="text" id="viewer.additionalInfo" readonly/>
+                    </div>
                 </div>
 
                 <!-- Кнопки редактирования, отправки и отмены -->
