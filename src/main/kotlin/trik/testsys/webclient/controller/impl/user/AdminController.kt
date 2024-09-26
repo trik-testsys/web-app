@@ -1,13 +1,18 @@
 package trik.testsys.webclient.controller.impl.user
 
 import org.springframework.stereotype.Controller
+import org.springframework.ui.Model
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.servlet.mvc.support.RedirectAttributes
+import trik.testsys.webclient.controller.impl.main.LoginController
 import trik.testsys.webclient.controller.user.UserController
 import trik.testsys.webclient.entity.user.impl.Admin
 import trik.testsys.webclient.service.entity.user.impl.AdminService
 import trik.testsys.webclient.service.security.login.impl.LoginData
 import trik.testsys.webclient.util.atTimeZone
 import trik.testsys.webclient.view.AdminView
+import trik.testsys.webclient.view.GroupView.Companion.toView
 import java.util.*
 
 @Controller
@@ -27,14 +32,30 @@ class AdminController(
         creationDate = this.creationDate?.atTimeZone(timeZone),
         lastLoginDate = this.lastLoginDate.atTimeZone(timeZone),
         viewer = this.viewer,
-        additionalInfo = this.additionalInfo
+        additionalInfo = this.additionalInfo,
+        groups = this.groups.map { it.toView(timeZone) }
     )
+
+    @GetMapping(GROUPS_PATH)
+    fun groupsGet(
+        timeZone: TimeZone,
+        redirectAttributes: RedirectAttributes,
+        model: Model
+    ): String {
+        val webUser = validate(redirectAttributes) ?: return "redirect:${LoginController.LOGIN_PATH}"
+
+        model.addAttribute(WEB_USER_ATTR, webUser.toView(timeZone))
+
+        return GROUPS_PAGE
+    }
 
     companion object {
 
         const val ADMIN_PATH = "/admin"
-
         const val ADMIN_PAGE = "admin"
+
+        const val GROUPS_PATH = "/groups"
+        const val GROUPS_PAGE = "admin-groups"
     }
 }
 
