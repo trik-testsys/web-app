@@ -47,7 +47,7 @@ abstract class UserController<U : WebUser, V : UserView<U>, S : WebUserService<U
         }
         val webUser = validate(redirectAttributes) ?: return "redirect:${LoginController.LOGIN_PATH}"
 
-        model.addAttribute(WEB_USER, webUser.toView(timeZone))
+        model.addAttribute(WEB_USER_ATTR, webUser.toView(timeZone))
         return MAIN_PAGE
     }
 
@@ -71,7 +71,7 @@ abstract class UserController<U : WebUser, V : UserView<U>, S : WebUserService<U
 
     @PostMapping(UPDATE_PATH)
     open fun updatePost(
-        @ModelAttribute(WEB_USER) webUserView: V,
+        @ModelAttribute(WEB_USER_ATTR) webUserView: V,
         timeZone: TimeZone,
         redirectAttributes: RedirectAttributes
     ): String {
@@ -128,6 +128,6 @@ abstract class UserController<U : WebUser, V : UserView<U>, S : WebUserService<U
         const val LOGIN_PATH = "/login"
         const val UPDATE_PATH = "/update"
 
-        const val WEB_USER = "webUser"
+        const val WEB_USER_ATTR = "webUser"
     }
 }
