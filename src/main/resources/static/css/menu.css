@@ -17,6 +17,7 @@
     padding: 15px;
     background-color: var(--trik-blue);
     color: var(--trik-white);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
 .logo {
@@ -62,6 +63,7 @@
     align-items: center;
     justify-content: center;
     z-index: 100;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
 }
 
 .side-menu ul {

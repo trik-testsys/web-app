@@ -10,7 +10,7 @@
     background-color: var(--trik-white);
     margin-bottom: 20px;
     padding: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     border-radius: 8px;
     box-sizing: border-box;
     transition: background-color 0.3s ease;
