@@ -60,7 +60,7 @@ class RegistrationController(
             return "redirect:$REGISTRATION_PATH"
         }
 
-        groupService.getGroupByAccessToken(regToken)?.let {
+        groupService.findByAccessToken(regToken)?.let {
             val accessToken = studentAccessTokenGenerator.generate(name)
             val student = Student(name, accessToken, it)
             studentService.save(student)
