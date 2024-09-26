@@ -80,7 +80,7 @@ abstract class UserController<U : WebUser, V : UserView<U>, S : WebUserService<U
         val updatedWebUser = webUserView.toEntity(timeZone)
 
         if (!service.validateName(updatedWebUser)) {
-            redirectAttributes.addPopupMessage("Псевдоним не должен быть пустым или совпадать с Кодом-доступа. Попробуйте другой вариант.")
+            redirectAttributes.addPopupMessage("Псевдоним не должен быть пустым или содержать Код-доступа. Попробуйте другой вариант.")
             return "redirect:$MAIN_PATH"
         }
         if (!service.validateAdditionalInfo(updatedWebUser)) {
