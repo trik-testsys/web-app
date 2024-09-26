@@ -35,6 +35,15 @@
     font-weight: bold;
 }
 
+.cabinet-name a {
+    text-decoration: none;
+    color: var(--trik-white);
+}
+
+.cabinet-name a:hover {
+    color: var(--trik-green);
+}
+
 .menu-button {
     font-size: 1.8rem;
     background: none;
