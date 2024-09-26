@@ -31,3 +31,6 @@ server:
 
 path:
   l10n: "${PWD}/src/main/resources/static/l10n"
+  startup:
+    entities: "${PWD}/entities/"
+    nodes: "${PWD}/nodes/"
