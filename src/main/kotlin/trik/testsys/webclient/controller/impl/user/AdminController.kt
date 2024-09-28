@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import trik.testsys.webclient.controller.impl.main.LoginController
-import trik.testsys.webclient.controller.user.UserController
+import trik.testsys.webclient.controller.user.WebUserController
 import trik.testsys.webclient.entity.user.impl.Admin
 import trik.testsys.webclient.service.entity.user.impl.AdminService
 import trik.testsys.webclient.service.security.login.impl.LoginData
@@ -19,7 +19,7 @@ import java.util.*
 @RequestMapping(AdminController.ADMIN_PATH)
 class AdminController(
     loginData: LoginData
-) : UserController<Admin, AdminView, AdminService>(loginData) {
+) : WebUserController<Admin, AdminView, AdminService>(loginData) {
 
     override val MAIN_PATH = ADMIN_PATH
 
@@ -30,7 +30,7 @@ class AdminController(
         name = this.name,
         accessToken = this.accessToken,
         creationDate = this.creationDate?.atTimeZone(timeZone),
-        lastLoginDate = this.lastLoginDate.atTimeZone(timeZone),
+        lastLoginDate = this.lastLoginDate?.atTimeZone(timeZone),
         viewer = this.viewer,
         additionalInfo = this.additionalInfo,
         groups = this.groups.map { it.toView(timeZone) }

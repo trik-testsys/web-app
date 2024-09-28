@@ -2,7 +2,7 @@ package trik.testsys.webclient.controller.impl.user
 
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestMapping
-import trik.testsys.webclient.controller.user.UserController
+import trik.testsys.webclient.controller.user.WebUserController
 import trik.testsys.webclient.entity.user.impl.Viewer
 import trik.testsys.webclient.service.entity.user.impl.ViewerService
 import trik.testsys.webclient.service.security.login.impl.LoginData
@@ -15,7 +15,7 @@ import java.util.*
 @RequestMapping(ViewerController.VIEWER_PATH)
 class ViewerController(
     loginData: LoginData
-) : UserController<Viewer, ViewerView, ViewerService>(loginData) {
+) : WebUserController<Viewer, ViewerView, ViewerService>(loginData) {
 
     override val MAIN_PATH = VIEWER_PATH
 
@@ -25,7 +25,7 @@ class ViewerController(
         id = this.id,
         name = this.name,
         accessToken = this.accessToken,
-        lastLoginDate = this.lastLoginDate.atTimeZone(timeZone),
+        lastLoginDate = this.lastLoginDate?.atTimeZone(timeZone),
         creationDate = this.creationDate?.atTimeZone(timeZone),
         adminRegToken = this.adminRegToken,
         additionalInfo = this.additionalInfo

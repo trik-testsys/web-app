@@ -11,15 +11,6 @@ import trik.testsys.webclient.entity.user.WebUser
 abstract class WebUserService<E : WebUser, R : UserRepository<E>> : AbstractUserService<E, R>() {
 
     /**
-     * Checks if the [entity] is logging in for the first time.
-     *
-     * @return `true` if the [entity] is logging in for the first time, `false` otherwise.
-     * @author Roman Shishkin
-     * @since 2.0.0
-     **/
-    fun firstTimeCheck(entity: E) = entity.lastLoginDate.isEqual(entity.creationDate)
-
-    /**
      * Validates the [WebUser.name] of the [entity]. The name should not be empty or contain the [WebUser.accessToken].
      *
      *
@@ -39,4 +30,16 @@ abstract class WebUserService<E : WebUser, R : UserRepository<E>> : AbstractUser
      * @since 2.0.0
      **/
     open fun validateAdditionalInfo(entity: E) = !entity.additionalInfo.contains(entity.accessToken, ignoreCase = true)
+
+    companion object {
+
+        /**
+         * Checks if the [WebUser] is logging in for the first time.
+         *
+         * @return `true` if the [WebUser] is logging in for the first time, `false` otherwise.
+         * @author Roman Shishkin
+         * @since 2.0.0
+         **/
+        fun WebUser.isFirstTimeLoggedIn() = lastLoginDate == null
+    }
 }

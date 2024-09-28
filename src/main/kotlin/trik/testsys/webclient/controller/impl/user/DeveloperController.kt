@@ -2,7 +2,7 @@ package trik.testsys.webclient.controller.impl.user
 
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestMapping
-import trik.testsys.webclient.controller.user.UserController
+import trik.testsys.webclient.controller.user.WebUserController
 import trik.testsys.webclient.entity.user.impl.Developer
 import trik.testsys.webclient.service.entity.user.impl.DeveloperService
 import trik.testsys.webclient.service.security.login.impl.LoginData
@@ -15,7 +15,7 @@ import java.util.*
 @RequestMapping(DeveloperController.DEVELOPER_PATH)
 class DeveloperController(
     loginData: LoginData
-) : UserController<Developer, DeveloperView, DeveloperService>(loginData) {
+) : WebUserController<Developer, DeveloperView, DeveloperService>(loginData) {
 
     override val MAIN_PATH = DEVELOPER_PATH
 
@@ -25,7 +25,7 @@ class DeveloperController(
         id = this.id,
         name = this.name,
         accessToken = this.accessToken,
-        lastLoginDate = this.lastLoginDate.atTimeZone(timeZone),
+        lastLoginDate = this.lastLoginDate?.atTimeZone(timeZone),
         creationDate = this.creationDate?.atTimeZone(timeZone),
         additionalInfo = this.additionalInfo
     )

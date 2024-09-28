@@ -13,6 +13,7 @@ import trik.testsys.core.view.user.UserView
 import trik.testsys.webclient.controller.impl.main.LoginController
 import trik.testsys.webclient.entity.user.WebUser
 import trik.testsys.webclient.service.entity.user.WebUserService
+import trik.testsys.webclient.service.entity.user.WebUserService.Companion.isFirstTimeLoggedIn
 import trik.testsys.webclient.service.security.login.impl.LoginData
 import trik.testsys.webclient.util.addExitMessage
 import trik.testsys.webclient.util.addPopupMessage
@@ -23,7 +24,7 @@ import java.util.TimeZone
  * @author Roman Shishkin
  * @since 2.0.0
  **/
-abstract class UserController<U : WebUser, V : UserView<U>, S : WebUserService<U, out UserRepository<U>>>(
+abstract class WebUserController<U : WebUser, V : UserView<U>, S : WebUserService<U, out UserRepository<U>>>(
     private val loginData: LoginData
 ) : TrikController {
 
@@ -55,7 +56,7 @@ abstract class UserController<U : WebUser, V : UserView<U>, S : WebUserService<U
     open fun loginGet(redirectAttributes: RedirectAttributes): String {
         val webUser = validate(redirectAttributes) ?: return "redirect:${LoginController.LOGIN_PATH}"
 
-        if (service.firstTimeCheck(webUser)) {
+        if (webUser.isFirstTimeLoggedIn()) {
             redirectAttributes.addPopupMessage(
                 "Вы успешно зарегистрировались в системе! \n\n" +
                 "Пожалуйста, сохраните сгенерированный Код-доступа, чтобы не потерять его: \n\n" +

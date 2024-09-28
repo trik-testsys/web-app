@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import org.springframework.web.servlet.view.RedirectView
 import trik.testsys.webclient.controller.impl.main.LoginController
-import trik.testsys.webclient.controller.user.UserController
+import trik.testsys.webclient.controller.user.WebUserController
 import trik.testsys.webclient.entity.user.impl.Student
 import trik.testsys.webclient.service.entity.user.impl.StudentService
 import trik.testsys.webclient.service.security.login.impl.LoginData
@@ -23,7 +23,7 @@ import java.util.TimeZone
 @RequestMapping(StudentController.STUDENT_PATH)
 class StudentController(
     loginData: LoginData,
-) : UserController<Student, StudentView, StudentService>(loginData) {
+) : WebUserController<Student, StudentView, StudentService>(loginData) {
 
     override val MAIN_PATH = STUDENT_PATH
 
@@ -51,7 +51,7 @@ class StudentController(
         name = this.name,
         accessToken = this.accessToken,
         creationDate = this.creationDate?.atTimeZone(timeZone),
-        lastLoginDate = this.lastLoginDate.atTimeZone(timeZone),
+        lastLoginDate = this.lastLoginDate?.atTimeZone(timeZone),
         group = this.group,
         additionalInfo = this.additionalInfo
     )
