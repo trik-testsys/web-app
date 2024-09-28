@@ -15,18 +15,18 @@ import javax.persistence.*
 @MappedSuperclass
 abstract class AbstractUser(
     @Column(
-        nullable = false, unique = false, length = NAME_MAX_LEN,
-        columnDefinition = "VARCHAR($NAME_MAX_LEN)"
+        nullable = false, unique = false, updatable = true,
+        length = NAME_MAX_LEN
     ) override var name: String,
 
     @Column(
-        nullable = false, unique = true, length = ACCESS_TOKEN_MAX_LEN,
-        columnDefinition = "VARCHAR($ACCESS_TOKEN_MAX_LEN)"
+        nullable = false, unique = true, updatable = false,
+        length = ACCESS_TOKEN_MAX_LEN
     ) override var accessToken: AccessToken
 ) : UserEntity, AbstractEntity() {
 
-    @Column(nullable = false, unique = false, columnDefinition = "DATETIME")
-    final override var lastLoginDate: LocalDateTime = LocalDateTime.now(DEFAULT_ZONE_ID)
+    @Column(nullable = true, unique = false, updatable = true)
+    final override var lastLoginDate: LocalDateTime? = null
 
     override fun updateLastLoginDate() {
         lastLoginDate = LocalDateTime.now(DEFAULT_ZONE_ID)
@@ -34,8 +34,8 @@ abstract class AbstractUser(
 
     companion object {
 
-        private const val NAME_MAX_LEN = 128
-        private const val ACCESS_TOKEN_MAX_LEN = 256
+        private const val NAME_MAX_LEN = 127
+        private const val ACCESS_TOKEN_MAX_LEN = 255
 
         /**
          * Anonymous user entity for system usage.

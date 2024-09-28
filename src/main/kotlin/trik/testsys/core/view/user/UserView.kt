@@ -15,5 +15,5 @@ interface UserView<E : UserEntity> : View<E> {
 
     val accessToken: AccessToken
 
-    val lastLoginDate: LocalDateTime
+    val lastLoginDate: LocalDateTime?
 }

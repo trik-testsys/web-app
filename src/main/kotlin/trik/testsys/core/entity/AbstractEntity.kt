@@ -26,13 +26,10 @@ abstract class AbstractEntity : Entity {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, updatable = false)
     private var id: Long? = null
 
-    @Column(
-        updatable = false,
-        nullable = false, unique = false, columnDefinition = "DATETIME"
-    )
+    @Column(nullable = true, unique = false, updatable = false)
     override var creationDate: LocalDateTime? = null
 
     override fun setId(id: Long?) {
@@ -44,8 +41,8 @@ abstract class AbstractEntity : Entity {
     override fun isNew() = id == null
 
     @Column(
-        nullable = false, unique = false, length = ADDITIONAL_INFO_MAX_LENGTH,
-        columnDefinition = "VARCHAR(${ADDITIONAL_INFO_MAX_LENGTH}) DEFAULT ''"
+        nullable = false, unique = false, updatable = true,
+        length = ADDITIONAL_INFO_MAX_LENGTH
     )
     override var additionalInfo: String = ADDITIONAL_INFO_DEFAULT
 
