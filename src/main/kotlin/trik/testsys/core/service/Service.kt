@@ -1,7 +1,7 @@
 package trik.testsys.core.service
 
 import trik.testsys.core.entity.Entity
-import trik.testsys.core.repository.Repository
+import trik.testsys.core.repository.EntityRepository
 import java.time.LocalDateTime
 
 /**
@@ -11,7 +11,7 @@ import java.time.LocalDateTime
  * @param E The type of the entity.
  *
  * @see Entity
- * @see Repository
+ * @see EntityRepository
  *
  * @author Roman Shishkin
  * @since 2.0.0

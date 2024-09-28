@@ -1,27 +1,20 @@
 package trik.testsys.core.entity.user
 
 import trik.testsys.core.entity.Entity
+import trik.testsys.core.entity.named.NamedEntity
 import java.time.LocalDateTime
 
 typealias AccessToken = String
 
 /**
- * Simple interface for user entities. Extends [Entity] with [name] and [accessToken] properties.
+ * Simple interface for user entities. Extends [Entity] with [accessToken] properties.
  * In fact every entity that implements this can be identified by [accessToken].
  *
  * @see Entity
  * @author Roman Shishkin
  * @since 2.0.0
  */
-interface UserEntity : Entity {
-
-    /**
-     * Property which contains user name string. Must be initialized.
-     *
-     * @author Roman Shishkin
-     * @since 2.0.0
-     */
-    var name: String
+interface UserEntity : NamedEntity {
 
     /**
      * Property which contains unique access token.

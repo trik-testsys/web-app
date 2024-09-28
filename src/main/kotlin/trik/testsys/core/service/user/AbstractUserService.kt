@@ -3,6 +3,7 @@ package trik.testsys.core.service.user
 import trik.testsys.core.entity.user.AbstractUser
 import trik.testsys.core.repository.user.UserRepository
 import trik.testsys.core.service.AbstractService
+import trik.testsys.core.service.named.AbstractNamedEntityService
 
 /**
  * Abstract implementation of [UserService] interface. Contains common methods for user services.
@@ -13,12 +14,14 @@ import trik.testsys.core.service.AbstractService
  * @see UserService
  * @see AbstractUser
  * @see UserRepository
+ * @see AbstractNamedEntityService
  *
  * @author Roman Shishkin
  * @since 2.0.0
  */
-abstract class AbstractUserService<E : AbstractUser, R : UserRepository<E>> : UserService<E, R>, AbstractService<E, R>() {
-
+abstract class AbstractUserService<E : AbstractUser, R : UserRepository<E>> :
+    UserService<E, R>,
+    AbstractNamedEntityService<E, R>() {
 
     override fun findByAccessToken(accessToken: String): E? {
         val entity = repository.findByAccessToken(accessToken)
@@ -28,15 +31,5 @@ abstract class AbstractUserService<E : AbstractUser, R : UserRepository<E>> : Us
     override fun findAllByAccessTokenIn(accessTokens: Collection<String>): Collection<E> {
         val entities = repository.findAllByAccessTokenIn(accessTokens)
         return entities
-    }
-
-    override fun findByNameAndAccessToken(name: String, accessToken: String): E? {
-        val entity = repository.findByNameAndAccessToken(name, accessToken)
-        return entity
-    }
-
-    override fun findByName(name: String): Collection<E> {
-        val entity = repository.findByName(name)
-        return entity
     }
 }

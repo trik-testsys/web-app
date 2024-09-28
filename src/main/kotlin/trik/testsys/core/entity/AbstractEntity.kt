@@ -58,11 +58,50 @@ abstract class AbstractEntity : Entity {
 
     companion object {
 
+        /**
+         * Default zone code for all entities in the system.
+         *
+         * @see DEFAULT_ZONE_ID
+         * @see DEFAULT_TIME_ZONE
+         * @author Roman Shishkin
+         * @since 2.0.0
+         */
         const val DEFAULT_ZONE_CODE = "UTC"
+
+        /**
+         * Default zone id for all entities in the system.
+         *
+         * @see DEFAULT_ZONE_CODE
+         * @see DEFAULT_TIME_ZONE
+         * @author Roman Shishkin
+         * @since 2.0.0
+         */
         val DEFAULT_ZONE_ID: ZoneId = ZoneId.of(DEFAULT_ZONE_CODE)
+
+        /**
+         * Default time zone for all entities in the system.
+         *
+         * @see DEFAULT_ZONE_CODE
+         * @see DEFAULT_ZONE_ID
+         * @see TimeZone
+         * @since 2.0.0
+         */
         val DEFAULT_TIME_ZONE: TimeZone = TimeZone.getTimeZone(DEFAULT_ZONE_ID)
 
+        /**
+         * Max length for [additionalInfo] field.
+         *
+         * @author Roman Shishkin
+         * @since 2.0.0
+         */
         private const val ADDITIONAL_INFO_MAX_LENGTH = 1000
+
+        /**
+         * Default value for [additionalInfo] field.
+         *
+         * @author Roman Shishkin
+         * @since 2.0.0
+         */
         private const val ADDITIONAL_INFO_DEFAULT = ""
     }
 }

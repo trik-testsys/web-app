@@ -19,7 +19,7 @@ import java.time.LocalDateTime
  * @since 2.0.0
  */
 @NoRepositoryBean
-interface Repository<E : Entity> : JpaRepository<E, Long> {
+interface EntityRepository<E : Entity> : JpaRepository<E, Long> {
 
     /**
      * Finds entities with [Entity.creationDate] greater than [creationDate].

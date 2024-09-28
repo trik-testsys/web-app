@@ -2,23 +2,23 @@ package trik.testsys.core.service
 
 import org.springframework.beans.factory.annotation.Autowired
 import trik.testsys.core.entity.AbstractEntity
-import trik.testsys.core.repository.Repository
+import trik.testsys.core.repository.EntityRepository
 import java.time.LocalDateTime
 
 /**
  * Abstract service class that implements [Service] basic CRUD operations.
  *
  * @param E Entity type. Extends [AbstractEntity].
- * @param R Repository type. Extends [Repository].
+ * @param R Repository type. Extends [EntityRepository].
  *
  * @see Service
  * @see AbstractEntity
- * @see Repository
+ * @see EntityRepository
  *
  * @author Roman Shishkin
  * @since 2.0.0
  */
-abstract class AbstractService<E : AbstractEntity, R : Repository<E>> : Service<E> {
+abstract class AbstractService<E : AbstractEntity, R : EntityRepository<E>> : Service<E> {
 
     /**
      * The repository associated with the service.
