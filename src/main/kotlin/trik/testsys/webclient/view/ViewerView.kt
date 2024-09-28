@@ -11,7 +11,7 @@ data class ViewerView(
     override val id: Long?,
     override val name: String,
     override val accessToken: AccessToken,
-    override val lastLoginDate: LocalDateTime,
+    override val lastLoginDate: LocalDateTime?,
     override val creationDate: LocalDateTime?,
     val adminRegToken: AccessToken,
     val additionalInfo: String
@@ -21,7 +21,7 @@ data class ViewerView(
         name, accessToken, adminRegToken
     ).also {
         it.id = id
-        it.lastLoginDate = lastLoginDate.fromTimeZone(timeZone)
+        it.lastLoginDate = lastLoginDate?.fromTimeZone(timeZone)
         it.additionalInfo = additionalInfo
     }
 }

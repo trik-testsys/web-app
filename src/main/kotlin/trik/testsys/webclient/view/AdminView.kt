@@ -13,7 +13,7 @@ data class AdminView(
     override val name: String,
     override val accessToken: AccessToken,
     override val creationDate: LocalDateTime?,
-    override val lastLoginDate: LocalDateTime,
+    override val lastLoginDate: LocalDateTime?,
     val viewer: Viewer,
     val additionalInfo: String,
     val groups: List<GroupView>?
@@ -23,7 +23,7 @@ data class AdminView(
         name, accessToken, viewer
     ).also {
         it.id = id
-        it.lastLoginDate = lastLoginDate.fromTimeZone(timeZone)
+        it.lastLoginDate = lastLoginDate?.fromTimeZone(timeZone)
         it.additionalInfo = additionalInfo
     }
 }
