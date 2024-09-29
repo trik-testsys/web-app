@@ -2,6 +2,7 @@ package trik.testsys.webclient.entity.impl
 
 import trik.testsys.core.entity.AbstractEntity
 import trik.testsys.core.entity.Entity.Companion.TABLE_PREFIX
+import trik.testsys.core.entity.user.AccessToken
 import trik.testsys.webclient.entity.user.impl.Admin
 import trik.testsys.webclient.entity.user.impl.Student
 import javax.persistence.*
@@ -17,7 +18,7 @@ class Group(
     @Column(
         nullable = false, unique = true, length = 50,
         columnDefinition = "VARCHAR(100) DEFAULT ''"
-    ) val accessToken: String,
+    ) val regToken: AccessToken,
 ) : AbstractEntity() {
 
     @ManyToOne

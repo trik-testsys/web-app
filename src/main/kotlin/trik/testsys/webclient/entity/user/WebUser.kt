@@ -14,10 +14,10 @@ import javax.persistence.MappedSuperclass
  */
 @MappedSuperclass
 abstract class WebUser(
-    override var name: String,
-    override var accessToken: AccessToken
-) : AbstractUser(name, accessToken) {
+    name: String,
+    accessToken: AccessToken,
 
-    @get:Column(nullable = false, unique = false)
-    abstract val type: UserType
+    @Column(nullable = false, unique = false, updatable = false)
+    val type: UserType
+) : AbstractUser(name, accessToken) {
 }
