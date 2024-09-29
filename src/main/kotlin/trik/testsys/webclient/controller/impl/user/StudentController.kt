@@ -53,8 +53,8 @@ class StudentController(
         accessToken = this.accessToken,
         creationDate = this.creationDate?.atTimeZone(timeZone),
         lastLoginDate = this.lastLoginDate?.atTimeZone(timeZone),
-        group = this.group.toView(timeZone),
-        additionalInfo = this.additionalInfo
+        additionalInfo = this.additionalInfo,
+        groupName = this.group.name
     )
 
     companion object {

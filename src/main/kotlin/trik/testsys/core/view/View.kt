@@ -14,5 +14,7 @@ interface View<T : Entity> {
 
     val creationDate: LocalDateTime?
 
+    val additionalInfo: String
+
     fun toEntity(timeZone: TimeZone): T
 }

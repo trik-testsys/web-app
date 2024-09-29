@@ -13,8 +13,8 @@ data class StudentView(
     override val accessToken: AccessToken,
     override val creationDate: LocalDateTime?,
     override val lastLoginDate: LocalDateTime?,
-    val group: GroupView,
-    val additionalInfo: String
+    override val additionalInfo: String,
+    val groupName: String
 ) : UserView<Student> {
 
 

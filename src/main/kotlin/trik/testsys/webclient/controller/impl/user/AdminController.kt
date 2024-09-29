@@ -31,7 +31,7 @@ class AdminController(
         accessToken = this.accessToken,
         creationDate = this.creationDate?.atTimeZone(timeZone),
         lastLoginDate = this.lastLoginDate?.atTimeZone(timeZone),
-        viewer = this.viewer,
+        viewerName = this.viewer.name,
         additionalInfo = this.additionalInfo,
         groups = this.groups.map { it.toView(timeZone) }
     )
