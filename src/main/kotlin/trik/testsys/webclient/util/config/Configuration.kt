@@ -1,4 +1,4 @@
-package trik.testsys.webclient.config
+package trik.testsys.webclient.util.config
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
