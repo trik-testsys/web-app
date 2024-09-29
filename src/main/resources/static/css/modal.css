@@ -8,12 +8,9 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: var(--trik-blue);
-    background-image: url("../img/trik_testsys_logo.svg");
     background-repeat: no-repeat;
     background-size: 50%;
     background-position: center;
-    opacity: 0.8;
 }
 
 /* Окно (модальное) */
