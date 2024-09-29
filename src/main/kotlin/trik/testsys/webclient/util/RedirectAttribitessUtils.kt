@@ -3,7 +3,7 @@ package trik.testsys.webclient.util
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 
 /**
- * Adds flash attribute which will be used as a popup message.
+ * Adds flash attribute `message` with [message] value, which will be used as a popup message.
  *
  * @author Roman Shishkin
  * @since 2.0.0
