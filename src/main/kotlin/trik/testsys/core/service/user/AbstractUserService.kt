@@ -20,7 +20,7 @@ import trik.testsys.core.service.named.AbstractNamedEntityService
  * @since 2.0.0
  */
 abstract class AbstractUserService<E : AbstractUser, R : UserRepository<E>> :
-    UserService<E, R>,
+    UserService<E>,
     AbstractNamedEntityService<E, R>() {
 
     override fun findByAccessToken(accessToken: String): E? {

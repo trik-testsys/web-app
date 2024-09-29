@@ -22,7 +22,7 @@ import trik.testsys.core.service.named.NamedEntityService
  * @author Roman Shishkin
  * @since 2.0.0
  */
-interface UserService<E : UserEntity, R : UserRepository<E>> : NamedEntityService<E> {
+interface UserService<E : UserEntity> : NamedEntityService<E> {
 
     /**
      * Finds entity by [UserEntity.accessToken].
