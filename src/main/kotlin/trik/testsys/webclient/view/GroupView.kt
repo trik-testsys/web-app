@@ -15,12 +15,12 @@ data class GroupView(
     override val id: Long?,
     override val creationDate: LocalDateTime?,
     val name: String,
-    val accessToken: AccessToken,
+    val regToken: AccessToken,
     val admin: AdminView? = null
 ): View<Group> {
 
     override fun toEntity(timeZone: TimeZone) = Group(
-        name, accessToken
+        name, regToken
     ).also {
         it.id = id
     }
@@ -31,7 +31,7 @@ data class GroupView(
             id = this.id,
             creationDate = this.creationDate?.atTimeZone(timeZone),
             name = this.name,
-            accessToken = this.accessToken
+            regToken = this.regToken
         )
 
         fun GroupView.withAdmin(adminView: AdminView) = copy(
