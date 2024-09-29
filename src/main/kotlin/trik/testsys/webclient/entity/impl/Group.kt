@@ -24,7 +24,7 @@ class Group(
         nullable = false, unique = false, updatable = false,
         name = "admin_id", referencedColumnName = "id",
     )
-    var admin: Admin? = null
+    lateinit var admin: Admin
 
     @OneToMany(mappedBy = "group", cascade = [CascadeType.ALL])
     val students: MutableSet<Student> = mutableSetOf()

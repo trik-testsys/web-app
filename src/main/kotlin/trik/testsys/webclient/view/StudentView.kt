@@ -2,7 +2,6 @@ package trik.testsys.webclient.view
 
 import trik.testsys.core.entity.user.AccessToken
 import trik.testsys.core.view.user.UserView
-import trik.testsys.webclient.entity.impl.Group
 import trik.testsys.webclient.entity.user.impl.Student
 import trik.testsys.webclient.util.fromTimeZone
 import java.time.LocalDateTime
@@ -14,13 +13,13 @@ data class StudentView(
     override val accessToken: AccessToken,
     override val creationDate: LocalDateTime?,
     override val lastLoginDate: LocalDateTime?,
-    val group: Group,
+    val group: GroupView,
     val additionalInfo: String
 ) : UserView<Student> {
 
 
     override fun toEntity(timeZone: TimeZone) = Student(
-        name, accessToken, group
+        name, accessToken
     ).also {
         it.id = id
         it.lastLoginDate = lastLoginDate?.fromTimeZone(timeZone)

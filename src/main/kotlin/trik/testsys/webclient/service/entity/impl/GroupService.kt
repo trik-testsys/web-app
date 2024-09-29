@@ -25,7 +25,8 @@ class GroupService(
         val group = findByRegToken(regToken) ?: return null
 
         val accessToken = studentAccessTokenGenerator.generate(name)
-        val student = Student(name, accessToken, group)
+        val student = Student(name, accessToken)
+        student.group = group
 
         return student.takeIf(validationBlock)?.also { studentRepository.save(it) }
     }

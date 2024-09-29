@@ -11,15 +11,15 @@ import javax.persistence.*
 @Table(name = "${TABLE_PREFIX}_STUDENT")
 class Student(
     name: String,
-    accessToken: AccessToken,
+    accessToken: AccessToken
+) : WebUser(name, accessToken, UserType.STUDENT) {
 
     @ManyToOne
     @JoinColumn(
         nullable = false, unique = false, updatable = false,
         name = "group_id", referencedColumnName = "id"
     )
-    val group: Group
-) : WebUser(name, accessToken, UserType.STUDENT) {
+    lateinit var group: Group
 
 //    @OneToMany(mappedBy = "student", cascade = [CascadeType.ALL])
 //    val solutions: MutableSet<Solution> = mutableSetOf()

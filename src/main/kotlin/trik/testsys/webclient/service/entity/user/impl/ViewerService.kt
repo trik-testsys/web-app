@@ -29,7 +29,8 @@ class ViewerService(
         val viewer = findByRegToken(regToken) ?: return null
 
         val accessToken = webUserAccessTokenGenerator.generate(name)
-        val admin = Admin(name, accessToken, viewer)
+        val admin = Admin(name, accessToken)
+        admin.viewer = viewer
 
         return admin.takeIf(validationBlock)?.also { adminRepository.save(it) }
     }

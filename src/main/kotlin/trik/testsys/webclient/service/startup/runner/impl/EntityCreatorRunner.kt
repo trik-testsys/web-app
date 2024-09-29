@@ -216,7 +216,8 @@ class EntityCreatorRunner(
 
         override fun <S : UserService<out UserEntity>> toEntity(externalService: S) =
             externalService.findByAccessToken(viewerAccessToken)?.let { viewer ->
-                Admin(name, accessToken, viewer as Viewer).also {
+                Admin(name, accessToken).also {
+                    it.viewer = viewer as Viewer
                     additionalInfo?.let { addInfo -> it.additionalInfo = addInfo }
                 }
             } ?: run {
@@ -260,7 +261,8 @@ class EntityCreatorRunner(
 
         override fun <S : RegEntityService<out RegEntity, Student>> toEntity(externalService: S): Student? =
             externalService.findByRegToken(groupRegToken)?.let { group ->
-                Student(name, accessToken, group as Group).also {
+                Student(name, accessToken).also {
+                    it.group = group as Group
                     additionalInfo?.let { addInfo -> it.additionalInfo = addInfo }
                 }
             } ?: run {

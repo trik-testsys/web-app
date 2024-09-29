@@ -12,6 +12,7 @@ import javax.persistence.*
 class Admin(
     name: String,
     accessToken: AccessToken,
+) : WebUser(name, accessToken, UserType.ADMIN) {
 
     /**
      * @author Roman Shishkin
@@ -21,8 +22,8 @@ class Admin(
     @JoinColumn(
         nullable = false, unique = false, updatable = false,
         name = "viewer_id", referencedColumnName = "id"
-    ) val viewer: Viewer
-) : WebUser(name, accessToken, UserType.ADMIN) {
+    )
+    lateinit var viewer: Viewer
 
     @OneToMany(mappedBy = "admin", cascade = [CascadeType.ALL])
     val groups: MutableSet<Group> = mutableSetOf()

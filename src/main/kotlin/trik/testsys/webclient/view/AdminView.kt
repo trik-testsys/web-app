@@ -20,7 +20,7 @@ data class AdminView(
 ) : UserView<Admin> {
 
     override fun toEntity(timeZone: TimeZone) = Admin(
-        name, accessToken, viewer
+        name, accessToken
     ).also {
         it.id = id
         it.lastLoginDate = lastLoginDate?.fromTimeZone(timeZone)
