@@ -13,12 +13,12 @@ data class ViewerView(
     override val accessToken: AccessToken,
     override val lastLoginDate: LocalDateTime?,
     override val creationDate: LocalDateTime?,
-    val adminRegToken: AccessToken,
+    val regToken: AccessToken,
     val additionalInfo: String
 ) : UserView<Viewer> {
 
     override fun toEntity(timeZone: TimeZone) = Viewer(
-        name, accessToken, adminRegToken
+        name, accessToken, regToken
     ).also {
         it.id = id
         it.lastLoginDate = lastLoginDate?.fromTimeZone(timeZone)

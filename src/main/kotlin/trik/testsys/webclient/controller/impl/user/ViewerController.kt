@@ -27,7 +27,7 @@ class ViewerController(
         accessToken = this.accessToken,
         lastLoginDate = this.lastLoginDate?.atTimeZone(timeZone),
         creationDate = this.creationDate?.atTimeZone(timeZone),
-        adminRegToken = this.adminRegToken,
+        regToken = this.regToken,
         additionalInfo = this.additionalInfo
     )
 
