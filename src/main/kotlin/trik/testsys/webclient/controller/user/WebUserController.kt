@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import trik.testsys.core.repository.user.UserRepository
-import trik.testsys.core.utils.marker.TrikController
 import trik.testsys.core.view.user.UserView
 import trik.testsys.webclient.controller.impl.main.LoginController
 import trik.testsys.webclient.entity.user.WebUser
@@ -26,7 +25,7 @@ import java.util.TimeZone
  **/
 abstract class WebUserController<U : WebUser, V : UserView<U>, S : WebUserService<U, out UserRepository<U>>>(
     private val loginData: LoginData
-) : TrikController {
+) {
 
     protected abstract val MAIN_PATH: String
 
