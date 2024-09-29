@@ -4,7 +4,6 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 import trik.testsys.core.repository.user.UserRepository
-import trik.testsys.core.utils.marker.TrikRepository
 import trik.testsys.webclient.entity.user.impl.Student
 
 /**
@@ -12,7 +11,7 @@ import trik.testsys.webclient.entity.user.impl.Student
  * @since 1.0.0
  */
 @Repository
-interface StudentRepository : UserRepository<Student>, TrikRepository {
+interface StudentRepository : UserRepository<Student> {
 
     /**
      * Returns max number of student with same username prefix.
