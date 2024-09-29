@@ -19,9 +19,9 @@ class Admin(
      */
     @ManyToOne
     @JoinColumn(
-        name = "viewer_id",
-        referencedColumnName = "id"
-    ) var viewer: Viewer
+        nullable = false, unique = false, updatable = false,
+        name = "viewer_id", referencedColumnName = "id"
+    ) val viewer: Viewer
 ) : WebUser(name, accessToken, UserType.ADMIN) {
 
     @OneToMany(mappedBy = "admin", cascade = [CascadeType.ALL])
