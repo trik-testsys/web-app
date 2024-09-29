@@ -14,7 +14,10 @@ class Student(
     accessToken: AccessToken,
 
     @ManyToOne
-    @JoinColumn(name = "group_id", nullable = false)
+    @JoinColumn(
+        nullable = false, unique = false, updatable = false,
+        name = "group_id", referencedColumnName = "id"
+    )
     val group: Group
 ) : WebUser(name, accessToken, UserType.STUDENT) {
 
