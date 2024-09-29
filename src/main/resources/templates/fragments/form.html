@@ -1,0 +1,49 @@
+<head th:fragment="head">
+    <link rel="stylesheet" th:href="@{/css/form.css}"/>
+
+    <script th:src="@{/js/form.js}"></script>
+</head>
+
+<!--Form field fragment-->
+<div th:fragment="formField(id, type, labelName, labelSize, fieldName, fieldSize, size, isReadonly, isRequired, isAccessToken)"
+     class="form-field"
+     th:style="'flex-basis:' + ${size} + '%'">
+    <div th:replace="fragments/form :: formLabel(for=${id}, labelName=${labelName}, size=${labelSize})"></div>
+    <div th:replace="fragments/form :: formInput(id=${id}, type=${type}, fieldName=${fieldName}, size=${fieldSize}, isReadonly=${isReadonly}, isRequired=${isRequired}, isAccessToken=${isAccessToken})"></div>
+</div>
+
+<!--Form label fragment-->
+<div th:fragment="formLabel(for, labelName, size)"
+     class="form-label"
+     th:style="'flex-basis:' + ${size} + '%'">
+    <label th:for="${for}"
+           th:text="${labelName}">
+    </label>
+</div>
+
+<!--Form input field fragment-->
+<div th:fragment="formInput(id, type, fieldName, size, isReadonly, isRequired, isAccessToken)"
+     class="form-input"
+     th:style="'flex-basis:' + ${size} + '%'">
+    <input th:field="*{__${fieldName}__}"
+           th:type="${type}"
+           th:id="${id}"
+           th:class="${isReadonly} ? 'readonly' : ''"
+           th:classappend="${isAccessToken} ? 'accessToken' : ''"
+           th:required="${isRequired}"
+           readonly/>
+</div>
+
+<!--Hidden, but necessary input field fragment-->
+<input th:fragment="hiddentInput(id, type, fieldName)"
+       th:id="${id}"
+       th:type="${type}"
+       th:field="*{__${fieldName}__}"
+       hidden/>
+
+<!-- Кнопки редактирования, отправки и отмены -->
+<div th:fragment="formButtons(formName)" class="form-buttons">
+    <button type="button" class="edit-button" th:id="${formName} + '-edit'" th:onclick="'enableForm(\'' + ${formName} + '\')'">Редактировать</button>
+    <button type="submit" class="save-button" th:id="${formName} + '-save'">Сохранить</button>
+    <button type="button" class="cancel-button" th:id="${formName} + '-cancel'" th:onclick="'disableForm(\'' + ${formName} + '\')'">Отменить</button>
+</div>

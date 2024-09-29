@@ -1,0 +1,15 @@
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+
+<!--Background for every page-->
+<div th:fragment="background" class="background-container"></div>
+
+<!--Popup with a flash message-->
+<div th:fragment="popup"
+     id="popup" class="popup" th:if="${message != null}">
+    <div class="popup-content">
+        <span class="popup-close" onclick="closePopup()">&times;</span>
+        <p th:text="${message}"></p>
+    </div>
+</div>
+
+</html>
