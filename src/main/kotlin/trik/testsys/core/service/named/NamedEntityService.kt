@@ -1,22 +1,22 @@
 package trik.testsys.core.service.named
 
 import trik.testsys.core.entity.named.NamedEntity
-import trik.testsys.core.service.Service
+import trik.testsys.core.service.EntityService
 
 /**
- * Simple interface for named entity services extends [Service]. Contains methods that work with [NamedEntity.name]:
+ * Simple interface for named entity services extends [EntityService]. Contains methods that work with [NamedEntity.name]:
  *
  * 1. [findByName]
  *
  * @param E entity class, implements [NamedEntity]
  *
- * @see Service
+ * @see EntityService
  * @see NamedEntity
  *
  * @author Roman Shishkin
  * @since 2.0.0
  **/
-interface NamedEntityService<E : NamedEntity> : Service<E> {
+interface NamedEntityService<E : NamedEntity> : EntityService<E> {
 
     /**
      * Finds all entities by [NamedEntity.name].

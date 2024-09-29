@@ -16,7 +16,7 @@ import java.time.LocalDateTime
  * @author Roman Shishkin
  * @since 2.0.0
  */
-interface Service<E : Entity> {
+interface EntityService<E : Entity> {
 
     //region Save methods
 

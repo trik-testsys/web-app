@@ -6,19 +6,19 @@ import trik.testsys.core.repository.EntityRepository
 import java.time.LocalDateTime
 
 /**
- * Abstract service class that implements [Service] basic CRUD operations.
+ * Abstract service class that implements [EntityService] basic CRUD operations.
  *
  * @param E Entity type. Extends [AbstractEntity].
  * @param R Repository type. Extends [EntityRepository].
  *
- * @see Service
+ * @see EntityService
  * @see AbstractEntity
  * @see EntityRepository
  *
  * @author Roman Shishkin
  * @since 2.0.0
  */
-abstract class AbstractService<E : AbstractEntity, R : EntityRepository<E>> : Service<E> {
+abstract class AbstractService<E : AbstractEntity, R : EntityRepository<E>> : EntityService<E> {
 
     /**
      * The repository associated with the service.

@@ -2,7 +2,7 @@ package trik.testsys.core.service.user
 
 import trik.testsys.core.entity.user.UserEntity
 import trik.testsys.core.repository.user.UserRepository
-import trik.testsys.core.service.Service
+import trik.testsys.core.service.EntityService
 import trik.testsys.core.service.named.NamedEntityService
 
 /**
@@ -15,7 +15,7 @@ import trik.testsys.core.service.named.NamedEntityService
  * @param E user entity class, implements [UserEntity]
  * @param R user repository class, implements [UserRepository]
  *
- * @see Service
+ * @see EntityService
  * @see UserEntity
  * @see UserRepository
  *
