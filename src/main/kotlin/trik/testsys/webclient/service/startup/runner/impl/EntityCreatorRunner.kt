@@ -10,14 +10,13 @@ import org.springframework.context.annotation.Scope
 import trik.testsys.core.entity.Entity
 import trik.testsys.core.entity.user.AccessToken
 import trik.testsys.core.entity.user.UserEntity
-import trik.testsys.core.repository.user.UserRepository
-import trik.testsys.core.service.Service
+import trik.testsys.core.service.EntityService
 import trik.testsys.core.service.user.UserService
+import trik.testsys.webclient.entity.RegEntity
 import trik.testsys.webclient.entity.impl.Group
-import trik.testsys.webclient.entity.user.WebUser
 import trik.testsys.webclient.entity.user.impl.*
+import trik.testsys.webclient.service.entity.RegEntityService
 import trik.testsys.webclient.service.entity.impl.GroupService
-import trik.testsys.webclient.service.entity.user.WebUserService
 import trik.testsys.webclient.service.entity.user.impl.*
 import trik.testsys.webclient.service.startup.runner.StartupRunner
 import java.io.File
@@ -100,7 +99,7 @@ class EntityCreatorRunner(
         logger.info("Entities files were moved to backup directory.")
     }
 
-    private inline fun <reified E : Entity, reified D : EntityData.EntityDataWithoutDependencies<E>> Service<E>.createEntitiesWithoutDependencies(
+    private inline fun <reified E : Entity, reified D : EntityData.EntityDataWithoutDependencies<E>> EntityService<E>.createEntitiesWithoutDependencies(
         fileName: String
     ) {
         logger.info("Creating ${E::class.simpleName}s from file $fileName.")
@@ -112,8 +111,8 @@ class EntityCreatorRunner(
         saveAll(entitiesData)
     }
 
-    private inline fun <reified E : Entity, reified D : EntityData.EntityDataWithDependencies.EntityDataWithWebUserDependencies<E>> Service<E>.createEntitiesWithWebUserDependencies(
-        fileName: String, externalService: WebUserService<out WebUser, out UserRepository<out WebUser>>
+    private inline fun <reified E : Entity, reified D : EntityData.EntityDataWithDependencies.EntityDataWithUserEntityDependencies<E>> EntityService<E>.createEntitiesWithWebUserDependencies(
+        fileName: String, externalService: UserService<out UserEntity>
     ) {
         logger.info("Creating ${E::class.simpleName}s from file $fileName.")
         val file = getEntitiesFile(fileName) ?: return
@@ -124,8 +123,8 @@ class EntityCreatorRunner(
         saveAll(entitiesData, externalService)
     }
 
-    private inline fun <reified E : Entity, reified D : EntityData.EntityDataWithDependencies.EntityDataWithGroupDependencies<E>> Service<E>.createEntitiesWithGroupDependencies(
-        fileName: String, externalService: GroupService
+    private inline fun <reified E : UserEntity, reified D : EntityData.EntityDataWithDependencies.EntityDataWithRegEntityDependencies<E>> EntityService<E>.createEntitiesWithGroupDependencies(
+        fileName: String, externalService: RegEntityService<out RegEntity, E>
     ) {
         logger.info("Creating ${E::class.simpleName}s from file $fileName.")
         val file = getEntitiesFile(fileName) ?: return
@@ -136,21 +135,21 @@ class EntityCreatorRunner(
         saveAll(entitiesData, externalService)
     }
 
-    private fun <E : Entity, D : EntityData.EntityDataWithoutDependencies<E>> Service<E>.saveAll(
+    private fun <E : Entity, D : EntityData.EntityDataWithoutDependencies<E>> EntityService<E>.saveAll(
         entitiesData: Collection<D?>
     ) = entitiesData.forEach { entityData -> entityData?.toEntity()?.let { trySave(it) } }
 
-    private fun <E : Entity, D : EntityData.EntityDataWithDependencies.EntityDataWithWebUserDependencies<E>> Service<E>.saveAll(
+    private fun <E : Entity, D : EntityData.EntityDataWithDependencies.EntityDataWithUserEntityDependencies<E>> EntityService<E>.saveAll(
         entitiesData: Collection<D?>,
-        externalService: WebUserService<out WebUser, out UserRepository<out WebUser>>
+        externalService: UserService<out UserEntity>
     ) = entitiesData.forEach { entityData -> entityData?.toEntity(externalService)?.let { trySave(it) } }
 
-    private fun <E : Entity, D : EntityData.EntityDataWithDependencies.EntityDataWithGroupDependencies<E>> Service<E>.saveAll(
+    private fun <E : UserEntity, D : EntityData.EntityDataWithDependencies.EntityDataWithRegEntityDependencies<E>> EntityService<E>.saveAll(
         entitiesData: Collection<D?>,
-        externalService: GroupService
+        externalService: RegEntityService<out RegEntity, E>
     ) = entitiesData.forEach { entityData -> entityData?.toEntity(externalService)?.let { trySave(it) } }
 
-    private fun <E: Entity> Service<E>.trySave(entity: E) = try {
+    private fun <E: Entity> EntityService<E>.trySave(entity: E) = try {
         save(entity)
         hasInjectedEntities = true
     } catch (e: Exception) {
@@ -195,14 +194,14 @@ class EntityCreatorRunner(
 
         sealed interface EntityDataWithDependencies<E : Entity> : EntityData<E> {
 
-            interface EntityDataWithWebUserDependencies<E : Entity> : EntityDataWithDependencies<E> {
+            interface EntityDataWithUserEntityDependencies<E : Entity> : EntityDataWithDependencies<E> {
 
-                fun <S : UserService<out UserEntity, out UserRepository<out UserEntity>>> toEntity(externalService: S): E?
+                fun <S : UserService<out UserEntity>> toEntity(externalService: S): E?
             }
 
-            interface EntityDataWithGroupDependencies<E : Entity> : EntityDataWithDependencies<E> {
+            interface EntityDataWithRegEntityDependencies<E : UserEntity> : EntityDataWithDependencies<E> {
 
-                fun toEntity(externalService: GroupService): E?
+                fun <S : RegEntityService<out RegEntity, E>> toEntity(externalService: S): E?
             }
         }
     }
@@ -213,9 +212,9 @@ class EntityCreatorRunner(
         val accessToken: AccessToken = "",
         val viewerAccessToken: AccessToken = "",
         val additionalInfo: String? = null
-    ) : EntityData.EntityDataWithDependencies.EntityDataWithWebUserDependencies<Admin> {
+    ) : EntityData.EntityDataWithDependencies.EntityDataWithUserEntityDependencies<Admin> {
 
-        override fun <S : UserService<out UserEntity, out UserRepository<out UserEntity>>> toEntity(externalService: S) =
+        override fun <S : UserService<out UserEntity>> toEntity(externalService: S) =
             externalService.findByAccessToken(viewerAccessToken)?.let { viewer ->
                 Admin(name, accessToken, viewer as Viewer).also {
                     additionalInfo?.let { addInfo -> it.additionalInfo = addInfo }
@@ -254,17 +253,18 @@ class EntityCreatorRunner(
     private data class StudentData(
         val name: String = "",
         val accessToken: AccessToken = "",
-        val groupAccessToken: AccessToken = "",
+        val groupRegToken: AccessToken = "",
         val additionalInfo: String? = null
-    ) : EntityData.EntityDataWithDependencies.EntityDataWithGroupDependencies<Student> {
+    ) : EntityData.EntityDataWithDependencies.EntityDataWithRegEntityDependencies<Student> {
 
-        override fun toEntity(externalService: GroupService) =
-            externalService.findByAccessToken(groupAccessToken)?.let { group ->
-                Student(name, accessToken, group).also {
+
+        override fun <S : RegEntityService<out RegEntity, Student>> toEntity(externalService: S): Student? =
+            externalService.findByRegToken(groupRegToken)?.let { group ->
+                Student(name, accessToken, group as Group).also {
                     additionalInfo?.let { addInfo -> it.additionalInfo = addInfo }
                 }
             } ?: run {
-                logger.error("Group with accessToken $groupAccessToken not found.")
+                logger.error("Group with accessToken $groupRegToken not found.")
                 null
             }
     }
@@ -285,11 +285,11 @@ class EntityCreatorRunner(
     private data class ViewerData(
         val name: String = "",
         val accessToken: AccessToken = "",
-        val adminRegToken: String = "",
+        val regToken: String = "",
         val additionalInfo: String? = null
     ) : EntityData.EntityDataWithoutDependencies<Viewer> {
 
-        override fun toEntity() = Viewer(name, accessToken, adminRegToken).also {
+        override fun toEntity() = Viewer(name, accessToken, regToken).also {
             additionalInfo?.let { addInfo -> it.additionalInfo = addInfo }
         }
     }
@@ -297,14 +297,14 @@ class EntityCreatorRunner(
     @XmlRootElement
     private data class GroupData(
         val name: String = "",
-        val accessToken: AccessToken = "",
+        val regToken: AccessToken = "",
         val adminAccessToken: AccessToken = "",
         val additionalInfo: String? = null
-    ) : EntityData.EntityDataWithDependencies.EntityDataWithWebUserDependencies<Group> {
+    ) : EntityData.EntityDataWithDependencies.EntityDataWithUserEntityDependencies<Group> {
 
-        override fun <S : UserService<out UserEntity, out UserRepository<out UserEntity>>> toEntity(externalService: S) =
+        override fun <S : UserService<out UserEntity>> toEntity(externalService: S): Group? =
             externalService.findByAccessToken(adminAccessToken)?.let { admin ->
-                Group(name, accessToken).also {
+                Group(name, regToken).also {
                     it.admin = admin as Admin
                     additionalInfo?.let { addInfo -> it.additionalInfo = addInfo }
                 }
