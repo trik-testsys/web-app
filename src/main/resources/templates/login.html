@@ -15,12 +15,9 @@
 </head>
 <body>
 
-<div id="popup" class="popup" th:if="${message != null}">
-    <div class="popup-content">
-        <span class="popup-close" onclick="closePopup()">&times;</span>
-        <p th:text="${message}"></p>
-    </div>
-</div>
+<div th:replace="fragments/main :: background"></div>
+
+<div th:replace="fragments/main :: popup"></div>
 
 <div class="modal-container">
     <div class="modal">

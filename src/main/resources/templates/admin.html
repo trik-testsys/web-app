@@ -19,7 +19,9 @@
 </head>
 <body>
 
-<div class="background-container"></div>
+<div th:replace="fragments/main :: background"></div>
+
+<div th:replace="fragments/main :: popup"></div>
 
 <div id="popup" class="popup" th:if="${message != null}">
     <div class="popup-content">
@@ -39,6 +41,7 @@
 <div class="side-menu" id="side-menu">
     <ul>
         <li><a th:href="@{/admin}">Профиль</a></li>
+        <li><a th:href="@{/admin/groups}">Группы</a></li>
         <li><a th:href="@{/admin?Logout=''}">Выход</a></li>
     </ul>
 </div>
