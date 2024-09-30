@@ -48,7 +48,6 @@ form {
 
 .form-input input:read-only {
     background-color: #e9e9e9;
-    cursor: not-allowed;
 }
 
 /* Стиль для кнопок */
