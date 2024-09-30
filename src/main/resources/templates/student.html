@@ -1,47 +1,27 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
 <head>
-    <meta charset="UTF-8">
-    <title>Кабинет Участника</title>
+    <th:block th:include="fragments/main :: head('Кабинет Участника')"></th:block>
 
-    <link rel="icon" th:href="@{/img/trik_testsys_logo.ico}">
-
-    <link rel="stylesheet" th:href="@{/css/main.css}"/>
-    <link rel="stylesheet" th:href="@{/css/popup.css}"/>
     <link rel="stylesheet" th:href="@{/css/block.css}"/>
-    <link rel="stylesheet" th:href="@{/css/menu.css}">
-    <link rel="stylesheet" th:href="@{/css/form.css}">
 
-    <script th:src="@{/js/scripts.js}"></script>
-    <script th:src="@{/js/popup.js}"></script>
-    <script th:src="@{/js/menu.js}"></script>
-    <script th:src="@{/js/form.js}"></script>
+    <th:block th:include="fragments/popup :: head"></th:block>
+    <th:block th:include="fragments/form :: head"></th:block>
+    <th:block th:include="fragments/menu :: head"></th:block>
 </head>
 <body>
 
-<div class="background-container"></div>
+<div th:replace="fragments/main :: background"></div>
 
-<div id="popup" class="popup" th:if="${message != null}">
-    <div class="popup-content">
-        <span class="popup-close" onclick="closePopup()">&times;</span>
-        <p th:text="${message}">Это текст сообщения попапа.</p>
-    </div>
-</div>
+<div th:replace="fragments/popup :: popup"></div>
 
-<header class="header">
-    <div class="logo">
-        <img th:src="@{/img/trik_testsys_logo.svg}" alt="Лого" class="logo-img">
-        <span class="cabinet-name">Кабинет Участника</span>
-    </div>
-    <button class="menu-button" onclick="toggleMenu()">≡</button>
-</header>
+<div th:replace="fragments/menu :: header(title='Кабинет Участника',
+                                          titleLink='/student',
+                                          breadCrumbNames=${ {  } },
+                                          breadCrumbLinks=${ {  } })"></div>
 
-<div class="side-menu" id="side-menu">
-    <ul>
-        <li><a th:href="@{/student}">Профиль</a></li>
-        <li><a th:href="@{/student?Logout=''}">Выход</a></li>
-    </ul>
-</div>
+<div th:replace="fragments/menu :: sideMenu(links=${ {'/student', '/student?Logout=' } },
+                                            names=${ { 'Профиль', 'Выход' } })"></div>
 
 <!-- Контент -->
 <div class="container">
@@ -52,56 +32,50 @@
         <div class="form-container">
             <!--/*@thymesVar id="webUser" type="trik.testsys.webclient.view.StudentView"*/-->
             <form id="student-info" action="#" th:action="@{/student/update}" th:object="${webUser}" method="post">
-                <input th:field="*{id}" type="text" id="student.id" hidden/>
-                <input th:field="*{group}" type="text" id="student.group" hidden/>
+                <div th:replace="fragments/form.html :: hiddentInput(id='student.id', fieldName='id')"></div>
+                <div th:replace="fragments/form.html :: hiddentInput(id='student.group', fieldName='group')"></div>
 
-                <div class="form-field" style="flex-basis: 50%">
-                    <div class="form-label" style="flex-basis: 20%">
-                        <label for="student.name">Псевдоним</label>
-                    </div>
-                    <div class="form-input" style="flex-basis: 80%">
-                        <input th:field="*{name}" type="text" id="student.name" readonly required/>
-                    </div>
+                <div th:replace="fragments/form.html
+                    :: formField(id='student.name', type='text',
+                                 labelName='Псевдоним', labelSize='20',
+                                 fieldName='name', fieldSize='80',
+                                 size='50',
+                                 isReadonly='false', isRequired='true', isAccessToken='false')">
                 </div>
-                <div class="form-field" style="flex-basis: 50%">
-                    <div class="form-label" style="flex-basis: 20%">
-                        <label for="student.accessToken">Код-доступа</label>
-                    </div>
-                    <div class="form-input" style="flex-basis: 80%">
-                        <input th:field="*{accessToken}" type="text" id="student.accessToken" class="readonly accessToken" readonly/>
-                    </div>
+                <div th:replace="fragments/form.html
+                    :: formField(id='student.accessToken', type='text',
+                                 labelName='Код-доступа', labelSize='20',
+                                 fieldName='accessToken', fieldSize='80',
+                                 size='50',
+                                 isReadonly='true', isRequired='false', isAccessToken='true')">
                 </div>
-                <div class="form-field" style="flex-basis: 25%">
-                    <div class="form-label" style="flex-basis: 40%">
-                        <label for="student.lastLoginDate">Дата и время входа</label>
-                    </div>
-                    <div class="form-input" style="flex-basis: 60%">
-                        <input th:field="*{lastLoginDate}" type="text" id="student.lastLoginDate" class="readonly" readonly/>
-                    </div>
+                <div th:replace="fragments/form.html
+                    :: formField(id='student.lastLoginDate', type='text',
+                                 labelName='Дата и время входа', labelSize='40',
+                                 fieldName='lastLoginDate', fieldSize='60',
+                                 size='25',
+                                 isReadonly='true', isRequired='false', isAccessToken='false')">
                 </div>
-                <div class="form-field" style="flex-basis: 25%">
-                    <div class="form-label" style="flex-basis: 40%">
-                        <label for="student.creationDate">Дата и время регистрации</label>
-                    </div>
-                    <div class="form-input" style="flex-basis: 60%">
-                        <input th:field="*{creationDate}" type="text" id="student.creationDate" class="readonly" readonly/>
-                    </div>
+                <div th:replace="fragments/form.html
+                    :: formField(id='student.creationDate', type='text',
+                                 labelName='Дата и время регистрации', labelSize='40',
+                                 fieldName='creationDate', fieldSize='60',
+                                 size='25',
+                                 isReadonly='true', isRequired='false', isAccessToken='false')">
                 </div>
-                <div class="form-field" style="flex-basis: 50%">
-                    <div class="form-label" style="flex-basis: 20%">
-                        <label for="student.group.name">Группа</label>
-                    </div>
-                    <div class="form-input" style="flex-basis: 80%">
-                        <input th:field="*{group.name}" type="text" id="student.group.name" class="readonly" readonly/>
-                    </div>
+                <div th:replace="fragments/form.html
+                    :: formField(id='student.group.name', type='text',
+                                 labelName='Группа', labelSize='20',
+                                 fieldName='group.name', fieldSize='80',
+                                 size='50',
+                                 isReadonly='true', isRequired='false', isAccessToken='false')">
                 </div>
-                <div class="form-field" style="flex-basis: 100%">
-                    <div class="form-label" style="flex-basis: 20%">
-                        <label for="student.additionalInfo">Дополнительная информация</label>
-                    </div>
-                    <div class="form-input" style="flex-basis: 80%">
-                        <input th:field="*{additionalInfo}" type="text" id="student.additionalInfo" readonly/>
-                    </div>
+                <div th:replace="fragments/form.html
+                    :: formField(id='student.additionalInfo', type='text',
+                                 labelName='Дополнительная информация', labelSize='20',
+                                 fieldName='additionalInfo', fieldSize='80',
+                                 size='100',
+                                 isReadonly='false', isRequired='false', isAccessToken='false')">
                 </div>
 
                 <!-- Кнопки редактирования, отправки и отмены -->

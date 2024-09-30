@@ -1,26 +1,17 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
 <head>
-    <meta charset="UTF-8">
-    <title>Регистрация в TestSys</title>
+    <th:block th:include="fragments/main :: head('Регистрация в TestSys')"></th:block>
 
-    <link rel="icon" th:href="@{/img/trik_testsys_logo.ico}">
-
-    <link rel="stylesheet" th:href="@{/css/main.css}"/>
     <link rel="stylesheet" th:href="@{/css/modal.css}"/>
-    <link rel="stylesheet" th:href="@{/css/popup.css}"/>
 
-    <script th:src="@{/js/scripts.js}"></script>
-    <script th:src="@{/js/popup.js}"></script>
+    <th:block th:include="fragments/popup :: head"></th:block>
 </head>
 <body>
 
-<div id="popup" class="popup" th:if="${message != null}">
-    <div class="popup-content">
-        <span class="popup-close" onclick="closePopup()">&times;</span>
-        <p th:text="${message}">Это текст сообщения попапа.</p>
-    </div>
-</div>
+<div th:replace="fragments/main :: background"></div>
+
+<div th:replace="fragments/popup :: popup"></div>
 
 <div class="modal-container">
     <div class="modal">

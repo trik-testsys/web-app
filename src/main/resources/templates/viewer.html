@@ -1,42 +1,29 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
 <head>
-    <meta charset="UTF-8">
-    <title>Кабинет Районного Наблюдателя</title>
+    <th:block th:include="fragments/main :: head('Кабинет Районного Наблюдателя')"></th:block>
 
-    <link rel="icon" th:href="@{/img/trik_testsys_logo.ico}">
-
-    <link rel="stylesheet" th:href="@{/css/main.css}"/>
-    <link rel="stylesheet" th:href="@{/css/popup.css}"/>
-    <link rel="stylesheet" th:href="@{/css/form.css}"/>
-    <link rel="stylesheet" th:href="@{/css/menu.css}">
     <link rel="stylesheet" th:href="@{/css/block.css}">
 
-    <script th:src="@{/js/scripts.js}"></script>
-    <script th:src="@{/js/popup.js}"></script>
-    <script th:src="@{/js/form.js}"></script>
-    <script th:src="@{/js/menu.js}"></script>
+    <th:block th:include="fragments/popup :: head"></th:block>
+    <th:block th:include="fragments/form :: head"></th:block>
+    <th:block th:include="fragments/menu :: head"></th:block>
 </head>
 <body>
 
 <div th:replace="fragments/main :: background"></div>
 
-<div th:replace="fragments/main :: popup"></div>
+<div th:replace="fragments/popup :: popup"></div>
 
-<header class="header">
-    <div class="logo">
-        <img th:src="@{/img/trik_testsys_logo.svg}" alt="Лого" class="logo-img">
-        <span class="cabinet-name">Кабинет Районного Наблюдателя</span>
-    </div>
-    <button class="menu-button" onclick="toggleMenu()">≡</button>
-</header>
+<div th:replace="fragments/popup :: popup"></div>
 
-<div class="side-menu" id="side-menu">
-    <ul>
-        <li><a th:href="@{/viewer}">Профиль</a></li>
-        <li><a th:href="@{/viewer?Logout=''}">Выход</a></li>
-    </ul>
-</div>
+<div th:replace="fragments/menu :: header(title='Кабинет районного Наблюдателя',
+                                          titleLink='/viewer',
+                                          breadCrumbNames=${ {  } },
+                                          breadCrumbLinks=${ {  } })"></div>
+
+<div th:replace="fragments/menu :: sideMenu(links=${ {'/viewer', '/viewer?Logout=' } },
+                                            names=${ { 'Профиль', 'Выход' } })"></div>
 
 <div class="container">
     <!-- Первый блок -->
@@ -46,55 +33,49 @@
         <div class="form-container">
             <!--/*@thymesVar id="webUser" type="trik.testsys.webclient.view.ViewerView"*/-->
             <form id="viewer-info" action="#" th:action="@{/viewer/update}" th:object="${webUser}" method="post">
-                <input th:field="*{id}" type="text" id="viewer.id" hidden/>
+                <div th:replace="fragments/form.html :: hiddentInput(id='viewer.id', fieldName='id')"></div>
 
-                <div class="form-field" style="flex-basis: 50%">
-                    <div class="form-label" style="flex-basis: 20%">
-                        <label for="viewer.name">Псевдоним</label>
-                    </div>
-                    <div class="form-input" style="flex-basis: 80%">
-                        <input th:field="*{name}" type="text" id="viewer.name" readonly required/>
-                    </div>
+                <div th:replace="fragments/form.html
+                    :: formField(id='viewer.name', type='text',
+                                 labelName='Псевдоним', labelSize='20',
+                                 fieldName='name', fieldSize='80',
+                                 size='50',
+                                 isReadonly='false', isRequired='true', isAccessToken='false')">
                 </div>
-                <div class="form-field" style="flex-basis: 50%">
-                    <div class="form-label" style="flex-basis: 20%">
-                        <label for="viewer.accessToken">Код-доступа</label>
-                    </div>
-                    <div class="form-input" style="flex-basis: 80%">
-                        <input th:field="*{accessToken}" type="text" id="viewer.accessToken" class="readonly accessToken" readonly/>
-                    </div>
+                <div th:replace="fragments/form.html
+                    :: formField(id='viewer.accessToken', type='text',
+                                 labelName='Код-доступа', labelSize='25',
+                                 fieldName='accessToken', fieldSize='75',
+                                 size='50',
+                                 isReadonly='true', isRequired='false', isAccessToken='true')">
                 </div>
-                <div class="form-field" style="flex-basis: 25%">
-                    <div class="form-label" style="flex-basis: 40%">
-                        <label for="viewer.lastLoginDate">Дата и время входа</label>
-                    </div>
-                    <div class="form-input" style="flex-basis: 60%">
-                        <input th:field="*{lastLoginDate}" type="text" id="viewer.lastLoginDate" class="readonly" readonly/>
-                    </div>
+                <div th:replace="fragments/form.html
+                    :: formField(id='viewer.lastLoginDate', type='text',
+                                 labelName='Дата и время входа', labelSize='40',
+                                 fieldName='lastLoginDate', fieldSize='60',
+                                 size='25',
+                                 isReadonly='true', isRequired='false', isAccessToken='false')">
                 </div>
-                <div class="form-field" style="flex-basis: 25%">
-                    <div class="form-label" style="flex-basis: 40%">
-                        <label for="viewer.creationDate">Дата и время регистрации</label>
-                    </div>
-                    <div class="form-input" style="flex-basis: 60%">
-                        <input th:field="*{creationDate}" type="text" id="viewer.creationDate" class="readonly" readonly/>
-                    </div>
+                <div th:replace="fragments/form.html
+                    :: formField(id='viewer.creationDate', type='text',
+                                 labelName='Дата и время регистрации', labelSize='40',
+                                 fieldName='creationDate', fieldSize='60',
+                                 size='25',
+                                 isReadonly='true', isRequired='false', isAccessToken='false')">
                 </div>
-                <div class="form-field" style="flex-basis: 50%">
-                    <div class="form-label" style="flex-basis: 20%">
-                        <label for="viewer.adminRegToken">Группа</label>
-                    </div>
-                    <div class="form-input" style="flex-basis: 80%">
-                        <input th:field="*{adminRegToken}" type="text" id="viewer.adminRegToken" class="accessToken readonly" readonly/>
-                    </div>
+                <div th:replace="fragments/form.html
+                    :: formField(id='viewer.regToken', type='text',
+                                 labelName='Код-регистрации', labelSize='25',
+                                 fieldName='regToken', fieldSize='75',
+                                 size='50',
+                                 isReadonly='true', isRequired='false', isAccessToken='false')">
                 </div>
-                <div class="form-field" style="flex-basis: 100%">
-                    <div class="form-label" style="flex-basis: 20%">
-                        <label for="viewer.additionalInfo">Дополнительная информация</label>
-                    </div>
-                    <div class="form-input" style="flex-basis: 80%">
-                        <input th:field="*{additionalInfo}" type="text" id="viewer.additionalInfo" readonly/>
-                    </div>
+                <div th:replace="fragments/form.html
+                    :: formField(id='viewer.additionalInfo', type='text',
+                                 labelName='Дополнительная информация', labelSize='20',
+                                 fieldName='additionalInfo', fieldSize='80',
+                                 size='100',
+                                 isReadonly='false', isRequired='false', isAccessToken='false')">
                 </div>
 
                 <!-- Кнопки редактирования, отправки и отмены -->
