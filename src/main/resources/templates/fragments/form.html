@@ -1,3 +1,5 @@
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+
 <head th:fragment="head">
     <link rel="stylesheet" th:href="@{/css/form.css}"/>
 
@@ -9,7 +11,7 @@
      class="form-field"
      th:style="'flex-basis:' + ${size} + '%'">
     <div th:replace="fragments/form :: formLabel(for=${id}, labelName=${labelName}, size=${labelSize})"></div>
-    <div th:replace="fragments/form :: formInput(id=${id}, type=${type}, fieldName=${fieldName}, size=${fieldSize}, isReadonly=${isReadonly}, isRequired=${isRequired}, isAccessToken=${isAccessToken})"></div>
+    <div th:replace="fragments/form :: formInput(id=${id}, type=${type}, labelName=${labelName}, fieldName=${fieldName}, size=${fieldSize}, isReadonly=${isReadonly}, isRequired=${isRequired}, isAccessToken=${isAccessToken})"></div>
 </div>
 
 <!--Form label fragment-->
@@ -22,22 +24,22 @@
 </div>
 
 <!--Form input field fragment-->
-<div th:fragment="formInput(id, type, fieldName, size, isReadonly, isRequired, isAccessToken)"
+<div th:fragment="formInput(id, type, labelName, fieldName, size, isReadonly, isRequired, isAccessToken)"
      class="form-input"
      th:style="'flex-basis:' + ${size} + '%'">
     <input th:field="*{__${fieldName}__}"
            th:type="${type}"
            th:id="${id}"
-           th:class="${isReadonly} ? 'readonly' : ''"
-           th:classappend="${isAccessToken} ? 'accessToken' : ''"
+           th:class="${isReadonly ? 'readonly' : ''} + ${isAccessToken ? ' accessToken' : ''}"
            th:required="${isRequired}"
+           th:placeholder="${labelName} + ${isRequired ? ' (обязательно)' : ''} + '...'"
+           th:title="${labelName}"
            readonly/>
 </div>
 
 <!--Hidden, but necessary input field fragment-->
-<input th:fragment="hiddentInput(id, type, fieldName)"
+<input th:fragment="hiddentInput(id, fieldName)"
        th:id="${id}"
-       th:type="${type}"
        th:field="*{__${fieldName}__}"
        hidden/>
 
@@ -47,3 +49,5 @@
     <button type="submit" class="save-button" th:id="${formName} + '-save'">Сохранить</button>
     <button type="button" class="cancel-button" th:id="${formName} + '-cancel'" th:onclick="'disableForm(\'' + ${formName} + '\')'">Отменить</button>
 </div>
+
+</html>
