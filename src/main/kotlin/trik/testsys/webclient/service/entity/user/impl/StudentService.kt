@@ -73,11 +73,4 @@ class StudentService: WebUserService<Student, StudentRepository>() {
 
         return csv
     }
-
-    companion object {
-        private const val HASHING_ALGORITHM_NAME = "MD5"
-        private const val START_NUMBER_IF_NOT_FOUND = -1L
-        private const val NAME_DELIMITER = "__"
-        private const val ACCESS_TOKEN_DELIMITER = "_"
-    }
 }
