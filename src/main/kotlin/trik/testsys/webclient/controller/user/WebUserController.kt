@@ -80,11 +80,11 @@ abstract class WebUserController<U : WebUser, V : UserView<U>, S : WebUserServic
         val updatedWebUser = webUserView.toEntity(timeZone)
 
         if (!service.validateName(updatedWebUser)) {
-            redirectAttributes.addPopupMessage("Псевдоним не должен быть пустым или содержать Код-доступа. Попробуйте другой вариант.")
+            redirectAttributes.addPopupMessage("Псевдоним не должен быть пустым, содержать Код–доступа или Код-регистрации. Попробуйте другой вариант.")
             return "redirect:$MAIN_PATH"
         }
         if (!service.validateAdditionalInfo(updatedWebUser)) {
-            redirectAttributes.addPopupMessage("Дополнительная информация не должна содержать Код-доступа. Попробуйте другой вариант.")
+            redirectAttributes.addPopupMessage("Дополнительная информация не должна содержать Код-доступа или Код-регистрации. Попробуйте другой вариант.")
             return "redirect:$MAIN_PATH"
         }
 

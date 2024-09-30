@@ -12,6 +12,12 @@ import trik.testsys.webclient.service.entity.user.WebUserService
 @Service
 class StudentService: WebUserService<Student, StudentRepository>() {
 
+    override fun validateName(entity: Student) =
+        !entity.name.contains(entity.group.regToken) && super.validateName(entity)
+
+    override fun validateAdditionalInfo(entity: Student) =
+        !entity.additionalInfo.contains(entity.group.regToken) && super.validateAdditionalInfo(entity)
+
 //    /**
 //     * @author Roman Shishkin
 //     * @since 1.1.0

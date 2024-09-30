@@ -14,7 +14,6 @@ import trik.testsys.webclient.entity.user.impl.Student
 import trik.testsys.webclient.service.entity.user.impl.StudentService
 import trik.testsys.webclient.service.security.login.impl.LoginData
 import trik.testsys.webclient.util.atTimeZone
-import trik.testsys.webclient.view.GroupView.Companion.toView
 import trik.testsys.webclient.view.StudentView
 import java.io.File
 import java.util.TimeZone
@@ -54,7 +53,7 @@ class StudentController(
         creationDate = this.creationDate?.atTimeZone(timeZone),
         lastLoginDate = this.lastLoginDate?.atTimeZone(timeZone),
         additionalInfo = this.additionalInfo,
-        groupName = this.group.name
+        group = this.group
     )
 
     companion object {
