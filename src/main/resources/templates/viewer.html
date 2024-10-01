@@ -31,6 +31,10 @@
         <div class="block-title">Профиль</div>
 
         <div class="form-container">
+            <div class="form-header">
+                <h1>Информация о профиле</h1>
+            </div>
+
             <!--/*@thymesVar id="webUser" type="trik.testsys.webclient.view.ViewerView"*/-->
             <form id="viewer-info" action="#" th:action="@{/viewer/update}" th:object="${webUser}" method="post">
                 <div th:replace="fragments/form.html :: hiddentInput(id='viewer.id', fieldName='id')"></div>

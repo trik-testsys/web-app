@@ -30,6 +30,10 @@
         <div class="block-title">Профиль</div>
 
         <div class="form-container">
+            <div class="form-header">
+                <h1>Информация о профиле</h1>
+            </div>
+
             <!--/*@thymesVar id="webUser" type="trik.testsys.webclient.view.AdminView"*/-->
             <form id="admin-info" action="#" th:action="@{/admin/update}" th:object="${webUser}" method="post">
                 <div th:replace="fragments/form.html :: hiddentInput(id='admin.id', fieldName='id')"></div>

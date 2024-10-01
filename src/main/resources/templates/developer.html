@@ -30,6 +30,10 @@
         <div class="block-title">Профиль</div>
 
         <div class="form-container">
+            <div class="form-header">
+                <h1>Информация о профиле</h1>
+            </div>
+
             <!--/*@thymesVar id="webUser" type="trik.testsys.webclient.view.DeveloperView"*/-->
             <form id="developer-info" action="#" th:action="@{/developer/update}" th:object="${webUser}" method="post">
                 <div th:replace="fragments/form.html :: hiddentInput(id='developer.id', fieldName='id')"></div>
