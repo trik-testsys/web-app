@@ -31,28 +31,6 @@
 </head>
 <body>
 <div class="container">
-    <div class="create-group-popup popup" id="createGroupPopup">
-        <div class="popup-content">
-            <button class="close-button" id="closeCreateGroup">
-                <i class="fa fa-close"></i>
-            </button>
-            <h1>Создание Группы</h1>
-            <form class="uploadForm" th:action="@{/demo2024/admin/group/create}" method="post">
-                <div class="input-name">
-                    <h2>Название Группы</h2>
-                </div>
-                <input type="text" name="name" placeholder="Название Группы" required/>
-                <div class="input-name">
-                    <h2>Дополнительная информация</h2>
-                </div>
-                <input type="text" name="additionalInfo" placeholder="Дополнительная информация"/>
-                <input type="text" name="accessToken" th:value="${accessToken}" placeholder="Код-доступа" required
-                       style="display: none"/>
-                <input type="submit" value="Создать"/>
-            </form>
-        </div>
-    </div>
-
     <div class="table groups-table">
         <table>
             <caption>Список Групп</caption>
