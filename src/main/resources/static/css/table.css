@@ -39,6 +39,21 @@ table tbody:hover tr:hover td {
     text-shadow: none;
 }
 
+/* Заголовок окна */
+.table-header h1 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--trik-white);
+}
+
+.table-header {
+    padding: 10px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    background-color: var(--trik-blue);
+    margin: -20px -20px 15px;
+}
+
 caption {
     font-size: 24px;
     font-weight: bold;
@@ -61,26 +76,26 @@ caption {
     align-items: center;
 }
 
-.add-button {
-    text-align: center;
-    margin-top: 10px;
-    margin-bottom: 25px;
-}
+/*.add-button {*/
+/*    text-align: center;*/
+/*    margin-top: 10px;*/
+/*    margin-bottom: 25px;*/
+/*}*/
 
-.add-button button {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background-color: var(--trik-blue);
-    color: var(--trik-white);
-    border: none;
-    outline: none;
-    cursor: pointer;
-    font-size: 15px;
-    text-align: center;
-    vertical-align: middle;
-}
+/*.add-button button {*/
+/*    width: 30px;*/
+/*    height: 30px;*/
+/*    border-radius: 50%;*/
+/*    background-color: var(--trik-blue);*/
+/*    color: var(--trik-white);*/
+/*    border: none;*/
+/*    outline: none;*/
+/*    cursor: pointer;*/
+/*    font-size: 15px;*/
+/*    text-align: center;*/
+/*    vertical-align: middle;*/
+/*}*/
 
-table th:last-child {
-    text-align: center;
-}
+/*table th:last-child {*/
+/*    text-align: center;*/
+/*}*/
