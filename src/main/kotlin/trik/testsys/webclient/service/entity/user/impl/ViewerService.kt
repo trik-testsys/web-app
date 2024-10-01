@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service
 import trik.testsys.core.entity.user.AccessToken
 import trik.testsys.webclient.entity.user.impl.Admin
 import trik.testsys.webclient.entity.user.impl.Viewer
-import trik.testsys.webclient.repository.user.AdminRepository
 import trik.testsys.webclient.repository.user.ViewerRepository
 import trik.testsys.webclient.service.entity.RegEntityService
 import trik.testsys.webclient.service.entity.user.WebUserService
@@ -17,7 +16,7 @@ import trik.testsys.webclient.service.token.access.AccessTokenGenerator
  */
 @Service
 class ViewerService(
-    private val adminRepository: AdminRepository,
+    private val adminService: AdminService,
     @Qualifier("webUserAccessTokenGenerator") private val webUserAccessTokenGenerator: AccessTokenGenerator
 ) :
     RegEntityService<Viewer, Admin>,
@@ -25,19 +24,19 @@ class ViewerService(
 
     override fun findByRegToken(regToken: AccessToken) = repository.findByRegToken(regToken)
 
-    override fun register(regToken: AccessToken, name: String, validationBlock: (Admin) -> Boolean): Admin? {
+    override fun register(regToken: AccessToken, name: String): Admin? {
         val viewer = findByRegToken(regToken) ?: return null
 
         val accessToken = webUserAccessTokenGenerator.generate(name)
         val admin = Admin(name, accessToken)
         admin.viewer = viewer
 
-        return admin.takeIf(validationBlock)?.also { adminRepository.save(it) }
+        return admin.takeIf { adminService.validateName(it) }?.also { adminService.save(it) }
     }
 
-    override fun validateName(entity: Viewer) =
-        !entity.name.contains(entity.regToken, ignoreCase = true) && super.validateName(entity)
-
     override fun validateAdditionalInfo(entity: Viewer) =
-        !entity.additionalInfo.contains(entity.regToken, ignoreCase = true) && super.validateAdditionalInfo(entity)
+        super<RegEntityService>.validateAdditionalInfo(entity) && super<WebUserService>.validateAdditionalInfo(entity)
+
+    override fun validateName(entity: Viewer) =
+        super<RegEntityService>.validateName(entity) && super<WebUserService>.validateName(entity)
 }

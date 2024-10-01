@@ -2,6 +2,7 @@ package trik.testsys.webclient.repository
 
 import org.springframework.data.repository.NoRepositoryBean
 import trik.testsys.core.repository.EntityRepository
+import trik.testsys.core.repository.named.NamedEntityRepository
 import trik.testsys.webclient.entity.RegEntity
 
 /**
@@ -13,7 +14,7 @@ import trik.testsys.webclient.entity.RegEntity
  * @since 2.0.0
  **/
 @NoRepositoryBean
-interface RegEntityRepository<E : RegEntity> : EntityRepository<E> {
+interface RegEntityRepository<E : RegEntity> : NamedEntityRepository<E> {
 
     /**
      * Find entity by [RegEntity.regToken].

@@ -216,4 +216,20 @@ interface EntityService<E : Entity> {
     fun deleteAll(): Boolean
 
     //endregion
+
+    //region Validation methods
+
+    /**
+     * Validates the [Entity.additionalInfo] field.
+     *
+     * @param entity entity to validate
+     * @return `true` if the entity is valid, `false` otherwise.
+     *
+     * @see Entity
+     *
+     * @since 2.0.0
+     */
+    fun validateAdditionalInfo(entity: E): Boolean = true
+
+    //endregion
 }

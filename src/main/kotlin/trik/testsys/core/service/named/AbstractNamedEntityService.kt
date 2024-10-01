@@ -24,4 +24,11 @@ abstract class AbstractNamedEntityService<E : AbstractNamedEntity, R : NamedEnti
         val entity = repository.findByName(name)
         return entity
     }
+
+    override fun validateName(entity: E) = entity.nameIsNotEmpty()
+
+    companion object {
+
+        fun <E : AbstractNamedEntity> E.nameIsNotEmpty() = name.isNotEmpty()
+    }
 }

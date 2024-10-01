@@ -1,6 +1,6 @@
 package trik.testsys.webclient.entity
 
-import trik.testsys.core.entity.Entity
+import trik.testsys.core.entity.named.NamedEntity
 import trik.testsys.core.entity.user.AccessToken
 
 /**
@@ -9,7 +9,7 @@ import trik.testsys.core.entity.user.AccessToken
  * @author Roman Shishkin
  * @since 2.0.0
  **/
-interface RegEntity : Entity {
+interface RegEntity : NamedEntity {
 
     /**
      * Registration token field.

@@ -50,7 +50,7 @@ class RegistrationController(
             return "redirect:$REGISTRATION_PATH"
         }
 
-        val registeredEntity = neededService.register(regToken, name) { !it.name.contains(regToken) } ?: run {
+        val registeredEntity = neededService.register(regToken, name) ?: run {
             redirectAttributes.addPopupMessage("Псевдоним не должен содержать Код-регистрации. Попробуйте другой вариант.")
             return "redirect:$REGISTRATION_PATH"
         }

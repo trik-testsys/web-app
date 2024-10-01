@@ -28,4 +28,17 @@ interface NamedEntityService<E : NamedEntity> : EntityService<E> {
      * @since 2.0.0
      */
     fun findByName(name: String): Collection<E>
+
+    /**
+     * Validates the [NamedEntity.name] of the [entity].
+     *
+     * @param entity entity to validate
+     * @return `true` if the [NamedEntity.name] is valid, `false` otherwise.
+     *
+     * @see NamedEntity.name
+     *
+     * @author Roman Shishkin
+     * @since 2.0.0
+     */
+    fun validateName(entity: E): Boolean
 }
