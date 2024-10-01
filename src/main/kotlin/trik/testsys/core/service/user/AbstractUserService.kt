@@ -3,7 +3,6 @@ package trik.testsys.core.service.user
 import trik.testsys.core.entity.user.AbstractUser
 import trik.testsys.core.entity.user.AccessToken
 import trik.testsys.core.repository.user.UserRepository
-import trik.testsys.core.service.AbstractService
 import trik.testsys.core.service.named.AbstractNamedEntityService
 
 /**

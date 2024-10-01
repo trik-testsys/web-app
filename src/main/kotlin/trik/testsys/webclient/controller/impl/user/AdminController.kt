@@ -1,24 +1,37 @@
 package trik.testsys.webclient.controller.impl.user
 
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.ModelAttribute
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import trik.testsys.webclient.controller.impl.main.LoginController
 import trik.testsys.webclient.controller.user.WebUserController
 import trik.testsys.webclient.entity.user.impl.Admin
+import trik.testsys.webclient.service.entity.impl.GroupService
 import trik.testsys.webclient.service.entity.user.impl.AdminService
 import trik.testsys.webclient.service.security.login.impl.LoginData
+import trik.testsys.webclient.service.token.reg.RegTokenGenerator
+import trik.testsys.webclient.util.addPopupMessage
 import trik.testsys.webclient.util.atTimeZone
 import trik.testsys.webclient.view.AdminView
+import trik.testsys.webclient.view.GroupCreationView
+import trik.testsys.webclient.view.GroupView
 import trik.testsys.webclient.view.GroupView.Companion.toView
 import java.util.*
+import javax.servlet.http.HttpServletRequest
 
 @Controller
 @RequestMapping(AdminController.ADMIN_PATH)
 class AdminController(
-    loginData: LoginData
+    loginData: LoginData,
+
+    private val groupService: GroupService,
+    @Qualifier("groupRegTokenGenerator") private val groupRegTokenGenerator: RegTokenGenerator
 ) : WebUserController<Admin, AdminView, AdminService>(loginData) {
 
     override val MAIN_PATH = ADMIN_PATH
@@ -44,9 +57,90 @@ class AdminController(
     ): String {
         val webUser = validate(redirectAttributes) ?: return "redirect:${LoginController.LOGIN_PATH}"
 
+        model.addAttribute(GROUP_ATTR, GroupCreationView.empty())
         model.addAttribute(WEB_USER_ATTR, webUser.toView(timeZone))
 
         return GROUPS_PAGE
+    }
+
+    @PostMapping("$GROUPS_PATH$GROUP_PATH/create")
+    fun groupPost(
+        @ModelAttribute("group") groupView: GroupCreationView,
+        timeZone: TimeZone,
+        request: HttpServletRequest,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val webUser = validate(redirectAttributes) ?: return "redirect:${LoginController.LOGIN_PATH}"
+
+        val regToken = groupRegTokenGenerator.generate(groupView.name)
+        val group = groupView.toEntity(regToken, webUser)
+
+        if (!groupService.validateName(group)) {
+            redirectAttributes.addPopupMessage("Название группы не должно содержать Код-доступа.")
+            return "redirect:$ADMIN_PATH$GROUPS_PATH"
+        }
+
+        if (!groupService.validateAdditionalInfo(group)) {
+            redirectAttributes.addPopupMessage("Дополнительная информация не должна содержать Код-доступа.")
+            return "redirect:$ADMIN_PATH$GROUPS_PATH"
+        }
+
+        groupService.save(group)
+
+        redirectAttributes.addPopupMessage("Группа ${group.name} успешно создана.")
+
+        return "redirect:$ADMIN_PATH$GROUPS_PATH"
+    }
+
+    @GetMapping("$GROUPS_PATH$GROUP_PATH/{groupId}")
+    fun groupGet(
+        @PathVariable("groupId") id: Long,
+        timeZone: TimeZone,
+        redirectAttributes: RedirectAttributes,
+        model: Model
+    ): String {
+        validate(redirectAttributes) ?: return "redirect:${LoginController.LOGIN_PATH}"
+
+        val group = groupService.find(id) ?: run {
+            redirectAttributes.addPopupMessage("Группа с ID $id не найдена.")
+            return "redirect:$ADMIN_PATH$GROUPS_PATH"
+        }
+
+        val groupView = group.toView(timeZone)
+        model.addAttribute(GROUP_ATTR, groupView)
+
+        return GROUP_PAGE
+    }
+
+    @PostMapping("$GROUPS_PATH$GROUP_PATH/update/{groupId}")
+    fun groupUpdate(
+        @PathVariable("groupId") groupId: String,
+        @ModelAttribute("group") groupView: GroupView,
+        timeZone: TimeZone,
+        redirectAttributes: RedirectAttributes,
+        model: Model
+    ): String {
+        val webUser = validate(redirectAttributes) ?: return "redirect:${LoginController.LOGIN_PATH}"
+
+        val group = groupView.toEntity(timeZone)
+        group.admin = webUser
+
+        if (!groupService.validateName(group)) {
+            redirectAttributes.addPopupMessage("Название группы не должно содержать Код-доступа.")
+            return "redirect:${getGroupPath(groupId)}"
+        }
+
+        if (!groupService.validateAdditionalInfo(group)) {
+            redirectAttributes.addPopupMessage("Дополнительная информация не должна содержать Код-доступа.")
+            return "redirect:${getGroupPath(groupId)}"
+        }
+
+        val updatedGroup = groupService.save(group)
+
+        model.addAttribute(GROUP_ATTR, updatedGroup.toView(timeZone))
+        redirectAttributes.addPopupMessage("Данные успешно изменены.")
+
+        return "redirect:${getGroupPath(groupId)}"
     }
 
     companion object {
@@ -56,46 +150,16 @@ class AdminController(
 
         const val GROUPS_PATH = "/groups"
         const val GROUPS_PAGE = "admin-groups"
+
+        const val GROUP_ATTR = "group"
+
+        const val GROUP_PATH = "/group"
+        const val GROUP_PAGE = "admin-group"
+
+        private fun getGroupPath(groupId: String) = "$ADMIN_PATH$GROUPS_PATH$GROUP_PATH/$groupId"
     }
 }
 
-//    /**
-//     * @author Roman Shishkin
-//     * @since 1.1.0
-//     */
-//    @PostMapping("/group/create")
-//    fun createGroup(
-//        @RequestParam accessToken: String,
-//        @RequestParam name: String,
-//        @RequestParam additionalInfo: String?,
-//        modelAndView: ModelAndView
-//    ): ModelAndView {
-//        logger.info(accessToken, "Client trying to create a group.")
-//
-//        val isAdmin = isAdminAccessToken(accessToken)
-//        if (!isAdmin) {
-//            logger.info(accessToken, "Client is not an admin.")
-//            modelAndView.viewName = "error"
-//            modelAndView.addObject("message", "You are not an admin!")
-//
-//            return modelAndView
-//        }
-//
-//        logger.info(accessToken, "Client is an admin.")
-//        val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
-//        val admin = adminService.getAdminByWebUser(webUser)!!
-//
-//        val group = groupService.createGroup(admin, name, additionalInfo)
-//        logger.info(accessToken, "Group created: $group")
-//
-//        val adminModel = getModel(admin)
-//
-//        modelAndView.addAllObjects(adminModel.asMap())
-//        modelAndView.view = REDIRECT_VIEW
-//
-//        return modelAndView
-//    }
-//
 //    /**
 //     * @author Roman Shishkin
 //     * @since 1.1.0
@@ -170,137 +234,6 @@ class AdminController(
 //
 //        modelAndView.addAllObjects(adminModel.asMap())
 //        modelAndView.view = REDIRECT_VIEW
-//
-//        return modelAndView
-//    }
-//
-//    /**
-//     * @author Roman Shishkin
-//     * @since 1.1.0
-//     */
-//    @PostMapping("/group/labels/add")
-//    fun addLabelsToGroup(
-//        @RequestParam accessToken: String,
-//        @RequestParam groupAccessToken: String,
-//        @RequestParam newLabel: String?,
-//        @RequestParam labels: List<String>?,
-//        modelAndView: ModelAndView
-//    ): ModelAndView {
-//        logger.info(accessToken, "Client trying to add labels to group.")
-//
-//        val isAdmin = isAdminAccessToken(accessToken)
-//        if (!isAdmin) {
-//            logger.info(accessToken, "Client is not an admin.")
-//            modelAndView.viewName = "error"
-//            modelAndView.addObject("message", "You are not an admin!")
-//
-//            return modelAndView
-//        }
-//
-//        logger.info(accessToken, "Client is an admin.")
-//
-//        val labelsToAdd = mutableListOf<String>()
-//        if (!newLabel.isNullOrBlank()) {
-//            labelsToAdd.add(newLabel)
-//        }
-//
-//        if (labels != null) {
-//            labelsToAdd.addAll(labels)
-//        }
-//
-//        val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
-//        val admin = adminService.getAdminByWebUser(webUser)!!
-//
-//        val group = groupService.getGroupByAccessToken(groupAccessToken)!!
-//        val labelsToCreate = labelsToAdd.filter { labelService.getByName(it) == null }.map { Label(it) }
-//        labelService.saveAll(labelsToCreate)
-//
-//        val allLabels = labelService.getAll().filter { it.name in labelsToAdd }
-//
-//        group.labels.addAll(allLabels)
-//        groupService.save(group)
-//        logger.info(accessToken, "Labels added to group: $group")
-//
-//        val adminModel = getModel(admin)
-//
-//        modelAndView.addAllObjects(adminModel.asMap())
-//        modelAndView.view = REDIRECT_VIEW
-//
-//        return modelAndView
-//    }
-//
-//    /**
-//     * @author Roman Shishkin
-//     * @since 1.1.0
-//     */
-//    @PostMapping("/group/labels/delete")
-//    fun deleteLabelsFromGroup(
-//        @RequestParam accessToken: String,
-//        @RequestParam groupAccessToken: String,
-//        @RequestParam labels: List<String>,
-//        modelAndView: ModelAndView
-//    ): ModelAndView {
-//        logger.info(accessToken, "Client trying to delete labels from group.")
-//
-//        val isAdmin = isAdminAccessToken(accessToken)
-//        if (!isAdmin) {
-//            logger.info(accessToken, "Client is not an admin.")
-//            modelAndView.viewName = "error"
-//            modelAndView.addObject("message", "You are not an admin!")
-//
-//            return modelAndView
-//        }
-//
-//        logger.info(accessToken, "Client is an admin.")
-//
-//        val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
-//        val admin = adminService.getAdminByWebUser(webUser)!!
-//
-//        val group = groupService.getGroupByAccessToken(groupAccessToken)!!
-//        val labelsToDelete = labelService.getAll().filter { it.name in labels }
-//        group.labels.removeAll(labelsToDelete.toSet())
-//        groupService.save(group)
-//        logger.info(accessToken, "Labels deleted from group: $group")
-//
-//        val adminModel = getModel(admin)
-//
-//        modelAndView.addAllObjects(adminModel.asMap())
-//        modelAndView.view = REDIRECT_VIEW
-//
-//        return modelAndView
-//    }
-//
-//    /**
-//     * @author Roman Shishkin
-//     * @since 1.1.0
-//     */
-//    @GetMapping("/registration")
-//    fun registration(
-//        @RequestParam accessToken: String,
-//        modelAndView: ModelAndView
-//    ): ModelAndView {
-//        logger.info(accessToken, "Admin trying to register.")
-//
-//        val viewer = viewerService.getByAdminRegToken(accessToken) ?: run {
-//            logger.info(accessToken, "No viewer with such regToken.")
-//            modelAndView.viewName = "error"
-//            modelAndView.addObject("message", "No viewer with such regToken!")
-//
-//            return modelAndView
-//        }
-//
-//        val adminModel = AdminModel.Builder()
-//            .accessToken(accessToken)
-//            .username("")
-//            .labels(labelService.getAll())
-//            .groups(emptySet())
-//            .tasks(emptySet())
-//            .webUserId(viewer.id!!)
-//            .registrationDate(LocalDateTime.now())
-//            .build()
-//
-//        modelAndView.addAllObjects(adminModel.asMap())
-//        modelAndView.viewName = "registration"
 //
 //        return modelAndView
 //    }
@@ -481,32 +414,6 @@ class AdminController(
 //            .body(bytes)
 //
 //        return responseEntity
-//    }
-//
-//    @Deprecated("")
-//    @GetMapping("/group")
-//    fun accessToGroup(
-//        @RequestParam accessToken: String,
-//        @RequestParam groupAccessToken: String,
-//        model: Model
-//    ): Any {
-//        logger.info("[${accessToken.padStart(80)}]: Client trying to access group.")
-//
-//        val eitherEntities = getAdminEntities(accessToken, groupAccessToken)
-//        if (eitherEntities.isLeft()) {
-//            return eitherEntities.getLeft()
-//        }
-//        val (webUser, _, group) = eitherEntities.getRight()
-//
-//        model.addAttribute("accessToken", webUser.accessToken)
-//        model.addAttribute("isFound", true)
-//        model.addAttribute("id", group.id!!)
-//        model.addAttribute("name", group.name)
-//        model.addAttribute("groupAccessToken", group.accessToken)
-//        model.addAttribute("tasks", group.tasks.sortedBy { it.id })
-//        model.addAttribute("students", group.students.sortedBy { it.id })
-//
-//        return model
 //    }
 //
 //    @Deprecated("")

@@ -24,6 +24,7 @@ data class GroupView(
         name, regToken
     ).also {
         it.id = id
+        it.additionalInfo = additionalInfo
     }
 
     companion object {

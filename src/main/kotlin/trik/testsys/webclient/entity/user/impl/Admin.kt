@@ -26,7 +26,7 @@ class Admin(
     lateinit var viewer: Viewer
 
     @OneToMany(mappedBy = "admin", cascade = [CascadeType.ALL])
-    val groups: MutableSet<Group> = mutableSetOf()
+    val groups: MutableList<Group> = mutableListOf()
 
 //
 //    @ManyToMany(mappedBy = "admins")
