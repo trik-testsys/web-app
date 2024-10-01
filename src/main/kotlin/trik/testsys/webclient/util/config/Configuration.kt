@@ -24,12 +24,12 @@ class Configuration : WebMvcConfigurer {
             "/img/**",
             "/css/**",
             "/js/**",
-            "/avatars/**"
+            "/assets/**"
         ).addResourceLocations(
             "classpath:/static/img/",
             "classpath:/static/css/",
             "classpath:/static/js/",
-            "classpath:/static/avatars/"
+            "classpath:/static/assets/"
         )
     }
 
