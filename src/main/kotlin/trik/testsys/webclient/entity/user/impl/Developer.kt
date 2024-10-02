@@ -2,6 +2,7 @@ package trik.testsys.webclient.entity.user.impl
 
 import trik.testsys.core.entity.Entity.Companion.TABLE_PREFIX
 import trik.testsys.core.entity.user.AccessToken
+import trik.testsys.webclient.entity.impl.Contest
 import trik.testsys.webclient.entity.impl.Task
 import trik.testsys.webclient.entity.user.WebUser
 import trik.testsys.webclient.enums.UserType
@@ -20,4 +21,7 @@ class Developer(
 
     @OneToMany(mappedBy = "developer", cascade = [CascadeType.ALL])
     val tasks: MutableSet<Task> = mutableSetOf()
+
+    @OneToMany(mappedBy = "developer", cascade = [CascadeType.ALL])
+    val contests: MutableSet<Contest> = mutableSetOf()
 }

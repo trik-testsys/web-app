@@ -20,8 +20,8 @@
                                           breadCrumbNames=${ {  } },
                                           breadCrumbLinks=${ {  } })"></div>
 
-<div th:replace="fragments/menu :: sideMenu(links=${ {'/developer', '/developer?Logout=' } },
-                                            names=${ { 'Профиль', 'Выход' } })"></div>
+<div th:replace="fragments/menu :: sideMenu(links=${ {'/developer', '/developer/contests', '/developer?Logout=' } },
+                                            names=${ { 'Профиль', 'Туры', 'Выход' } })"></div>
 
 
 <div class="container">
@@ -34,7 +34,7 @@
                 <h1>Информация о профиле</h1>
             </div>
 
-            <!--/*@thymesVar id="webUser" type="trik.testsys.webclient.view.DeveloperView"*/-->
+            <!--/*@thymesVar id="webUser" type="trik.testsys.webclient.view.impl.DeveloperView"*/-->
             <form id="developer-info" action="#" th:action="@{/developer/update}" th:object="${webUser}" method="post">
                 <div th:replace="fragments/form.html :: hiddentInput(id='developer.id', fieldName='id')"></div>
 
