@@ -21,4 +21,7 @@ class Task(
         name = "developer_id", referencedColumnName = "id"
     )
     lateinit var developer: Developer
+
+    @ManyToMany(mappedBy = "tasks")
+    val taskFiles: MutableSet<TaskFile> = mutableSetOf()
 }

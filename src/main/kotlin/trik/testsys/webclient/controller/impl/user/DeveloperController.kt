@@ -2,16 +2,14 @@ package trik.testsys.webclient.controller.impl.user
 
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.ModelAttribute
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.*
+import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import trik.testsys.webclient.controller.user.WebUserController
 import trik.testsys.webclient.entity.impl.TaskFile
 import trik.testsys.webclient.entity.impl.TaskFile.TaskFileType.Companion.toL10nMessage
 import trik.testsys.webclient.entity.user.impl.Developer
+import trik.testsys.webclient.service.FileManager
 import trik.testsys.webclient.service.entity.impl.ContestService
 import trik.testsys.webclient.service.entity.impl.TaskFileService
 import trik.testsys.webclient.service.entity.impl.TaskService
@@ -34,7 +32,9 @@ class DeveloperController(
 
     private val contestService: ContestService,
     private val taskService: TaskService,
-    private val taskFileService: TaskFileService
+    private val taskFileService: TaskFileService,
+
+    private val fileManager: FileManager
 ) : WebUserController<Developer, DeveloperView, DeveloperService>(loginData) {
 
     override val MAIN_PATH = DEVELOPER_PATH
@@ -281,6 +281,7 @@ class DeveloperController(
     @PostMapping("$TASK_FILE_PATH/create")
     fun taskFilePost(
         @ModelAttribute("taskFileView") taskFileView: TaskFileCreationView,
+        @RequestParam("file") file: MultipartFile,
         timeZone: TimeZone,
         request: HttpServletRequest,
         redirectAttributes: RedirectAttributes
@@ -291,7 +292,6 @@ class DeveloperController(
         val taskTileTypeLocalized = taskFile.type.toL10nMessage()
 
         if (!taskFileService.validateName(taskFile)) {
-
             redirectAttributes.addPopupMessage("Название Файла с типом '$taskTileTypeLocalized' не должно содержать Код-доступа.")
             return "redirect:$DEVELOPER_PATH$TASK_FILES_PATH"
         }
@@ -302,6 +302,13 @@ class DeveloperController(
         }
 
         taskFileService.save(taskFile)
+
+        val fileSavingResult = fileManager.saveTaskFile(taskFile, file)
+        if (!fileSavingResult) {
+            taskFileService.delete(taskFile)
+            redirectAttributes.addPopupMessage("Ошибка при сохранении файла.")
+            return "redirect:$DEVELOPER_PATH$TASK_FILES_PATH"
+        }
 
         redirectAttributes.addPopupMessage("$taskTileTypeLocalized ${taskFile.name} успешно создан.")
 

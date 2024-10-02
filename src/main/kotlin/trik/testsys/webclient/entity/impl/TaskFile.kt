@@ -23,6 +23,13 @@ class TaskFile(
     )
     lateinit var developer: Developer
 
+    @ManyToMany
+    @JoinTable(
+        name = "TASK_FILES_BY_TASKS",
+        joinColumns = [JoinColumn(name = "task_file_id")],
+        inverseJoinColumns = [JoinColumn(name = "task_id")]
+    )
+    val tasks: MutableSet<Task> = mutableSetOf()
 
     enum class TaskFileType(override val dbkey: String) : Enum {
 

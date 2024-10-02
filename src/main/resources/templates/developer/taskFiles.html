@@ -34,30 +34,32 @@
             </div>
 
             <!--/*@thymesVar id="webUser" type="trik.testsys.webclient.view.impl.TaskFileCreationView"*/-->
-            <form id="polygon-creation" action="#polygons" th:action="@{/developer/taskFiles/taskFile/create}" th:object="${polygon}" method="post">
+            <form id="polygon-creation" th:action="@{/developer/taskFiles/taskFile/create}" th:object="${polygon}" method="post" enctype="multipart/form-data">
                 <div th:replace="fragments/form.html :: hiddentInput(id='taskFile.type', fieldName='type')"></div>
 
                 <div th:replace="fragments/form.html
-                    :: formField(id='taskFile.name', type='text',
+                    :: formField(id='polygon.name', type='text',
                                  labelName='Название', labelSize='20',
                                  fieldName='name', fieldSize='80',
                                  size='100',
                                  isReadonly='false', isRequired='true', isAccessToken='false')">
                 </div>
                 <div th:replace="fragments/form.html
-                    :: formField(id='taskFile.additionalInfo', type='text',
+                    :: formField(id='polygon.additionalInfo', type='text',
                                  labelName='Дополнительная информация', labelSize='20',
                                  fieldName='additionalInfo', fieldSize='80',
                                  size='100',
                                  isReadonly='false', isRequired='false', isAccessToken='false')">
                 </div>
                 <div th:replace="fragments/form.html
-                    :: formField(id='taskFile.note', type='text',
+                    :: formField(id='polygon.note', type='text',
                                  labelName='Заметка (видна только вам)', labelSize='20',
                                  fieldName='note', fieldSize='80',
                                  size='100',
                                  isReadonly='false', isRequired='false', isAccessToken='false')">
                 </div>
+                <label for="polygon-file" class="form-label">Файл</label>
+                <input id="polygon-file" name="file" type="file">
                 <!-- Кнопки редактирования, отправки и отмены -->
                 <div class="form-buttons">
                     <button type="button" class="edit-button" id="polygon-creation-edit" onclick="enableForm('polygon-creation')">Создать Полигон</button>
@@ -119,26 +121,28 @@
                 <div th:replace="fragments/form.html :: hiddentInput(id='taskFile.type', fieldName='type')"></div>
 
                 <div th:replace="fragments/form.html
-                    :: formField(id='taskFile.name', type='text',
+                    :: formField(id='exercise.name', type='text',
                                  labelName='Название', labelSize='20',
                                  fieldName='name', fieldSize='80',
                                  size='100',
                                  isReadonly='false', isRequired='true', isAccessToken='false')">
                 </div>
                 <div th:replace="fragments/form.html
-                    :: formField(id='taskFile.additionalInfo', type='text',
+                    :: formField(id='exercise.additionalInfo', type='text',
                                  labelName='Дополнительная информация', labelSize='20',
                                  fieldName='additionalInfo', fieldSize='80',
                                  size='100',
                                  isReadonly='false', isRequired='false', isAccessToken='false')">
                 </div>
                 <div th:replace="fragments/form.html
-                    :: formField(id='taskFile.note', type='text',
+                    :: formField(id='exercise.note', type='text',
                                  labelName='Заметка (видна только вам)', labelSize='20',
                                  fieldName='note', fieldSize='80',
                                  size='100',
                                  isReadonly='false', isRequired='false', isAccessToken='false')">
                 </div>
+                <label for="exercise-file" class="form-label">Файл</label>
+                <input id="exercise-file" name="file" type="file">
                 <!-- Кнопки редактирования, отправки и отмены -->
                 <div class="form-buttons">
                     <button type="button" class="edit-button" id="exercise-creation-edit" onclick="enableForm('exercise-creation')">Создать Упражнение</button>
@@ -200,26 +204,29 @@
                 <div th:replace="fragments/form.html :: hiddentInput(id='taskFile.type', fieldName='type')"></div>
 
                 <div th:replace="fragments/form.html
-                    :: formField(id='taskFile.name', type='text',
+                    :: formField(id='solution.name', type='text',
                                  labelName='Название', labelSize='20',
                                  fieldName='name', fieldSize='80',
                                  size='100',
                                  isReadonly='false', isRequired='true', isAccessToken='false')">
                 </div>
                 <div th:replace="fragments/form.html
-                    :: formField(id='taskFile.additionalInfo', type='text',
+                    :: formField(id='solution.additionalInfo', type='text',
                                  labelName='Дополнительная информация', labelSize='20',
                                  fieldName='additionalInfo', fieldSize='80',
                                  size='100',
                                  isReadonly='false', isRequired='false', isAccessToken='false')">
                 </div>
                 <div th:replace="fragments/form.html
-                    :: formField(id='taskFile.note', type='text',
+                    :: formField(id='solution.note', type='text',
                                  labelName='Заметка (видна только вам)', labelSize='20',
                                  fieldName='note', fieldSize='80',
                                  size='100',
                                  isReadonly='false', isRequired='false', isAccessToken='false')">
                 </div>
+
+                <label for="solution-file" class="form-label">Файл</label>
+                <input id="solution-file" name="file" type="file">
                 <!-- Кнопки редактирования, отправки и отмены -->
                 <div class="form-buttons">
                     <button type="button" class="edit-button" id="solution-creation-edit" onclick="enableForm('solution-creation')">Создать Эталонное решения</button>

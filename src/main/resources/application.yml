@@ -32,5 +32,9 @@ server:
 path:
   l10n: "${PWD}/src/main/resources/static/l10n"
   startup:
-    entities: "${PWD}/entities/"
-    nodes: "${PWD}/nodes/"
+    entities: "${PWD}/data/entities/"
+    nodes: "${PWD}/data/nodes/"
+  files:
+    solutions: "${PWD}/data/files/solutions/"
+    polygons: "${PWD}/data/files/polygons/"
+    exercises: "${PWD}/data/files/exercises/"
