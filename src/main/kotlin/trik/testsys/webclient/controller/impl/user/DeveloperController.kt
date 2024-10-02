@@ -94,7 +94,12 @@ class DeveloperController(
         redirectAttributes: RedirectAttributes,
         model: Model
     ): String {
-        validate(redirectAttributes) ?: return "redirect:$LOGIN_PATH"
+        val webUser = validate(redirectAttributes) ?: return "redirect:$LOGIN_PATH"
+
+        if (!webUser.checkContestExistence(contestId)) {
+            redirectAttributes.addPopupMessage("Тур с ID $contestId не найден.")
+            return "redirect:$DEVELOPER_PATH$CONTESTS_PATH"
+        }
 
         val contest = contestService.find(contestId) ?: run {
             redirectAttributes.addPopupMessage("Тур с ID $contestId не найден.")
@@ -116,6 +121,11 @@ class DeveloperController(
         model: Model
     ): String {
         val webUser = validate(redirectAttributes) ?: return "redirect:$LOGIN_PATH"
+
+        if (!webUser.checkContestExistence(contestId)) {
+            redirectAttributes.addPopupMessage("Тур с ID $contestId не найден.")
+            return "redirect:$DEVELOPER_PATH$CONTESTS_PATH"
+        }
 
         val contest = contestView.toEntity(timeZone)
         contest.developer = webUser
@@ -150,5 +160,7 @@ class DeveloperController(
 
         const val CONTEST_PATH = "$CONTESTS_PATH/contest"
         const val CONTEST_PAGE = "developer/contest"
+
+        fun Developer.checkContestExistence(contestId: Long?) = contests.any { it.id == contestId }
     }
 }

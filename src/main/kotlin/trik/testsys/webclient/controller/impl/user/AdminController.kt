@@ -99,7 +99,12 @@ class AdminController(
         redirectAttributes: RedirectAttributes,
         model: Model
     ): String {
-        validate(redirectAttributes) ?: return "redirect:${LoginController.LOGIN_PATH}"
+        val webUser = validate(redirectAttributes) ?: return "redirect:${LoginController.LOGIN_PATH}"
+
+        if (!webUser.validateGroupExistence(id)) {
+            redirectAttributes.addPopupMessage("Группа с ID $id не найдена.")
+            return "redirect:$ADMIN_PATH$GROUPS_PATH"
+        }
 
         val group = groupService.find(id) ?: run {
             redirectAttributes.addPopupMessage("Группа с ID $id не найдена.")
@@ -114,13 +119,18 @@ class AdminController(
 
     @PostMapping("$GROUP_PATH/update/{groupId}")
     fun groupUpdate(
-        @PathVariable("groupId") groupId: String,
+        @PathVariable("groupId") groupId: Long,
         @ModelAttribute("group") groupView: GroupView,
         timeZone: TimeZone,
         redirectAttributes: RedirectAttributes,
         model: Model
     ): String {
         val webUser = validate(redirectAttributes) ?: return "redirect:${LoginController.LOGIN_PATH}"
+
+        if (!webUser.validateGroupExistence(groupId)) {
+            redirectAttributes.addPopupMessage("Группа с ID $groupId не найдена.")
+            return "redirect:$ADMIN_PATH$GROUPS_PATH"
+        }
 
         val group = groupView.toEntity(timeZone)
         group.admin = webUser
@@ -155,6 +165,8 @@ class AdminController(
 
         const val GROUP_PATH = "$GROUPS_PATH/group"
         const val GROUP_PAGE = "admin/group"
+
+        fun Admin.validateGroupExistence(groupId: Long?) = groups.any{ it.id == groupId }
     }
 }
 
