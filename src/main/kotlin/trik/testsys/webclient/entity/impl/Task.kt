@@ -24,4 +24,16 @@ class Task(
 
     @ManyToMany(mappedBy = "tasks")
     val taskFiles: MutableSet<TaskFile> = mutableSetOf()
+
+    @get:Transient
+    val polygons: Set<TaskFile>
+        get() = taskFiles.filter { it.type == TaskFile.TaskFileType.POLYGON }.toSet()
+
+    @get:Transient
+    val exercise: TaskFile?
+        get() = taskFiles.firstOrNull { it.type == TaskFile.TaskFileType.EXERCISE }
+
+    @get:Transient
+    val solution: TaskFile?
+        get() = taskFiles.firstOrNull { it.type == TaskFile.TaskFileType.SOLUTION }
 }

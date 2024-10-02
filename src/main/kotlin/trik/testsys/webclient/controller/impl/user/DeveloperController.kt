@@ -222,6 +222,9 @@ class DeveloperController(
         val taskView = task.toView(timeZone)
         model.addAttribute(TASK_ATTR, taskView)
 
+        val taskFiles = webUser.taskFiles.map { it.toView(timeZone) }.sortedBy { it.id }
+        model.addAttribute(TASK_FILES_ATTR, taskFiles)
+
         return TASK_PAGE
     }
 
@@ -257,6 +260,46 @@ class DeveloperController(
 
         model.addAttribute(TASK_ATTR, updatedTask.toView(timeZone))
         redirectAttributes.addPopupMessage("Данные успешно изменены.")
+
+        return "redirect:$DEVELOPER_PATH$TASK_PATH/$taskId"
+    }
+
+    @PostMapping("$TASK_PATH/attachTaskFile/{taskId}")
+    fun attachTaskFileToTask(
+        @PathVariable("taskId") taskId: Long,
+        @RequestParam("taskFileId") taskFileId: Long,
+        timeZone: TimeZone,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val webUser = validate(redirectAttributes) ?: return "redirect:$LOGIN_PATH"
+
+        val task = taskService.find(taskId) ?: run {
+            redirectAttributes.addPopupMessage("Задание с ID $taskId не найдено.")
+            return "redirect:$DEVELOPER_PATH$TASKS_PATH"
+        }
+
+        if (!webUser.checkTaskExistence(taskId)) {
+            redirectAttributes.addPopupMessage("Задание с ID $taskId не найдено.")
+            return "redirect:$DEVELOPER_PATH$TASKS_PATH"
+        }
+
+        val taskFile = taskFileService.find(taskFileId) ?: run {
+            redirectAttributes.addPopupMessage("Файл с ID $taskFileId не найден.")
+            return "redirect:$DEVELOPER_PATH$TASK_PATH/$taskId"
+        }
+
+        if (!webUser.checkTaskFileExistence(taskFileId)) {
+            redirectAttributes.addPopupMessage("Файл с ID $taskFileId не найден.")
+            return "redirect:$DEVELOPER_PATH$TASK_PATH/$taskId"
+        }
+
+        task.taskFiles.add(taskFile)
+        taskService.save(task)
+
+        taskFile.tasks.add(task)
+        taskFileService.save(taskFile)
+
+        redirectAttributes.addPopupMessage("Файл ${taskFile.name} успешно прикреплен к заданию ${task.name}.")
 
         return "redirect:$DEVELOPER_PATH$TASK_PATH/$taskId"
     }
@@ -407,6 +450,8 @@ class DeveloperController(
 
         const val TASK_FILES_PATH = "/taskFiles"
         const val TASK_FILES_PAGE = "developer/taskFiles"
+
+        const val TASK_FILES_ATTR = "taskFiles"
 
         const val TASK_FILE_ATTR = "taskFile"
         const val TASK_FILE_POLYGON_ATTR = "polygon"

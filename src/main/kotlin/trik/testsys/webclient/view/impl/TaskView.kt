@@ -3,6 +3,7 @@ package trik.testsys.webclient.view.impl
 import trik.testsys.webclient.entity.impl.Task
 import trik.testsys.webclient.util.atTimeZone
 import trik.testsys.webclient.view.NotedEntityView
+import trik.testsys.webclient.view.impl.TaskFileView.Companion.toView
 import java.time.LocalDateTime
 import java.util.*
 
@@ -15,7 +16,8 @@ data class TaskView(
     override val name: String,
     override val creationDate: LocalDateTime?,
     override val additionalInfo: String,
-    override val note: String
+    override val note: String,
+    val taskFiles: List<TaskFileView>
 ) : NotedEntityView<Task> {
 
     override fun toEntity(timeZone: TimeZone) = Task(
@@ -33,7 +35,8 @@ data class TaskView(
             name = name,
             creationDate = creationDate?.atTimeZone(timeZone),
             additionalInfo = additionalInfo,
-            note = note
+            note = note,
+            taskFiles = taskFiles.map { it.toView(timeZone) }.sortedBy { it.id }
         )
     }
 }
