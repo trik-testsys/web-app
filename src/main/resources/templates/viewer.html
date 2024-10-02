@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+<head>
+    <th:block th:include="fragments/main :: head('Кабинет Районного Наблюдателя')"></th:block>
+
+    <link rel="stylesheet" th:href="@{/css/block.css}">
+
+    <th:block th:include="fragments/popup :: head"></th:block>
+    <th:block th:include="fragments/form :: head"></th:block>
+    <th:block th:include="fragments/menu :: head"></th:block>
+</head>
+<body>
+
+<div th:replace="fragments/main :: background"></div>
+
+<div th:replace="fragments/popup :: popup"></div>
+
+<div th:replace="fragments/popup :: popup"></div>
+
+<div th:replace="fragments/menu :: header(title='Кабинет районного Наблюдателя',
+                                          titleLink='/viewer',
+                                          breadCrumbNames=${ {  } },
+                                          breadCrumbLinks=${ {  } })"></div>
+
+<div th:replace="fragments/menu :: sideMenu(links=${ {'/viewer', '/viewer?Logout=' } },
+                                            names=${ { 'Профиль', 'Выход' } })"></div>
+
+<div class="container">
+    <!-- Первый блок -->
+    <div class="block">
+        <div class="block-title">Профиль</div>
+
+        <div class="form-container">
+            <div class="form-header">
+                <h1>Информация о профиле</h1>
+            </div>
+
+            <!--/*@thymesVar id="webUser" type="trik.testsys.webclient.view.impl.ViewerView"*/-->
+            <form id="viewer-info" action="#" th:action="@{/viewer/update}" th:object="${webUser}" method="post">
+                <div th:replace="fragments/form.html :: hiddentInput(id='viewer.id', fieldName='id')"></div>
+
+                <div th:replace="fragments/form.html
+                    :: formField(id='viewer.name', type='text',
+                                 labelName='Псевдоним', labelSize='20',
+                                 fieldName='name', fieldSize='80',
+                                 size='50',
+                                 isReadonly='false', isRequired='true', isAccessToken='false')">
+                </div>
+                <div th:replace="fragments/form.html
+                    :: formField(id='viewer.accessToken', type='text',
+                                 labelName='Код-доступа', labelSize='25',
+                                 fieldName='accessToken', fieldSize='75',
+                                 size='50',
+                                 isReadonly='true', isRequired='false', isAccessToken='true')">
+                </div>
+                <div th:replace="fragments/form.html
+                    :: formField(id='viewer.lastLoginDate', type='text',
+                                 labelName='Дата и время входа', labelSize='40',
+                                 fieldName='lastLoginDate', fieldSize='60',
+                                 size='25',
+                                 isReadonly='true', isRequired='false', isAccessToken='false')">
+                </div>
+                <div th:replace="fragments/form.html
+                    :: formField(id='viewer.creationDate', type='text',
+                                 labelName='Дата и время регистрации', labelSize='40',
+                                 fieldName='creationDate', fieldSize='60',
+                                 size='25',
+                                 isReadonly='true', isRequired='false', isAccessToken='false')">
+                </div>
+                <div th:replace="fragments/form.html
+                    :: formField(id='viewer.regToken', type='text',
+                                 labelName='Код-регистрации', labelSize='25',
+                                 fieldName='regToken', fieldSize='75',
+                                 size='50',
+                                 isReadonly='true', isRequired='false', isAccessToken='true')">
+                </div>
+                <div th:replace="fragments/form.html
+                    :: formField(id='viewer.additionalInfo', type='text',
+                                 labelName='Дополнительная информация', labelSize='20',
+                                 fieldName='additionalInfo', fieldSize='80',
+                                 size='100',
+                                 isReadonly='false', isRequired='false', isAccessToken='false')">
+                </div>
+
+                <!-- Кнопки редактирования, отправки и отмены -->
+                <div class="form-buttons">
+                    <button type="button" class="edit-button" id="viewer-info-edit" onclick="enableForm('viewer-info')">Редактировать</button>
+                    <button type="submit" class="save-button" id="viewer-info-save">Сохранить</button>
+                    <button type="button" class="cancel-button" id="viewer-info-cancel" onclick="disableForm('viewer-info')">Отменить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

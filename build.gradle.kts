@@ -11,8 +11,8 @@ plugins {
 }
 
 group = "Pupsen&Vupsen"
-version = "1.1.0"
-java.sourceCompatibility = JavaVersion.VERSION_16
+version = "2.0.0"
+java.sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
     mavenCentral()
@@ -48,11 +48,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
     implementation("org.springframework.boot:spring-boot-devtools")
-
-    implementation("io.springfox:springfox-boot-starter:3.0.0")
-    implementation("io.springfox:springfox-swagger2:3.0.0")
-    implementation("io.springfox:springfox-swagger-ui:3.0.0")
-
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
 
 //    implementation("org.springframework.boot:spring-boot-starter-actuator")

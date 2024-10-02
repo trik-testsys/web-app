@@ -1,86 +1,86 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en" th:charset="utf-8">
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
 <head>
-    <meta charset="UTF-8">
-    <title>Страница Разработчика</title>
-    <link rel="icon" th:href="@{/img/trik_testsys_logo.ico}">
-    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <th:block th:include="fragments/main :: head('Кабинет Разработчика')"></th:block>
+
+    <link rel="stylesheet" th:href="@{/css/block.css}">
+
+    <th:block th:include="fragments/popup :: head"></th:block>
+    <th:block th:include="fragments/form :: head"></th:block>
+    <th:block th:include="fragments/menu :: head"></th:block>
 </head>
 <body>
+
+<div th:replace="fragments/main :: background"></div>
+
+<div th:replace="fragments/popup :: popup"></div>
+
+<div th:replace="fragments/entity/developer
+    :: developerHeader(breadCrumbNames=${ {  } },
+                       breadCrumbLinks=${ {  } })"></div>
+
+<div th:replace="fragments/entity/developer :: developerMenu"></div>
+
 <div class="container">
-    <div class="header">
-        <div class="page-type">
-            <img th:src="@{/img/trik_testsys_logo.svg}" alt="logo">
-            <p>Страница разработчика</p>
-        </div>
-        <div class="exit">
-            <form th:action="@{/v1/testsys}" method="get">
-                <input type="submit" value="Выйти"/>
+    <!-- Первый блок -->
+    <div class="block">
+        <div class="block-title">Профиль</div>
+
+        <div class="form-container">
+            <div class="form-header">
+                <h1>Информация о профиле</h1>
+            </div>
+
+            <!--/*@thymesVar id="webUser" type="trik.testsys.webclient.view.impl.DeveloperView"*/-->
+            <form id="developer-info" action="#" th:action="@{/developer/update}" th:object="${webUser}" method="post">
+                <div th:replace="fragments/form.html :: hiddentInput(id='developer.id', fieldName='id')"></div>
+
+                <div th:replace="fragments/form.html
+                    :: formField(id='developer.name', type='text',
+                                 labelName='Псевдоним', labelSize='20',
+                                 fieldName='name', fieldSize='80',
+                                 size='50',
+                                 isReadonly='false', isRequired='true', isAccessToken='false')">
+                </div>
+                <div th:replace="fragments/form.html
+                    :: formField(id='developer.accessToken', type='text',
+                                 labelName='Код-доступа', labelSize='20',
+                                 fieldName='accessToken', fieldSize='80',
+                                 size='50',
+                                 isReadonly='true', isRequired='false', isAccessToken='true')">
+                </div>
+                <div th:replace="fragments/form.html
+                    :: formField(id='developer.lastLoginDate', type='text',
+                                 labelName='Дата и время входа', labelSize='40',
+                                 fieldName='lastLoginDate', fieldSize='60',
+                                 size='25',
+                                 isReadonly='true', isRequired='false', isAccessToken='false')">
+                </div>
+                <div th:replace="fragments/form.html
+                    :: formField(id='developer.creationDate', type='text',
+                                 labelName='Дата и время регистрации', labelSize='40',
+                                 fieldName='creationDate', fieldSize='60',
+                                 size='25',
+                                 isReadonly='true', isRequired='false', isAccessToken='false')">
+                </div>
+                <div th:replace="fragments/form.html
+                    :: formField(id='developer.additionalInfo', type='text',
+                                 labelName='Дополнительная информация', labelSize='20',
+                                 fieldName='additionalInfo', fieldSize='80',
+                                 size='100',
+                                 isReadonly='false', isRequired='false', isAccessToken='false')">
+                </div>
+
+                <!-- Кнопки редактирования, отправки и отмены -->
+                <div class="form-buttons">
+                    <button type="button" class="edit-button" id="developer-info-edit" onclick="enableForm('developer-info')">Редактировать</button>
+                    <button type="submit" class="save-button" id="developer-info-save">Сохранить</button>
+                    <button type="button" class="cancel-button" id="developer-info-cancel" onclick="disableForm('developer-info')">Отменить</button>
+                </div>
             </form>
         </div>
     </div>
-    <div class="main">
-        <div class="info">
-            <div class="greeting">
-                <h3>Здравствуйте, <span th:text="${username}"></span>!</h3>
-                <p>На этой странице вы можете:</p>
-                <ul>
-                    <li>Загрузить/изменить/удалить задачу;</li>
-                    <li>Просмотреть список всех задач;</li>
-                    <li>Открыть доступ к задаче выбранным Администраторам.</li>
-                </ul>
-            </div>
-            <div class="user-data">
-                <p>Ваш Код-доступа: <b><span th:text="${accessToken}" id="accessToken" class="accessToken"
-                                             onclick="copy('accessToken')">ed30da0f75d595465d6977e2fd551d2026cc3ff66dd5bd958ac2a50807684cb7</span>.</b>
-                </p>
-            </div>
-        </div>
-    </div>
-    <form class="uploadForm" th:action="@{/v1/testsys/developer/task/create}" method="post"
-          enctype="multipart/form-data">
-        <input type="text" name="name" placeholder="Название задачи" required/>
-        <input type="text" name="description" placeholder="Описание задачи" required/>
-        <input type="text" name="accessToken" th:value="${accessToken}" style="display: none"/>
-        <input type="file" multiple="multiple" name="tests" accept=".xml" required/>
-        <input type="file" name="benchmark" accept=".qrs"/>
-        <input type="file" name="training" accept=".qrs"/>
-        <input type="submit" id="uploadTask" value="Загрузить"/>
-    </form>
-    <div id="uploadPopup" class="popup">
-        <div class="popup-content">
-            <h1><span th:text="${postTaskMessage}"></span></h1>
-            <button id="closeUpload">
-                Закрыть
-            </button>
-        </div>
-    </div>
 </div>
+
 </body>
 </html>
-
-<script>
-    function copy(id) {
-        var copyText = document.getElementById(id);
-        var textArea = document.createElement("textarea");
-
-        textArea.value = copyText.textContent;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand("Copy");
-        textArea.remove();
-    }
-
-    uploadTask.addEventListener("click", function () {
-        uploadPopup.classList.add("show");
-    });
-    closeUpload.addEventListener("click", function () {
-        uploadPopup.classList.remove("show");
-    });
-    window.addEventListener("click", function (event) {
-        if (event.target == uploadPopup) {
-
-            uploadPopup.classList.remove("show");
-        }
-    });
-</script>

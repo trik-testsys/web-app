@@ -1,0 +1,117 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.form-container {
+    max-width: 100%;
+    margin: 40px auto;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 6px;
+}
+
+/* Заголовок окна */
+.form-header h1 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--trik-white);
+}
+
+.form-header {
+    padding: 10px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    background-color: var(--trik-blue);
+    margin: -20px -20px 15px;
+}
+
+form {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.form-field {
+    display: flex;
+    flex-basis: 100%;
+    margin-bottom: 15px;
+    align-items: center;
+}
+
+.form-field .form-label {
+    flex-basis: 30%;
+    font-weight: bold;
+    padding-left: 10px;
+}
+
+.form-label label {
+    width: 100%;
+}
+
+.form-field .form-input {
+    flex-basis: 70%;
+}
+
+.form-input input {
+    padding: 5px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+}
+
+.form-input input:read-only {
+    background-color: #e9e9e9;
+}
+
+/* Стиль для кнопок */
+.form-buttons {
+    display: flex;
+    flex-basis: 100%;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.edit-button {
+    background-color: var(--trik-blue);
+    color: var(--trik-white);
+}
+
+.save-button {
+    background-color: var(--trik-green);
+    color: var(--trik-blue);
+    margin-left: 10px;
+    display: none;
+}
+
+.cancel-button {
+    background-color: var(--trik-red);
+    color: var(--trik-blue);
+    margin-left: 10px;
+    display: none;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+    .form-field {
+        flex-basis: 100%;
+    }
+
+    .form-buttons {
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    button {
+        margin: 5px 0;
+    }
+}

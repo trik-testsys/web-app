@@ -181,3 +181,9 @@ gradle-app.setting
 *.gz
 
 data
+
+src/main/resources/static/avatars
+
+/nodes
+/entities
+/data

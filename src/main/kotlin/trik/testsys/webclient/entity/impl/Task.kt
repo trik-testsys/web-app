@@ -1,81 +1,39 @@
 package trik.testsys.webclient.entity.impl
 
-import java.time.LocalDateTime
+import trik.testsys.core.entity.Entity.Companion.TABLE_PREFIX
+import trik.testsys.webclient.entity.AbstractNotedEntity
+import trik.testsys.webclient.entity.user.impl.Developer
 import javax.persistence.*
 
 @Entity
-@Table(name = "TASKS")
+@Table(name = "${TABLE_PREFIX}_TASK")
 class Task(
-    @Column(nullable = false, columnDefinition = "VARCHAR(50) DEFAULT ''")
-    var name: String,
-
-    @Column(nullable = false, columnDefinition = "VARCHAR(200) DEFAULT ''")
-    var description: String,
+    name: String
+) : AbstractNotedEntity(name) {
 
     /**
      * @author Roman Shishkin
      * @since 1.1.0
      */
-    @ManyToOne(cascade = [CascadeType.ALL])
+    @ManyToOne
     @JoinColumn(
-        name = "developer_id", referencedColumnName = "id",
-        nullable = false
-    ) val developer: Developer
-) {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false, unique = true)
-    val id: Long? = null
-
-    @ManyToMany(mappedBy = "tasks", cascade = [CascadeType.ALL])
-    val groups: MutableSet<Group> = mutableSetOf()
-
-    @Column(nullable = false, columnDefinition = "BIGINT DEFAULT 0")
-    var countOfTests: Long = 0L
-
-    @OneToMany(mappedBy = "task", cascade = [CascadeType.ALL])
-    val solutions: MutableSet<Solution> = mutableSetOf()
-
-    /**
-     * @author Roman Shishkin
-     * @since 1.1.0
-     */
-    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
-    var hasBenchmark: Boolean = false
-
-    /**
-     * @author Roman Shishkin
-     * @since 1.1.0
-     */
-    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
-    var hasTraining: Boolean = false
-
-    /**
-     * @author Roman Shishkin
-     * @since 1.1.0
-     */
-    @OneToMany(mappedBy = "task", cascade = [CascadeType.ALL])
-    lateinit var trikFiles: MutableSet<TrikFile>
-
-    /**
-     * @author Roman Shishkin
-     * @since 1.1.0
-     */
-    @ManyToMany(cascade = [CascadeType.ALL])
-    @JoinTable(
-        name = "TASKS_BY_ADMINS",
-        joinColumns = [JoinColumn(name = "task_id")],
-        inverseJoinColumns = [JoinColumn(name = "admin_id")]
+        nullable = false, unique = false, updatable = false,
+        name = "developer_id", referencedColumnName = "id"
     )
-    lateinit var admins: MutableSet<Admin>
+    lateinit var developer: Developer
 
-    @Column(nullable = true)
-    var deadline: LocalDateTime? = null
+    @ManyToMany(mappedBy = "tasks")
+    val taskFiles: MutableSet<TaskFile> = mutableSetOf()
 
-    /**
-     * @author Roman Shishkin
-     * @since 1.1.0
-     */
-    fun getFullName() = "$id: $name"
+    @get:Transient
+    val polygons: Set<TaskFile>
+        get() = taskFiles.filter { it.type == TaskFile.TaskFileType.POLYGON }.toSet()
+
+    @get:Transient
+    val exercise: TaskFile?
+        get() = taskFiles.firstOrNull { it.type == TaskFile.TaskFileType.EXERCISE }
+
+    @get:Transient
+    val solution: TaskFile?
+        get() = taskFiles.firstOrNull { it.type == TaskFile.TaskFileType.SOLUTION }
 }

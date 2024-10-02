@@ -5,7 +5,7 @@ spring:
     open-in-view: on                                            # Enable JPA open-in-view
     defer-datasource-initialization: true
   datasource:
-    url: jdbc:mysql://${MYSQL_HOST:localhost}:3306/testsys_db   # Database URL
+    url: jdbc:mysql://${MYSQL_HOST:mysql_host}:3306/testsys_db   # Database URL
     username: testsys                                           # Database username
     password: p@ssw0rd                                          # Database password
     driver-class-name: com.mysql.cj.jdbc.Driver                 # Driver for MySQL
@@ -17,18 +17,26 @@ spring:
       mode: never
 logging:
   file:
-    name: "${PWD}/logs/server.log"                                   # Path to log file
+    name: "${PWD}/logs/server.log"                              # Path to log file
   logback:
     rollingpolicy:
       clean-history-on-start: false                             # Not cleaning history on start
       max-history: 31                                           # Stores a month of logs
 server:
   port: 8888                                                    # Entrypoint
+  servlet:
+    context-path: /test
+    session:
+      timeout: 3h
 
-app:
-  version: 1.0.2
-  grading-system:
-    path: http://grading-system:8080/v3/grading-system
-  testsys:
-    api:
-      prefix: /v1/testsys
+path:
+  l10n: "${PWD}/src/main/resources/static/l10n"
+  startup:
+    entities: "${PWD}/data/entities/"
+    nodes: "${PWD}/data/nodes/"
+  taskFiles:
+    solutions: "${PWD}/data/taskFiles/solutions/"
+    polygons: "${PWD}/data/taskFiles/polygons/"
+    exercises: "${PWD}/data/taskFiles/exercises/"
+  files:
+    solutions: "${PWD}/data/files/solutions/"

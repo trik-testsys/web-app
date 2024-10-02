@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+<head>
+    <th:block th:include="fragments/main :: head('Кабинет Организатора')"></th:block>
+
+    <link rel="stylesheet" th:href="@{/css/block.css}">
+
+    <th:block th:include="fragments/popup :: head"></th:block>
+    <th:block th:include="fragments/form :: head"></th:block>
+    <th:block th:include="fragments/menu :: head"></th:block>
+</head>
+<body>
+
+<div th:replace="fragments/main :: background"></div>
+
+<div th:replace="fragments/popup :: popup"></div>
+
+<div th:replace="fragments/menu :: header(title='Кабинет Организатора',
+                                          titleLink='/admin',
+                                          breadCrumbNames=${ {  } },
+                                          breadCrumbLinks=${ {  } })"></div>
+
+<div th:replace="fragments/menu :: sideMenu(links=${ {'/admin', '/admin/groups', '/admin?Logout=' } },
+                                            names=${ { 'Профиль', 'Группы', 'Выход' } })"></div>
+
+<!-- Контент -->
+<div class="container">
+    <!-- Первый блок -->
+    <div class="block">
+        <div class="block-title">Профиль</div>
+
+        <div class="form-container">
+            <div class="form-header">
+                <h1>Информация о профиле</h1>
+            </div>
+
+            <!--/*@thymesVar id="webUser" type="trik.testsys.webclient.view.impl.AdminView"*/-->
+            <form id="admin-info" action="#" th:action="@{/admin/update}" th:object="${webUser}" method="post">
+                <div th:replace="fragments/form.html :: hiddentInput(id='admin.id', fieldName='id')"></div>
+                <div th:replace="fragments/form.html :: hiddentInput(id='admin.viewer', fieldName='viewer')"></div>
+
+                <div th:replace="fragments/form.html
+                    :: formField(id='admin.name', type='text',
+                                 labelName='Псевдоним', labelSize='20',
+                                 fieldName='name', fieldSize='80',
+                                 size='50',
+                                 isReadonly='false', isRequired='true', isAccessToken='false')">
+                </div>
+                <div th:replace="fragments/form.html
+                    :: formField(id='admin.accessToken', type='text',
+                                 labelName='Код-доступа', labelSize='25',
+                                 fieldName='accessToken', fieldSize='75',
+                                 size='50',
+                                 isReadonly='true', isRequired='false', isAccessToken='true')">
+                </div>
+                <div th:replace="fragments/form.html
+                    :: formField(id='admin.lastLoginDate', type='text',
+                                 labelName='Дата и время входа', labelSize='40',
+                                 fieldName='lastLoginDate', fieldSize='60',
+                                 size='25',
+                                 isReadonly='true', isRequired='false', isAccessToken='false')">
+                </div>
+                <div th:replace="fragments/form.html
+                    :: formField(id='admin.creationDate', type='text',
+                                 labelName='Дата и время регистрации', labelSize='40',
+                                 fieldName='creationDate', fieldSize='60',
+                                 size='25',
+                                 isReadonly='true', isRequired='false', isAccessToken='false')">
+                </div>
+                <div th:replace="fragments/form.html
+                    :: formField(id='admin.viewer.name', type='text',
+                                 labelName='Закреплен за Наблюдателем', labelSize='25',
+                                 fieldName='viewer.name', fieldSize='75',
+                                 size='50',
+                                 isReadonly='true', isRequired='false', isAccessToken='false')">
+                </div>
+                <div th:replace="fragments/form.html
+                    :: formField(id='admin.additionalInfo', type='text',
+                                 labelName='Дополнительная информация', labelSize='20',
+                                 fieldName='additionalInfo', fieldSize='80',
+                                 size='100',
+                                 isReadonly='false', isRequired='false', isAccessToken='false')">
+                </div>
+                <!-- Кнопки редактирования, отправки и отмены -->
+                <div class="form-buttons">
+                    <button type="button" class="edit-button" id="admin-info-edit" onclick="enableForm('admin-info')">Редактировать</button>
+                    <button type="submit" class="save-button" id="admin-info-save">Сохранить</button>
+                    <button type="button" class="cancel-button" id="admin-info-cancel" onclick="disableForm('admin-info')">Отменить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
