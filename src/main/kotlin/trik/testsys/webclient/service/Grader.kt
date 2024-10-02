@@ -2,6 +2,7 @@ package trik.testsys.webclient.service
 
 import trik.testsys.webclient.entity.impl.Solution
 import trik.testsys.webclient.entity.impl.Task
+import java.nio.ByteBuffer
 
 interface Grader {
 

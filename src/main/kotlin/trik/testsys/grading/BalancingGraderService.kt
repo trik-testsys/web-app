@@ -5,8 +5,9 @@ import io.grpc.ManagedChannelBuilder
 import io.grpc.StatusException
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import trik.testsys.webclient.entity.Solution
-import trik.testsys.webclient.entity.Task
+import org.springframework.stereotype.Service
+import trik.testsys.webclient.entity.impl.Solution
+import trik.testsys.webclient.entity.impl.Task
 import trik.testsys.webclient.service.FileManager
 import trik.testsys.webclient.service.Grader
 import trik.testsys.webclient.service.Grader.*
@@ -17,7 +18,7 @@ import trik.testsys.grading.converter.FileConverter
 import trik.testsys.grading.converter.ResultConverter
 import trik.testsys.grading.converter.SubmissionBuilder
 
-//@Service
+@Service
 class BalancingGraderService(private val fileManager: FileManager): Grader {
 
     private val statusRequestTimeout = 500L
@@ -55,8 +56,8 @@ class BalancingGraderService(private val fileManager: FileManager): Grader {
     }
 
     override fun sendToGrade(solution: Solution, task: Task, gradingOptions: GradingOptions) {
-        val taskFiles = fileManager.getTaskFiles(task.name) ?: throw IllegalArgumentException("Cannot find task files")
-        val solutionFile = fileManager.getSolutionFile(solution.id) ?: throw IllegalArgumentException("Cannot find solution file")
+        val taskFiles = task.polygons.mapNotNull { fileManager.getTaskFile(it) }
+        val solutionFile = fileManager.getSolutionFile(solution) ?: throw IllegalArgumentException("Cannot find solution file")
 
         val submission = SubmissionBuilder.build {
             this.solution = solution

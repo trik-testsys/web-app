@@ -39,8 +39,8 @@ class DeveloperController(
 
     private val fileManager: FileManager,
 
-    private val solutionService: SolutionService
-//    private val grader: Grader
+    private val solutionService: SolutionService,
+    private val grader: Grader
 ) : WebUserController<Developer, DeveloperView, DeveloperService>(loginData) {
 
     override val MAIN_PATH = DEVELOPER_PATH
@@ -334,7 +334,10 @@ class DeveloperController(
         }
         solutionService.save(solution)
 
-//        grader.sendToGrade(solution, task, Grader.GradingOptions(true, "1.0.0"))
+        val taskFile = fileManager.getTaskFile(task.solution!!)!!
+        fileManager.saveSolutionFile(solution, taskFile)
+        grader.addNode("192.168.1.155:8080")
+        grader.sendToGrade(solution, task, Grader.GradingOptions(true, "1.0.0"))
 
         redirectAttributes.addPopupMessage("Тестирование задания ${task.name} запущено.")
 

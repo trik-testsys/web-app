@@ -1,6 +1,8 @@
 package trik.testsys.webclient.service
 
 import org.springframework.web.multipart.MultipartFile
+import trik.testsys.webclient.entity.impl.Solution
+import trik.testsys.webclient.entity.impl.Task
 import trik.testsys.webclient.entity.impl.TaskFile
 import java.io.File
 
@@ -15,7 +17,9 @@ interface FileManager {
 
     fun getTaskFile(taskFile: TaskFile): File?
 
-    fun getTaskFiles(taskNameId: Long): Collection<TaskFile>
+    fun saveSolutionFile(solution: Solution, file: File): Boolean
 
-    fun getSolutionFile(solutionId: Long): File?
+    fun getTaskFiles(task: Task): Collection<TaskFile>
+
+    fun getSolutionFile(solution: Solution): File?
 }

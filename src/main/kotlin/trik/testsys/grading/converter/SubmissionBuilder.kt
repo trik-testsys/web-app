@@ -3,8 +3,8 @@ package trik.testsys.grading.converter
 import com.google.protobuf.ByteString
 import trik.testsys.grading.*
 import trik.testsys.grading.GradingNodeOuterClass.Submission
-import trik.testsys.webclient.entity.Solution
-import trik.testsys.webclient.entity.Task
+import trik.testsys.webclient.entity.impl.Solution
+import trik.testsys.webclient.entity.impl.Task
 import trik.testsys.webclient.service.Grader
 import java.io.File
 
@@ -23,7 +23,9 @@ class SubmissionBuilder private constructor() {
             block(sb)
 
             val submission = submission {
-                id = sb.solution.id.toInt()
+                id = sb.solution.id?.let {
+                    it.toInt()
+                } ?: throw NullPointerException("Solution id cannot be null.")
 
                 this.task = task {
                     fields.addAll(
