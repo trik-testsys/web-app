@@ -11,14 +11,14 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import trik.testsys.webclient.controller.user.WebUserController
 import trik.testsys.webclient.entity.user.impl.Developer
 import trik.testsys.webclient.service.entity.impl.ContestService
+import trik.testsys.webclient.service.entity.impl.TaskService
 import trik.testsys.webclient.service.entity.user.impl.DeveloperService
 import trik.testsys.webclient.service.security.login.impl.LoginData
 import trik.testsys.webclient.util.addPopupMessage
 import trik.testsys.webclient.util.atTimeZone
-import trik.testsys.webclient.view.impl.ContestCreationView
-import trik.testsys.webclient.view.impl.ContestView
+import trik.testsys.webclient.view.impl.*
 import trik.testsys.webclient.view.impl.ContestView.Companion.toView
-import trik.testsys.webclient.view.impl.DeveloperView
+import trik.testsys.webclient.view.impl.TaskView.Companion.toView
 import java.util.*
 import javax.servlet.http.HttpServletRequest
 
@@ -28,7 +28,8 @@ import javax.servlet.http.HttpServletRequest
 class DeveloperController(
     loginData: LoginData,
 
-    private val contestService: ContestService
+    private val contestService: ContestService,
+    private val taskService: TaskService
 ) : WebUserController<Developer, DeveloperView, DeveloperService>(loginData) {
 
     override val MAIN_PATH = DEVELOPER_PATH
@@ -42,7 +43,8 @@ class DeveloperController(
         lastLoginDate = this.lastLoginDate?.atTimeZone(timeZone),
         creationDate = this.creationDate?.atTimeZone(timeZone),
         additionalInfo = this.additionalInfo,
-        contests = this.contests.map { it.toView(timeZone) }.sortedBy { it.id }
+        contests = this.contests.map { it.toView(timeZone) }.sortedBy { it.id },
+        tasks = this.tasks.map { it.toView(timeZone) }.sortedBy { it.id }
     )
 
     @GetMapping(CONTESTS_PATH)
@@ -148,6 +150,109 @@ class DeveloperController(
         return "redirect:$DEVELOPER_PATH$CONTEST_PATH/$contestId"
     }
 
+    @GetMapping(TASKS_PATH)
+    fun tasksGet(
+        timeZone: TimeZone,
+        redirectAttributes: RedirectAttributes,
+        model: Model
+    ): String {
+        val webUser = validate(redirectAttributes) ?: return "redirect:$LOGIN_PATH"
+
+        model.addAttribute(TASK_ATTR, ContestCreationView.empty())
+        model.addAttribute(WEB_USER_ATTR, webUser.toView(timeZone))
+
+        return TASKS_PAGE
+    }
+
+    @PostMapping("$TASK_PATH/create")
+    fun taskPost(
+        @ModelAttribute("task") taskView: TaskCreationView,
+        timeZone: TimeZone,
+        request: HttpServletRequest,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val webUser = validate(redirectAttributes) ?: return "redirect:$LOGIN_PATH"
+
+        val task = taskView.toEntity(webUser)
+
+        if (!taskService.validateName(task)) {
+            redirectAttributes.addPopupMessage("Название Задания не должно содержать Код-доступа.")
+            return "redirect:$DEVELOPER_PATH$TASKS_PATH"
+        }
+
+        if (!taskService.validateAdditionalInfo(task)) {
+            redirectAttributes.addPopupMessage("Дополнительная информация не должна содержать Код-доступа.")
+            return "redirect:$DEVELOPER_PATH$TASKS_PATH"
+        }
+
+        taskService.save(task)
+
+        redirectAttributes.addPopupMessage("Задание ${task.name} успешно создана.")
+
+        return "redirect:$DEVELOPER_PATH$TASKS_PATH"
+    }
+
+    @GetMapping("$TASK_PATH/{taskId}")
+    fun taskGet(
+        @PathVariable("taskId") taskId: Long,
+        timeZone: TimeZone,
+        redirectAttributes: RedirectAttributes,
+        model: Model
+    ): String {
+        val webUser = validate(redirectAttributes) ?: return "redirect:$LOGIN_PATH"
+
+        if (!webUser.checkTaskExistence(taskId)) {
+            redirectAttributes.addPopupMessage("Задание с ID $taskId не найдено.")
+            return "redirect:$DEVELOPER_PATH$TASKS_PATH"
+        }
+
+        val task = taskService.find(taskId) ?: run {
+            redirectAttributes.addPopupMessage("Задание с ID $taskId не найдено.")
+            return "redirect:$DEVELOPER_PATH$TASKS_PATH"
+        }
+
+        val taskView = task.toView(timeZone)
+        model.addAttribute(TASK_ATTR, taskView)
+
+        return TASK_PAGE
+    }
+
+    @PostMapping("$TASK_PATH/update/{taskId}")
+    fun taskUpdate(
+        @PathVariable("taskId") taskId: Long,
+        @ModelAttribute("task") taskView: TaskView,
+        timeZone: TimeZone,
+        redirectAttributes: RedirectAttributes,
+        model: Model
+    ): String {
+        val webUser = validate(redirectAttributes) ?: return "redirect:$LOGIN_PATH"
+
+        if (!webUser.checkTaskExistence(taskId)) {
+            redirectAttributes.addPopupMessage("Задание с ID $taskId не найдено.")
+            return "redirect:$DEVELOPER_PATH$TASKS_PATH"
+        }
+
+        val task = taskView.toEntity(timeZone)
+        task.developer = webUser
+
+        if (!taskService.validateName(task)) {
+            redirectAttributes.addPopupMessage("Название Задание не должно содержать Код-доступа.")
+            return "redirect:$DEVELOPER_PATH$TASK_PATH/$taskId"
+        }
+
+        if (!taskService.validateAdditionalInfo(task)) {
+            redirectAttributes.addPopupMessage("Дополнительная информация не должна содержать Код-доступа.")
+            return "redirect:$DEVELOPER_PATH$TASK_PATH/$taskId"
+        }
+
+        val updatedTask = taskService.save(task)
+
+        model.addAttribute(TASK_ATTR, updatedTask.toView(timeZone))
+        redirectAttributes.addPopupMessage("Данные успешно изменены.")
+
+        return "redirect:$DEVELOPER_PATH$TASK_PATH/$taskId"
+    }
+
     companion object {
 
         const val DEVELOPER_PATH = "/developer"
@@ -161,6 +266,16 @@ class DeveloperController(
         const val CONTEST_PATH = "$CONTESTS_PATH/contest"
         const val CONTEST_PAGE = "developer/contest"
 
+        const val TASKS_PATH = "/tasks"
+        const val TASKS_PAGE = "developer/tasks"
+
+        const val TASK_ATTR = "task"
+
+        const val TASK_PATH = "$TASKS_PATH/task"
+        const val TASK_PAGE = "developer/task"
+
         fun Developer.checkContestExistence(contestId: Long?) = contests.any { it.id == contestId }
+
+        fun Developer.checkTaskExistence(taskId: Long?) = tasks.any { it.id == taskId }
     }
 }

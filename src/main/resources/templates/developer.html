@@ -15,14 +15,11 @@
 
 <div th:replace="fragments/popup :: popup"></div>
 
-<div th:replace="fragments/menu :: header(title='Кабинет Разработчика',
-                                          titleLink='/developer',
-                                          breadCrumbNames=${ {  } },
-                                          breadCrumbLinks=${ {  } })"></div>
+<div th:replace="fragments/entity/developer
+    :: developerHeader(breadCrumbNames=${ {  } },
+                       breadCrumbLinks=${ {  } })"></div>
 
-<div th:replace="fragments/menu :: sideMenu(links=${ {'/developer', '/developer/contests', '/developer?Logout=' } },
-                                            names=${ { 'Профиль', 'Туры', 'Выход' } })"></div>
-
+<div th:replace="fragments/entity/developer :: developerMenu"></div>
 
 <div class="container">
     <!-- Первый блок -->
