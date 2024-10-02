@@ -3,6 +3,7 @@ package trik.testsys.webclient.entity.user.impl
 import trik.testsys.core.entity.Entity.Companion.TABLE_PREFIX
 import trik.testsys.core.entity.user.AccessToken
 import trik.testsys.webclient.entity.impl.Contest
+import trik.testsys.webclient.entity.impl.Solution
 import trik.testsys.webclient.entity.impl.Task
 import trik.testsys.webclient.entity.impl.TaskFile
 import trik.testsys.webclient.entity.user.WebUser
@@ -59,4 +60,11 @@ class Developer(
     @get:Transient
     val solutions: MutableSet<TaskFile>
         get() = taskFiles.filter { it.type == TaskFile.TaskFileType.SOLUTION }.toMutableSet()
+
+    /**
+     * @author Roman Shishkin
+     * @since 2.0.0
+     **/
+    @OneToMany(mappedBy = "developer", cascade = [CascadeType.ALL])
+    val testSolutions: MutableSet<Solution> = mutableSetOf()
 }

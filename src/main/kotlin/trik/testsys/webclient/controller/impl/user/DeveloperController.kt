@@ -6,11 +6,14 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import trik.testsys.webclient.controller.user.WebUserController
+import trik.testsys.webclient.entity.impl.Solution
 import trik.testsys.webclient.entity.impl.TaskFile
 import trik.testsys.webclient.entity.impl.TaskFile.TaskFileType.Companion.toL10nMessage
 import trik.testsys.webclient.entity.user.impl.Developer
 import trik.testsys.webclient.service.FileManager
+import trik.testsys.webclient.service.Grader
 import trik.testsys.webclient.service.entity.impl.ContestService
+import trik.testsys.webclient.service.entity.impl.SolutionService
 import trik.testsys.webclient.service.entity.impl.TaskFileService
 import trik.testsys.webclient.service.entity.impl.TaskService
 import trik.testsys.webclient.service.entity.user.impl.DeveloperService
@@ -34,7 +37,10 @@ class DeveloperController(
     private val taskService: TaskService,
     private val taskFileService: TaskFileService,
 
-    private val fileManager: FileManager
+    private val fileManager: FileManager,
+
+    private val solutionService: SolutionService
+//    private val grader: Grader
 ) : WebUserController<Developer, DeveloperView, DeveloperService>(loginData) {
 
     override val MAIN_PATH = DEVELOPER_PATH
@@ -300,6 +306,37 @@ class DeveloperController(
         taskFileService.save(taskFile)
 
         redirectAttributes.addPopupMessage("Файл ${taskFile.name} успешно прикреплен к заданию ${task.name}.")
+
+        return "redirect:$DEVELOPER_PATH$TASK_PATH/$taskId"
+    }
+
+    @PostMapping("$TASK_PATH/test/{taskId}")
+    fun testTask(
+        @PathVariable("taskId") taskId: Long,
+        timeZone: TimeZone,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val webUser = validate(redirectAttributes) ?: return "redirect:$LOGIN_PATH"
+
+        val task = taskService.find(taskId) ?: run {
+            redirectAttributes.addPopupMessage("Задание с ID $taskId не найдено.")
+            return "redirect:$DEVELOPER_PATH$TASKS_PATH"
+        }
+
+        if (!webUser.checkTaskExistence(taskId)) {
+            redirectAttributes.addPopupMessage("Задание с ID $taskId не найдено.")
+            return "redirect:$DEVELOPER_PATH$TASKS_PATH"
+        }
+
+        val solution = Solution().also {
+            it.task = task
+            it.developer = webUser
+        }
+        solutionService.save(solution)
+
+//        grader.sendToGrade(solution, task, Grader.GradingOptions(true, "1.0.0"))
+
+        redirectAttributes.addPopupMessage("Тестирование задания ${task.name} запущено.")
 
         return "redirect:$DEVELOPER_PATH$TASK_PATH/$taskId"
     }

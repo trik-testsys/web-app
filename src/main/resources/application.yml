@@ -34,7 +34,9 @@ path:
   startup:
     entities: "${PWD}/data/entities/"
     nodes: "${PWD}/data/nodes/"
+  taskFiles:
+    solutions: "${PWD}/data/taskFiles/solutions/"
+    polygons: "${PWD}/data/taskFiles/polygons/"
+    exercises: "${PWD}/data/taskFiles/exercises/"
   files:
     solutions: "${PWD}/data/files/solutions/"
-    polygons: "${PWD}/data/files/polygons/"
-    exercises: "${PWD}/data/files/exercises/"

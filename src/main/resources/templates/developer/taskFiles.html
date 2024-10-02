@@ -117,7 +117,7 @@
             </div>
 
             <!--/*@thymesVar id="webUser" type="trik.testsys.webclient.view.impl.TaskFileCreationView"*/-->
-            <form id="exercise-creation" action="#exercises" th:action="@{/developer/taskFiles/taskFile/create}" th:object="${exercise}" method="post">
+            <form id="exercise-creation" action="#exercises" th:action="@{/developer/taskFiles/taskFile/create}" th:object="${exercise}" method="post" enctype="multipart/form-data">
                 <div th:replace="fragments/form.html :: hiddentInput(id='taskFile.type', fieldName='type')"></div>
 
                 <div th:replace="fragments/form.html
@@ -200,7 +200,7 @@
             </div>
 
             <!--/*@thymesVar id="webUser" type="trik.testsys.webclient.view.impl.TaskFileCreationView"*/-->
-            <form id="solution-creation" th:action="@{/developer/taskFiles/taskFile/create}" th:object="${solution}" method="post">
+            <form id="solution-creation" th:action="@{/developer/taskFiles/taskFile/create}" th:object="${solution}" method="post" enctype="multipart/form-data">
                 <div th:replace="fragments/form.html :: hiddentInput(id='taskFile.type', fieldName='type')"></div>
 
                 <div th:replace="fragments/form.html

@@ -15,30 +15,32 @@ import javax.annotation.PostConstruct
  **/
 @Service
 class FileManagerImpl(
-    @Value("\${path.files.solutions}") solutionsPath: String,
-    @Value("\${path.files.exercises}") exercisesPath: String,
-    @Value("\${path.files.polygons}") polygonsPath: String
-): FileManager{
+    @Value("\${path.taskFiles.solutions}") taskFileSolutionsPath: String,
+    @Value("\${path.taskFiles.exercises}") taskFileExercisesPath: String,
+    @Value("\${path.taskFiles.polygons}") taskFilePolygonsPath: String,
+
+    @Value("\${path.files.solutions}") solutionsPath: String
+) : FileManager {
+
+    private val taskFileSolutionsDir = File(taskFileSolutionsPath)
+    private val taskFileExercisesDir = File(taskFileExercisesPath)
+    private val taskFilePolygonsDir = File(taskFilePolygonsPath)
 
     private val solutionsDir = File(solutionsPath)
-    private val exercisesDir = File(exercisesPath)
-    private val polygonsDir = File(polygonsPath)
 
     @PostConstruct
     fun init() {
+        if (!taskFileSolutionsDir.exists()) taskFileSolutionsDir.mkdirs()
+        if (!taskFileExercisesDir.exists()) taskFileExercisesDir.mkdirs()
+        if (!taskFilePolygonsDir.exists()) taskFilePolygonsDir.mkdirs()
+
         if (!solutionsDir.exists()) solutionsDir.mkdirs()
-        if (!exercisesDir.exists()) exercisesDir.mkdirs()
-        if (!polygonsDir.exists()) polygonsDir.mkdirs()
     }
 
     override fun saveTaskFile(taskFile: TaskFile, fileData: MultipartFile): Boolean {
         logger.info("Saving task file with id ${taskFile.id}")
 
-        val dir = when (taskFile.type) {
-            TaskFile.TaskFileType.SOLUTION -> solutionsDir
-            TaskFile.TaskFileType.EXERCISE -> exercisesDir
-            TaskFile.TaskFileType.POLYGON -> polygonsDir
-        }
+        val dir = getTaskFileDir(taskFile)
 
         val fileExtension = fileData.originalFilename?.substringAfterLast(".") ?: ""
 
@@ -56,7 +58,9 @@ class FileManagerImpl(
     override fun getTaskFile(taskFile: TaskFile): File? {
         logger.info("Getting task file with id ${taskFile.id}")
 
-        val file = File(exercisesDir, "${taskFile.id}")
+        val dir = getTaskFileDir(taskFile)
+        val file = File(dir, "${taskFile.id}")
+
         if (!file.exists()) {
             logger.error("Task file with id ${taskFile.id} not found")
             return null
@@ -65,12 +69,27 @@ class FileManagerImpl(
         return file
     }
 
+    private fun getTaskFileDir(taskFile: TaskFile) = when (taskFile.type) {
+        TaskFile.TaskFileType.SOLUTION -> taskFileSolutionsDir
+        TaskFile.TaskFileType.EXERCISE -> taskFileExercisesDir
+        TaskFile.TaskFileType.POLYGON -> taskFilePolygonsDir
+    }
+
     override fun getTaskFiles(taskNameId: Long): Collection<TaskFile> {
         TODO("Not yet implemented")
     }
 
     override fun getSolutionFile(solutionId: Long): File? {
-        TODO("Not yet implemented")
+        logger.info("Getting solution file with id $solutionId")
+
+        val file = File(solutionsDir, "$solutionId")
+
+        if (!file.exists()) {
+            logger.error("Solution file with id $solutionId not found")
+            return null
+        }
+
+        return file
     }
 
     companion object {

@@ -82,6 +82,12 @@
                 </div>
             </form>
         </div>
+
+        <div>
+            <form th:action="@{/developer/tasks/task/test/{taskId}(taskId=${task.id})}" method="post">
+                <button type="submit">Тестировать</button>
+            </form>
+        </div>
     </div>
 
     <div class="block">
