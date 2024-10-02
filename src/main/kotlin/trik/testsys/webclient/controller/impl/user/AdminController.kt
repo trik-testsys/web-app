@@ -18,10 +18,10 @@ import trik.testsys.webclient.service.security.login.impl.LoginData
 import trik.testsys.webclient.service.token.reg.RegTokenGenerator
 import trik.testsys.webclient.util.addPopupMessage
 import trik.testsys.webclient.util.atTimeZone
-import trik.testsys.webclient.view.AdminView
-import trik.testsys.webclient.view.GroupCreationView
-import trik.testsys.webclient.view.GroupView
-import trik.testsys.webclient.view.GroupView.Companion.toView
+import trik.testsys.webclient.view.impl.AdminView
+import trik.testsys.webclient.view.impl.GroupCreationView
+import trik.testsys.webclient.view.impl.GroupView
+import trik.testsys.webclient.view.impl.GroupView.Companion.toView
 import java.util.*
 import javax.servlet.http.HttpServletRequest
 
@@ -46,7 +46,7 @@ class AdminController(
         lastLoginDate = this.lastLoginDate?.atTimeZone(timeZone),
         viewer = this.viewer,
         additionalInfo = this.additionalInfo,
-        groups = this.groups.map { it.toView(timeZone) }
+        groups = this.groups.map { it.toView(timeZone) }.sortedBy { it.id }
     )
 
     @GetMapping(GROUPS_PATH)
@@ -63,7 +63,7 @@ class AdminController(
         return GROUPS_PAGE
     }
 
-    @PostMapping("$GROUPS_PATH$GROUP_PATH/create")
+    @PostMapping("$GROUP_PATH/create")
     fun groupPost(
         @ModelAttribute("group") groupView: GroupCreationView,
         timeZone: TimeZone,
@@ -76,7 +76,7 @@ class AdminController(
         val group = groupView.toEntity(regToken, webUser)
 
         if (!groupService.validateName(group)) {
-            redirectAttributes.addPopupMessage("Название группы не должно содержать Код-доступа.")
+            redirectAttributes.addPopupMessage("Название Группы не должно содержать Код-доступа.")
             return "redirect:$ADMIN_PATH$GROUPS_PATH"
         }
 
@@ -92,7 +92,7 @@ class AdminController(
         return "redirect:$ADMIN_PATH$GROUPS_PATH"
     }
 
-    @GetMapping("$GROUPS_PATH$GROUP_PATH/{groupId}")
+    @GetMapping("$GROUP_PATH/{groupId}")
     fun groupGet(
         @PathVariable("groupId") id: Long,
         timeZone: TimeZone,
@@ -112,7 +112,7 @@ class AdminController(
         return GROUP_PAGE
     }
 
-    @PostMapping("$GROUPS_PATH$GROUP_PATH/update/{groupId}")
+    @PostMapping("$GROUP_PATH/update/{groupId}")
     fun groupUpdate(
         @PathVariable("groupId") groupId: String,
         @ModelAttribute("group") groupView: GroupView,
@@ -127,12 +127,12 @@ class AdminController(
 
         if (!groupService.validateName(group)) {
             redirectAttributes.addPopupMessage("Название группы не должно содержать Код-доступа.")
-            return "redirect:${getGroupPath(groupId)}"
+            return "redirect:$ADMIN_PATH$GROUP_PATH/$groupId"
         }
 
         if (!groupService.validateAdditionalInfo(group)) {
             redirectAttributes.addPopupMessage("Дополнительная информация не должна содержать Код-доступа.")
-            return "redirect:${getGroupPath(groupId)}"
+            return "redirect:$ADMIN_PATH$GROUP_PATH/$groupId"
         }
 
         val updatedGroup = groupService.save(group)
@@ -140,7 +140,7 @@ class AdminController(
         model.addAttribute(GROUP_ATTR, updatedGroup.toView(timeZone))
         redirectAttributes.addPopupMessage("Данные успешно изменены.")
 
-        return "redirect:${getGroupPath(groupId)}"
+        return "redirect:$ADMIN_PATH$GROUP_PATH/$groupId"
     }
 
     companion object {
@@ -149,14 +149,12 @@ class AdminController(
         const val ADMIN_PAGE = "admin"
 
         const val GROUPS_PATH = "/groups"
-        const val GROUPS_PAGE = "admin-groups"
+        const val GROUPS_PAGE = "admin/groups"
 
         const val GROUP_ATTR = "group"
 
-        const val GROUP_PATH = "/group"
-        const val GROUP_PAGE = "admin-group"
-
-        private fun getGroupPath(groupId: String) = "$ADMIN_PATH$GROUPS_PATH$GROUP_PATH/$groupId"
+        const val GROUP_PATH = "$GROUPS_PATH/group"
+        const val GROUP_PAGE = "admin/group"
     }
 }
 

@@ -35,7 +35,7 @@
                 <h1>Создание Группы</h1>
             </div>
 
-            <!--/*@thymesVar id="webUser" type="trik.testsys.webclient.view.GroupCreationView"*/-->
+            <!--/*@thymesVar id="webUser" type="trik.testsys.webclient.view.impl.GroupCreationView"*/-->
             <form id="group-creation" action="#" th:action="@{/admin/groups/group/create}" th:object="${group}" method="post">
                 <div th:replace="fragments/form.html
                     :: formField(id='group.name', type='text',
@@ -66,15 +66,21 @@
             </div>
             <table>
                 <tr>
-                    <th>ID</th>
-                    <th>Название</th>
+                    <th style="width: 10%">
+                        ID
+                    </th>
+                    <th style="width: 20%">
+                        Название
+                    </th>
                     <th>Дополнительная информация</th>
-                    <th>Код-регистрации</th>
+                    <th style="width: 20%">
+                        Код-регистрации
+                    </th>
                     <th style="width: 10%">
                         Действия
                     </th>
                 </tr>
-                <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.GroupView"*/-->
+                <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.GroupView"*/-->
                 <tr th:each="group : ${webUser.groups}">
                     <td th:text="${group.id}"></td>
                     <td th:text="${group.name}"></td>

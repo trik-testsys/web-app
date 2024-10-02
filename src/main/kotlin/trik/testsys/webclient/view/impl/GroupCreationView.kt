@@ -1,4 +1,4 @@
-package trik.testsys.webclient.view
+package trik.testsys.webclient.view.impl
 
 import trik.testsys.webclient.entity.impl.Group
 import trik.testsys.webclient.entity.user.impl.Admin

@@ -14,7 +14,7 @@ import trik.testsys.webclient.entity.user.impl.Student
 import trik.testsys.webclient.service.entity.user.impl.StudentService
 import trik.testsys.webclient.service.security.login.impl.LoginData
 import trik.testsys.webclient.util.atTimeZone
-import trik.testsys.webclient.view.StudentView
+import trik.testsys.webclient.view.impl.StudentView
 import java.io.File
 import java.util.TimeZone
 
@@ -67,133 +67,6 @@ class StudentController(
 
 //
 //class StudentController
-//
-//    @GetMapping("/registration")
-//    fun registration(@RequestParam groupAccessToken: String, model: Model): Any {
-//        logger.info("[${groupAccessToken.padStart(80)}]: Client trying to register.")
-//
-//        val group = groupService.getGroupByAccessToken(groupAccessToken) ?: run {
-//            logger.info("[${groupAccessToken.padStart(80)}]: Invalid  group token.")
-//
-//            return ResponseEntity
-//                .status(HttpStatus.FORBIDDEN)
-//                .body(ResponseMessage(403, "Invalid group token!"))
-//        }
-//
-//        if (!group.isAccessible) {
-//            logger.info("[${groupAccessToken.padStart(80)}]: Group is not accessible.")
-//
-//            return ResponseEntity
-//                .status(HttpStatus.FORBIDDEN)
-//                .body(ResponseMessage(403, "Group is not accessible!"))
-//        }
-//
-//
-//        logger.info("[${groupAccessToken.padStart(80)}]: Group token is valid.")
-//
-//        model.addAttribute("groupAccessToken", groupAccessToken)
-//        return model
-//    }
-//
-//    @PostMapping("/create")
-//    fun createStudent(@RequestParam groupAccessToken: String, @RequestParam username: String, model: Model): Any {
-//        logger.info("[${groupAccessToken.padStart(80)}]: Client trying to create student.")
-//
-//        val group = groupService.getGroupByAccessToken(groupAccessToken) ?: run {
-//            logger.info("[${groupAccessToken.padStart(80)}]: Invalid  group token.")
-//
-//            return ResponseEntity
-//                .status(HttpStatus.FORBIDDEN)
-//                .body(ResponseMessage(403, "Invalid group token!"))
-//        }
-//
-//        if (!group.isAccessible) {
-//            logger.info("[${groupAccessToken.padStart(80)}]: Group is not accessible.")
-//
-//            return ResponseEntity
-//                .status(HttpStatus.FORBIDDEN)
-//                .body(ResponseMessage(403, "Group is not accessible!"))
-//        }
-//
-//        logger.info("[${groupAccessToken.padStart(80)}]: Group token is valid.")
-//
-//        val webUser = webUserService.saveWebUser(username)
-//        logger.info("[${groupAccessToken.padStart(80)}]: Web user created.")
-//
-//        val student = studentService.save(webUser, group)
-//        logger.info("[${groupAccessToken.padStart(80)}]: Student created.")
-//
-//        model.addAttribute("id", student.id)
-//        model.addAttribute("username", username)
-//        model.addAttribute("accessToken", webUser.accessToken)
-//        return model
-//    }
-//
-//    @GetMapping("/task")
-//    fun getTask(@RequestParam accessToken: String, @RequestParam taskId: Long, model: Model): Any {
-//        logger.info("[${accessToken.padStart(80)}]: Client trying to access task page.")
-//
-//        val status = validateStudent(accessToken)
-//        if (status == WebUser.Status.NOT_FOUND || status == WebUser.Status.ADMIN) {
-//            logger.info("[${accessToken.padStart(80)}]: Client is not a student.")
-//            return ResponseEntity
-//                .status(HttpStatus.FORBIDDEN)
-//                .body(ResponseMessage(403, "You are not a student!"))
-//        }
-//
-//        logger.info("[${accessToken.padStart(80)}]: Client is a student.")
-//        val webUser = webUserService.getWebUserByAccessToken(accessToken)!!
-//        val student = studentService.getByWebUser(webUser)!!
-//        val group = student.group
-//
-//        if (!group.isAccessible) {
-//            logger.info("[${group.accessToken.padStart(80)}]: Group is not accessible.")
-//
-//            return ResponseEntity
-//                .status(HttpStatus.FORBIDDEN)
-//                .body(ResponseMessage(403, "Group is not accessible!"))
-//        }
-//
-//        val task = taskService.getTaskById(taskId) ?: run {
-//            logger.info("[${accessToken.padStart(80)}]: Invalid task id.")
-//            return ResponseEntity
-//                .status(HttpStatus.FORBIDDEN)
-//                .body(ResponseMessage(403, "Invalid task id!"))
-//        }
-//
-//        val trainingFile = File("$trainingPath/$taskId.qrs")
-//        if (!trainingFile.exists()) {
-//            logger.info("[${accessToken.padStart(80)}]: Training file not found.")
-//            return ResponseEntity
-//                .status(HttpStatus.FORBIDDEN)
-//                .body(ResponseMessage(403, "Training file not found!"))
-//        }
-//
-//        val responseEntity = ResponseEntity.ok()
-//            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"${task.name}.qrs\"")
-//            .contentType(MediaType.APPLICATION_OCTET_STREAM)
-//            .body(trainingFile.readBytes())
-//
-//        //region TaskAction creation
-//        logger.info("[${accessToken.padStart(80)}]: Creating task action.")
-//        taskActionService.getDownloadedTrainingAction(student, task)?.let {
-//            logger.info("[${accessToken.padStart(80)}]: Task action already exists ${it.id}.")
-//            return responseEntity
-//        }
-//        val taskAction = taskActionService.save(student, task)
-//
-//        logger.info("[${accessToken.padStart(80)}]: Task action created ${taskAction.id}.")
-//        //endregion
-//
-//        logger.info("[${accessToken.padStart(80)}]: Training file sent.")
-//
-//        val taskTimes = generateTaskTimes(student, student.group.tasks)
-//        val minTaskTime = taskTimes.minOfOrNull { it.value } ?: LocalDateTime.MIN
-//        model.addAttribute("taskTimes", minTaskTime)
-//        model.addAttribute("canUpload", minTaskTime != LocalDateTime.MIN)
-//
-//        return responseEntity
-//    }
 //
 //    @PostMapping("/solution/upload")
 //    fun uploadSolution(

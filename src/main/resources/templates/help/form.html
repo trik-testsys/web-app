@@ -3,7 +3,7 @@
 <script th:src="@{/js/form.js}"></script>
 
 <div class="form-container">
-    <!--/*@thymesVar id="webUser" type="trik.testsys.webclient.view.StudentView"*/-->
+    <!--/*@thymesVar id="webUser" type="trik.testsys.webclient.view.impl.StudentView"*/-->
     <form id="student-info" action="#" th:action="@{/student/update}" th:object="${webUser}" method="post">
         <input th:field="*{id}" type="text" id="student.id" hidden/>
         <input th:field="*{group}" type="text" id="student.group" hidden/>

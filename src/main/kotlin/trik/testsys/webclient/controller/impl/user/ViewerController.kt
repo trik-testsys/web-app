@@ -7,7 +7,7 @@ import trik.testsys.webclient.entity.user.impl.Viewer
 import trik.testsys.webclient.service.entity.user.impl.ViewerService
 import trik.testsys.webclient.service.security.login.impl.LoginData
 import trik.testsys.webclient.util.atTimeZone
-import trik.testsys.webclient.view.ViewerView
+import trik.testsys.webclient.view.impl.ViewerView
 import java.util.*
 
 

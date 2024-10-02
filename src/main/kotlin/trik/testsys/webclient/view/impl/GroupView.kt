@@ -1,4 +1,4 @@
-package trik.testsys.webclient.view
+package trik.testsys.webclient.view.impl
 
 import trik.testsys.core.entity.user.AccessToken
 import trik.testsys.core.view.named.NamedEntityView

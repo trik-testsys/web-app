@@ -31,7 +31,11 @@
         <div class="block-title">Группа</div>
 
         <div class="form-container">
-            <!--/*@thymesVar id="webUser" type="trik.testsys.webclient.view.GroupView"*/-->
+            <div class="form-header">
+                <h1>Информация о Группе</h1>
+            </div>
+
+            <!--/*@thymesVar id="webUser" type="trik.testsys.webclient.view.impl.GroupView"*/-->
             <form id="group-info" action="#" th:action="@{/admin/groups/group/update/{groupId}(groupId=${group.id})}" th:object="${group}" method="post">
                 <div th:replace="fragments/form.html
                     :: formField(id='group.id', type='text',

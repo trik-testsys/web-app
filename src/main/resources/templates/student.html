@@ -34,7 +34,7 @@
                 <h1>Информация о профиле</h1>
             </div>
 
-            <!--/*@thymesVar id="webUser" type="trik.testsys.webclient.view.StudentView"*/-->
+            <!--/*@thymesVar id="webUser" type="trik.testsys.webclient.view.impl.StudentView"*/-->
             <form id="student-info" action="#" th:action="@{/student/update}" th:object="${webUser}" method="post">
                 <div th:replace="fragments/form.html :: hiddentInput(id='student.id', fieldName='id')"></div>
                 <div th:replace="fragments/form.html :: hiddentInput(id='student.group', fieldName='group')"></div>
