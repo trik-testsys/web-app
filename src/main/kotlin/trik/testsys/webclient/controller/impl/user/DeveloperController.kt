@@ -9,8 +9,11 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import trik.testsys.webclient.controller.user.WebUserController
+import trik.testsys.webclient.entity.impl.TaskFile
+import trik.testsys.webclient.entity.impl.TaskFile.TaskFileType.Companion.toL10nMessage
 import trik.testsys.webclient.entity.user.impl.Developer
 import trik.testsys.webclient.service.entity.impl.ContestService
+import trik.testsys.webclient.service.entity.impl.TaskFileService
 import trik.testsys.webclient.service.entity.impl.TaskService
 import trik.testsys.webclient.service.entity.user.impl.DeveloperService
 import trik.testsys.webclient.service.security.login.impl.LoginData
@@ -18,6 +21,7 @@ import trik.testsys.webclient.util.addPopupMessage
 import trik.testsys.webclient.util.atTimeZone
 import trik.testsys.webclient.view.impl.*
 import trik.testsys.webclient.view.impl.ContestView.Companion.toView
+import trik.testsys.webclient.view.impl.TaskFileView.Companion.toView
 import trik.testsys.webclient.view.impl.TaskView.Companion.toView
 import java.util.*
 import javax.servlet.http.HttpServletRequest
@@ -29,7 +33,8 @@ class DeveloperController(
     loginData: LoginData,
 
     private val contestService: ContestService,
-    private val taskService: TaskService
+    private val taskService: TaskService,
+    private val taskFileService: TaskFileService
 ) : WebUserController<Developer, DeveloperView, DeveloperService>(loginData) {
 
     override val MAIN_PATH = DEVELOPER_PATH
@@ -44,7 +49,10 @@ class DeveloperController(
         creationDate = this.creationDate?.atTimeZone(timeZone),
         additionalInfo = this.additionalInfo,
         contests = this.contests.map { it.toView(timeZone) }.sortedBy { it.id },
-        tasks = this.tasks.map { it.toView(timeZone) }.sortedBy { it.id }
+        tasks = this.tasks.map { it.toView(timeZone) }.sortedBy { it.id },
+        polygons = this.polygons.map { it.toView(timeZone) }.sortedBy { it.id },
+        exercises = this.exercises.map { it.toView(timeZone) }.sortedBy { it.id },
+        solutions = this.solutions.map { it.toView(timeZone) }.sortedBy { it.id }
     )
 
     @GetMapping(CONTESTS_PATH)
@@ -253,6 +261,122 @@ class DeveloperController(
         return "redirect:$DEVELOPER_PATH$TASK_PATH/$taskId"
     }
 
+    @GetMapping(TASK_FILES_PATH)
+    fun taskFilesGet(
+        timeZone: TimeZone,
+        redirectAttributes: RedirectAttributes,
+        model: Model
+    ): String {
+        val webUser = validate(redirectAttributes) ?: return "redirect:$LOGIN_PATH"
+
+        model.addAttribute(TASK_FILE_POLYGON_ATTR, TaskFileCreationView.emptyPolygon())
+        model.addAttribute(TASK_FILE_EXERCISE_ATTR, TaskFileCreationView.emptyExercise())
+        model.addAttribute(TASK_FILE_SOLUTION_ATTR, TaskFileCreationView.emptySolution())
+
+        model.addAttribute(WEB_USER_ATTR, webUser.toView(timeZone))
+
+        return TASK_FILES_PAGE
+    }
+
+    @PostMapping("$TASK_FILE_PATH/create")
+    fun taskFilePost(
+        @ModelAttribute("taskFileView") taskFileView: TaskFileCreationView,
+        timeZone: TimeZone,
+        request: HttpServletRequest,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val webUser = validate(redirectAttributes) ?: return "redirect:$LOGIN_PATH"
+
+        val taskFile = taskFileView.toEntity(webUser)
+        val taskTileTypeLocalized = taskFile.type.toL10nMessage()
+
+        if (!taskFileService.validateName(taskFile)) {
+
+            redirectAttributes.addPopupMessage("Название Файла с типом '$taskTileTypeLocalized' не должно содержать Код-доступа.")
+            return "redirect:$DEVELOPER_PATH$TASK_FILES_PATH"
+        }
+
+        if (!taskFileService.validateAdditionalInfo(taskFile)) {
+            redirectAttributes.addPopupMessage("Дополнительная информация не должна содержать Код-доступа.")
+            return "redirect:$DEVELOPER_PATH$TASK_FILES_PATH"
+        }
+
+        taskFileService.save(taskFile)
+
+        redirectAttributes.addPopupMessage("$taskTileTypeLocalized ${taskFile.name} успешно создан.")
+
+        val anchor = when (taskFile.type) {
+            TaskFile.TaskFileType.POLYGON -> ""
+            TaskFile.TaskFileType.EXERCISE -> "exercises"
+            TaskFile.TaskFileType.SOLUTION -> "solutions"
+        }
+
+        return "redirect:$DEVELOPER_PATH$TASK_FILES_PATH#$anchor"
+    }
+
+    @GetMapping("$TASK_FILE_PATH/{taskFileId}")
+    fun taskFileGet(
+        @PathVariable("taskFileId") taskFileId: Long,
+        timeZone: TimeZone,
+        redirectAttributes: RedirectAttributes,
+        model: Model
+    ): String {
+        val webUser = validate(redirectAttributes) ?: return "redirect:$LOGIN_PATH"
+
+        if (!webUser.checkTaskFileExistence(taskFileId)) {
+            redirectAttributes.addPopupMessage("Файл с ID $taskFileId не найден.")
+            return "redirect:$DEVELOPER_PATH$TASK_FILES_PATH"
+        }
+
+        val taskFile = taskFileService.find(taskFileId) ?: run {
+            redirectAttributes.addPopupMessage("Файл с ID $taskFileId не найден.")
+            return "redirect:$DEVELOPER_PATH$TASK_FILES_PATH"
+        }
+
+        val taskFileView = taskFile.toView(timeZone)
+        model.addAttribute(TASK_FILE_ATTR, taskFileView)
+
+        return TASK_FILE_PAGE
+    }
+
+    @PostMapping("$TASK_FILE_PATH/update/{taskFileId}")
+    fun taskFileUpdate(
+        @PathVariable("taskFileId") taskFileId: Long,
+        @ModelAttribute("taskFile") taskFileView: TaskFileView,
+        timeZone: TimeZone,
+        redirectAttributes: RedirectAttributes,
+        model: Model
+    ): String {
+        val webUser = validate(redirectAttributes) ?: return "redirect:$LOGIN_PATH"
+
+        if (!webUser.checkTaskFileExistence(taskFileId)) {
+            redirectAttributes.addPopupMessage("Файл с ID $taskFileId не найден.")
+            return "redirect:$DEVELOPER_PATH$TASK_FILES_PATH"
+        }
+
+        val taskFile = taskFileView.toEntity(timeZone)
+        taskFile.developer = webUser
+
+        val taskTileTypeLocalized = taskFile.type.toL10nMessage()
+
+        if (!taskFileService.validateName(taskFile)) {
+            redirectAttributes.addPopupMessage("Название Файл�� с типом '$taskTileTypeLocalized' не должно содержать Код-доступа.")
+            return "redirect:$DEVELOPER_PATH$TASK_FILE_PATH/$taskFileId"
+        }
+
+        if (!taskFileService.validateAdditionalInfo(taskFile)) {
+            redirectAttributes.addPopupMessage("Дополнительная информация не должна содержать Код-доступа.")
+            return "redirect:$DEVELOPER_PATH$TASK_FILE_PATH/$taskFileId"
+        }
+
+        val updatedTaskFile = taskFileService.save(taskFile)
+
+        model.addAttribute(TASK_FILE_ATTR, updatedTaskFile.toView(timeZone))
+        redirectAttributes.addPopupMessage("Данные успешно изменены.")
+
+        return "redirect:$DEVELOPER_PATH$TASK_FILE_PATH/$taskFileId"
+    }
+
     companion object {
 
         const val DEVELOPER_PATH = "/developer"
@@ -274,8 +398,21 @@ class DeveloperController(
         const val TASK_PATH = "$TASKS_PATH/task"
         const val TASK_PAGE = "developer/task"
 
+        const val TASK_FILES_PATH = "/taskFiles"
+        const val TASK_FILES_PAGE = "developer/taskFiles"
+
+        const val TASK_FILE_ATTR = "taskFile"
+        const val TASK_FILE_POLYGON_ATTR = "polygon"
+        const val TASK_FILE_EXERCISE_ATTR = "exercise"
+        const val TASK_FILE_SOLUTION_ATTR = "solution"
+
+        const val TASK_FILE_PATH = "$TASK_FILES_PATH/taskFile"
+        const val TASK_FILE_PAGE = "developer/taskFile"
+
         fun Developer.checkContestExistence(contestId: Long?) = contests.any { it.id == contestId }
 
         fun Developer.checkTaskExistence(taskId: Long?) = tasks.any { it.id == taskId }
+
+        fun Developer.checkTaskFileExistence(taskFileId: Long?) = taskFiles.any { it.id == taskFileId }
     }
 }

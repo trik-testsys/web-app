@@ -14,8 +14,11 @@ data class DeveloperView(
     override val lastLoginDate: LocalDateTime?,
     override val creationDate: LocalDateTime?,
     override val additionalInfo: String,
-    val contests: List<ContestView>?,
-    val tasks: List<TaskView>
+    val contests: List<ContestView>,
+    val tasks: List<TaskView>,
+    val polygons: List<TaskFileView>,
+    val exercises: List<TaskFileView>,
+    val solutions: List<TaskFileView>
 ) : UserView<Developer> {
 
     override fun toEntity(timeZone: TimeZone) = Developer(

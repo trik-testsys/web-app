@@ -43,6 +43,7 @@
        th:field="*{__${fieldName}__}"
        hidden/>
 
+
 <!-- Кнопки редактирования, отправки и отмены -->
 <div th:fragment="formButtons(formName)" class="form-buttons">
     <button type="button" class="edit-button" th:id="${formName} + '-edit'" th:onclick="'enableForm(\'' + ${formName} + '\')'">Редактировать</button>
