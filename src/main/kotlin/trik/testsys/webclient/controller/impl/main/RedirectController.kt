@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.servlet.View
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
-import trik.testsys.webclient.enums.UserType
+import trik.testsys.webclient.entity.user.WebUser.UserType
 import trik.testsys.webclient.service.security.login.impl.LoginData
 import trik.testsys.webclient.service.security.UserValidator
 import trik.testsys.webclient.util.addInvalidAccessTokenMessage

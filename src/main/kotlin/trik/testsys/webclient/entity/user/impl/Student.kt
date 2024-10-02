@@ -4,7 +4,6 @@ import trik.testsys.core.entity.Entity.Companion.TABLE_PREFIX
 import trik.testsys.core.entity.user.AccessToken
 import trik.testsys.webclient.entity.impl.Group
 import trik.testsys.webclient.entity.user.WebUser
-import trik.testsys.webclient.enums.UserType
 import javax.persistence.*
 
 @Entity

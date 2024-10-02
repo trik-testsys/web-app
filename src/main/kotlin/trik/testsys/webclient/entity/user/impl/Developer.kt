@@ -5,7 +5,6 @@ import trik.testsys.core.entity.user.AccessToken
 import trik.testsys.webclient.entity.impl.Contest
 import trik.testsys.webclient.entity.impl.Task
 import trik.testsys.webclient.entity.user.WebUser
-import trik.testsys.webclient.enums.UserType
 import javax.persistence.*
 
 /**
