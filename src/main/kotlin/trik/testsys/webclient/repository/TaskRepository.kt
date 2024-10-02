@@ -1,12 +1,13 @@
-package trik.testsys.webclient.repository//package trik.testsys.webclient.repository.impl
-//
-//import org.springframework.data.repository.CrudRepository
-//import org.springframework.stereotype.Repository
-//
-//import trik.testsys.webclient.entity.Task
-//
-//@Repository
-//interface TaskRepository: CrudRepository<Task, Long> {
-//
-//    fun findTaskById(id: Long): Task?
-//}
+package trik.testsys.webclient.repository
+
+import org.springframework.stereotype.Repository
+import trik.testsys.core.repository.named.NamedEntityRepository
+import trik.testsys.webclient.entity.impl.Task
+import trik.testsys.webclient.entity.user.impl.Developer
+
+
+@Repository
+interface TaskRepository : NamedEntityRepository<Task> {
+
+    fun findByDeveloper(developer: Developer): List<Task>
+}

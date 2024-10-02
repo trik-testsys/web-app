@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+<head>
+  <th:block th:include="fragments/main :: head('Кабинет Разработчика')"></th:block>
+
+  <link rel="stylesheet" th:href="@{/css/block.css}">
+  <link rel="stylesheet" th:href="@{/css/table.css}">
+
+  <th:block th:include="fragments/popup :: head"></th:block>
+  <th:block th:include="fragments/form :: head"></th:block>
+  <th:block th:include="fragments/menu :: head"></th:block>
+</head>
+<body>
+
+<div th:replace="fragments/main :: background"></div>
+
+<div th:replace="fragments/popup :: popup"></div>
+
+<div th:replace="fragments/entity/developer
+    :: developerHeader(breadCrumbNames=${ { 'Задания', 'Задание' } },
+                       breadCrumbLinks=${ { '/developer/tasks', '|/developer/tasks/task/${task.id}|' } })"></div>
+
+<div th:replace="fragments/entity/developer :: developerMenu"></div>
+
+<div class="container">
+  <!-- Первый блок -->
+  <div class="block">
+    <div class="block-title">Задание</div>
+
+    <div class="form-container">
+      <div class="form-header">
+        <h1>Информация о Задании</h1>
+      </div>
+
+      <!--/*@thymesVar id="webUser" type="trik.testsys.webclient.view.impl.TaskView"*/-->
+      <form id="task-info" action="#" th:action="@{/developer/tasks/task/update/{taskId}(taskId=${task.id})}" th:object="${task}" method="post">
+        <div th:replace="fragments/form.html
+                    :: formField(id='task.id', type='text',
+                                 labelName='ID', labelSize='20',
+                                 fieldName='id', fieldSize='80',
+                                 size='50',
+                                 isReadonly='true', isRequired='false', isAccessToken='false')">
+        </div>
+        <div th:replace="fragments/form.html
+                    :: formField(id='task.creationDate', type='text',
+                                 labelName='Дата и время создания', labelSize='25',
+                                 fieldName='creationDate', fieldSize='75',
+                                 size='50',
+                                 isReadonly='true', isRequired='false', isAccessToken='false')">
+        </div>
+        <div th:replace="fragments/form.html
+                    :: formField(id='task.name', type='text',
+                                 labelName='Название', labelSize='20',
+                                 fieldName='name', fieldSize='80',
+                                 size='50',
+                                 isReadonly='false', isRequired='true', isAccessToken='false')">
+        </div>
+        <div th:replace="fragments/form.html
+                    :: formField(id='task.additionalInfo', type='text',
+                                 labelName='Дополнительная информация', labelSize='20',
+                                 fieldName='additionalInfo', fieldSize='80',
+                                 size='100',
+                                 isReadonly='false', isRequired='false', isAccessToken='false')">
+        </div>
+        <div th:replace="fragments/form.html
+                    :: formField(id='task.note', type='text',
+                                 labelName='Заметка (видна только вам)', labelSize='20',
+                                 fieldName='note', fieldSize='80',
+                                 size='100',
+                                 isReadonly='false', isRequired='false', isAccessToken='false')">
+        </div>
+        <!-- Кнопки редактирования, отправки и отмены -->
+        <div class="form-buttons">
+          <button type="button" class="edit-button" id="task-info-edit" onclick="enableForm('task-info')">Редактировать</button>
+          <button type="submit" class="save-button" id="task-info-save">Сохранить</button>
+          <button type="button" class="cancel-button" id="task-info-cancel" onclick="disableForm('task-info')">Отменить</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
+</div>
+
+</body>
+</html>
