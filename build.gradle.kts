@@ -1,8 +1,11 @@
+import com.google.protobuf.gradle.id
+
 plugins {
     jacoco
     id("org.springframework.boot") version "2.7.0"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
-    kotlin("jvm") version "1.6.10"
+    id("com.google.protobuf") version "0.9.4"
+    kotlin("jvm") version "1.8.10"
     kotlin("plugin.spring") version "1.6.21"
     kotlin("plugin.jpa") version "1.6.21"
 }
@@ -15,9 +18,29 @@ repositories {
     mavenCentral()
 }
 
+sourceSets {
+    main {
+        proto {
+            srcDir("trik-testsys-protos")
+        }
+    }
+}
+
+val protobufVersion = "4.27.3"
+val grpcVersion = "1.66.0"
+val grpcktVersion = "1.4.1"
+
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0-RC.2")
+    implementation("com.google.protobuf:protobuf-kotlin:${protobufVersion}")
+    api("io.grpc:grpc-protobuf:${grpcVersion}")
+    api("com.google.protobuf:protobuf-java-util:${protobufVersion}")
+    api("com.google.protobuf:protobuf-kotlin:${protobufVersion}")
+    api("io.grpc:grpc-kotlin-stub:${grpcktVersion}")
+    api("io.grpc:grpc-stub:${grpcVersion}")
 
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-web")
@@ -42,9 +65,35 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:5.9.0"))
 }
 
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:${protobufVersion}"
+    }
+    plugins {
+        id("grpc") {
+            artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}"
+        }
+        id("grpckt") {
+            artifact = "io.grpc:protoc-gen-grpc-kotlin:${grpcktVersion}:jdk8@jar"
+        }
+    }
+    generateProtoTasks {
+        all().forEach {
+            it.plugins {
+                id("grpc")
+                id("grpckt")
+            }
+            it.builtins {
+                id("kotlin")
+            }
+        }
+    }
+}
+
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
+        jvmTarget = "16"
     }
 }
 
