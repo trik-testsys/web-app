@@ -4,6 +4,7 @@ import trik.testsys.core.entity.Entity.Companion.TABLE_PREFIX
 import trik.testsys.core.entity.user.AccessToken
 import trik.testsys.webclient.entity.impl.Contest
 import trik.testsys.webclient.entity.impl.Task
+import trik.testsys.webclient.entity.impl.TaskFile
 import trik.testsys.webclient.entity.user.WebUser
 import javax.persistence.*
 
@@ -21,6 +22,41 @@ class Developer(
     @OneToMany(mappedBy = "developer", cascade = [CascadeType.ALL])
     val tasks: MutableSet<Task> = mutableSetOf()
 
+    /**
+     * @author Roman Shishkin
+     * @since 2.0.0
+     **/
     @OneToMany(mappedBy = "developer", cascade = [CascadeType.ALL])
     val contests: MutableSet<Contest> = mutableSetOf()
+
+    /**
+     * @author Roman Shishkin
+     * @since 2.0.0
+     **/
+    @OneToMany(mappedBy = "developer", cascade = [CascadeType.ALL])
+    val taskFiles: MutableSet<TaskFile> = mutableSetOf()
+
+    /**
+     * @author Roman Shishkin
+     * @since 2.0.0
+     **/
+    @get:Transient
+    val polygons: MutableSet<TaskFile>
+        get() = taskFiles.filter { it.type == TaskFile.TaskFileType.POLYGON }.toMutableSet()
+
+    /**
+     * @author Roman Shishkin
+     * @since 2.0.0
+     **/
+    @get:Transient
+    val exercises: MutableSet<TaskFile>
+        get() = taskFiles.filter { it.type == TaskFile.TaskFileType.EXERCISE }.toMutableSet()
+
+    /**
+     * @author Roman Shishkin
+     * @since 2.0.0
+     **/
+    @get:Transient
+    val solutions: MutableSet<TaskFile>
+        get() = taskFiles.filter { it.type == TaskFile.TaskFileType.SOLUTION }.toMutableSet()
 }
