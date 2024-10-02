@@ -1,7 +1,7 @@
 package trik.testsys.webclient.service
 
-import trik.testsys.webclient.entity.Solution
-import trik.testsys.webclient.entity.Task
+import trik.testsys.webclient.entity.impl.Solution
+import trik.testsys.webclient.entity.impl.Task
 
 interface Grader {
 

@@ -3,27 +3,26 @@ package trik.testsys.core.repository.user
 import org.springframework.data.repository.NoRepositoryBean
 import trik.testsys.core.entity.user.AccessToken
 import trik.testsys.core.entity.user.UserEntity
-import trik.testsys.core.repository.Repository
+import trik.testsys.core.repository.named.NamedEntityRepository
 
 /**
- * Repository interface for [UserEntity] typed entities, extends [Repository].
- * Contains methods that work with [UserEntity.accessToken] and [UserEntity.name]:
+ * Repository interface for [UserEntity] typed entities, extends [NamedEntityRepository].
+ * Contains methods that work with [UserEntity.accessToken].
  *
  * 1. [findByAccessToken]
  * 2. [findAllByAccessTokenIn]
  * 3. [findByNameAndAccessToken]
- * 4. [findByName]
  *
  * @param E user entity class, implements [UserEntity]
  *
- * @see Repository
+ * @see NamedEntityRepository
  * @see UserEntity
  *
  * @author Roman Shishkin
  * @since 2.0.0
  */
 @NoRepositoryBean
-interface UserRepository<E : UserEntity> : Repository<E> {
+interface UserRepository<E : UserEntity> : NamedEntityRepository<E> {
 
     /**
      * Finds entity by [UserEntity.accessToken].
@@ -61,15 +60,4 @@ interface UserRepository<E : UserEntity> : Repository<E> {
      * @since 2.0.0
      */
     fun findByNameAndAccessToken(name: String, accessToken: AccessToken): E?
-
-    /**
-     * Finds all entities by [UserEntity.name].
-     *
-     * @param name name by which entities will be found
-     * @return [Collection] with all found entities with [UserEntity.name] equals to [name]
-     *
-     * @author Roman Shishkin
-     * @since 2.0.0
-     */
-    fun findByName(name: String): List<E>
 }

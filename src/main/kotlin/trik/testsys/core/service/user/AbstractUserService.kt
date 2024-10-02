@@ -1,7 +1,9 @@
 package trik.testsys.core.service.user
 
 import trik.testsys.core.entity.user.AbstractUser
+import trik.testsys.core.entity.user.AccessToken
 import trik.testsys.core.repository.user.UserRepository
+import trik.testsys.core.service.named.AbstractNamedEntityService
 
 /**
  * Abstract implementation of [UserService] interface. Contains common methods for user services.
@@ -12,19 +14,14 @@ import trik.testsys.core.repository.user.UserRepository
  * @see UserService
  * @see AbstractUser
  * @see UserRepository
+ * @see AbstractNamedEntityService
  *
  * @author Roman Shishkin
  * @since 2.0.0
  */
-abstract class AbstractUserService<E : AbstractUser, R : UserRepository<E>> : UserService<E, R> {
-
-    /**
-     * The repository associated with the service.
-     *
-     * @author Roman Shishkin
-     * @since 2.0.0
-     */
-    protected lateinit var repository: R
+abstract class AbstractUserService<E : AbstractUser, R : UserRepository<E>> :
+    UserService<E>,
+    AbstractNamedEntityService<E, R>() {
 
     override fun findByAccessToken(accessToken: String): E? {
         val entity = repository.findByAccessToken(accessToken)
@@ -36,13 +33,14 @@ abstract class AbstractUserService<E : AbstractUser, R : UserRepository<E>> : Us
         return entities
     }
 
-    override fun findByNameAndAccessToken(name: String, accessToken: String): E? {
-        val entity = repository.findByNameAndAccessToken(name, accessToken)
-        return entity
-    }
+    override fun validateName(entity: E) = super.validateName(entity) &&
+            !entity.name.containsAccessToken(entity.accessToken)
 
-    override fun findByName(name: String): Collection<E> {
-        val entity = repository.findByName(name)
-        return entity
+    override fun validateAdditionalInfo(entity: E) = super<UserService>.validateAdditionalInfo(entity) &&
+            !entity.additionalInfo.containsAccessToken(entity.accessToken)
+
+    companion object {
+
+        fun String.containsAccessToken(accessToken: AccessToken) = contains(accessToken, ignoreCase = true)
     }
 }

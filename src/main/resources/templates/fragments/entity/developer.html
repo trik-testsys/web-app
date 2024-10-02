@@ -1,0 +1,15 @@
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+
+<div th:fragment="developerHeader(breadCrumbNames, breadCrumbLinks)"
+     th:replace="fragments/menu
+        :: header(title='Кабинет Разработчика',
+                  titleLink='/developer',
+                  breadCrumbNames=${breadCrumbNames},
+                  breadCrumbLinks=${breadCrumbLinks})"></div>
+
+<div th:fragment="developerMenu"
+     th:replace="fragments/menu
+        :: sideMenu(links=${ {'/developer', '/developer/contests', '/developer/tasks', '/developer/taskFiles', '/developer?Logout=' } },
+                    names=${ { 'Профиль', 'Туры', 'Задания', 'Файлы','Выход' } })"></div>
+
+</html>

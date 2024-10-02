@@ -4,12 +4,34 @@ table {
     border-collapse: collapse;
     text-align: left;
 }
+
+/* top-left border-radius */
+table tr:first-child th:first-child {
+    border-top-left-radius: 6px;
+}
+
+/* top-right border-radius */
+table tr:first-child th:last-child {
+    border-top-right-radius: 6px;
+}
+
+/* bottom-left border-radius */
+table tr:last-child td:first-child {
+    border-bottom-left-radius: 6px;
+}
+
+/* bottom-right border-radius */
+table tr:last-child td:last-child {
+    border-bottom-right-radius: 6px;
+}
+
 table th {
     background: var(--trik-blue);
     color: white;
     padding: 10px 15px;
     position: relative;
 }
+
 table th:after {
     content: "";
     display: block;
@@ -20,9 +42,11 @@ table th:after {
     height: 25%;
     width: 100%;
 }
+
 table tr:nth-child(odd) {
     background: #ebf3f9;
 }
+
 table td {
     border: 1px solid #e3eef7;
     padding: 10px 15px;
@@ -30,13 +54,30 @@ table td {
     transition: all 0.5s ease;
     word-break: break-all;
 }
+
 table tbody:hover td {
     color: transparent;
     text-shadow: 0 0 3px #a09f9d;
 }
+
 table tbody:hover tr:hover td {
     color: #444444;
     text-shadow: none;
+}
+
+/* Заголовок окна */
+.table-header h1 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--trik-white);
+}
+
+.table-header {
+    padding: 10px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    background-color: var(--trik-blue);
+    margin: -20px -20px 15px;
 }
 
 caption {
@@ -48,9 +89,11 @@ caption {
 
 /*center table*/
 .table {
-    margin: 0 auto;
-    width: 80%;
-
+    max-width: 100%;
+    margin: 40px auto;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 6px;
 }
 
 .buttons {
@@ -59,26 +102,12 @@ caption {
     align-items: center;
 }
 
-.add-button {
-    text-align: center;
-    margin-top: 10px;
-    margin-bottom: 25px;
-}
-
-.add-button button {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background-color: var(--trik-blue);
-    color: var(--trik-white);
-    border: none;
+.table-button {
+    background: var(--trik-white);
+    border-radius: 25%;
+    width: 25px;
+    border: 1px solid var(--trik-blue);
     outline: none;
     cursor: pointer;
-    font-size: 15px;
-    text-align: center;
-    vertical-align: middle;
-}
-
-table th:last-child {
     text-align: center;
 }

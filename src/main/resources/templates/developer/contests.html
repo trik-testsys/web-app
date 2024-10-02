@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+<head>
+    <th:block th:include="fragments/main :: head('Кабинет Разработчика')"></th:block>
+
+    <link rel="stylesheet" th:href="@{/css/block.css}">
+    <link rel="stylesheet" th:href="@{/css/table.css}">
+
+    <th:block th:include="fragments/popup :: head"></th:block>
+    <th:block th:include="fragments/form :: head"></th:block>
+    <th:block th:include="fragments/menu :: head"></th:block>
+</head>
+<body>
+
+<div th:replace="fragments/main :: background"></div>
+
+<div th:replace="fragments/popup :: popup"></div>
+
+<div th:replace="fragments/entity/developer
+    :: developerHeader(breadCrumbNames=${ { 'Туры' } },
+                       breadCrumbLinks=${ { '/developer/contests' } })"></div>
+
+<div th:replace="fragments/entity/developer :: developerMenu"></div>
+
+<div class="container">
+    <!-- Первый блок -->
+    <div class="block">
+        <div class="block-title">Туры</div>
+
+        <div class="form-container">
+            <div class="form-header">
+                <h1>Создание Тура</h1>
+            </div>
+
+            <!--/*@thymesVar id="webUser" type="trik.testsys.webclient.view.impl.ContestCreationView"*/-->
+            <form id="contest-creation" action="#" th:action="@{/developer/contests/contest/create}" th:object="${contest}" method="post">
+                <div th:replace="fragments/form.html
+                    :: formField(id='contest.name', type='text',
+                                 labelName='Название', labelSize='20',
+                                 fieldName='name', fieldSize='80',
+                                 size='100',
+                                 isReadonly='false', isRequired='true', isAccessToken='false')">
+                </div>
+                <div th:replace="fragments/form.html
+                    :: formField(id='contest.additionalInfo', type='text',
+                                 labelName='Дополнительная информация', labelSize='20',
+                                 fieldName='additionalInfo', fieldSize='80',
+                                 size='100',
+                                 isReadonly='false', isRequired='false', isAccessToken='false')">
+                </div>
+                <div th:replace="fragments/form.html
+                    :: formField(id='contest.note', type='text',
+                                 labelName='Заметка (видна только вам)', labelSize='20',
+                                 fieldName='note', fieldSize='80',
+                                 size='100',
+                                 isReadonly='false', isRequired='false', isAccessToken='false')">
+                </div>
+                <!-- Кнопки редактирования, отправки и отмены -->
+                <div class="form-buttons">
+                    <button type="button" class="edit-button" id="contest-creation-edit" onclick="enableForm('contest-creation')">Создать Тур</button>
+                    <button type="submit" class="save-button" id="contest-creation-save">Создать</button>
+                    <button type="button" class="cancel-button" id="contest-creation-cancel" onclick="disableForm('contest-creation')">Отменить</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="table contests-table">
+            <div class="form-header">
+                <h1>Список Туров</h1>
+            </div>
+            <table>
+                <tr>
+                    <th style="width: 10%">
+                        ID
+                    </th>
+                    <th style="width: 20%">
+                        Название
+                    </th>
+                    <th>Дополнительная информация</th>
+                    <th>Заметка</th>
+                    <th style="width: 10%">
+                        Действия
+                    </th>
+                </tr>
+                <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.ContestView"*/-->
+                <tr th:each="contest : ${webUser.contests}">
+                    <td th:text="${contest.id}"></td>
+                    <td th:text="${contest.name}"></td>
+                    <td th:text="${contest.additionalInfo}"></td>
+                    <td th:text="${contest.note}"></td>
+                    <td class="buttons">
+                        <a title="Удалить" th:href="@{/developer/contests/contest/remove/{id}(id=${contest.id})}">
+                            <i class="fa-solid fa-trash"></i>
+                        </a>
+                        <a title="Войти" th:href="@{/developer/contests/contest/{id}(id=${contest.id})}">
+                            <i class="fa-solid fa-right-to-bracket"></i>
+                        </a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

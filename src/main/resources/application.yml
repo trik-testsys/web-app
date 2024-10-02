@@ -17,29 +17,26 @@ spring:
       mode: never
 logging:
   file:
-    name: "${PWD}/logs/server.log"                                   # Path to log file
+    name: "${PWD}/logs/server.log"                              # Path to log file
   logback:
     rollingpolicy:
       clean-history-on-start: false                             # Not cleaning history on start
       max-history: 31                                           # Stores a month of logs
 server:
   port: 8888                                                    # Entrypoint
+  servlet:
+    context-path: /test
+    session:
+      timeout: 3h
 
 path:
   l10n: "${PWD}/src/main/resources/static/l10n"
-
-app:
-  version: 1.0.2
-  grading-system:
-    path: http://grading-system:8080/v3/grading-system
-  testsys:
-    api:
-      prefix: /demo2024
-    paths:
-      submission: "${PWD}/submissions"
-      training: "${PWD}/training"
-      benchmark: "${PWD}/benchmark"
-  avatar:
-    path: "${PWD}/src/main/resources/static/avatars"
-  utc:
-    plus: 3
+  startup:
+    entities: "${PWD}/data/entities/"
+    nodes: "${PWD}/data/nodes/"
+  taskFiles:
+    solutions: "${PWD}/data/taskFiles/solutions/"
+    polygons: "${PWD}/data/taskFiles/polygons/"
+    exercises: "${PWD}/data/taskFiles/exercises/"
+  files:
+    solutions: "${PWD}/data/files/solutions/"

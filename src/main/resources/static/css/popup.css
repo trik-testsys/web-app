@@ -1,150 +1,60 @@
+/* Основной стиль попапа */
 .popup {
     position: fixed;
-    z-index: 101;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.4);
-    display: none;
-}
-
-.popup-content {
-    margin: 10% auto;
-    padding: 20px;
-    width: 30%;
-    background: var(--trik-white);
-    border-radius: 10px;
-    border: 2px solid var(--trik-blue);
-    position: relative;
-}
-
-.popup-content > h1 {
-    margin: 0;
-    font-size: 22px;
-    color: var(--trik-blue);
-    padding-bottom: 10px;
-}
-
-.popup-content form {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.popup-content form > input {
-    margin: 10px;
-    width: 80%;
-    height: 30px;
-    border: 1px solid var(--trik-white);
-    border-radius: 5px;
-    padding: 5px;
-    font-size: 16px;
-}
-
-.popup-content form > input[type="submit"] {
-    width: 40%;
-    height: 40px;
-    background-color: var(--trik-blue);
+    bottom: 30px;
+    right: 30px;
+    width: 300px;
+    background: var(--trik-blue); /* Полупрозрачный чёрный фон */
     color: var(--trik-white);
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+    padding: 20px;
+    border-radius: 15px; /* Закруглённые углы */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); /* Плавная тень */
+    display: none; /* По умолчанию скрыт */
+    z-index: 1000; /* Поверх всего остального контента */
+    animation: slideUp 0.5s ease; /* Анимация появления */
+    box-sizing: border-box;
+    overflow: hidden; /* Чтобы содержимое не вылезало за рамки */
 }
 
-.popup-content form > input[type="submit"]:hover {
-    color: var(--trik-blue);
-    background-color: var(--trik-green);
-}
-
-.show {
-    display: block;
-}
-
-.taskInfo, .delete-task-info, .popup-content > div {
-    margin: 0 auto;
-    width: 80%;
-}
-
-.popup-content p {
-    margin: 0;
-    padding: 0;
-}
-
-.taskInfo p span, .popup-content p span {
-    font-weight: bold;
-}
-
-.popup-content .popup-forms {
+/* Стиль для содержания внутри попапа */
+.popup-content {
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between; /* Равномерное распределение контента и кнопки закрытия */
     align-items: center;
+    width: 100%;
 }
 
-.popup-content .popup-forms > form {
-    width: 40%;
-}
-
-/*attach it to top right corner of popup*/
-.popup-content .close-button {
+ /*Стиль для кнопки закрытия попапа */
+.popup-close {
     position: absolute;
-    top: 0;
-    right: 0;
-    margin: 5px;
-    width: 25px;
-    height: 25px;
-    border: none;
-    color: var(--trik-blue);
-    font-size: 20px;
-    background: none;
-    cursor: pointer;
-}
-
-.uploadForm > select {
-    width: 100%;
-    height: 100px;
-    margin-bottom: 10px;
-}
-
-.admin-list {
-    width: 100%;
-    margin-top: 0;
-}
-
-.admin-list > li {
-    font-weight: bold;
-}
-
-.popup-button {
-    background: var(--trik-white);
-    border-radius: 25%;
-    width: 25px;
-    border: 1px solid var(--trik-blue);
-    outline: none;
-    cursor: pointer;
-    text-align: center;
-}
-
-.taskInfo p, .popup-content p {
-    margin: 5px;
-    color: var(--trik-blue);
-}
-
-.group-add-label-popup .popup-content {
-    width: 800px;
-}
-
-.popup-content .input-name {
-    width: 80%;
-    padding: 0;
-    color: var(--trik-blue);
-    text-align: left;
-    margin: 0 0 -2px;
-}
-
-.input-name h2 {
-    margin: 0;
-    padding: 0;
+    top: 10px;
+    right: 10px;
     font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    color: var(--trik-red); /* Красный цвет для контраста */
+    background: none;
+    border: none;
+    outline: none;
+}
+
+ /*Стиль для текста сообщения внутри попапа */
+.popup-content p {
+    flex-grow: 1; /* Позволяет тексту занять всю оставшуюся ширину */
+    margin: 0;
+    text-align: left;
+    word-wrap: break-word;
+    padding-right: 40px; /* Отступ для текста от кнопки */
+}
+
+/* Анимация плавного появления попапа */
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }

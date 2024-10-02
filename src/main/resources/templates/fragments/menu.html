@@ -1,0 +1,31 @@
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+
+<head th:fragment="head">
+    <link rel="stylesheet" th:href="@{/css/menu.css}">
+
+    <script th:src="@{/js/menu.js}"></script>
+</head>
+
+<header th:fragment="header(title, titleLink, breadCrumbNames, breadCrumbLinks)" class="header">
+    <div class="logo">
+        <img th:src="@{/img/trik_testsys_logo.svg}" alt="Лого" class="logo-img">
+        <span class="cabinet-name">
+            <a th:href="@{__${titleLink}__}" th:text="${title}"></a>
+        </span>
+        <span th:each="name, iterStat : ${breadCrumbNames}" class="cabinet-name">
+            <span class="cabinet-name"> &nbsp;/ </span>
+            <a th:href="@{__${breadCrumbLinks[iterStat.index]}__}" th:text="${name}"></a>
+        </span>
+    </div>
+    <button class="menu-button" onclick="toggleMenu()">≡</button>
+</header>
+
+<div th:fragment="sideMenu(links, names)" class="side-menu" id="side-menu">
+    <ul>
+        <li th:each="link, iterStat : ${links}">
+            <a th:href="@{__${link}__}" th:text="${names[iterStat.index]}"></a>
+        </li>
+    </ul>
+</div>
+
+</html>

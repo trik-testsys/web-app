@@ -1,0 +1,54 @@
+.container {
+    max-width: 1500px;
+    margin: 80px auto 0;
+    padding: 20px;
+}
+
+/* Стили для блоков */
+.block {
+    width: 100%;
+    background-color: var(--trik-white);
+    margin-bottom: 20px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    box-sizing: border-box;
+    transition: background-color 0.3s ease;
+}
+
+/* Стили для заголовка блока */
+.block-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: var(--trik-blue);
+    border-bottom: 2px solid var(--trik-grey);
+    padding-bottom: 10px;
+}
+
+/* Конфигурируемые параметры */
+.block-configurable {
+    background-color: #e6f7ff; /* Пример конфигурируемого цвета */
+    min-height: 150px; /* Пример минимальной высоты */
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+    .block {
+        padding: 15px;
+    }
+
+    .block-title {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .block {
+        padding: 10px;
+    }
+
+    .block-title {
+        font-size: 18px;
+    }
+}

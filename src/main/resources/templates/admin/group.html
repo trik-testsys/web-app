@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+<head>
+    <th:block th:include="fragments/main :: head('Кабинет Организатора')"></th:block>
+
+    <link rel="stylesheet" th:href="@{/css/block.css}">
+    <link rel="stylesheet" th:href="@{/css/table.css}">
+
+    <th:block th:include="fragments/popup :: head"></th:block>
+    <th:block th:include="fragments/form :: head"></th:block>
+    <th:block th:include="fragments/menu :: head"></th:block>
+</head>
+<body>
+
+<div th:replace="fragments/main :: background"></div>
+
+<div th:replace="fragments/popup :: popup"></div>
+
+<div th:replace="fragments/menu :: header(title='Кабинет Организатора',
+                                          titleLink='/admin',
+                                          breadCrumbNames=${ { 'Группы', 'Группа' } },
+                                          breadCrumbLinks=${ { '/admin/groups', '|/admin/groups/group/${group.id}|' } })"></div>
+
+<div th:replace="fragments/menu :: sideMenu(links=${ {'/admin', '/admin/groups', '/admin?Logout=' } },
+                                            names=${ { 'Профиль', 'Группы', 'Выход' } })"></div>
+
+<!-- Контент -->
+<div class="container">
+    <!-- Первый блок -->
+    <div class="block">
+        <div class="block-title">Группа</div>
+
+        <div class="form-container">
+            <div class="form-header">
+                <h1>Информация о Группе</h1>
+            </div>
+
+            <!--/*@thymesVar id="webUser" type="trik.testsys.webclient.view.impl.GroupView"*/-->
+            <form id="group-info" action="#" th:action="@{/admin/groups/group/update/{groupId}(groupId=${group.id})}" th:object="${group}" method="post">
+                <div th:replace="fragments/form.html
+                    :: formField(id='group.id', type='text',
+                                 labelName='ID', labelSize='20',
+                                 fieldName='id', fieldSize='80',
+                                 size='50',
+                                 isReadonly='true', isRequired='false', isAccessToken='false')">
+                </div>
+                <div th:replace="fragments/form.html
+                    :: formField(id='group.regToken', type='text',
+                                 labelName='Код-регистрации', labelSize='25',
+                                 fieldName='regToken', fieldSize='75',
+                                 size='50',
+                                 isReadonly='true', isRequired='false', isAccessToken='true')">
+                </div>
+                <div th:replace="fragments/form.html
+                    :: formField(id='group.name', type='text',
+                                 labelName='Название', labelSize='20',
+                                 fieldName='name', fieldSize='80',
+                                 size='50',
+                                 isReadonly='false', isRequired='true', isAccessToken='false')">
+                </div>
+                <div th:replace="fragments/form.html
+                    :: formField(id='group.creationDate', type='text',
+                                 labelName='Дата и время создания', labelSize='25',
+                                 fieldName='creationDate', fieldSize='75',
+                                 size='50',
+                                 isReadonly='true', isRequired='false', isAccessToken='false')">
+                </div>
+                <div th:replace="fragments/form.html
+                    :: formField(id='group.additionalInfo', type='text',
+                                 labelName='Дополнительная информация', labelSize='20',
+                                 fieldName='additionalInfo', fieldSize='80',
+                                 size='100',
+                                 isReadonly='false', isRequired='false', isAccessToken='false')">
+                </div>
+                <!-- Кнопки редактирования, отправки и отмены -->
+                <div class="form-buttons">
+                    <button type="button" class="edit-button" id="group-info-edit" onclick="enableForm('group-info')">Редактировать</button>
+                    <button type="submit" class="save-button" id="group-info-save">Сохранить</button>
+                    <button type="button" class="cancel-button" id="group-info-cancel" onclick="disableForm('group-info')">Отменить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

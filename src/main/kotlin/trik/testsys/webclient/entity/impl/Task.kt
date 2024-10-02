@@ -1,16 +1,15 @@
 package trik.testsys.webclient.entity.impl
 
-import java.time.LocalDateTime
+import trik.testsys.core.entity.Entity.Companion.TABLE_PREFIX
+import trik.testsys.webclient.entity.AbstractNotedEntity
+import trik.testsys.webclient.entity.user.impl.Developer
 import javax.persistence.*
 
 @Entity
-@Table(name = "TASKS")
+@Table(name = "${TABLE_PREFIX}_TASK")
 class Task(
-
-    var name: String,
-
-    @Column(nullable = false, columnDefinition = "VARCHAR(200) DEFAULT ''")
-    var description: String,
+    name: String
+) : AbstractNotedEntity(name) {
 
     /**
      * @author Roman Shishkin
@@ -18,70 +17,23 @@ class Task(
      */
     @ManyToOne
     @JoinColumn(
-        name = "developer_id", referencedColumnName = "id",
-        nullable = false
-    ) val developer: Developer,
-) {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false, unique = true)
-    val id: Long? = null
+        nullable = false, unique = false, updatable = false,
+        name = "developer_id", referencedColumnName = "id"
+    )
+    lateinit var developer: Developer
 
     @ManyToMany(mappedBy = "tasks")
-    val groups: MutableSet<Group> = mutableSetOf()
+    val taskFiles: MutableSet<TaskFile> = mutableSetOf()
 
-    @Column(nullable = false, columnDefinition = "BIGINT DEFAULT 0")
-    var countOfTests: Long = 0L
+    @get:Transient
+    val polygons: Set<TaskFile>
+        get() = taskFiles.filter { it.type == TaskFile.TaskFileType.POLYGON }.toSet()
 
-    @OneToMany(mappedBy = "task", cascade = [CascadeType.ALL])
-    val solutions: MutableSet<Solution> = mutableSetOf()
+    @get:Transient
+    val exercise: TaskFile?
+        get() = taskFiles.firstOrNull { it.type == TaskFile.TaskFileType.EXERCISE }
 
-    /**
-     * @author Roman Shishkin
-     * @since 1.1.0
-     */
-    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
-    var hasBenchmark: Boolean = false
-
-    /**
-     * @author Roman Shishkin
-     * @since 1.1.0
-     */
-    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
-    var hasTraining: Boolean = false
-
-    /**
-     * @author Roman Shishkin
-     * @since 1.1.0
-     */
-    @OneToMany(mappedBy = "task", cascade = [CascadeType.ALL])
-    lateinit var trikFiles: MutableSet<TrikFile>
-
-    /**
-     * @author Roman Shishkin
-     * @since 1.1.0
-     */
-    @ManyToMany
-    @JoinTable(
-        name = "TASKS_BY_ADMINS",
-        joinColumns = [JoinColumn(name = "task_id")],
-        inverseJoinColumns = [JoinColumn(name = "admin_id")]
-    )
-    lateinit var admins: MutableSet<Admin>
-
-    @Column(nullable = true)
-    var deadline: LocalDateTime? = null
-
-    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
-    var isPublic: Boolean = false
-
-    @OneToMany(mappedBy = "task", cascade = [CascadeType.ALL])
-    val taskActions: MutableSet<TaskAction> = mutableSetOf()
-
-    /**
-     * @author Roman Shishkin
-     * @since 1.1.0
-     */
-    fun getFullName() = "$id: $name"
+    @get:Transient
+    val solution: TaskFile?
+        get() = taskFiles.firstOrNull { it.type == TaskFile.TaskFileType.SOLUTION }
 }

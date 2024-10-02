@@ -183,3 +183,7 @@ gradle-app.setting
 data
 
 src/main/resources/static/avatars
+
+/nodes
+/entities
+/data
