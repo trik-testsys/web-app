@@ -44,11 +44,10 @@ class FileManagerImpl(
         logger.info("Saving task file with id ${taskFile.id}")
 
         val dir = getTaskFileDir(taskFile)
-
-        val fileExtension = fileData.originalFilename?.substringAfterLast(".") ?: ""
+        val extension = getTaskFileExtension(taskFile)
 
         try {
-            val file = File(dir, "${taskFile.id}.$fileExtension")
+            val file = File(dir, "${taskFile.id}$extension")
             fileData.transferTo(file)
         } catch (e: Exception) {
             logger.error("Error while saving task file with id ${taskFile.id}", e)
@@ -62,7 +61,8 @@ class FileManagerImpl(
         logger.info("Getting task file with id ${taskFile.id}")
 
         val dir = getTaskFileDir(taskFile)
-        val file = File(dir, "${taskFile.id}.qrs")
+        val extension = getTaskFileExtension(taskFile)
+        val file = File(dir, "${taskFile.id}$extension")
 
         if (!file.exists()) {
             logger.error("Task file with id ${taskFile.id} not found")
@@ -70,6 +70,12 @@ class FileManagerImpl(
         }
 
         return file
+    }
+
+    private fun getTaskFileExtension(taskFile: TaskFile) = when (taskFile.type) {
+        TaskFile.TaskFileType.SOLUTION -> ".qrs"
+        TaskFile.TaskFileType.EXERCISE -> ".qrs"
+        TaskFile.TaskFileType.POLYGON -> ".xml"
     }
 
     private fun getTaskFileDir(taskFile: TaskFile) = when (taskFile.type) {

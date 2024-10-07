@@ -27,7 +27,7 @@ class SubmissionBuilder private constructor() {
                     it.toInt()
                 } ?: throw NullPointerException("Solution id cannot be null.")
 
-                this.task = task {
+                task = task {
                     fields.addAll(
                         sb.taskFiles.map {
                             file {
@@ -43,14 +43,21 @@ class SubmissionBuilder private constructor() {
                     recordVideo = sb.gradingOptions.shouldRecordRun
                 }
 
-                visualLanguageSubmission = visualLanguageSubmission {
-                    file = file {
-                        name = sb.solutionFile.name
-                        content = ByteString.readFrom(sb.solutionFile.inputStream())
-                    }
-                }
+                fillSubmission(sb.solution, sb.solutionFile)
             }
             return submission
         }
+    }
+}
+
+private fun SubmissionKt.Dsl.fillSubmission(solution: Solution, solutionFile: File) {
+    val encodedFile = file {
+        name = solutionFile.name
+        content = ByteString.readFrom(solutionFile.inputStream())
+    }
+    when (solution.type) {
+        Solution.SolutionType.QRS -> visualLanguageSubmission = visualLanguageSubmission { file = encodedFile }
+        Solution.SolutionType.PYTHON -> pythonSubmission = pythonSubmission { file = encodedFile }
+        Solution.SolutionType.JAVASCRIPT -> javascriptSubmission = javaScriptSubmission { file = encodedFile }
     }
 }

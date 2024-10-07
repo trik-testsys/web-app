@@ -5,6 +5,7 @@ import io.grpc.ManagedChannelBuilder
 import io.grpc.StatusException
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import trik.testsys.webclient.entity.impl.Solution
 import trik.testsys.webclient.entity.impl.Task
@@ -21,7 +22,9 @@ import trik.testsys.grading.converter.SubmissionBuilder
 @Service
 class BalancingGraderService(private val fileManager: FileManager): Grader {
 
-    private val statusRequestTimeout = 500L
+    private val replayCount = 1
+    private val statusRequestTimeout = 2000L
+    private val log = LoggerFactory.getLogger(this.javaClass)
 
     private data class NodeInfo (
         val node: GradingNodeGrpcKt.GradingNodeCoroutineStub,
@@ -35,10 +38,17 @@ class BalancingGraderService(private val fileManager: FileManager): Grader {
     private val converter = ResultConverter(FieldResultConverter(FileConverter()))
 
     private suspend fun processResults(results: Flow<Result>) {
-        results.onEach { result ->
-            val gradingInfo = converter.convert(result)
-            subscriptions.forEach { it.invoke(gradingInfo) }
-        }.collect()
+        try {
+            results.collect { result ->
+                val gradingInfo = converter.convert(result)
+                log.info("Got result for submission[id=${gradingInfo.submissionId}]")
+                subscriptions.forEach { it.invoke(gradingInfo) }
+            }
+        } catch (se: StatusException) {
+            log.warn("RPC is finished with status code ${se.status.code.value()}", se)
+        } catch (e: Exception) {
+            log.error("Unexpected error while processing results", e)
+        }
     }
 
     private fun findOptimalNode(): NodeInfo {
@@ -51,7 +61,10 @@ class BalancingGraderService(private val fileManager: FileManager): Grader {
                 status.queued.toDouble() / status.capacity
             }
             ?.first
-            ?: throw IllegalStateException("No available node to send submission")
+        if (optimalAddress == null) {
+            log.error("No nodes are available")
+            throw IllegalStateException("No available node to send submission")
+        }
         return nodes.getValue(optimalAddress)
     }
 
@@ -70,6 +83,7 @@ class BalancingGraderService(private val fileManager: FileManager): Grader {
 
         resultProcessingScope.launch {
             node.submissions.emit(submission)
+            log.info("Submission[id=${submission.id}] emitted")
             processResults(node.results)
         }
     }
@@ -82,8 +96,10 @@ class BalancingGraderService(private val fileManager: FileManager): Grader {
         val channel = ManagedChannelBuilder.forTarget(address)
             .usePlaintext() // TODO: Make proper channel initialization
             .build()
+
         val node = GradingNodeGrpcKt.GradingNodeCoroutineStub(channel)
-        val submissions = MutableSharedFlow<Submission>()
+        // grpc backend becomes listener of submissions only after the solution is sent, thus need to replay submission for it
+        val submissions = MutableSharedFlow<Submission>(replayCount)
         val results = node.grade(submissions)
         nodes[address] = NodeInfo(node, submissions, results)
     }

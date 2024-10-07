@@ -2,7 +2,6 @@ package trik.testsys.webclient.service
 
 import trik.testsys.webclient.entity.impl.Solution
 import trik.testsys.webclient.entity.impl.Task
-import java.nio.ByteBuffer
 
 interface Grader {
 
@@ -22,7 +21,7 @@ interface Grader {
 
         data class Error(override val submissionId: Int, val kind: Int, val description: String): GradingInfo(submissionId)
 
-        data class File(val name: String, val content: ByteBuffer)
+        data class File(val name: String, val content: ByteArray)
 
         data class FieldResult(val name: String, val verdict: File, val recording: File?)
 
