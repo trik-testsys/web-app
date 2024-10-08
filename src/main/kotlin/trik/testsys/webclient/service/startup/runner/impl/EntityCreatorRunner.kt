@@ -324,7 +324,7 @@ class EntityCreatorRunner(
         private const val DEVELOPERS_FILE_NAME = "developers.json"
         private const val JUDGES_FILE_NAME = "judges.json"
         private const val STUDENTS_FILE_NAME = "students.json"
-        private const val SUPER_USERS_FILE_NAME = "super_users.json"
+        private const val SUPER_USERS_FILE_NAME = "superusers.json"
         private const val VIEWERS_FILE_NAME = "viewers.json"
         private const val GROUPS_FILE_NAME = "groups.json"
 
