@@ -42,7 +42,7 @@ class TaskFile(
             @Converter(autoApply = true)
             class TaskFileTypeConverter : AbstractEnumConverter<TaskFileType>()
 
-            fun TaskFileType.toL10nMessage() = when(this) {
+            fun TaskFileType.localized() = when(this) {
                 POLYGON -> "Полигон"
                 EXERCISE -> "Упражнение"
                 SOLUTION -> "Решение"
