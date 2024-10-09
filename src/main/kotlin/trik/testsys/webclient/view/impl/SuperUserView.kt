@@ -19,7 +19,7 @@ data class SuperUserView(
     override val creationDate: LocalDateTime?,
     override val lastLoginDate: LocalDateTime?,
     override val additionalInfo: String,
-    val viewers: List<Viewer>?
+    val viewers: List<Viewer> = emptyList()
 ) : UserView<SuperUser> {
 
     override fun toEntity(timeZone: TimeZone) = SuperUser(
