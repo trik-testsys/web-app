@@ -16,7 +16,7 @@ data class AdminView(
     override val lastLoginDate: LocalDateTime?,
     override val additionalInfo: String,
     val viewer: Viewer,
-    val groups: List<GroupView>?
+    val groups: List<GroupView>? = null
 ) : UserView<Admin> {
 
     override fun toEntity(timeZone: TimeZone) = Admin(
