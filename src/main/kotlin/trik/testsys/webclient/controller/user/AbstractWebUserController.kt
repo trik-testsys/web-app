@@ -16,7 +16,7 @@ import java.util.TimeZone
  * @since 2.0.0
  **/
 abstract class AbstractWebUserController<U : WebUser, V : UserView<U>, S : WebUserService<U, out UserRepository<U>>>(
-    protected val loginData: LoginData
+    val loginData: LoginData
 ) {
 
     protected abstract val mainPath: String

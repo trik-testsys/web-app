@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+<head>
+    <th:block th:include="fragments/main :: head('Кабинет Супер-Пользователя')"></th:block>
+
+    <link rel="stylesheet" th:href="@{/css/block.css}">
+    <link rel="stylesheet" th:href="@{/css/table.css}">
+
+    <th:block th:include="fragments/popup :: head"></th:block>
+    <th:block th:include="fragments/form :: head"></th:block>
+    <th:block th:include="fragments/menu :: head"></th:block>
+</head>
+<body>
+
+<div th:replace="fragments/main :: background"></div>
+
+<div th:replace="fragments/popup :: popup"></div>
+
+<div th:replace="fragments/popup :: emergencyPopup"></div>
+
+<div th:replace="fragments/entity/superuser
+    :: superUserHeader(breadCrumbNames=${ { 'Экстренные сообщения' } },
+                       breadCrumbLinks=${ { '/superuser/emergency-messages' } })"></div>
+
+<div th:replace="fragments/entity/superuser :: superUserMenu"></div>
+
+<!-- Контент -->
+<div class="container">
+    <!-- Первый блок -->
+    <div class="block">
+        <div class="block-title">Экстренные сообщения</div>
+
+        <div class="form-container">
+            <div class="form-header">
+                <h1>Создание Сообщения</h1>
+            </div>
+
+            <!--/*@thymesVar id="webUser" type="trik.testsys.webclient.view.impl.EmergencyMessageCreationView"*/-->
+            <form id="emergency-message-creation" action="#" th:action="@{/superuser/emergency-messages/emergency-message/create}" th:object="${emergencyMessageObj}" method="post">
+
+                <label for="emergency-message-userType">Выберите Файл</label>
+                <select id="emergency-message-userType" name="userType" required>
+                    <option value="" disabled selected>Выберите Файл</option>
+                    <option th:each="userType : ${userTypes}" th:value="${userType}" th:text="${userType}">
+                </select>
+
+                <div th:replace="fragments/form.html
+                    :: formField(id='emergencyMessage.additionalInfo', type='text',
+                                 labelName='Дополнительная информация', labelSize='20',
+                                 fieldName='additionalInfo', fieldSize='80',
+                                 size='100',
+                                 isReadonly='false', isRequired='false', isAccessToken='false')">
+                </div>
+                <!-- Кнопки редактирования, отправки и отмены -->
+                <div class="form-buttons">
+                    <button type="button" class="edit-button" id="emergency-message-creation-edit" onclick="enableForm('emergency-message-creation')">Создать Сообщение</button>
+                    <button type="submit" class="save-button" id="emergency-message-creation-save">Создать</button>
+                    <button type="button" class="cancel-button" id="emergency-message-creation-cancel" onclick="disableForm('emergency-message-creation')">Отменить</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="table admins-table">
+            <div class="form-header">
+                <h1>Список сообщений</h1>
+            </div>
+            <table>
+                <tr>
+                    <th style="width: 10%">
+                        ID
+                    </th>
+                    <th style="width: 20%">
+                        Тип пользователей
+                    </th>
+                    <th>Дополнительная информация</th>
+                    <th style="width: 4%">Действия</th>
+                </tr>
+                <!--/*@thymesVar id="viewer" type="trik.testsys.webclient.entity.impl.EmergencyMessage"*/-->
+                <tr th:each="emergencyMessage : ${webUser.emergencyMessages}">
+                    <td th:text="${emergencyMessage.id}"></td>
+                    <td th:text="${emergencyMessage.userType}"></td>
+                    <td th:text="${emergencyMessage.additionalInfo}"></td>
+                    <td class="buttons">
+                        <form th:action="@{/superuser/emergency-messages/emergency-message/remove/{id}(id=${emergencyMessage.id})}" method="post">
+                            <button type="submit">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

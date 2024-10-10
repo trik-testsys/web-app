@@ -16,6 +16,8 @@
 
 <div th:replace="fragments/popup :: popup"></div>
 
+<div th:replace="fragments/popup :: emergencyPopup"></div>
+
 <div th:replace="fragments/entity/superuser
     :: superUserHeader(breadCrumbNames=${ { 'Наблюдатели' } },
                        breadCrumbLinks=${ { '/superuser/viewers' } })"></div>
