@@ -102,15 +102,15 @@ class BalancingGraderService(
             .mapNotNull {
                 val aliveStatus = (it.value as? NodeStatus.Alive) ?: return@mapNotNull null
                 log.debug("Get status for node[id=${aliveStatus.id}, queued=${aliveStatus.queued}, capacity=${aliveStatus.capacity}]")
-                if (aliveStatus.queued < aliveStatus.capacity)
-                    it.key to aliveStatus
+                val nodeInfo = nodes[it.key]
+                if (nodeInfo != null && nodeInfo.sentSubmissions.size < aliveStatus.capacity)
+                    nodeInfo to aliveStatus
                 else null
             }
-            .minByOrNull { (_, status) ->
-                status.queued.toDouble() / status.capacity
+            .minByOrNull { (nodeInfo, status) ->
+                nodeInfo.sentSubmissions.size.toDouble() / status.capacity
             }
             ?.first
-            ?.let(nodes::get)
 
     override fun sendToGrade(solution: Solution, gradingOptions: GradingOptions) {
         val taskFiles = solution.task.polygons.mapNotNull { fileManager.getTaskFile(it) }
