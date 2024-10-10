@@ -352,7 +352,7 @@ class DeveloperController(
         val taskFile = fileManager.getTaskFile(task.solution!!)!!
         fileManager.saveSolutionFile(solution, taskFile)
 
-        grader.sendToGrade(solution, Grader.GradingOptions(true, "testsystrik/trik-studio:master-2023.1-31-gaee5ed-2024-08-18-1.1.0"))
+        grader.sendToGrade(solution, Grader.GradingOptions(true, "testsystrik/trik-studio:release-2023.1-2024-10-10-2.0.0"))
         redirectAttributes.addPopupMessage("Тестирование задания ${task.name} запущено.")
 
         return "redirect:$DEVELOPER_PATH$TASK_PATH/$taskId"

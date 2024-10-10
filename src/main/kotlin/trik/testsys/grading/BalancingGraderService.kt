@@ -36,6 +36,7 @@ class BalancingGraderService(
         val node: GradingNodeGrpcKt.GradingNodeCoroutineStub,
         val submissions: MutableSharedFlow<Submission>,
         val results: Flow<Result>,
+        val sentSubmissions: LinkedBlockingQueue<Pair<Solution, Submission>> = LinkedBlockingQueue()
     )
     private val nodes = ConcurrentHashMap<String, NodeInfo>()
     private val submissionQueue = LinkedBlockingQueue<Pair<Solution, Submission>>()
@@ -48,17 +49,19 @@ class BalancingGraderService(
     private val submissionSendScope = CoroutineScope(Dispatchers.IO)
     private val submissionSendJob = submissionSendScope.launch {
         while (isActive) {
-            val (solution, submission) = submissionQueue.take()
+            val solution2submission = submissionQueue.take()
             var nodeInfo = findFreeNode()
             while (nodeInfo == null) {
                 delay(nodePollingInterval)
                 nodeInfo = findFreeNode()
             }
 
+            val (solution, submission) = solution2submission
+            nodeInfo.sentSubmissions.add(solution2submission)
             nodeInfo.submissions.emit(submission)
             log.info("Submission[id=${submission.id}] emitted")
             resultProcessingScope.launch {
-                processResults(nodeInfo.results)
+                processResults(nodeInfo.results, nodeInfo.sentSubmissions)
             }
 
             solution.status = Solution.SolutionStatus.IN_PROGRESS
@@ -66,18 +69,31 @@ class BalancingGraderService(
         }
     }
 
-    private suspend fun processResults(results: Flow<Result>) = withContext(Dispatchers.IO) {
+    private fun resendSubmissions(sentSubmissions: LinkedBlockingQueue<Pair<Solution, Submission>>) {
+        if (sentSubmissions.isNotEmpty()) {
+            log.warn("${sentSubmissions.size} submissions are ungraded. Resending them")
+            sentSubmissions.drainTo(submissionQueue)
+        }
+    }
+
+    private suspend fun processResults(
+        results: Flow<Result>,
+        sentSubmissions: LinkedBlockingQueue<Pair<Solution, Submission>>
+    ) = withContext(Dispatchers.IO) {
         try {
             results.collect { result ->
                 val gradingInfo = converter.convert(result)
                 log.info("Got result for submission[id=${gradingInfo.submissionId}]")
+                sentSubmissions.removeIf { (_, submission) -> submission.id == gradingInfo.submissionId }
                 subscriptions.forEach { it.invoke(gradingInfo) }
             }
             log.debug("Finished processing results")
         } catch (se: StatusException) {
-            log.warn("RPC is finished with status code ${se.status.code.value()}", se)
+            log.warn("RPC is finished with status code ${se.status.code.value()}")
+            resendSubmissions(sentSubmissions)
         } catch (e: Exception) {
             log.error("Unexpected error while processing results", e)
+            resendSubmissions(sentSubmissions)
         }
     }
 
