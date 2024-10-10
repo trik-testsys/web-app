@@ -1,19 +1,15 @@
 package trik.testsys.webclient.util.aop
 
-import org.aspectj.lang.JoinPoint
 import org.aspectj.lang.ProceedingJoinPoint
 import org.aspectj.lang.annotation.Around
 import org.aspectj.lang.annotation.Aspect
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
-import org.springframework.ui.Model
 import org.springframework.validation.support.BindingAwareModelMap
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import trik.testsys.webclient.controller.user.AbstractWebUserController
 import trik.testsys.webclient.service.entity.impl.EmergencyMessageService
 import trik.testsys.webclient.service.security.UserValidator
-import trik.testsys.webclient.util.addSessionActiveInfo
-import java.util.TimeZone
 
 @Aspect
 @Component

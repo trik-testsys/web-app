@@ -8,8 +8,6 @@ import trik.testsys.webclient.service.entity.user.impl.SuperUserService
 import trik.testsys.webclient.service.security.login.impl.LoginData
 import trik.testsys.webclient.util.atTimeZone
 import trik.testsys.webclient.view.impl.SuperUserView
-import java.time.ZoneId
-import java.util.*
 
 @Controller
 @RequestMapping(SuperUserMainController.SUPER_USER_PATH)

@@ -9,15 +9,17 @@ import java.util.TimeZone
  *
  * @author Roman Shishkin
  * @since 2.0.0
-**/
-fun LocalDateTime.atTimeZone(timeZone: TimeZone): LocalDateTime =
-    atZone(AbstractEntity.DEFAULT_ZONE_ID).withZoneSameInstant(timeZone.toZoneId()).toLocalDateTime()
+ **/
+fun LocalDateTime.atTimeZone(timeZoneId: String?): LocalDateTime =
+    atZone(AbstractEntity.DEFAULT_ZONE_ID).withZoneSameInstant(TimeZone.getTimeZone(timeZoneId ?: "UTC").toZoneId())
+        .toLocalDateTime()
 
 /**
  * Converts [this] from [timeZone] zone to [AbstractEntity.DEFAULT_ZONE_ID].
  *
  * @author Roman Shishkin
  * @since 2.0.0
-**/
-fun LocalDateTime.fromTimeZone(timeZone: TimeZone): LocalDateTime =
-    atZone(timeZone.toZoneId()).withZoneSameInstant(AbstractEntity.DEFAULT_ZONE_ID).toLocalDateTime()
+ **/
+fun LocalDateTime.fromTimeZone(timeZoneId: String?): LocalDateTime =
+    atZone(TimeZone.getTimeZone(timeZoneId ?: "UTC").toZoneId()).withZoneSameInstant(AbstractEntity.DEFAULT_ZONE_ID)
+        .toLocalDateTime()

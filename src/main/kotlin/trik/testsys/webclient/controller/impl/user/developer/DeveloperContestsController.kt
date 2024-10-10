@@ -19,7 +19,6 @@ import trik.testsys.webclient.util.atTimeZone
 import trik.testsys.webclient.view.impl.ContestCreationView
 import trik.testsys.webclient.view.impl.ContestView.Companion.toView
 import trik.testsys.webclient.view.impl.DeveloperView
-import java.util.*
 
 @Controller
 @RequestMapping(CONTESTS_PATH)

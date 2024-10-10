@@ -18,7 +18,6 @@ import trik.testsys.webclient.service.security.login.impl.LoginData
 import trik.testsys.webclient.util.atTimeZone
 import trik.testsys.webclient.view.impl.SuperUserView
 import trik.testsys.webclient.view.impl.ViewerCreationView
-import java.util.*
 
 @Controller
 @RequestMapping(SuperUserViewersController.VIEWERS_PATH)

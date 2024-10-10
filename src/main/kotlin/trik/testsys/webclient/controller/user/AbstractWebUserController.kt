@@ -9,7 +9,6 @@ import trik.testsys.webclient.service.entity.user.WebUserService
 import trik.testsys.webclient.service.security.login.impl.LoginData
 import trik.testsys.webclient.util.addExitMessage
 import trik.testsys.webclient.util.addSessionExpiredMessage
-import java.util.TimeZone
 
 /**
  * @author Roman Shishkin

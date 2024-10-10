@@ -8,8 +8,6 @@ import trik.testsys.webclient.service.entity.user.impl.ViewerService
 import trik.testsys.webclient.service.security.login.impl.LoginData
 import trik.testsys.webclient.util.atTimeZone
 import trik.testsys.webclient.view.impl.ViewerView
-import java.time.ZoneId
-import java.util.*
 
 
 @Controller
