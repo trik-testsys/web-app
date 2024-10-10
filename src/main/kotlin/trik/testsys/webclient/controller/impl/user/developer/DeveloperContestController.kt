@@ -34,7 +34,7 @@ class DeveloperContestController(
 
     override val mainPage = CONTEST_PAGE
 
-    override fun Developer.toView(timeZone: TimeZone) = TODO()
+    override fun Developer.toView(timeZoneId: String?) = TODO()
 
     @PostMapping("/create")
     fun contestPost(
@@ -59,7 +59,7 @@ class DeveloperContestController(
     @GetMapping("/{contestId}")
     fun contestGet(
         @PathVariable("contestId") contestId: Long,
-        timeZone: TimeZone,
+        @CookieValue(name = "X-Timezone", defaultValue = "UTC") timezone: String,
         redirectAttributes: RedirectAttributes,
         model: Model
     ): String {
@@ -75,7 +75,7 @@ class DeveloperContestController(
             return "redirect:$CONTESTS_PATH"
         }
 
-        val contestView = contest.toView(timeZone)
+        val contestView = contest.toView(timezone)
         model.addAttribute(CONTEST_ATTR, contestView)
 
         return CONTEST_PAGE
@@ -85,7 +85,7 @@ class DeveloperContestController(
     fun contestUpdate(
         @PathVariable("contestId") contestId: Long,
         @ModelAttribute("contest") contestView: ContestView,
-        timeZone: TimeZone,
+        @CookieValue(name = "X-Timezone", defaultValue = "UTC") timezone: String,
         redirectAttributes: RedirectAttributes,
         model: Model
     ): String {
@@ -96,14 +96,14 @@ class DeveloperContestController(
             return "redirect:${DeveloperMainController.DEVELOPER_PATH}$CONTESTS_PATH"
         }
 
-        val contest = contestView.toEntity(timeZone)
+        val contest = contestView.toEntity(timezone)
         contest.developer = webUser
 
         contestService.validate(contest, redirectAttributes, "redirect:$CONTEST_PATH/$contestId")?.let { return it }
 
         val updatedContest = contestService.save(contest)
 
-        model.addAttribute(CONTEST_ATTR, updatedContest.toView(timeZone))
+        model.addAttribute(CONTEST_ATTR, updatedContest.toView(timezone))
         redirectAttributes.addPopupMessage("Данные успешно изменены.")
 
         return "redirect:$CONTEST_PATH/$contestId"

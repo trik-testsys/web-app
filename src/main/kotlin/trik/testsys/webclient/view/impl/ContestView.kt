@@ -4,7 +4,6 @@ import trik.testsys.webclient.entity.impl.Contest
 import trik.testsys.webclient.util.atTimeZone
 import trik.testsys.webclient.view.NotedEntityView
 import java.time.LocalDateTime
-import java.util.*
 
 /**
  * @author Roman Shishkin
@@ -18,7 +17,7 @@ data class ContestView(
     override val note: String
 ) : NotedEntityView<Contest> {
 
-    override fun toEntity(timeZone: TimeZone) = Contest(
+    override fun toEntity(timeZoneId: String?) = Contest(
         name
     ).also {
         it.id = id
@@ -28,7 +27,7 @@ data class ContestView(
 
     companion object {
 
-        fun Contest.toView(timeZone: TimeZone) = ContestView(
+        fun Contest.toView(timeZone: String?) = ContestView(
             id = this.id,
             additionalInfo = this.additionalInfo,
             creationDate = this.creationDate?.atTimeZone(timeZone),

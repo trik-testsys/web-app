@@ -21,12 +21,12 @@ class StudentMainController(
 
     override val mainPage = STUDENT_PAGE
 
-    override fun Student.toView(timeZone: TimeZone) = StudentView(
+    override fun Student.toView(timeZoneId: String?) = StudentView(
         id = this.id,
         name = this.name,
         accessToken = this.accessToken,
-        creationDate = this.creationDate?.atTimeZone(timeZone),
-        lastLoginDate = this.lastLoginDate?.atTimeZone(timeZone),
+        creationDate = this.creationDate?.atTimeZone(timeZoneId),
+        lastLoginDate = this.lastLoginDate?.atTimeZone(timeZoneId),
         additionalInfo = this.additionalInfo,
         group = this.group
     )

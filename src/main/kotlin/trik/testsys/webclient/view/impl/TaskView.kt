@@ -20,7 +20,7 @@ data class TaskView(
     val taskFiles: List<TaskFileView> = emptyList()
 ) : NotedEntityView<Task> {
 
-    override fun toEntity(timeZone: TimeZone) = Task(
+    override fun toEntity(timeZoneId: String?) = Task(
         name
     ).also {
         it.id = id
@@ -30,7 +30,7 @@ data class TaskView(
 
     companion object {
 
-        fun Task.toView(timeZone: TimeZone) = TaskView(
+        fun Task.toView(timeZone: String?) = TaskView(
             id = id,
             name = name,
             creationDate = creationDate?.atTimeZone(timeZone),

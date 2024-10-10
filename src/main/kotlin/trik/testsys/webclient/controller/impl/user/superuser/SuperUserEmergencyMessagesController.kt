@@ -2,6 +2,7 @@ package trik.testsys.webclient.controller.impl.user.superuser
 
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
+import org.springframework.web.bind.annotation.CookieValue
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
@@ -36,25 +37,25 @@ class SuperUserEmergencyMessagesController(
 
     override val mainPath = EMERGENCY_MESSAGES_PATH
 
-    override fun SuperUser.toView(timeZone: TimeZone) = SuperUserView(
+    override fun SuperUser.toView(timeZoneId: String?) = SuperUserView(
         id = this.id,
         name = this.name,
         accessToken = this.accessToken,
-        creationDate = this.creationDate?.atTimeZone(timeZone),
-        lastLoginDate = this.lastLoginDate?.atTimeZone(timeZone),
+        creationDate = this.creationDate?.atTimeZone(timeZoneId),
+        lastLoginDate = this.lastLoginDate?.atTimeZone(timeZoneId),
         additionalInfo = this.additionalInfo,
         emergencyMessages = emergencyMessageService.findAll()
     )
 
     @GetMapping
     fun emergencyMessagesGet(
-        timeZone: TimeZone,
+        @CookieValue(name = "X-Timezone", defaultValue = "UTC") timezone: String,
         redirectAttributes: RedirectAttributes,
         model: Model
     ): String {
         val webUser = loginData.validate(redirectAttributes) ?: return "redirect:${LoginController.LOGIN_PATH}"
 
-        model.addAttribute(WEB_USER_ATTR, webUser.toView(timeZone))
+        model.addAttribute(WEB_USER_ATTR, webUser.toView(timezone))
         model.addAttribute(EMERGENCY_MESSAGE_ATTR, EmergencyMessageCreationView.empty())
         model.addAttribute(USER_TYPES_ATTR, WebUser.UserType.all())
 

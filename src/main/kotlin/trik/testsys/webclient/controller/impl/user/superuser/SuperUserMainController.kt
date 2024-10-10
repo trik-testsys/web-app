@@ -8,6 +8,7 @@ import trik.testsys.webclient.service.entity.user.impl.SuperUserService
 import trik.testsys.webclient.service.security.login.impl.LoginData
 import trik.testsys.webclient.util.atTimeZone
 import trik.testsys.webclient.view.impl.SuperUserView
+import java.time.ZoneId
 import java.util.*
 
 @Controller
@@ -20,12 +21,12 @@ class SuperUserMainController(
 
     override val mainPage = SUPER_USER_PAGE
 
-    override fun SuperUser.toView(timeZone: TimeZone) = SuperUserView(
+    override fun SuperUser.toView(timeZoneId: String?) = SuperUserView(
         id = this.id,
         name = this.name,
         accessToken = this.accessToken,
-        creationDate = this.creationDate?.atTimeZone(timeZone),
-        lastLoginDate = this.lastLoginDate?.atTimeZone(timeZone),
+        creationDate = this.creationDate?.atTimeZone(timeZoneId),
+        lastLoginDate = this.lastLoginDate?.atTimeZone(timeZoneId),
         additionalInfo = this.additionalInfo
     )
 

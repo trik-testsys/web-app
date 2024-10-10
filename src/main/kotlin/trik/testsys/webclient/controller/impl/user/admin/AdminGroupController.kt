@@ -36,7 +36,7 @@ class AdminGroupController(
 
     override val mainPath = GROUP_PATH
 
-    override fun Admin.toView(timeZone: TimeZone) = TODO()
+    override fun Admin.toView(timeZoneId: String?) = TODO()
 
     @PostMapping("/create")
     fun groupPost(
@@ -62,7 +62,7 @@ class AdminGroupController(
     @GetMapping("/{groupId}")
     fun groupGet(
         @PathVariable("groupId") id: Long,
-        timeZone: TimeZone,
+        @CookieValue(name = "X-Timezone", defaultValue = "UTC") timezone: String,
         redirectAttributes: RedirectAttributes,
         model: Model
     ): String {
@@ -78,7 +78,7 @@ class AdminGroupController(
             return "redirect:$GROUPS_PATH"
         }
 
-        val groupView = group.toView(timeZone)
+        val groupView = group.toView(timezone)
         model.addAttribute(GROUP_ATTR, groupView)
 
         return GROUP_PAGE
@@ -88,7 +88,7 @@ class AdminGroupController(
     fun groupUpdate(
         @PathVariable("groupId") groupId: Long,
         @ModelAttribute("group") groupView: GroupView,
-        timeZone: TimeZone,
+        @CookieValue(name = "X-Timezone", defaultValue = "UTC") timezone: String,
         redirectAttributes: RedirectAttributes,
         model: Model
     ): String {
@@ -99,14 +99,14 @@ class AdminGroupController(
             return "redirect:$GROUPS_PATH"
         }
 
-        val group = groupView.toEntity(timeZone)
+        val group = groupView.toEntity(timezone)
         group.admin = webUser
 
         groupService.validate(group, redirectAttributes, "redirect:$GROUP_PATH/$groupId")?.let { return it }
 
         val updatedGroup = groupService.save(group)
 
-        model.addAttribute(GROUP_ATTR, updatedGroup.toView(timeZone))
+        model.addAttribute(GROUP_ATTR, updatedGroup.toView(timezone))
         redirectAttributes.addPopupMessage("Данные успешно изменены.")
 
         return "redirect:$GROUP_PATH/$groupId"

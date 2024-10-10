@@ -26,7 +26,7 @@ abstract class AbstractWebUserController<U : WebUser, V : UserView<U>, S : WebUs
     @Autowired
     protected lateinit var service: S
 
-    protected abstract fun U.toView(timeZone: TimeZone): V
+    protected abstract fun U.toView(timeZoneId: String?): V
 
     /**
      * @author Roman Shishkin

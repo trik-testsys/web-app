@@ -36,7 +36,7 @@ class SuperUserEmergencyMessageController(
 
     override val mainPath = EMERGENCY_MESSAGE_PATH
 
-    override fun SuperUser.toView(timeZone: TimeZone) = TODO()
+    override fun SuperUser.toView(timeZoneId: String?) = TODO()
 
     @PostMapping("/create")
     fun emergencyMessagePost(

@@ -2,6 +2,7 @@ package trik.testsys.webclient.controller.impl.user.developer
 
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
+import org.springframework.web.bind.annotation.CookieValue
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
@@ -28,21 +29,21 @@ class DeveloperTaskFilesController(
 
     override val mainPath = TASK_FILES_PATH
 
-    override fun Developer.toView(timeZone: TimeZone) = DeveloperView(
+    override fun Developer.toView(timeZoneId: String?) = DeveloperView(
         id = this.id,
         name = this.name,
         accessToken = this.accessToken,
-        lastLoginDate = this.lastLoginDate?.atTimeZone(timeZone),
-        creationDate = this.creationDate?.atTimeZone(timeZone),
+        lastLoginDate = this.lastLoginDate?.atTimeZone(timeZoneId),
+        creationDate = this.creationDate?.atTimeZone(timeZoneId),
         additionalInfo = this.additionalInfo,
-        polygons = this.polygons.map { it.toView(timeZone) }.sortedBy { it.id },
-        exercises = this.exercises.map { it.toView(timeZone) }.sortedBy { it.id },
-        solutions = this.solutions.map { it.toView(timeZone) }.sortedBy { it.id }
+        polygons = this.polygons.map { it.toView(timeZoneId) }.sortedBy { it.id },
+        exercises = this.exercises.map { it.toView(timeZoneId) }.sortedBy { it.id },
+        solutions = this.solutions.map { it.toView(timeZoneId) }.sortedBy { it.id }
     )
 
     @GetMapping
     fun taskFilesGet(
-        timeZone: TimeZone,
+        @CookieValue(name = "X-Timezone", defaultValue = "UTC") timezone: String,
         redirectAttributes: RedirectAttributes,
         model: Model
     ): String {
@@ -52,7 +53,7 @@ class DeveloperTaskFilesController(
         model.addAttribute(TASK_FILE_EXERCISE_ATTR, TaskFileCreationView.emptyExercise())
         model.addAttribute(TASK_FILE_SOLUTION_ATTR, TaskFileCreationView.emptySolution())
 
-        model.addAttribute(WEB_USER_ATTR, webUser.toView(timeZone))
+        model.addAttribute(WEB_USER_ATTR, webUser.toView(timezone))
 
         return TASK_FILES_PAGE
     }

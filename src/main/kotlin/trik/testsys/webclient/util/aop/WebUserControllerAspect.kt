@@ -4,6 +4,7 @@ import org.aspectj.lang.JoinPoint
 import org.aspectj.lang.ProceedingJoinPoint
 import org.aspectj.lang.annotation.Around
 import org.aspectj.lang.annotation.Aspect
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import org.springframework.ui.Model
 import org.springframework.validation.support.BindingAwareModelMap
@@ -12,6 +13,7 @@ import trik.testsys.webclient.controller.user.AbstractWebUserController
 import trik.testsys.webclient.service.entity.impl.EmergencyMessageService
 import trik.testsys.webclient.service.security.UserValidator
 import trik.testsys.webclient.util.addSessionActiveInfo
+import java.util.TimeZone
 
 @Aspect
 @Component
@@ -23,6 +25,7 @@ class WebUserControllerAspect(
     @Around("target(trik.testsys.webclient.controller.user.AbstractWebUserController)")
     fun addEmergencyMessage(joinPoint: ProceedingJoinPoint): Any {
         val target = joinPoint.target as AbstractWebUserController<*, *, *>
+
         val redirectAttributes = joinPoint.args.firstOrNull { it is RedirectAttributes } as? RedirectAttributes
         val model = joinPoint.args.firstOrNull { it is BindingAwareModelMap } as? BindingAwareModelMap
 
@@ -42,5 +45,10 @@ class WebUserControllerAspect(
         model?.addAttribute("emergencyMessage", emergencyMessage.additionalInfo)
 
         return joinPoint.proceed()
+    }
+
+    companion object {
+
+        private val logger = LoggerFactory.getLogger(WebUserControllerAspect::class.java)
     }
 }

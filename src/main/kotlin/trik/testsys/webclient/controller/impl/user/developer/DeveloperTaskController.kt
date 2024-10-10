@@ -40,7 +40,7 @@ class DeveloperTaskController(
 
     override val mainPath = TASK_PATH
 
-    override fun Developer.toView(timeZone: TimeZone) = TODO()
+    override fun Developer.toView(timeZoneId: String?) = TODO()
 
     @PostMapping("/create")
     fun taskPost(
@@ -65,7 +65,7 @@ class DeveloperTaskController(
     @GetMapping("/{taskId}")
     fun taskGet(
         @PathVariable("taskId") taskId: Long,
-        timeZone: TimeZone,
+        @CookieValue(name = "X-Timezone", defaultValue = "UTC") timezone: String,
         redirectAttributes: RedirectAttributes,
         model: Model
     ): String {
@@ -81,10 +81,10 @@ class DeveloperTaskController(
             return "redirect:$TASKS_PATH"
         }
 
-        val taskView = task.toView(timeZone)
+        val taskView = task.toView(timezone)
         model.addAttribute(TASK_ATTR, taskView)
 
-        val taskFiles = webUser.taskFiles.map { it.toView(timeZone) }.sortedBy { it.id }
+        val taskFiles = webUser.taskFiles.map { it.toView(timezone) }.sortedBy { it.id }
         model.addAttribute(TASK_FILES_ATTR, taskFiles)
 
         return TASK_PAGE
@@ -94,7 +94,7 @@ class DeveloperTaskController(
     fun taskUpdate(
         @PathVariable("taskId") taskId: Long,
         @ModelAttribute("task") taskView: TaskView,
-        timeZone: TimeZone,
+        @CookieValue(name = "X-Timezone", defaultValue = "UTC") timezone: String,
         redirectAttributes: RedirectAttributes,
         model: Model
     ): String {
@@ -105,14 +105,14 @@ class DeveloperTaskController(
             return "redirect:$TASKS_PATH"
         }
 
-        val task = taskView.toEntity(timeZone)
+        val task = taskView.toEntity(timezone)
         task.developer = webUser
 
         taskService.validate(task, redirectAttributes, "redirect:$TASK_PATH/$taskId")?.let { return it }
 
         val updatedTask = taskService.save(task)
 
-        model.addAttribute(TASK_ATTR, updatedTask.toView(timeZone))
+        model.addAttribute(TASK_ATTR, updatedTask.toView(timezone))
         redirectAttributes.addPopupMessage("Данные успешно изменены.")
 
         return "redirect:$TASK_PATH/$taskId"

@@ -38,7 +38,7 @@ class DeveloperTaskFileController(
 
     override val mainPath = TASK_FILE_PATH
 
-    override fun Developer.toView(timeZone: TimeZone) = TODO("Not yet implemented")
+    override fun Developer.toView(timeZoneId: String?) = TODO("Not yet implemented")
 
     @PostMapping("/create")
     fun taskFilePost(
@@ -77,7 +77,7 @@ class DeveloperTaskFileController(
     @GetMapping("/{taskFileId}")
     fun taskFileGet(
         @PathVariable("taskFileId") taskFileId: Long,
-        timeZone: TimeZone,
+        @CookieValue(name = "X-Timezone", defaultValue = "UTC") timezone: String,
         redirectAttributes: RedirectAttributes,
         model: Model
     ): String {
@@ -93,7 +93,7 @@ class DeveloperTaskFileController(
             return "redirect:$TASK_FILES_PATH"
         }
 
-        val taskFileView = taskFile.toView(timeZone)
+        val taskFileView = taskFile.toView(timezone)
         model.addAttribute(TASK_FILE_ATTR, taskFileView)
 
         return TASK_FILE_PAGE
@@ -103,7 +103,7 @@ class DeveloperTaskFileController(
     fun taskFileUpdate(
         @PathVariable("taskFileId") taskFileId: Long,
         @ModelAttribute("taskFile") taskFileView: TaskFileView,
-        timeZone: TimeZone,
+        @CookieValue(name = "X-Timezone", defaultValue = "UTC") timezone: String,
         redirectAttributes: RedirectAttributes,
         model: Model
     ): String {
@@ -114,14 +114,14 @@ class DeveloperTaskFileController(
             return "redirect:$DEVELOPER_PATH$TASK_FILES_PATH"
         }
 
-        val taskFile = taskFileView.toEntity(timeZone)
+        val taskFile = taskFileView.toEntity(timezone)
         taskFile.developer = webUser
 
         taskFileService.validate(taskFile, redirectAttributes, "redirect:$TASK_FILE_PATH/$taskFileId")?.let { return it }
 
         val updatedTaskFile = taskFileService.save(taskFile)
 
-        model.addAttribute(TASK_FILE_ATTR, updatedTaskFile.toView(timeZone))
+        model.addAttribute(TASK_FILE_ATTR, updatedTaskFile.toView(timezone))
         redirectAttributes.addPopupMessage("Данные успешно изменены.")
 
         return "redirect:$TASK_FILE_PATH/$taskFileId"

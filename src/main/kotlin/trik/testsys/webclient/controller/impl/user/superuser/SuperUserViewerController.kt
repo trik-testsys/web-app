@@ -38,7 +38,7 @@ class SuperUserViewerController(
 
     override val mainPath = VIEWER_PATH
 
-    override fun SuperUser.toView(timeZone: TimeZone) = TODO()
+    override fun SuperUser.toView(timeZoneId: String?) = TODO()
 
     @PostMapping("/create")
     fun viewerPost(

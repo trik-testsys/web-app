@@ -1,10 +1,7 @@
 package trik.testsys.webclient.controller.user
 
 import org.springframework.ui.Model
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.ModelAttribute
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import trik.testsys.core.repository.user.UserRepository
 import trik.testsys.core.view.user.UserView
@@ -14,7 +11,6 @@ import trik.testsys.webclient.service.entity.user.WebUserService
 import trik.testsys.webclient.service.entity.user.WebUserService.Companion.isFirstTimeLoggedIn
 import trik.testsys.webclient.service.security.login.impl.LoginData
 import trik.testsys.webclient.util.addPopupMessage
-import java.util.*
 
 abstract class AbstractWebUserMainController<U : WebUser, V : UserView<U>, S : WebUserService<U, out UserRepository<U>>> (
     loginData: LoginData
@@ -23,7 +19,7 @@ abstract class AbstractWebUserMainController<U : WebUser, V : UserView<U>, S : W
     @GetMapping
     open fun mainGet(
         @RequestParam(required = false, name = "Logout") logout: String?,
-        timeZone: TimeZone,
+        @CookieValue(name = "X-Timezone", defaultValue = "UTC") timezone: String,
         redirectAttributes: RedirectAttributes,
         model: Model
     ): String {
@@ -33,7 +29,7 @@ abstract class AbstractWebUserMainController<U : WebUser, V : UserView<U>, S : W
         }
         val webUser = loginData.validate(redirectAttributes) ?: return "redirect:${LoginController.LOGIN_PATH}"
 
-        model.addAttribute(WEB_USER_ATTR, webUser.toView(timeZone))
+        model.addAttribute(WEB_USER_ATTR, webUser.toView(timezone))
         return mainPage
     }
 
@@ -58,12 +54,12 @@ abstract class AbstractWebUserMainController<U : WebUser, V : UserView<U>, S : W
     @PostMapping(UPDATE_PATH)
     open fun updatePost(
         @ModelAttribute(WEB_USER_ATTR) webUserView: V,
-        timeZone: TimeZone,
+        @CookieValue(name = "X-Timezone", defaultValue = "UTC") timezone: String,
         redirectAttributes: RedirectAttributes
     ): String {
         loginData.validate(redirectAttributes) ?: return "redirect:${LoginController.LOGIN_PATH}"
 
-        val updatedWebUser = webUserView.toEntity(timeZone)
+        val updatedWebUser = webUserView.toEntity(timezone)
 
         if (!service.validateName(updatedWebUser)) {
             redirectAttributes.addPopupMessage("Псевдоним не должен быть пустым, содержать Код–доступа или Код-регистрации. Попробуйте другой вариант.")

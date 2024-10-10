@@ -7,7 +7,6 @@ import trik.testsys.webclient.entity.user.impl.SuperUser
 import trik.testsys.webclient.entity.user.impl.Viewer
 import trik.testsys.webclient.util.fromTimeZone
 import java.time.LocalDateTime
-import java.util.*
 
 /**
  * @author Roman Shishkin
@@ -24,11 +23,11 @@ data class SuperUserView(
     val emergencyMessages: List<EmergencyMessage> = emptyList()
 ) : UserView<SuperUser> {
 
-    override fun toEntity(timeZone: TimeZone) = SuperUser(
+    override fun toEntity(timeZoneId: String?) = SuperUser(
         name, accessToken
     ).also {
         it.id = id
-        it.lastLoginDate = lastLoginDate?.fromTimeZone(timeZone)
+        it.lastLoginDate = lastLoginDate?.fromTimeZone(timeZoneId)
         it.additionalInfo = additionalInfo
     }
 }

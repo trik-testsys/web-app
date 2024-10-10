@@ -8,6 +8,7 @@ import trik.testsys.webclient.service.entity.user.impl.ViewerService
 import trik.testsys.webclient.service.security.login.impl.LoginData
 import trik.testsys.webclient.util.atTimeZone
 import trik.testsys.webclient.view.impl.ViewerView
+import java.time.ZoneId
 import java.util.*
 
 
@@ -21,12 +22,12 @@ class ViewerMainController(
 
     override val mainPage = VIEWER_PAGE
 
-    override fun Viewer.toView(timeZone: TimeZone) = ViewerView(
+    override fun Viewer.toView(timeZoneId: String?) = ViewerView(
         id = this.id,
         name = this.name,
         accessToken = this.accessToken,
-        lastLoginDate = this.lastLoginDate?.atTimeZone(timeZone),
-        creationDate = this.creationDate?.atTimeZone(timeZone),
+        lastLoginDate = this.lastLoginDate?.atTimeZone(timeZoneId),
+        creationDate = this.creationDate?.atTimeZone(timeZoneId),
         regToken = this.regToken,
         additionalInfo = this.additionalInfo
     )

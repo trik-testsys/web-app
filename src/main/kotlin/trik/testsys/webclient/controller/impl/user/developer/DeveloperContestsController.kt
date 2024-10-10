@@ -2,6 +2,7 @@ package trik.testsys.webclient.controller.impl.user.developer
 
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
+import org.springframework.web.bind.annotation.CookieValue
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
@@ -30,26 +31,26 @@ class DeveloperContestsController(
 
     override val mainPath = CONTESTS_PATH
 
-    override fun Developer.toView(timeZone: TimeZone) = DeveloperView(
+    override fun Developer.toView(timeZoneId: String?) = DeveloperView(
         id = this.id,
         name = this.name,
         accessToken = this.accessToken,
-        lastLoginDate = this.lastLoginDate?.atTimeZone(timeZone),
-        creationDate = this.creationDate?.atTimeZone(timeZone),
+        lastLoginDate = this.lastLoginDate?.atTimeZone(timeZoneId),
+        creationDate = this.creationDate?.atTimeZone(timeZoneId),
         additionalInfo = this.additionalInfo,
-        contests = this.contests.map { it.toView(timeZone) }.sortedBy { it.id }
+        contests = this.contests.map { it.toView(timeZoneId) }.sortedBy { it.id }
     )
 
     @GetMapping
     fun contestsGet(
-        timeZone: TimeZone,
+        @CookieValue(name = "X-Timezone", defaultValue = "UTC") timezone: String,
         redirectAttributes: RedirectAttributes,
         model: Model
     ): String {
         val webUser = loginData.validate(redirectAttributes) ?: return "redirect:$LOGIN_PATH"
 
         model.addAttribute(CONTEST_ATTR, ContestCreationView.empty())
-        model.addAttribute(WEB_USER_ATTR, webUser.toView(timeZone))
+        model.addAttribute(WEB_USER_ATTR, webUser.toView(timezone))
 
         return CONTESTS_PAGE
     }

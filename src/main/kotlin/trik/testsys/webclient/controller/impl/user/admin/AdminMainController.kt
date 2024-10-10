@@ -8,7 +8,6 @@ import trik.testsys.webclient.service.entity.user.impl.AdminService
 import trik.testsys.webclient.service.security.login.impl.LoginData
 import trik.testsys.webclient.util.atTimeZone
 import trik.testsys.webclient.view.impl.AdminView
-import java.util.*
 
 @Controller
 @RequestMapping(AdminMainController.ADMIN_PATH)
@@ -20,12 +19,12 @@ class AdminMainController(
 
     override val mainPage = ADMIN_PAGE
 
-    override fun Admin.toView(timeZone: TimeZone) = AdminView(
+    override fun Admin.toView(timeZoneId: String?) = AdminView(
         id = this.id,
         name = this.name,
         accessToken = this.accessToken,
-        creationDate = this.creationDate?.atTimeZone(timeZone),
-        lastLoginDate = this.lastLoginDate?.atTimeZone(timeZone),
+        creationDate = this.creationDate?.atTimeZone(timeZoneId),
+        lastLoginDate = this.lastLoginDate?.atTimeZone(timeZoneId),
         viewer = this.viewer,
         additionalInfo = this.additionalInfo
     )

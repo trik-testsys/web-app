@@ -21,12 +21,12 @@ class DeveloperMainController(
 
     override val mainPage = DEVELOPER_PAGE
 
-    override fun Developer.toView(timeZone: TimeZone) = DeveloperView(
+    override fun Developer.toView(timeZoneId: String?) = DeveloperView(
         id = this.id,
         name = this.name,
         accessToken = this.accessToken,
-        lastLoginDate = this.lastLoginDate?.atTimeZone(timeZone),
-        creationDate = this.creationDate?.atTimeZone(timeZone),
+        lastLoginDate = this.lastLoginDate?.atTimeZone(timeZoneId),
+        creationDate = this.creationDate?.atTimeZone(timeZoneId),
         additionalInfo = this.additionalInfo
     )
 
