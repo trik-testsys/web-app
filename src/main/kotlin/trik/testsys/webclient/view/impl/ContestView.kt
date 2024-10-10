@@ -14,7 +14,8 @@ data class ContestView(
     override val additionalInfo: String,
     override val creationDate: LocalDateTime?,
     override val name: String,
-    override val note: String
+    override val note: String,
+    val visibility: Contest.Visibility
 ) : NotedEntityView<Contest> {
 
     override fun toEntity(timeZoneId: String?) = Contest(
@@ -32,7 +33,8 @@ data class ContestView(
             additionalInfo = this.additionalInfo,
             creationDate = this.creationDate?.atTimeZone(timeZone),
             name = this.name,
-            note = this.note
+            note = this.note,
+            visibility = this.visibility
         )
     }
 }

@@ -81,7 +81,9 @@
                     <th>Дополнительная информация</th>
                     <th>Заметка</th>
                     <th style="width: 10%">
-                        Действия
+                        Видимость
+                    </th>
+                    <th style="width: 15%">
                     </th>
                 </tr>
                 <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.ContestView"*/-->
@@ -90,13 +92,21 @@
                     <td th:text="${contest.name}"></td>
                     <td th:text="${contest.additionalInfo}"></td>
                     <td th:text="${contest.note}"></td>
+                    <td th:switch="${contest.visibility.getDbkey()}">
+                        <span th:case="'PLC'">Публичный</span>
+                        <span th:case="'PRV'">Закрытый</span>
+                    </td>
                     <td class="buttons">
-                        <a title="Удалить" th:href="@{/developer/contests/contest/remove/{id}(id=${contest.id})}">
-                            <i class="fa-solid fa-trash"></i>
-                        </a>
-                        <a title="Войти" th:href="@{/developer/contests/contest/{id}(id=${contest.id})}">
-                            <i class="fa-solid fa-right-to-bracket"></i>
-                        </a>
+                        <form th:action="@{/developer/contests/contest/switchVisibility/{id}(id=${contest.id})}" method="post">
+                            <button type="submit" title="Изменить видимость">
+                                <i th:class="${contest.visibility.getDbkey()} == 'PLC' ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
+                            </button>
+                        </form>
+                        <form th:action="@{/developer/contests/contest/{id}(id=${contest.id})}" method="get">
+                            <button type="submit" title="Войти">
+                                <i class="fa-solid fa-right-to-bracket"></i>
+                            </button>
+                        </form>
                     </td>
                 </tr>
             </table>

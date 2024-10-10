@@ -93,7 +93,7 @@ class DeveloperContestController(
 
         if (!webUser.checkContestExistence(contestId)) {
             redirectAttributes.addPopupMessage("Тур с ID $contestId не найден.")
-            return "redirect:${DeveloperMainController.DEVELOPER_PATH}$CONTESTS_PATH"
+            return "redirect:$CONTESTS_PATH"
         }
 
         val contest = contestView.toEntity(timezone)
@@ -107,6 +107,33 @@ class DeveloperContestController(
         redirectAttributes.addPopupMessage("Данные успешно изменены.")
 
         return "redirect:$CONTEST_PATH/$contestId"
+    }
+
+    @PostMapping("/switchVisibility/{contestId}")
+    fun contestSwitchVisibility(
+        @PathVariable("contestId") contestId: Long,
+        @CookieValue(name = "X-Timezone", defaultValue = "UTC") timezone: String,
+        redirectAttributes: RedirectAttributes,
+        model: Model
+    ): String {
+        val webUser = loginData.validate(redirectAttributes) ?: return "redirect:$LOGIN_PATH"
+
+        if (!webUser.checkContestExistence(contestId)) {
+            redirectAttributes.addPopupMessage("Тур с ID $contestId не найден.")
+            return "redirect:$CONTESTS_PATH"
+        }
+
+        val contest = contestService.find(contestId) ?: run {
+            redirectAttributes.addPopupMessage("Тур с ID $contestId не найден.")
+            return "redirect:$CONTESTS_PATH"
+        }
+
+        contest.switchVisibility()
+        contestService.save(contest)
+
+        redirectAttributes.addPopupMessage("Видимость Тура '${contest.name}' изменена с '${contest.visibility.opposite()}' на '${contest.visibility}'.")
+
+        return "redirect:$CONTESTS_PATH"
     }
 
     companion object {

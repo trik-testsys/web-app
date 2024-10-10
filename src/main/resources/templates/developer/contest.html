@@ -60,6 +60,13 @@
                                  isReadonly='false', isRequired='true', isAccessToken='false')">
                     </div>
                     <div th:replace="fragments/form.html
+                    :: formField(id='contest.visibility', type='text',
+                                 labelName='Видимость', labelSize='25',
+                                 fieldName='visibility', fieldSize='75',
+                                 size='50',
+                                 isReadonly='true', isRequired='true', isAccessToken='false')">
+                    </div>
+                    <div th:replace="fragments/form.html
                     :: formField(id='contest.additionalInfo', type='text',
                                  labelName='Дополнительная информация', labelSize='20',
                                  fieldName='additionalInfo', fieldSize='80',

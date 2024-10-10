@@ -21,4 +21,6 @@ class ContestService : AbstractNamedEntityService<Contest, ContestRepository>() 
 
     override fun validateAdditionalInfo(entity: Contest) =
         super.validateAdditionalInfo(entity) && !entity.additionalInfo.containsAccessToken(entity.developer.accessToken)
+
+    fun findAllPublic() = repository.findAll().filter { it.visibility == Contest.Visibility.PUBLIC }
 }
