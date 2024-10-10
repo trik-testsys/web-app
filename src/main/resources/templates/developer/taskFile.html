@@ -16,6 +16,8 @@
 
 <div th:replace="fragments/popup :: popup"></div>
 
+<div th:replace="fragments/popup :: emergencyPopup"></div>
+
 <div th:replace="fragments/entity/developer
     :: developerHeader(breadCrumbNames=${ { 'Файлы', 'Файл' } },
                        breadCrumbLinks=${ { '/developer/taskFiles', '|/developer/taskFiles/taskFile/${taskFile.id}|' } })"></div>
@@ -79,7 +81,6 @@
         </div>
     </div>
 
-</div>
 </div>
 
 </body>

@@ -42,6 +42,8 @@ abstract class WebUser(
 
             @Converter(autoApply = true)
             class UserTypeConverter : AbstractEnumConverter<UserType>()
+
+            fun all() = values().toList()
         }
     }
 }

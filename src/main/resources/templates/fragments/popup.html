@@ -15,4 +15,12 @@
     </div>
 </div>
 
+<!--Emergency Popup with a flash message-->
+<div th:fragment="emergencyPopup"
+     id="emergency-popup" class="emergency-popup" th:if="${emergencyMessage != null}">
+    <div class="popup-content">
+        <p th:text="${emergencyMessage}"></p>
+    </div>
+</div>
+
 </html>
