@@ -5,7 +5,6 @@ import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import trik.testsys.webclient.controller.impl.main.LoginController
-import trik.testsys.webclient.controller.impl.user.student.StudentContestsController.Companion.CONTESTS_PAGE
 import trik.testsys.webclient.controller.impl.user.student.StudentContestsController.Companion.CONTESTS_PATH
 import trik.testsys.webclient.controller.impl.user.student.StudentMainController.Companion.STUDENT_PAGE
 import trik.testsys.webclient.controller.user.AbstractWebUserController

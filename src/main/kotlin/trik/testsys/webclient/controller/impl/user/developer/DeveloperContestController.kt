@@ -12,7 +12,6 @@ import trik.testsys.webclient.controller.user.AbstractWebUserMainController.Comp
 import trik.testsys.webclient.entity.impl.Contest
 import trik.testsys.webclient.entity.user.impl.Developer
 import trik.testsys.webclient.service.entity.impl.ContestService
-import trik.testsys.webclient.service.entity.impl.GroupService
 import trik.testsys.webclient.service.entity.user.impl.DeveloperService
 import trik.testsys.webclient.service.security.login.impl.LoginData
 import trik.testsys.webclient.util.addPopupMessage
