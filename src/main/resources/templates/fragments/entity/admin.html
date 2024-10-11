@@ -1,0 +1,15 @@
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+
+<div th:fragment="adminHeader(breadCrumbNames, breadCrumbLinks)"
+     th:replace="fragments/menu
+        :: header(title='Кабинет Организатора',
+                  titleLink='/admin',
+                  breadCrumbNames=${breadCrumbNames},
+                  breadCrumbLinks=${breadCrumbLinks})"></div>
+
+<div th:fragment="adminMenu"
+     th:replace="fragments/menu
+        :: sideMenu(links=${ {'/admin', '/admin/groups', '/admin?Logout=' } },
+                    names=${ { 'Профиль', 'Группы', 'Выход' } })"></div>
+
+</html>
