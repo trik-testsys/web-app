@@ -154,7 +154,7 @@ class AdminGroupController(
         val students = group.students.sortedBy { it.id }
 
         val csv = students.joinToString("\n") { "${it.id};${it.name};${it.accessToken}" }
-        val filename = "${group.name}_students.csv"
+        val filename = "students_${System.currentTimeMillis()}.csv"
         val contentType = "text/csv"
         val charset = "utf-8"
         val contentDisposition = "attachment; filename=$filename"
@@ -170,22 +170,6 @@ class AdminGroupController(
 
         return responseEntity
     }
-
-    //    @ResponseBody
-//    @GetMapping("/task/download")
-//    fun downloadTask(
-//        redirectAttributes: RedirectAttributes,
-//        model: Model
-//    ): Any {
-//        validate(redirectAttributes) ?: return RedirectView(LoginController.LOGIN_PATH)
-//        val file = File("/Users/shisha/Projects/Kotlin/trik-testsys-web-client2/Dockerfile")
-//
-//        val responseEntity = ResponseEntity.ok()
-//            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"task.qrs\"")
-//            .contentType(MediaType.APPLICATION_OCTET_STREAM)
-//            .body(file.readBytes())
-//
-//        return responseEntity
 
     @PostMapping("/linkContest/{groupId}")
     fun groupLinkContest(
