@@ -3,8 +3,8 @@ package trik.testsys.grading.converter
 import com.google.protobuf.ByteString
 import trik.testsys.grading.*
 import trik.testsys.grading.GradingNodeOuterClass.Submission
-import trik.testsys.webclient.entity.Solution
-import trik.testsys.webclient.entity.Task
+import trik.testsys.webclient.entity.impl.Solution
+import trik.testsys.webclient.entity.impl.Task
 import trik.testsys.webclient.service.Grader
 import java.io.File
 
@@ -23,9 +23,11 @@ class SubmissionBuilder private constructor() {
             block(sb)
 
             val submission = submission {
-                id = sb.solution.id.toInt()
+                id = sb.solution.id?.let {
+                    it.toInt()
+                } ?: throw NullPointerException("Solution id cannot be null.")
 
-                this.task = task {
+                task = task {
                     fields.addAll(
                         sb.taskFiles.map {
                             file {
@@ -41,14 +43,21 @@ class SubmissionBuilder private constructor() {
                     recordVideo = sb.gradingOptions.shouldRecordRun
                 }
 
-                visualLanguageSubmission = visualLanguageSubmission {
-                    file = file {
-                        name = sb.solutionFile.name
-                        content = ByteString.readFrom(sb.solutionFile.inputStream())
-                    }
-                }
+                fillSubmission(sb.solution, sb.solutionFile)
             }
             return submission
         }
+    }
+}
+
+private fun SubmissionKt.Dsl.fillSubmission(solution: Solution, solutionFile: File) {
+    val encodedFile = file {
+        name = solutionFile.name
+        content = ByteString.readFrom(solutionFile.inputStream())
+    }
+    when (solution.type) {
+        Solution.SolutionType.QRS -> visualLanguageSubmission = visualLanguageSubmission { file = encodedFile }
+        Solution.SolutionType.PYTHON -> pythonSubmission = pythonSubmission { file = encodedFile }
+        Solution.SolutionType.JAVASCRIPT -> javascriptSubmission = javaScriptSubmission { file = encodedFile }
     }
 }

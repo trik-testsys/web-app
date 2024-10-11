@@ -1,11 +1,10 @@
 package trik.testsys.webclient.service
 
 import trik.testsys.webclient.entity.impl.Solution
-import trik.testsys.webclient.entity.impl.Task
 
 interface Grader {
 
-    fun sendToGrade(solution: Solution, task: Task, gradingOptions: GradingOptions)
+    fun sendToGrade(solution: Solution, gradingOptions: GradingOptions)
 
     fun subscribeOnGraded(onGraded: (GradingInfo) -> Unit)
 
@@ -21,7 +20,7 @@ interface Grader {
 
         data class Error(override val submissionId: Int, val kind: Int, val description: String): GradingInfo(submissionId)
 
-        data class File(val name: String, val content: ByteBuffer)
+        data class File(val name: String, val content: ByteArray)
 
         data class FieldResult(val name: String, val verdict: File, val recording: File?)
 
@@ -30,7 +29,7 @@ interface Grader {
     }
 
     sealed class NodeStatus {
-        data class Alive(val id: Int, val capacity: Int, val queued: Int): NodeStatus()
+        data class Alive(val id: Int, val queued: Int, val capacity: Int): NodeStatus()
         data class Unreachable(val reason: String): NodeStatus()
     }
 

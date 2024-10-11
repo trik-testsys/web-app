@@ -1,5 +1,6 @@
 package trik.testsys.webclient.controller.impl.user
 
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.*
@@ -24,6 +25,7 @@ import trik.testsys.webclient.view.impl.*
 import trik.testsys.webclient.view.impl.ContestView.Companion.toView
 import trik.testsys.webclient.view.impl.TaskFileView.Companion.toView
 import trik.testsys.webclient.view.impl.TaskView.Companion.toView
+import java.io.File
 import java.util.*
 import javax.servlet.http.HttpServletRequest
 
@@ -39,13 +41,26 @@ class DeveloperController(
 
     private val fileManager: FileManager,
 
-    private val solutionService: SolutionService
-//    private val grader: Grader
+    private val solutionService: SolutionService,
+    private val grader: Grader
 ) : WebUserController<Developer, DeveloperView, DeveloperService>(loginData) {
 
     override val MAIN_PATH = DEVELOPER_PATH
 
     override val MAIN_PAGE = DEVELOPER_PAGE
+
+    init {
+        grader.subscribeOnGraded {
+            val logger = LoggerFactory.getLogger(this.javaClass)
+            when (it) {
+                is Grader.GradingInfo.Ok -> {
+                    logger.error("Yeah! ${it.submissionId} finished with success!!!")
+                }
+                is Grader.GradingInfo.Error -> logger.error("Yeah! ${it.submissionId} finished with error: ${it.description}!")
+            }
+        }
+        grader.addNode("192.168.1.108:8081")
+    }
 
     override fun Developer.toView(timeZone: TimeZone) = DeveloperView(
         id = this.id,
@@ -328,14 +343,16 @@ class DeveloperController(
             return "redirect:$DEVELOPER_PATH$TASKS_PATH"
         }
 
-        val solution = Solution().also {
+        val solution = Solution(Solution.SolutionType.QRS).also {
             it.task = task
             it.developer = webUser
         }
         solutionService.save(solution)
 
-//        grader.sendToGrade(solution, task, Grader.GradingOptions(true, "1.0.0"))
+        val taskFile = fileManager.getTaskFile(task.solution!!)!!
+        fileManager.saveSolutionFile(solution, taskFile)
 
+        grader.sendToGrade(solution, Grader.GradingOptions(true, "testsystrik/trik-studio:release-2023.1-2024-10-10-2.0.0"))
         redirectAttributes.addPopupMessage("Тестирование задания ${task.name} запущено.")
 
         return "redirect:$DEVELOPER_PATH$TASK_PATH/$taskId"

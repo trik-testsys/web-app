@@ -4,9 +4,12 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
+import trik.testsys.webclient.entity.impl.Solution
+import trik.testsys.webclient.entity.impl.Task
 import trik.testsys.webclient.entity.impl.TaskFile
 import trik.testsys.webclient.service.FileManager
 import java.io.File
+import java.nio.file.Files
 import javax.annotation.PostConstruct
 
 /**
@@ -41,11 +44,10 @@ class FileManagerImpl(
         logger.info("Saving task file with id ${taskFile.id}")
 
         val dir = getTaskFileDir(taskFile)
-
-        val fileExtension = fileData.originalFilename?.substringAfterLast(".") ?: ""
+        val extension = getTaskFileExtension(taskFile)
 
         try {
-            val file = File(dir, "${taskFile.id}.$fileExtension")
+            val file = File(dir, "${taskFile.id}$extension")
             fileData.transferTo(file)
         } catch (e: Exception) {
             logger.error("Error while saving task file with id ${taskFile.id}", e)
@@ -59,7 +61,8 @@ class FileManagerImpl(
         logger.info("Getting task file with id ${taskFile.id}")
 
         val dir = getTaskFileDir(taskFile)
-        val file = File(dir, "${taskFile.id}")
+        val extension = getTaskFileExtension(taskFile)
+        val file = File(dir, "${taskFile.id}$extension")
 
         if (!file.exists()) {
             logger.error("Task file with id ${taskFile.id} not found")
@@ -69,23 +72,49 @@ class FileManagerImpl(
         return file
     }
 
+    private fun getTaskFileExtension(taskFile: TaskFile) = when (taskFile.type) {
+        TaskFile.TaskFileType.SOLUTION -> ".qrs"
+        TaskFile.TaskFileType.EXERCISE -> ".qrs"
+        TaskFile.TaskFileType.POLYGON -> ".xml"
+    }
+
     private fun getTaskFileDir(taskFile: TaskFile) = when (taskFile.type) {
         TaskFile.TaskFileType.SOLUTION -> taskFileSolutionsDir
         TaskFile.TaskFileType.EXERCISE -> taskFileExercisesDir
         TaskFile.TaskFileType.POLYGON -> taskFilePolygonsDir
     }
 
-    override fun getTaskFiles(taskNameId: Long): Collection<TaskFile> {
-        TODO("Not yet implemented")
+    override fun getTaskFiles(task: Task): Collection<TaskFile> {
+        TODO()
     }
 
-    override fun getSolutionFile(solutionId: Long): File? {
-        logger.info("Getting solution file with id $solutionId")
+    override fun saveSolutionFile(solution: Solution, file: File): Boolean {
+        logger.info("Saving solution file with id ${solution.id}")
 
-        val file = File(solutionsDir, "$solutionId")
+        val solutionFile = File(solutionsDir, "${solution.id}.qrs")
+
+        if (!file.exists())  {
+            logger.error("Solution file with id ${solution.id} not found")
+            return false
+        }
+
+        try {
+            Files.copy(file.toPath(), solutionFile.toPath())
+        } catch (e: Exception) {
+            logger.error("Error while saving solution file with id ${solution.id}", e)
+            return false
+        }
+
+        return true
+    }
+
+    override fun getSolutionFile(solution: Solution): File? {
+        logger.info("Getting solution file with id ${solution.id}")
+
+        val file = File(solutionsDir, "${solution.id}.qrs")
 
         if (!file.exists()) {
-            logger.error("Solution file with id $solutionId not found")
+            logger.error("Solution file with id ${solution.id} not found")
             return null
         }
 
