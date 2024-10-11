@@ -11,12 +11,14 @@ import trik.testsys.webclient.controller.impl.user.admin.AdminGroupsController.C
 import trik.testsys.webclient.controller.user.AbstractWebUserController
 import trik.testsys.webclient.entity.impl.Group
 import trik.testsys.webclient.entity.user.impl.Admin
+import trik.testsys.webclient.service.entity.impl.ContestService
 import trik.testsys.webclient.service.entity.impl.GroupService
 import trik.testsys.webclient.service.entity.user.impl.AdminService
 import trik.testsys.webclient.service.security.login.impl.LoginData
 import trik.testsys.webclient.service.token.reg.RegTokenGenerator
 import trik.testsys.webclient.util.addPopupMessage
 import trik.testsys.webclient.view.impl.AdminView
+import trik.testsys.webclient.view.impl.ContestView.Companion.toView
 import trik.testsys.webclient.view.impl.GroupCreationView
 import trik.testsys.webclient.view.impl.GroupView
 import trik.testsys.webclient.view.impl.GroupView.Companion.toView
@@ -29,7 +31,9 @@ class AdminGroupController(
     loginData: LoginData,
 
     private val groupService: GroupService,
-    @Qualifier("groupRegTokenGenerator") private val groupRegTokenGenerator: RegTokenGenerator
+    @Qualifier("groupRegTokenGenerator") private val groupRegTokenGenerator: RegTokenGenerator,
+
+    private val contestService: ContestService
 ) : AbstractWebUserController<Admin, AdminView, AdminService>(loginData) {
 
     override val mainPage = GROUP_PAGE
@@ -81,7 +85,90 @@ class AdminGroupController(
         val groupView = group.toView(timezone)
         model.addAttribute(GROUP_ATTR, groupView)
 
+        val publicContests = contestService.findAllPublic()
+        val linkedContests = group.contests
+        val unLinkedContests = publicContests.filter { it !in linkedContests }.toSet()
+
+        model.addAttribute(LINKED_CONTESTS_ATTR, linkedContests.map { it.toView(timezone) })
+        model.addAttribute(UNLINKED_CONTESTS_ATTR, unLinkedContests.map { it.toView(timezone) })
+
         return GROUP_PAGE
+    }
+
+    @PostMapping("/linkContest/{groupId}")
+    fun groupLinkContest(
+        @PathVariable("groupId") groupId: Long,
+        @RequestParam("contestId") contestId: Long,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val webUser = loginData.validate(redirectAttributes) ?: return "redirect:${LoginController.LOGIN_PATH}"
+
+        if (!webUser.validateGroupExistence(groupId)) {
+            redirectAttributes.addPopupMessage("Группа с ID $groupId не найдена.")
+            return "redirect:$GROUPS_PATH"
+        }
+
+        val group = groupService.find(groupId) ?: run {
+            redirectAttributes.addPopupMessage("Группа с ID $groupId не найдена.")
+            return "redirect:$GROUPS_PATH"
+        }
+
+        val contest = contestService.find(contestId) ?: run {
+            redirectAttributes.addPopupMessage("Тур с ID $contestId не найден.")
+            return "redirect:$GROUP_PATH/$groupId"
+        }
+
+        if (!contest.isPublic()) {
+            redirectAttributes.addPopupMessage("Тур с ID $contestId не найден.")
+            return "redirect:$GROUP_PATH/$groupId"
+        }
+
+        group.contests.add(contest)
+        groupService.save(group)
+        contest.groups.add(group)
+        contestService.save(contest)
+
+        redirectAttributes.addPopupMessage("Тур ${contest.name} успешно привязан к группе ${group.name}.")
+
+        return "redirect:$GROUP_PATH/$groupId"
+    }
+
+    @PostMapping("/unlinkContest/{groupId}")
+    fun groupUnlinkContest(
+        @PathVariable("groupId") groupId: Long,
+        @RequestParam("contestId") contestId: Long,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val webUser = loginData.validate(redirectAttributes) ?: return "redirect:${LoginController.LOGIN_PATH}"
+
+        if (!webUser.validateGroupExistence(groupId)) {
+            redirectAttributes.addPopupMessage("Группа с ID $groupId не найдена.")
+            return "redirect:$GROUPS_PATH"
+        }
+
+        val group = groupService.find(groupId) ?: run {
+            redirectAttributes.addPopupMessage("Группа с ID $groupId не найдена.")
+            return "redirect:$GROUPS_PATH"
+        }
+
+        val contest = contestService.find(contestId) ?: run {
+            redirectAttributes.addPopupMessage("Тур с ID $contestId не найден.")
+            return "redirect:$GROUP_PATH/$groupId"
+        }
+
+        if (!contest.isPublic()) {
+            redirectAttributes.addPopupMessage("Тур с ID $contestId не найден.")
+            return "redirect:$GROUP_PATH/$groupId"
+        }
+
+        group.contests.remove(contest)
+        groupService.save(group)
+        contest.groups.remove(group)
+        contestService.save(contest)
+
+        redirectAttributes.addPopupMessage("Тур ${contest.name} успешно откреплен от группы ${group.name}.")
+
+        return "redirect:$GROUP_PATH/$groupId"
     }
 
     @PostMapping("/update/{groupId}")
@@ -118,6 +205,9 @@ class AdminGroupController(
         const val GROUP_PAGE = "admin/group"
 
         const val GROUP_ATTR = "group"
+
+        const val LINKED_CONTESTS_ATTR = "linkedContests"
+        const val UNLINKED_CONTESTS_ATTR = "unlinkedContests"
 
         fun Admin.validateGroupExistence(groupId: Long?) = groups.any { it.id == groupId }
 

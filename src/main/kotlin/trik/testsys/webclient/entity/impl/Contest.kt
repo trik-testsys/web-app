@@ -41,6 +41,14 @@ class Contest(
 
     fun isPublic() = visibility == Visibility.PUBLIC
 
+    @ManyToMany
+    @JoinTable(
+        name = "CONTESTS_BY_GROUPS",
+        joinColumns = [JoinColumn(name = "contest_id")],
+        inverseJoinColumns = [JoinColumn(name = "group_id")]
+    )
+    val groups: MutableSet<Group> = mutableSetOf()
+
     enum class Visibility(override val dbkey: String) : Enum {
 
         PUBLIC("PLC"),

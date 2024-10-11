@@ -12,6 +12,7 @@ import trik.testsys.webclient.controller.user.AbstractWebUserMainController.Comp
 import trik.testsys.webclient.entity.impl.Contest
 import trik.testsys.webclient.entity.user.impl.Developer
 import trik.testsys.webclient.service.entity.impl.ContestService
+import trik.testsys.webclient.service.entity.impl.GroupService
 import trik.testsys.webclient.service.entity.user.impl.DeveloperService
 import trik.testsys.webclient.service.security.login.impl.LoginData
 import trik.testsys.webclient.util.addPopupMessage
@@ -27,7 +28,8 @@ import javax.servlet.http.HttpServletRequest
 class DeveloperContestController(
     loginData: LoginData,
 
-    private val contestService: ContestService
+    private val contestService: ContestService,
+    private val groupService: GroupService
 ) : AbstractWebUserController<Developer, DeveloperView, DeveloperService>(loginData) {
 
     override val mainPath = CONTEST_PATH
@@ -139,6 +141,16 @@ class DeveloperContestController(
         }
 
         contest.switchVisibility()
+
+        if (!contest.isPublic()) {
+            contest.groups.forEach {
+                it.contests.remove(contest)
+                groupService.save(it)
+            }
+
+            contest.groups.clear()
+        }
+
         contestService.save(contest)
 
         redirectAttributes.addPopupMessage("Видимость Тура '${contest.name}' изменена с '${contest.visibility.opposite()}' на '${contest.visibility}'.")

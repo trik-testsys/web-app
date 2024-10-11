@@ -37,10 +37,10 @@ data class ContestView(
     }
 
     val formattedStartDate: String
-        get() = startDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"))
+        get() = startDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"))
 
     val formattedEndDate: String
-        get() = endDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"))
+        get() = endDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"))
 
     companion object {
 

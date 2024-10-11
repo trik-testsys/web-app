@@ -81,6 +81,110 @@
             </form>
         </div>
     </div>
+
+    <div class="block">
+        <div class="block-title">Туры</div>
+
+        <div class="table contests-table">
+            <div class="form-header">
+                <h1>Список прикрепленных Туров</h1>
+            </div>
+            <table>
+                <tr>
+                    <th style="width: 7%">
+                        ID
+                    </th>
+                    <th style="width: 20%">
+                        Название
+                    </th>
+                    <th>Дополнительная информация</th>
+                    <th>
+                        Дата и время начала
+                    </th>
+                    <th>
+                        Дата и время окончания
+                    </th>
+                    <th>
+                        Продолжительность
+                    </th>
+                    <th style="width: 15%">
+                    </th>
+                </tr>
+                <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.ContestView"*/-->
+                <tr th:each="contest : ${linkedContests}">
+                    <td th:text="${contest.id}"></td>
+                    <td th:text="${contest.name}"></td>
+                    <td th:text="${contest.additionalInfo}"></td>
+                    <td th:text="${contest.formattedStartDate}"></td>
+                    <td th:text="${contest.formattedEndDate}"></td>
+                    <td th:text="${contest.duration}"></td>
+                    <td class="buttons">
+                        <form th:action="@{/admin/groups/group/unlinkContest/{id}(id=${group.id})}" method="post">
+                            <input type="hidden" name="contestId" th:value="${contest.id}">
+                            <button type="submit" title="Открепить">
+                                <i class="fa-solid fa-link-slash"></i>
+                            </button>
+                        </form>
+                        <form th:action="@{/admin/groups/group/{id}(id=${contest.id})}" method="get">
+                            <button type="submit" title="Войти">
+                                <i class="fa-solid fa-right-to-bracket"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="table contests-table">
+            <div class="form-header">
+                <h1>Список доступных к прикреплению Туров</h1>
+            </div>
+            <table>
+                <tr>
+                    <th style="width: 7%">
+                        ID
+                    </th>
+                    <th style="width: 20%">
+                        Название
+                    </th>
+                    <th>Дополнительная информация</th>
+                    <th>
+                        Дата и время начала
+                    </th>
+                    <th>
+                        Дата и время окончания
+                    </th>
+                    <th>
+                        Продолжительность
+                    </th>
+                    <th style="width: 15%">
+                    </th>
+                </tr>
+                <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.ContestView"*/-->
+                <tr th:each="contest : ${unlinkedContests}">
+                    <td th:text="${contest.id}"></td>
+                    <td th:text="${contest.name}"></td>
+                    <td th:text="${contest.additionalInfo}"></td>
+                    <td th:text="${contest.formattedStartDate}"></td>
+                    <td th:text="${contest.formattedEndDate}"></td>
+                    <td th:text="${contest.duration}"></td>
+                    <td class="buttons">
+                        <form th:action="@{/admin/groups/group/linkContest/{id}(id=${group.id})}" method="post">
+                            <input type="hidden" name="contestId" th:value="${contest.id}">
+                            <button type="submit" title="Прикрепить">
+                                <i class="fa-solid fa-link"></i>
+                            </button>
+                        </form>
+                        <form th:action="@{/admin/groups/group/{id}(id=${contest.id})}" method="get">
+                            <button type="submit" title="Войти">
+                                <i class="fa-solid fa-right-to-bracket"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
 </div>
 
 </body>
