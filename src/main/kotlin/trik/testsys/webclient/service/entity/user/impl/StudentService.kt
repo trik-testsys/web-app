@@ -1,22 +1,46 @@
 package trik.testsys.webclient.service.entity.user.impl
 
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
+import trik.testsys.webclient.entity.impl.Group
 import trik.testsys.webclient.entity.user.impl.Student
 import trik.testsys.webclient.repository.user.StudentRepository
 import trik.testsys.webclient.service.entity.user.WebUserService
+import trik.testsys.webclient.service.token.access.AccessTokenGenerator
 
 /**
  * @author Roman Shishkin
  * @since 1.0.0
  */
 @Service
-class StudentService: WebUserService<Student, StudentRepository>() {
+class StudentService(
+    @Qualifier("studentAccessTokenGenerator") private val accessTokenGenerator: AccessTokenGenerator
+): WebUserService<Student, StudentRepository>() {
 
     override fun validateName(entity: Student) =
         !entity.name.contains(entity.group.regToken) && super.validateName(entity)
 
     override fun validateAdditionalInfo(entity: Student) =
         !entity.additionalInfo.contains(entity.group.regToken) && super.validateAdditionalInfo(entity)
+
+    fun generate(count: Long, group: Group): List<Student> {
+        val students = mutableListOf<Student>()
+
+        for (i in 1..count) {
+            val number = i
+            val accessToken = accessTokenGenerator.generate(number.toString() + group.regToken)
+            val name = "st_${group.name}_$number"
+
+            val student = Student(name, accessToken)
+            student.group = group
+
+            students.add(student)
+        }
+
+        repository.saveAll(students)
+
+        return students
+    }
 
 //    /**
 //     * @author Roman Shishkin

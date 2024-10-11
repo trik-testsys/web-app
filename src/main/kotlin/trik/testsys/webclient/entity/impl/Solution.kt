@@ -40,6 +40,11 @@ class Solution : AbstractEntity() {
     @Column(nullable = false, unique = false, updatable = true)
     var status: SolutionStatus = SolutionStatus.NOT_STARTED
 
+    @Column(nullable = false, unique = false, updatable = true)
+    var score: Long = -1
+
+    fun isScored() = score != -1L
+
     /**
      * @author Roman Shishkin
      * @since 1.1.0

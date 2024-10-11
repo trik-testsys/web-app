@@ -1,6 +1,9 @@
 package trik.testsys.webclient.controller.impl.user.admin
 
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.*
@@ -14,6 +17,7 @@ import trik.testsys.webclient.entity.user.impl.Admin
 import trik.testsys.webclient.service.entity.impl.ContestService
 import trik.testsys.webclient.service.entity.impl.GroupService
 import trik.testsys.webclient.service.entity.user.impl.AdminService
+import trik.testsys.webclient.service.entity.user.impl.StudentService
 import trik.testsys.webclient.service.security.login.impl.LoginData
 import trik.testsys.webclient.service.token.reg.RegTokenGenerator
 import trik.testsys.webclient.util.addPopupMessage
@@ -22,6 +26,7 @@ import trik.testsys.webclient.view.impl.ContestView.Companion.toView
 import trik.testsys.webclient.view.impl.GroupCreationView
 import trik.testsys.webclient.view.impl.GroupView
 import trik.testsys.webclient.view.impl.GroupView.Companion.toView
+import trik.testsys.webclient.view.impl.StudentView.Companion.toView
 import java.util.*
 import javax.servlet.http.HttpServletRequest
 
@@ -33,7 +38,8 @@ class AdminGroupController(
     private val groupService: GroupService,
     @Qualifier("groupRegTokenGenerator") private val groupRegTokenGenerator: RegTokenGenerator,
 
-    private val contestService: ContestService
+    private val contestService: ContestService,
+    private val studentService: StudentService
 ) : AbstractWebUserController<Admin, AdminView, AdminService>(loginData) {
 
     override val mainPage = GROUP_PAGE
@@ -89,11 +95,97 @@ class AdminGroupController(
         val linkedContests = group.contests
         val unLinkedContests = publicContests.filter { it !in linkedContests }.toSet()
 
-        model.addAttribute(LINKED_CONTESTS_ATTR, linkedContests.map { it.toView(timezone) })
-        model.addAttribute(UNLINKED_CONTESTS_ATTR, unLinkedContests.map { it.toView(timezone) })
+        model.addAttribute(LINKED_CONTESTS_ATTR, linkedContests.map { it.toView(timezone) }.sortedBy { it.id })
+        model.addAttribute(UNLINKED_CONTESTS_ATTR, unLinkedContests.map { it.toView(timezone) }.sortedBy { it.id })
+        model.addAttribute(STUDENTS_ATTR, group.students.map { it.toView(timezone) }.sortedBy { it.id })
 
         return GROUP_PAGE
     }
+
+    @PostMapping("/generateStudents/{groupId}")
+    fun groupGenerateStudents(
+        @PathVariable("groupId") groupId: Long,
+        @RequestParam("count") count: Long,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val webUser = loginData.validate(redirectAttributes) ?: return "redirect:${LoginController.LOGIN_PATH}"
+
+        if (!webUser.validateGroupExistence(groupId)) {
+            redirectAttributes.addPopupMessage("Группа с ID $groupId не найдена.")
+            return "redirect:$GROUPS_PATH"
+        }
+
+        val group = groupService.find(groupId) ?: run {
+            redirectAttributes.addPopupMessage("Группа с ID $groupId не найдена.")
+            return "redirect:$GROUPS_PATH"
+        }
+
+        if (count < 1) {
+            redirectAttributes.addPopupMessage("Количество студентов должно быть больше 0.")
+            return "redirect:$GROUP_PATH/$groupId"
+        }
+
+        val students = studentService.generate(count, group)
+
+        group.students.addAll(students)
+
+        redirectAttributes.addPopupMessage("Сгенерировано $count студентов.")
+
+        return "redirect:$GROUP_PATH/$groupId"
+    }
+
+    @GetMapping("/exportStudents/{groupId}")
+    fun groupExportStudents(
+        @PathVariable("groupId") groupId: Long,
+        redirectAttributes: RedirectAttributes
+    ): Any {
+        val webUser = loginData.validate(redirectAttributes) ?: return "redirect:${LoginController.LOGIN_PATH}"
+
+        if (!webUser.validateGroupExistence(groupId)) {
+            redirectAttributes.addPopupMessage("Группа с ID $groupId не найдена.")
+            return "redirect:$GROUPS_PATH"
+        }
+
+        val group = groupService.find(groupId) ?: run {
+            redirectAttributes.addPopupMessage("Группа с ID $groupId не найдена.")
+            return "redirect:$GROUPS_PATH"
+        }
+
+        val students = group.students.sortedBy { it.id }
+
+        val csv = students.joinToString("\n") { "${it.id};${it.name};${it.accessToken}" }
+        val filename = "${group.name}_students.csv"
+        val contentType = "text/csv"
+        val charset = "utf-8"
+        val contentDisposition = "attachment; filename=$filename"
+        val bytes = csv.toByteArray()
+
+        val responseEntity = ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
+            .contentType(MediaType.parseMediaType(contentType))
+            .header(HttpHeaders.CONTENT_ENCODING, charset)
+            .body(bytes)
+
+        redirectAttributes.addPopupMessage("Студенты успешно экспортированы.")
+
+        return responseEntity
+    }
+
+    //    @ResponseBody
+//    @GetMapping("/task/download")
+//    fun downloadTask(
+//        redirectAttributes: RedirectAttributes,
+//        model: Model
+//    ): Any {
+//        validate(redirectAttributes) ?: return RedirectView(LoginController.LOGIN_PATH)
+//        val file = File("/Users/shisha/Projects/Kotlin/trik-testsys-web-client2/Dockerfile")
+//
+//        val responseEntity = ResponseEntity.ok()
+//            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"task.qrs\"")
+//            .contentType(MediaType.APPLICATION_OCTET_STREAM)
+//            .body(file.readBytes())
+//
+//        return responseEntity
 
     @PostMapping("/linkContest/{groupId}")
     fun groupLinkContest(
@@ -203,6 +295,8 @@ class AdminGroupController(
         const val GROUP_PAGE = "admin/group"
 
         const val GROUP_ATTR = "group"
+
+        const val STUDENTS_ATTR = "students"
 
         const val LINKED_CONTESTS_ATTR = "linkedContests"
         const val UNLINKED_CONTESTS_ATTR = "unlinkedContests"

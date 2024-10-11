@@ -185,6 +185,62 @@
             </table>
         </div>
     </div>
+
+    <div class="block">
+        <div class="block-title">Участники</div>
+
+        <div class="form-container">
+            <div class="form-header">
+                <h1>Генерация Участников</h1>
+            </div>
+
+            <!--/*@thymesVar id="webUser" type="trik.testsys.webclient.view.impl.GroupView"*/-->
+            <form id="student-generation" action="#" th:action="@{/admin/groups/group/generateStudents/{groupId}(groupId=${group.id})}" method="post">
+                <div class="form-field" style="flex-basis: 50%">
+                    <div class="form-label" style="flex-basis: 50%">
+                        <label for="student.count">Количество</label>
+                    </div>
+                    <div class="form-input" style="flex-basis: 50%">
+                        <input name="count"
+                               type="number" id="student.count" readonly required/>
+                    </div>
+                </div>
+                <!-- Кнопки редактирования, отправки и отмены -->
+                <div class="form-buttons">
+                    <button type="button" class="edit-button" id="student-generation-edit" onclick="enableForm('student-generation')">Сгенерировать Участников</button>
+                    <button type="submit" class="save-button" id="student-generation-save">Сгенерировать</button>
+                    <button type="button" class="cancel-button" id="student-generation-cancel" onclick="disableForm('student-generation')">Отменить</button>
+                </div>
+            </form>
+
+            <a class="button" th:href="@{/admin/groups/group/exportStudents/{groupId}(groupId=${group.id})}"
+               charset="UTF-8" target="_self"
+            >Экспорт Участников</a>
+        </div>
+
+        <div class="table contests-table">
+            <div class="form-header">
+                <h1>Список Участников</h1>
+            </div>
+            <table>
+                <tr>
+                    <th style="width: 7%">
+                        ID
+                    </th>
+                    <th style="width: 20%">
+                        Псевдоним
+                    </th>
+                    <th>Дополнительная информация</th>
+                </tr>
+                <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.ContestView"*/-->
+                <tr th:each="student : ${students}">
+                    <td th:text="${student.id}"></td>
+                    <td th:text="${student.name}"></td>
+                    <td th:text="${student.additionalInfo}"></td>
+                </tr>
+            </table>
+        </div>
+    </div>
 </div>
 
 </body>
