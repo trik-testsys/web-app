@@ -49,6 +49,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
     implementation("org.springframework.boot:spring-boot-devtools")
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
+    implementation("org.thymeleaf.extras:thymeleaf-extras-java8time")
 
 //    implementation("org.springframework.boot:spring-boot-starter-actuator")
 //    implementation("io.micrometer:micrometer-core:1.6.6")

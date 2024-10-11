@@ -19,7 +19,7 @@ import trik.testsys.webclient.view.impl.ContestCreationView
 import trik.testsys.webclient.view.impl.ContestView
 import trik.testsys.webclient.view.impl.ContestView.Companion.toView
 import trik.testsys.webclient.view.impl.DeveloperView
-import java.util.*
+import java.time.LocalTime
 import javax.servlet.http.HttpServletRequest
 
 @Controller
@@ -39,15 +39,25 @@ class DeveloperContestController(
     @PostMapping("/create")
     fun contestPost(
         @ModelAttribute("contest") contestView: ContestCreationView,
-        timeZone: TimeZone,
+        @CookieValue(name = "X-Timezone", defaultValue = "UTC") timezone: String,
         request: HttpServletRequest,
         redirectAttributes: RedirectAttributes
     ): String {
         val webUser = loginData.validate(redirectAttributes) ?: return "redirect:$LOGIN_PATH"
 
-        val contest = contestView.toEntity(webUser)
+        val contest = contestView.toEntity(webUser, timezone)
 
         contestService.validate(contest, redirectAttributes, "redirect:$CONTESTS_PATH")?.let { return it }
+
+        if (contest.startDate > contest.endDate) {
+            redirectAttributes.addPopupMessage("Дата начала не может быть позже даты окончания.")
+            return "redirect:$CONTESTS_PATH"
+        }
+
+        if (contest.startDate == contest.endDate && contest.duration == LocalTime.of(0, 0)) {
+            redirectAttributes.addPopupMessage("Длительность тура должна быть положительной.")
+            return "redirect:$CONTESTS_PATH"
+        }
 
         contestService.save(contest)
 

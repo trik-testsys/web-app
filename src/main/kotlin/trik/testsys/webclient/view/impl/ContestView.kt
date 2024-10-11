@@ -1,9 +1,14 @@
 package trik.testsys.webclient.view.impl
 
+import org.springframework.format.annotation.DateTimeFormat
 import trik.testsys.webclient.entity.impl.Contest
 import trik.testsys.webclient.util.atTimeZone
+import trik.testsys.webclient.util.fromTimeZone
 import trik.testsys.webclient.view.NotedEntityView
+import java.sql.Time
 import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 /**
  * @author Roman Shishkin
@@ -15,16 +20,27 @@ data class ContestView(
     override val creationDate: LocalDateTime?,
     override val name: String,
     override val note: String,
-    val visibility: Contest.Visibility
+    val visibility: Contest.Visibility,
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+    val startDate: LocalDateTime,
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+    val endDate: LocalDateTime,
+    val duration: LocalTime
 ) : NotedEntityView<Contest> {
 
     override fun toEntity(timeZoneId: String?) = Contest(
-        name
+        name, startDate.fromTimeZone(timeZoneId), endDate.fromTimeZone(timeZoneId), duration
     ).also {
         it.id = id
         it.additionalInfo = additionalInfo
         it.note = note
     }
+
+    val formattedStartDate: String
+        get() = startDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"))
+
+    val formattedEndDate: String
+        get() = endDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"))
 
     companion object {
 
@@ -34,7 +50,10 @@ data class ContestView(
             creationDate = this.creationDate?.atTimeZone(timeZone),
             name = this.name,
             note = this.note,
-            visibility = this.visibility
+            visibility = this.visibility,
+            startDate = this.startDate.atTimeZone(timeZone),
+            endDate = this.endDate.atTimeZone(timeZone),
+            duration = this.duration
         )
     }
 }

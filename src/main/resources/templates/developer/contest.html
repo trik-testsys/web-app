@@ -66,6 +66,32 @@
                                  size='50',
                                  isReadonly='true', isRequired='true', isAccessToken='false')">
                     </div>
+                    <div class="form-field" style="flex-basis: 40%">
+                        <div class="form-label" style="flex-basis: 25%">
+                            <label for="contest.startDate">Дата и время начала</label>
+                        </div>
+                        <div class="form-input" style="flex-basis: 75%">
+                            <input name="startDate"
+                                   th:value="${contest.formattedStartDate}"
+                                   type="datetime-local" id="contest.startDate" readonly required/>
+                        </div>
+                    </div>
+                    <div class="form-field" style="flex-basis: 40%">
+                        <div class="form-label" style="flex-basis: 25%">
+                            <label for="contest.endDate">Дата и время окончания</label>
+                        </div>
+                        <div class="form-input" style="flex-basis: 75%">
+                            <input name="endDate" th:value="${contest.formattedEndDate}"
+                                   type="datetime-local" id="contest.endDate" readonly required/>
+                        </div>
+                    </div>
+                    <div th:replace="fragments/form.html
+                    :: formField(id='contest.duration', type='time',
+                                 labelName='Длительность', labelSize='50',
+                                 fieldName='duration', fieldSize='50',
+                                 size='20',
+                                 isReadonly='false', isRequired='true', isAccessToken='false')">
+                    </div>
                     <div th:replace="fragments/form.html
                     :: formField(id='contest.additionalInfo', type='text',
                                  labelName='Дополнительная информация', labelSize='20',

@@ -43,6 +43,33 @@
                                  size='100',
                                  isReadonly='false', isRequired='true', isAccessToken='false')">
                 </div>
+                <div class="form-field" style="flex-basis: 40%">
+                    <div class="form-label" style="flex-basis: 25%">
+                        <label for="contest.startDate">Дата и время начала</label>
+                    </div>
+                    <div class="form-input" style="flex-basis: 75%">
+                        <input name="startDate"
+                               type="datetime-local" id="contest.startDate" readonly required/>
+                    </div>
+                </div>
+                <div class="form-field" style="flex-basis: 40%">
+                    <div class="form-label" style="flex-basis: 25%">
+                        <label for="contest.endDate">Дата и время окончания</label>
+                    </div>
+                    <div class="form-input" style="flex-basis: 75%">
+                        <input name="endDate"
+                               type="datetime-local" id="contest.endDate" readonly required/>
+                    </div>
+                </div>
+                <div class="form-field" style="flex-basis: 20%">
+                    <div class="form-label" style="flex-basis: 50%">
+                        <label for="contest.duration">Дата и время окончания</label>
+                    </div>
+                    <div class="form-input" style="flex-basis: 50%">
+                        <input name="duration"
+                               type="time" id="contest.duration" readonly required/>
+                    </div>
+                </div>
                 <div th:replace="fragments/form.html
                     :: formField(id='contest.additionalInfo', type='text',
                                  labelName='Дополнительная информация', labelSize='20',

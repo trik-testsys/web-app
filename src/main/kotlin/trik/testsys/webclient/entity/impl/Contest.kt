@@ -5,13 +5,24 @@ import trik.testsys.core.utils.enums.Enum
 import trik.testsys.core.utils.enums.converter.AbstractEnumConverter
 import trik.testsys.webclient.entity.AbstractNotedEntity
 import trik.testsys.webclient.entity.user.impl.Developer
+import java.time.LocalDateTime
+import java.time.LocalTime
 import javax.persistence.*
 
 
 @Entity
 @Table(name = "${TABLE_PREFIX}_CONTEST")
 class Contest(
-    name: String
+    name: String,
+
+    @Column(nullable = false, unique = false, updatable = true)
+    var startDate: LocalDateTime,
+
+    @Column(nullable = false, unique = false, updatable = true)
+    var endDate: LocalDateTime,
+
+    @Column(nullable = false, unique = false, updatable = true)
+    var duration: LocalTime,
 ) : AbstractNotedEntity(name) {
 
     @ManyToOne
@@ -27,6 +38,8 @@ class Contest(
     fun switchVisibility() {
         visibility = visibility.opposite()
     }
+
+    fun isPublic() = visibility == Visibility.PUBLIC
 
     enum class Visibility(override val dbkey: String) : Enum {
 
