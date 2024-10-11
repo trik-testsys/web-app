@@ -5,8 +5,9 @@ import io.grpc.ManagedChannelBuilder
 import io.grpc.StatusException
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import trik.testsys.webclient.entity.Solution
-import trik.testsys.webclient.entity.Task
+import org.slf4j.LoggerFactory
+import org.springframework.stereotype.Service
+import trik.testsys.webclient.entity.impl.Solution
 import trik.testsys.webclient.service.FileManager
 import trik.testsys.webclient.service.Grader
 import trik.testsys.webclient.service.Grader.*
@@ -16,61 +17,114 @@ import trik.testsys.grading.converter.FieldResultConverter
 import trik.testsys.grading.converter.FileConverter
 import trik.testsys.grading.converter.ResultConverter
 import trik.testsys.grading.converter.SubmissionBuilder
+import trik.testsys.webclient.service.entity.impl.SolutionService
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.LinkedBlockingQueue
 
-//@Service
-class BalancingGraderService(private val fileManager: FileManager): Grader {
+@Service
+class BalancingGraderService(
+    private val fileManager: FileManager,
+    private val solutionService: SolutionService
+): Grader {
 
-    private val statusRequestTimeout = 500L
+    private val replayCount = 1
+    private val statusRequestTimeout = 2000L
+    private val nodePollingInterval = 1000L
+    private val log = LoggerFactory.getLogger(this.javaClass)
 
     private data class NodeInfo (
         val node: GradingNodeGrpcKt.GradingNodeCoroutineStub,
         val submissions: MutableSharedFlow<Submission>,
         val results: Flow<Result>,
+        val sentSubmissions: LinkedBlockingQueue<Pair<Solution, Submission>> = LinkedBlockingQueue()
     )
+    private val nodes = ConcurrentHashMap<String, NodeInfo>()
+    private val submissionQueue = LinkedBlockingQueue<Pair<Solution, Submission>>()
 
-    private val nodes = mutableMapOf<String, NodeInfo>()
     private val subscriptions = mutableListOf<(GradingInfo) -> Unit>()
-    private val resultProcessingScope = CoroutineScope(Dispatchers.Default)
     private val converter = ResultConverter(FieldResultConverter(FileConverter()))
 
-    private suspend fun processResults(results: Flow<Result>) {
-        results.onEach { result ->
-            val gradingInfo = converter.convert(result)
-            subscriptions.forEach { it.invoke(gradingInfo) }
-        }.collect()
+    private val resultProcessingScope = CoroutineScope(Dispatchers.Default)
+
+    private val submissionSendScope = CoroutineScope(Dispatchers.IO)
+    private val submissionSendJob = submissionSendScope.launch {
+        while (isActive) {
+            val solution2submission = submissionQueue.take()
+            var nodeInfo = findFreeNode()
+            while (nodeInfo == null) {
+                delay(nodePollingInterval)
+                nodeInfo = findFreeNode()
+            }
+
+            val (solution, submission) = solution2submission
+            nodeInfo.sentSubmissions.add(solution2submission)
+            nodeInfo.submissions.emit(submission)
+            log.info("Submission[id=${submission.id}] emitted")
+            resultProcessingScope.launch {
+                processResults(nodeInfo.results, nodeInfo.sentSubmissions)
+            }
+
+            solution.status = Solution.SolutionStatus.IN_PROGRESS
+            solutionService.save(solution)
+        }
     }
 
-    private fun findOptimalNode(): NodeInfo {
-        val optimalAddress = getAllNodeStatuses()
+    private fun resendSubmissions(sentSubmissions: LinkedBlockingQueue<Pair<Solution, Submission>>) {
+        if (sentSubmissions.isNotEmpty()) {
+            log.warn("${sentSubmissions.size} submissions are ungraded. Resending them")
+            sentSubmissions.drainTo(submissionQueue)
+        }
+    }
+
+    private suspend fun processResults(
+        results: Flow<Result>,
+        sentSubmissions: LinkedBlockingQueue<Pair<Solution, Submission>>
+    ) = withContext(Dispatchers.IO) {
+        try {
+            results.collect { result ->
+                val gradingInfo = converter.convert(result)
+                log.info("Got result for submission[id=${gradingInfo.submissionId}]")
+                sentSubmissions.removeIf { (_, submission) -> submission.id == gradingInfo.submissionId }
+                subscriptions.forEach { it.invoke(gradingInfo) }
+            }
+            log.debug("Finished processing results")
+        } catch (se: StatusException) {
+            log.warn("RPC is finished with status code ${se.status.code.value()}")
+            resendSubmissions(sentSubmissions)
+        } catch (e: Exception) {
+            log.error("Unexpected error while processing results", e)
+            resendSubmissions(sentSubmissions)
+        }
+    }
+
+    private fun findFreeNode(): NodeInfo? =
+        getAllNodeStatuses()
             .mapNotNull {
                 val aliveStatus = (it.value as? NodeStatus.Alive) ?: return@mapNotNull null
-                it.key to aliveStatus
+                log.debug("Get status for node[id=${aliveStatus.id}, queued=${aliveStatus.queued}, capacity=${aliveStatus.capacity}]")
+                val nodeInfo = nodes[it.key]
+                if (nodeInfo != null && nodeInfo.sentSubmissions.size < aliveStatus.capacity)
+                    nodeInfo to aliveStatus
+                else null
             }
-            .minByOrNull { (_, status) ->
-                status.queued.toDouble() / status.capacity
+            .minByOrNull { (nodeInfo, status) ->
+                nodeInfo.sentSubmissions.size.toDouble() / status.capacity
             }
             ?.first
-            ?: throw IllegalStateException("No available node to send submission")
-        return nodes.getValue(optimalAddress)
-    }
 
-    override fun sendToGrade(solution: Solution, task: Task, gradingOptions: GradingOptions) {
-        val taskFiles = fileManager.getTaskFiles(task.name) ?: throw IllegalArgumentException("Cannot find task files")
-        val solutionFile = fileManager.getSolutionFile(solution.id) ?: throw IllegalArgumentException("Cannot find solution file")
+    override fun sendToGrade(solution: Solution, gradingOptions: GradingOptions) {
+        val taskFiles = solution.task.polygons.mapNotNull { fileManager.getTaskFile(it) }
+        val solutionFile = fileManager.getSolutionFile(solution) ?: throw IllegalArgumentException("Cannot find solution file")
 
         val submission = SubmissionBuilder.build {
             this.solution = solution
             this.solutionFile = solutionFile
-            this.task = task
+            this.task = solution.task
             this.taskFiles = taskFiles
             this.gradingOptions = gradingOptions
         }
-        val node = findOptimalNode()
 
-        resultProcessingScope.launch {
-            node.submissions.emit(submission)
-            processResults(node.results)
-        }
+        submissionQueue.put(solution to submission)
     }
 
     override fun subscribeOnGraded(onGraded: (GradingInfo) -> Unit) {
@@ -81,8 +135,10 @@ class BalancingGraderService(private val fileManager: FileManager): Grader {
         val channel = ManagedChannelBuilder.forTarget(address)
             .usePlaintext() // TODO: Make proper channel initialization
             .build()
+
         val node = GradingNodeGrpcKt.GradingNodeCoroutineStub(channel)
-        val submissions = MutableSharedFlow<Submission>()
+        // grpc backend becomes listener of submissions only after the solution is sent, thus need to replay submission for it
+        val submissions = MutableSharedFlow<Submission>(replayCount)
         val results = node.grade(submissions)
         nodes[address] = NodeInfo(node, submissions, results)
     }
@@ -101,7 +157,7 @@ class BalancingGraderService(private val fileManager: FileManager): Grader {
         } catch (se: StatusException) {
             NodeStatus.Unreachable("The request end up with status error (code ${se.status.code})")
         } catch (tce: TimeoutCancellationException) {
-            NodeStatus.Unreachable("Request timeout reached")
+            NodeStatus.Unreachable("Status request timeout reached")
         }
     }
 

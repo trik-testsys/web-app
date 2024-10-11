@@ -9,7 +9,10 @@ import javax.persistence.*
 
 @Entity
 @Table(name = "${TABLE_PREFIX}_SOLUTION")
-class Solution : AbstractEntity() {
+class Solution(
+    @Column(nullable = false, unique = false, updatable = false)
+    val type: SolutionType,
+) : AbstractEntity() {
 
     @ManyToOne
     @JoinColumn(
@@ -50,6 +53,23 @@ class Solution : AbstractEntity() {
 
             @Converter(autoApply = true)
             class SolutionStatusConverter : AbstractEnumConverter<SolutionStatus>()
+        }
+    }
+
+    /**
+     * Solution type enum class.
+     * @since 2.0.0
+     */
+    enum class SolutionType(override val dbkey: String) : Enum {
+
+        QRS("QRS"),
+        PYTHON("PY"),
+        JAVASCRIPT("JS");
+
+        companion object {
+
+            @Converter(autoApply = true)
+            class SolutionTypeConverter : AbstractEnumConverter<SolutionType>()
         }
     }
 }

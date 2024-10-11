@@ -36,6 +36,7 @@ dependencies {
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0-RC.2")
     implementation("com.google.protobuf:protobuf-kotlin:${protobufVersion}")
+    implementation("io.grpc:grpc-okhttp:${grpcVersion}")
     api("io.grpc:grpc-protobuf:${grpcVersion}")
     api("com.google.protobuf:protobuf-java-util:${protobufVersion}")
     api("com.google.protobuf:protobuf-kotlin:${protobufVersion}")
@@ -94,7 +95,7 @@ protobuf {
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "16"
+        jvmTarget = "17"
     }
 }
 
