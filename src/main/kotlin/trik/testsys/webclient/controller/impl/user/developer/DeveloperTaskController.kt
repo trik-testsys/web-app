@@ -178,7 +178,6 @@ class DeveloperTaskController(
 
         val solution = Solution().also {
             it.task = task
-            it.developer = webUser
         }
         solutionService.save(solution)
 

@@ -60,11 +60,4 @@ class Developer(
     @get:Transient
     val solutions: MutableSet<TaskFile>
         get() = taskFiles.filter { it.type == TaskFile.TaskFileType.SOLUTION }.toMutableSet()
-
-    /**
-     * @author Roman Shishkin
-     * @since 2.0.0
-     **/
-    @OneToMany(mappedBy = "developer", cascade = [CascadeType.ALL])
-    val testSolutions: MutableSet<Solution> = mutableSetOf()
 }
