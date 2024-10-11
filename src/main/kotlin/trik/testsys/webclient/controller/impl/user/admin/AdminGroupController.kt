@@ -163,8 +163,6 @@ class AdminGroupController(
 
         group.contests.remove(contest)
         groupService.save(group)
-        contest.groups.remove(group)
-        contestService.save(contest)
 
         redirectAttributes.addPopupMessage("Тур ${contest.name} успешно откреплен от группы ${group.name}.")
 

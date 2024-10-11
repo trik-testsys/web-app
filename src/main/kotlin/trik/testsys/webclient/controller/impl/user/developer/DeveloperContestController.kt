@@ -28,8 +28,7 @@ import javax.servlet.http.HttpServletRequest
 class DeveloperContestController(
     loginData: LoginData,
 
-    private val contestService: ContestService,
-    private val groupService: GroupService
+    private val contestService: ContestService
 ) : AbstractWebUserController<Developer, DeveloperView, DeveloperService>(loginData) {
 
     override val mainPath = CONTEST_PATH
@@ -110,6 +109,8 @@ class DeveloperContestController(
 
         val contest = contestView.toEntity(timezone)
         contest.developer = webUser
+        val groups = contestService.find(contestId)?.groups ?: mutableSetOf()
+        contest.groups.addAll(groups)
 
         contestService.validate(contest, redirectAttributes, "redirect:$CONTEST_PATH/$contestId")?.let { return it }
 
@@ -143,11 +144,6 @@ class DeveloperContestController(
         contest.switchVisibility()
 
         if (!contest.isPublic()) {
-            contest.groups.forEach {
-                it.contests.remove(contest)
-                groupService.save(it)
-            }
-
             contest.groups.clear()
         }
 

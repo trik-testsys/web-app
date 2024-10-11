@@ -5,6 +5,7 @@ import trik.testsys.core.entity.Entity.Companion.TABLE_PREFIX
 import trik.testsys.core.utils.enums.Enum
 import trik.testsys.core.utils.enums.converter.AbstractEnumConverter
 import trik.testsys.webclient.entity.user.impl.Developer
+import trik.testsys.webclient.entity.user.impl.Student
 import javax.persistence.*
 
 @Entity
@@ -28,6 +29,13 @@ class Solution : AbstractEntity() {
         name = "developer_id", referencedColumnName = "id"
     )
     lateinit var developer: Developer
+
+    @ManyToOne
+    @JoinColumn(
+        nullable = false, unique = false, updatable = false,
+        name = "student_id", referencedColumnName = "id"
+    )
+    lateinit var student: Student
 
     @Column(nullable = false, unique = false, updatable = true)
     var status: SolutionStatus = SolutionStatus.NOT_STARTED

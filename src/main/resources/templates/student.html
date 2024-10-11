@@ -17,13 +17,10 @@
 
 <div th:replace="fragments/popup :: emergencyPopup"></div>
 
-<div th:replace="fragments/menu :: header(title='Кабинет Участника',
-                                          titleLink='/student',
-                                          breadCrumbNames=${ {  } },
-                                          breadCrumbLinks=${ {  } })"></div>
+<div th:replace="fragments/entity/student :: studentHeader(breadCrumbNames=${ {  } },
+                                                           breadCrumbLinks=${ {  } })"></div>
 
-<div th:replace="fragments/menu :: sideMenu(links=${ {'/student', '/student?Logout=' } },
-                                            names=${ { 'Профиль', 'Выход' } })"></div>
+<div th:replace="fragments/entity/student :: studentMenu"></div>
 
 <!-- Контент -->
 <div class="container">

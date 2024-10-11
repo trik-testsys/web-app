@@ -1,0 +1,15 @@
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+
+<div th:fragment="studentHeader(breadCrumbNames, breadCrumbLinks)"
+     th:replace="fragments/menu
+        :: header(title='Кабинет Участника',
+                  titleLink='/student',
+                  breadCrumbNames=${breadCrumbNames},
+                  breadCrumbLinks=${breadCrumbLinks})"></div>
+
+<div th:fragment="studentMenu"
+     th:replace="fragments/menu
+        :: sideMenu(links=${ {'/student', '/student/contests', '/student?Logout=' } },
+                    names=${ { 'Профиль', 'Туры', 'Выход' } })"></div>
+
+</html>

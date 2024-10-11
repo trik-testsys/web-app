@@ -29,6 +29,6 @@ class Group(
     @OneToMany(mappedBy = "group", cascade = [CascadeType.ALL])
     val students: MutableSet<Student> = mutableSetOf()
 
-    @ManyToMany(mappedBy = "groups")
+    @ManyToMany(mappedBy = "groups", cascade = [CascadeType.ALL])
     val contests: MutableSet<Contest> = mutableSetOf()
 }
