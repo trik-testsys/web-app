@@ -34,38 +34,45 @@
                 <h1>Информация о Задании</h1>
             </div>
 
-            <!--/*@thymesVar id="webUser" type="trik.testsys.webclient.view.impl.TaskView"*/-->
-            <form id="task-info" action="#" th:action="@{/developer/tasks/task/update/{taskId}(taskId=${task.id})}" th:object="${task}" method="post">
+            <!--/*@thymesVar id="webUser" type="trik.testsys.webclient.view.impl.TaskFileView"*/-->
+            <form id="task-info" action="#" th:action="@{/developer/taskFiles/taskFile/update/{id}(id=${taskFile.id})}" th:object="${taskFile}" method="post">
                 <div th:replace="fragments/form.html
-                    :: formField(id='task.id', type='text',
+                    :: formField(id='taskFile.id', type='text',
                                  labelName='ID', labelSize='20',
                                  fieldName='id', fieldSize='80',
                                  size='50',
                                  isReadonly='true', isRequired='false', isAccessToken='false')">
                 </div>
                 <div th:replace="fragments/form.html
-                    :: formField(id='task.creationDate', type='text',
+                    :: formField(id='taskFile.creationDate', type='text',
                                  labelName='Дата и время создания', labelSize='25',
                                  fieldName='creationDate', fieldSize='75',
                                  size='50',
                                  isReadonly='true', isRequired='false', isAccessToken='false')">
                 </div>
                 <div th:replace="fragments/form.html
-                    :: formField(id='task.name', type='text',
+                    :: formField(id='taskFile.name', type='text',
                                  labelName='Название', labelSize='20',
                                  fieldName='name', fieldSize='80',
                                  size='50',
                                  isReadonly='false', isRequired='true', isAccessToken='false')">
                 </div>
                 <div th:replace="fragments/form.html
-                    :: formField(id='task.additionalInfo', type='text',
+                    :: formField(id='taskFile.type', type='text',
+                                 labelName='Дата и время создания', labelSize='25',
+                                 fieldName='type', fieldSize='75',
+                                 size='50',
+                                 isReadonly='true', isRequired='false', isAccessToken='false')">
+                </div>
+                <div th:replace="fragments/form.html
+                    :: formField(id='taskFile.additionalInfo', type='text',
                                  labelName='Дополнительная информация', labelSize='20',
                                  fieldName='additionalInfo', fieldSize='80',
                                  size='100',
                                  isReadonly='false', isRequired='false', isAccessToken='false')">
                 </div>
                 <div th:replace="fragments/form.html
-                    :: formField(id='task.note', type='text',
+                    :: formField(id='taskFile.note', type='text',
                                  labelName='Заметка (видна только вам)', labelSize='20',
                                  fieldName='note', fieldSize='80',
                                  size='100',

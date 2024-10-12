@@ -76,8 +76,7 @@
                     <th style="width: 20%">
                         Код-регистрации
                     </th>
-                    <th style="width: 10%">
-                        Действия
+                    <th style="width: 7%">
                     </th>
                 </tr>
                 <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.GroupView"*/-->
@@ -87,12 +86,11 @@
                     <td th:text="${group.additionalInfo}"></td>
                     <td th:text="${group.regToken}" class="accessToken"></td>
                     <td class="buttons">
-                        <a title="Удалить" th:href="@{/admin/groups/group/remove/{id}(id=${group.id})}">
-                            <i class="fa-solid fa-trash"></i>
-                        </a>
-                        <a title="Войти" th:href="@{/admin/groups/group/{id}(id=${group.id})}">
-                            <i class="fa-solid fa-right-to-bracket"></i>
-                        </a>
+                        <form th:action="@{/admin/groups/group/{id}(id=${group.id})}" method="get">
+                            <button type="submit" title="Войти">
+                                <i class="fa-solid fa-right-to-bracket"></i>
+                            </button>
+                        </form>
                     </td>
                 </tr>
             </table>
