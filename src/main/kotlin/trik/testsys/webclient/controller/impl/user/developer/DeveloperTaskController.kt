@@ -1,6 +1,7 @@
 package trik.testsys.webclient.controller.impl.user.developer
 
 import org.slf4j.LoggerFactory
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.*
@@ -29,7 +30,6 @@ import trik.testsys.webclient.view.impl.TaskTestResultView.Companion.toTaskTestR
 import trik.testsys.webclient.view.impl.TaskView
 import trik.testsys.webclient.view.impl.TaskView.Companion.toView
 import java.util.*
-import javax.annotation.PostConstruct
 import javax.servlet.http.HttpServletRequest
 
 @Controller
@@ -268,6 +268,47 @@ class DeveloperTaskController(
         return "redirect:$TASK_PATH/$taskId"
     }
 
+    @GetMapping("/downloadRecording/{taskId}")
+    fun getTaskTestingRecording(
+        @PathVariable("taskId") taskId: Long,
+        @RequestParam("solutionId") solutionId: Long,
+        redirectAttributes: RedirectAttributes
+    ): Any {
+        val webUser = loginData.validate(redirectAttributes) ?: return "redirect:$LOGIN_PATH"
+
+        if (!webUser.checkTaskExistence(taskId)) {
+            redirectAttributes.addPopupMessage("Задание с ID $taskId не найдено.")
+            return "redirect:$TASKS_PATH"
+        }
+
+        val task = taskService.find(taskId) ?: run {
+            redirectAttributes.addPopupMessage("Задание с ID $taskId не найдено.")
+            return "redirect:$TASKS_PATH"
+        }
+
+        val solution = solutionService.find(solutionId) ?: run {
+            redirectAttributes.addPopupMessage("Решение с ID $solutionId не найдено.")
+            return "redirect:$TASK_PATH/$taskId"
+        }
+
+        if (solution.task != task) {
+            redirectAttributes.addPopupMessage("Решение с ID $solutionId не принадлежит заданию ${task.name}.")
+            return "redirect:$TASK_PATH/$taskId"
+        }
+
+        if (solution.student != null) {
+            redirectAttributes.addPopupMessage("Решение с ID $solutionId не является Эталонным.")
+            return "redirect:$TASK_PATH/$taskId"
+        }
+
+        val recording = fileManager.getRecordingFilesCompressed(solution)
+
+        val responseEntity = ResponseEntity.ok()
+            .header("Content-Disposition", "attachment; filename=\"${recording.name}\"")
+            .body(recording)
+
+        return responseEntity
+    }
     companion object {
 
         private val logger = LoggerFactory.getLogger(DeveloperTaskController::class.java)

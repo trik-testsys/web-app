@@ -202,6 +202,7 @@
                     <th>Дата и время запуска</th>
                     <th>Статус</th>
                     <th>Результат</th>
+                    <th style="width: 7%"></th>
                 </tr>
                 <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.TaskTestResultView"*/-->
                 <tr th:each="testResult : ${testResults}">
@@ -214,6 +215,14 @@
                         <span th:case="${testResult.status.NOT_STARTED}">Ожидает тестирования</span>
                     </td>
                     <td th:text="${testResult.score}"></td>
+                    <td class="buttons">
+                        <a class="button" th:href="@{'/developer/tasks/task/downloadRecording/' + ${task.id} + '?solutionId=' + ${testResult.id}}"
+                           charset="UTF-8" target="_self"
+
+                           th:disabled="${testResult.status != testResult.status.PASSED and testResult.status != testResult.status.FAILED}">
+                            <i class="fa-solid fa-download"></i>
+                        </a>
+                    </td>
                 </tr>
             </table>
         </div>
