@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+<head>
+    <th:block th:include="fragments/main :: head('Кабинет Районного Наблюдателя')"></th:block>
+
+    <link rel="stylesheet" th:href="@{/css/block.css}">
+    <link rel="stylesheet" th:href="@{/css/table.css}">
+
+    <th:block th:include="fragments/popup :: head"></th:block>
+    <th:block th:include="fragments/form :: head"></th:block>
+    <th:block th:include="fragments/menu :: head"></th:block>
+</head>
+<body>
+
+<div th:replace="fragments/main :: background"></div>
+
+<div th:replace="fragments/popup :: popup"></div>
+
+<div th:replace="fragments/popup :: emergencyPopup"></div>
+
+<div th:replace="fragments/entity/viewer
+    :: viewerHeader(breadCrumbNames=${ { 'Организаторы' } },
+                    breadCrumbLinks=${ { '/viewer/admins' } })"></div>
+
+<div th:replace="fragments/entity/viewer :: viewerMenu"></div>
+
+<div class="container">
+    <!-- Первый блок -->
+    <div class="block">
+        <div class="block-title">Организаторы</div>
+
+        <div class="table admins-table">
+            <div class="form-header">
+                <h1>Список Организаторов</h1>
+            </div>
+            <table>
+                <tr>
+                    <th style="width: 10%">
+                        ID
+                    </th>
+                    <th style="width: 20%">
+                        Псевдоним
+                    </th>
+                    <th>Дополнительная информация</th>
+                    <th>Дата регистрации</th>
+<!--                    <th style="width: 7%">-->
+<!--                    </th>-->
+                </tr>
+                <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.AdminView"*/-->
+                <tr th:each="admin : ${admins}">
+                    <td th:text="${admin.id}"></td>
+                    <td th:text="${admin.name}"></td>
+                    <td th:text="${admin.additionalInfo}"></td>
+                    <td th:text="${admin.creationDate}"></td>
+<!--                    <td class="buttons">-->
+<!--                        <form th:action="@{/admin/groups/group/{id}(id=${group.id})}" method="get">-->
+<!--                            <button type="submit" title="Войти">-->
+<!--                                <i class="fa-solid fa-right-to-bracket"></i>-->
+<!--                            </button>-->
+<!--                        </form>-->
+<!--                    </td>-->
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
