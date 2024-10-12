@@ -117,6 +117,20 @@ class FileManagerImpl(
         return true
     }
 
+    override fun saveSolutionFile(solution: Solution, fileData: MultipartFile): Boolean {
+        logger.info("Saving solution file with id ${solution.id}")
+
+        try {
+            val solutionFile = File(solutionsDir, "${solution.id}.qrs")
+            fileData.transferTo(solutionFile)
+        } catch (e: Exception) {
+            logger.error("Error while saving solution file with id ${solution.id}", e)
+            return false
+        }
+
+        return true
+    }
+
     override fun getSolutionFile(solution: Solution): File? {
         logger.info("Getting solution file with id ${solution.id}")
 

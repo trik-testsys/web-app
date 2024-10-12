@@ -60,6 +60,105 @@
             </form>
         </div>
     </div>
+
+
+    <div class="block">
+        <div class="block-title">Задания</div>
+
+        <div class="table tasks-table">
+            <div class="table-header">
+                <h1>Список Заданий</h1>
+            </div>
+            <table>
+                <tr>
+                    <th style="width: 10%">
+                        ID
+                    </th>
+                    <th style="width: 20%">
+                        Название
+                    </th>
+                    <th>Дополнительная информация</th>
+                    <th style="width: 7%"></th>
+                </tr>
+                <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.TaskView"*/-->
+                <tr th:each="task : ${tasks}">
+                    <td th:text="${task.id}"></td>
+                    <td th:text="${task.name}"></td>
+                    <td th:text="${task.additionalInfo}"></td>
+                    <td class="buttons">
+                        <a class="button" th:href="@{'/student/contests/contest/downloadExercise/' + ${contest.id} + '?taskId=' + ${task.id}}" target="_self"
+                            title="Скачать упражнение">
+                            <i class="fa-solid fa-download"></i>
+                        </a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+
+    <div class="block">
+        <div class="block-title">Посылки</div>
+
+        <div class="form-container">
+            <div class="form-header">
+                <h1>Отправка решения</h1>
+            </div>
+
+            <!--/*@thymesVar id="webUser" type="trik.testsys.webclient.view.impl.TaskFileCreationView"*/-->
+            <form id="polygon-creation" th:action="@{'/student/contests/contest/submitSolution/' + ${contest.id}}" th:object="${polygon}" method="post" enctype="multipart/form-data">
+                <label for="polygon.taskId" class="form-label">Задание</label>
+
+                <select name="taskId" id="polygon.taskId" class="form-input" required>
+                    <option value="" disabled selected>Выберите задание</option>
+                    <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.TaskView"*/-->
+                    <option th:each="task : ${tasks}" th:value="${task.id}" th:text="${task.id} + ':' + ${task.name}"></option>
+                </select>
+                <label for="polygon-file" class="form-label">Файл</label>
+                <input id="polygon-file" name="file" type="file" required>
+                <!-- Кнопки редактирования, отправки и отмены -->
+                <div class="form-buttons">
+                    <button type="button" class="edit-button" id="polygon-creation-edit" onclick="enableForm('polygon-creation')">Отправить решение</button>
+                    <button type="submit" class="save-button" id="polygon-creation-save">Отправить</button>
+                    <button type="button" class="cancel-button" id="polygon-creation-cancel" onclick="disableForm('polygon-creation')">Отменить</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="table tasks-table">
+            <div class="table-header">
+                <h1>Список Посылок</h1>
+            </div>
+            <table>
+                <tr>
+                    <th>Дата и время запуска</th>
+                    <th>Статус</th>
+                    <th>Результат</th>
+                    <!--                    <th style="width: 7%"></th>-->
+                </tr>
+                <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.TaskTestResultView"*/-->
+                <tr th:each="testResult : ${solutions}">
+                    <td th:text="${testResult.creationDate}"></td>
+                    <td th:switch="${testResult.status}">
+                        <span th:case="${testResult.status.PASSED}">Успешно</span>
+                        <span th:case="${testResult.status.FAILED}">Неуспешно</span>
+                        <span th:case="${testResult.status.ERROR}">Ошибка</span>
+                        <span th:case="${testResult.status.IN_PROGRESS}">Тестируется</span>
+                        <span th:case="${testResult.status.NOT_STARTED}">Ожидает тестирования</span>
+                    </td>
+                    <td th:text="${testResult.score}"></td>
+                    <!--                    <td class="buttons">-->
+                    <!--                        <a class="button" th:href="@{'/developer/tasks/task/downloadRecording/' + ${task.id} + '?solutionId=' + ${testResult.id}}"-->
+                    <!--                           charset="UTF-8" target="_self"-->
+
+                    <!--                           th:disabled="${testResult.status != testResult.status.PASSED and testResult.status != testResult.status.FAILED}">-->
+                    <!--                            <i class="fa-solid fa-download"></i>-->
+                    <!--                        </a>-->
+                    <!--                    </td>-->
+                </tr>
+            </table>
+        </div>
+    </div>
 </div>
 
 </body>
