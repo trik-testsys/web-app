@@ -45,9 +45,29 @@ class GradingInfoParserRunner(
     private fun addGraderSubscription() = grader.subscribeOnGraded { gradingInfo ->
         logger.info("Grading info was received for solutionId: ${gradingInfo.submissionId}")
 
-        when (gradingInfo) {
-            is Grader.GradingInfo.Ok -> gradingInfo.parse()
-            is Grader.GradingInfo.Error -> gradingInfo.parse()
+        try {
+            when (gradingInfo) {
+                is Grader.GradingInfo.Ok -> gradingInfo.parse()
+                is Grader.GradingInfo.Error -> gradingInfo.parse()
+            }
+        } catch (e: Exception) {
+            logger.error("Failed to parse grading info.", e)
+
+            afterCatchException(gradingInfo)
+        }
+    }
+
+    private fun afterCatchException(gradingInfo: Grader.GradingInfo) {
+        try {
+            val solutionId = gradingInfo.submissionId
+            val solution = solutionService.find(solutionId.toLong()) ?: return
+
+            solution.status = Solution.SolutionStatus.ERROR
+            solution.score = 0
+
+            solutionService.save(solution)
+        } catch (e: Exception) {
+            logger.error("Failed to handle exception.", e)
         }
     }
 
@@ -88,7 +108,7 @@ class GradingInfoParserRunner(
             solution.score = score
         }
 
-        if (solution.student == null)  {
+        if (solution.student == null) {
             if (solution.status == Solution.SolutionStatus.PASSED) {
                 solution.task.pass()
             }
@@ -96,11 +116,11 @@ class GradingInfoParserRunner(
             if (solution.status == Solution.SolutionStatus.FAILED) {
                 solution.task.fail()
 
-                solution.task.contests.clear()
                 solution.task.contests.forEach {
                     it.tasks.remove(solution.task)
                     contestService.save(it)
                 }
+                solution.task.contests.clear()
             }
             taskService.save(solution.task)
         }

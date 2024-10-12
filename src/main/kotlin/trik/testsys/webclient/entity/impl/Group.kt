@@ -26,9 +26,9 @@ class Group(
     )
     lateinit var admin: Admin
 
-    @OneToMany(mappedBy = "group", cascade = [CascadeType.ALL])
+    @OneToMany(mappedBy = "group", cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
     val students: MutableSet<Student> = mutableSetOf()
 
-    @ManyToMany(mappedBy = "groups", cascade = [CascadeType.ALL])
+    @ManyToMany(mappedBy = "groups", cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
     val contests: MutableSet<Contest> = mutableSetOf()
 }

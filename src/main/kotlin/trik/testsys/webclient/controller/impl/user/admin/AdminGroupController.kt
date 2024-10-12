@@ -237,6 +237,9 @@ class AdminGroupController(
             return "redirect:$GROUP_PATH/$groupId"
         }
 
+        contest.groups.remove(group)
+        contestService.save(contest)
+
         group.contests.remove(contest)
         groupService.save(group)
 

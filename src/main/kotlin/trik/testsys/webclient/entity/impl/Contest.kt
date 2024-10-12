@@ -1,12 +1,10 @@
 package trik.testsys.webclient.entity.impl
 
-import trik.testsys.core.entity.AbstractEntity
 import trik.testsys.core.entity.Entity.Companion.TABLE_PREFIX
 import trik.testsys.core.utils.enums.Enum
 import trik.testsys.core.utils.enums.converter.AbstractEnumConverter
 import trik.testsys.webclient.entity.AbstractNotedEntity
 import trik.testsys.webclient.entity.user.impl.Developer
-import trik.testsys.webclient.entity.user.impl.Student
 import java.time.LocalDateTime
 import java.time.LocalTime
 import javax.persistence.*
@@ -43,7 +41,7 @@ class Contest(
 
     fun isPublic() = visibility == Visibility.PUBLIC
 
-    @ManyToMany(cascade = [CascadeType.ALL])
+    @ManyToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
     @JoinTable(
         name = "CONTESTS_BY_GROUPS",
         joinColumns = [JoinColumn(name = "contest_id")],
@@ -62,7 +60,7 @@ class Contest(
     )
     val startTimesByStudentId: MutableMap<Long, LocalDateTime> = mutableMapOf()
 
-    @ManyToMany(cascade = [CascadeType.ALL], mappedBy = "contests")
+    @ManyToMany(cascade = [CascadeType.ALL], mappedBy = "contests", fetch = FetchType.EAGER)
     val tasks: MutableSet<Task> = mutableSetOf()
 
     enum class Visibility(override val dbkey: String) : Enum {

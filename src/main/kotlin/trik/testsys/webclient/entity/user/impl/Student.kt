@@ -26,7 +26,7 @@ class Student(
     )
     lateinit var group: Group
 
-    @OneToMany(mappedBy = "student", cascade = [CascadeType.ALL])
+    @OneToMany(mappedBy = "student", cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
     val solutions: MutableSet<Solution> = mutableSetOf()
 
     @ElementCollection
