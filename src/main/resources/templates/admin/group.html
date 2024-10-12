@@ -107,7 +107,7 @@
                     <th>
                         Продолжительность
                     </th>
-                    <th style="width: 15%">
+                    <th style="width: 7%">
                     </th>
                 </tr>
                 <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.ContestView"*/-->
@@ -123,11 +123,6 @@
                             <input type="hidden" name="contestId" th:value="${contest.id}">
                             <button type="submit" title="Открепить">
                                 <i class="fa-solid fa-link-slash"></i>
-                            </button>
-                        </form>
-                        <form th:action="@{/admin/groups/group/{id}(id=${contest.id})}" method="get">
-                            <button type="submit" title="Войти">
-                                <i class="fa-solid fa-right-to-bracket"></i>
                             </button>
                         </form>
                     </td>
@@ -157,7 +152,7 @@
                     <th>
                         Продолжительность
                     </th>
-                    <th style="width: 15%">
+                    <th style="width: 7%">
                     </th>
                 </tr>
                 <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.ContestView"*/-->
@@ -173,11 +168,6 @@
                             <input type="hidden" name="contestId" th:value="${contest.id}">
                             <button type="submit" title="Прикрепить">
                                 <i class="fa-solid fa-link"></i>
-                            </button>
-                        </form>
-                        <form th:action="@{/admin/groups/group/{id}(id=${contest.id})}" method="get">
-                            <button type="submit" title="Войти">
-                                <i class="fa-solid fa-right-to-bracket"></i>
                             </button>
                         </form>
                     </td>

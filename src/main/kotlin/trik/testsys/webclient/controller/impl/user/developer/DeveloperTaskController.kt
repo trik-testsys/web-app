@@ -17,6 +17,7 @@ import trik.testsys.webclient.entity.impl.TaskFile
 import trik.testsys.webclient.entity.user.impl.Developer
 import trik.testsys.webclient.service.FileManager
 import trik.testsys.webclient.service.Grader
+import trik.testsys.webclient.service.entity.impl.ContestService
 import trik.testsys.webclient.service.entity.impl.SolutionService
 import trik.testsys.webclient.service.entity.impl.TaskFileService
 import trik.testsys.webclient.service.entity.impl.TaskService
@@ -40,6 +41,7 @@ class DeveloperTaskController(
     private val taskService: TaskService,
     private val taskFileService: TaskFileService,
     private val solutionService: SolutionService,
+    private val contestService: ContestService,
 
     private val grader: Grader,
     private val fileManager: FileManager
@@ -172,11 +174,18 @@ class DeveloperTaskController(
             return "redirect:$TASK_PATH/$taskId"
         }
 
+        taskFile.tasks.add(task)
+        taskFileService.save(taskFile)
+
+        task.contests.forEach {
+            it.tasks.remove(task)
+            contestService.save(it)
+        }
+        task.contests.clear()
+
         task.fail()
         task.taskFiles.add(taskFile)
         taskService.save(task)
-        taskFile.tasks.add(task)
-        taskFileService.save(taskFile)
 
         redirectAttributes.addPopupMessage("Файл ${taskFile.name} успешно прикреплен к заданию ${task.name}.")
 
@@ -212,12 +221,18 @@ class DeveloperTaskController(
             return "redirect:$TASK_PATH/$taskId"
         }
 
+        taskFile.tasks.remove(task)
+        taskFileService.save(taskFile)
+
+        task.contests.forEach {
+            it.tasks.remove(task)
+            contestService.save(it)
+        }
+        task.contests.clear()
+
         task.fail()
         task.taskFiles.remove(taskFile)
         taskService.save(task)
-
-        taskFile.tasks.remove(task)
-        taskFileService.save(taskFile)
 
         redirectAttributes.addPopupMessage("Файл ${taskFile.name} успешно откреплен от задания ${task.name}.")
 

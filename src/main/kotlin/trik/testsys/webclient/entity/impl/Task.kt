@@ -60,4 +60,12 @@ class Task(
     fun pass() {
         passedTests = true
     }
+
+    @ManyToMany(cascade = [CascadeType.ALL])
+    @JoinTable(
+        name = "TASKS_BY_CONTESTS",
+        joinColumns = [JoinColumn(name = "task_id")],
+        inverseJoinColumns = [JoinColumn(name = "contest_id")]
+    )
+    val contests: MutableSet<Contest> = mutableSetOf()
 }

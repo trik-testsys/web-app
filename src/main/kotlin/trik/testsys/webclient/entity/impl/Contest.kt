@@ -62,6 +62,9 @@ class Contest(
     )
     val startTimesByStudentId: MutableMap<Long, LocalDateTime> = mutableMapOf()
 
+    @ManyToMany(cascade = [CascadeType.ALL], mappedBy = "contests")
+    val tasks: MutableSet<Task> = mutableSetOf()
+
     enum class Visibility(override val dbkey: String) : Enum {
 
         PUBLIC("PLC"),

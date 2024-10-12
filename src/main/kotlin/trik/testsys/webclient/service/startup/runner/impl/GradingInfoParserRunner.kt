@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service
 import trik.testsys.webclient.entity.impl.Solution
 import trik.testsys.webclient.service.FileManager
 import trik.testsys.webclient.service.Grader
+import trik.testsys.webclient.service.entity.impl.ContestService
 import trik.testsys.webclient.service.entity.impl.SolutionService
 import trik.testsys.webclient.service.entity.impl.TaskService
 import trik.testsys.webclient.service.startup.runner.StartupRunner
@@ -20,7 +21,8 @@ class GradingInfoParserRunner(
     private val grader: Grader,
     private val fileManager: FileManager,
     private val solutionService: SolutionService,
-    private val taskService: TaskService
+    private val taskService: TaskService,
+    private val contestService: ContestService
 ) : StartupRunner {
 
     override suspend fun run() {
@@ -93,6 +95,12 @@ class GradingInfoParserRunner(
 
             if (solution.status == Solution.SolutionStatus.FAILED) {
                 solution.task.fail()
+
+                solution.task.contests.clear()
+                solution.task.contests.forEach {
+                    it.tasks.remove(solution.task)
+                    contestService.save(it)
+                }
             }
             taskService.save(solution.task)
         }
