@@ -28,6 +28,10 @@ class Solution(
     )
     var student: Student? = null
 
+    @get:Transient
+    val isTest: Boolean
+        get() = student == null
+
     @Column(nullable = false, unique = false, updatable = true)
     var status: SolutionStatus = SolutionStatus.NOT_STARTED
 
@@ -46,8 +50,7 @@ class Solution(
         PASSED("PAS"),
         IN_PROGRESS("INP"),
         NOT_STARTED("NST"),
-        ERROR("ERR"),
-        PARTIAL("PAR");
+        ERROR("ERR");
 
         companion object {
 
@@ -70,6 +73,13 @@ class Solution(
 
             @Converter(autoApply = true)
             class SolutionTypeConverter : AbstractEnumConverter<SolutionType>()
+        }
+    }
+
+    companion object {
+
+        fun qrsSolution(task: Task) = Solution(SolutionType.QRS).also {
+            it.task = task
         }
     }
 }

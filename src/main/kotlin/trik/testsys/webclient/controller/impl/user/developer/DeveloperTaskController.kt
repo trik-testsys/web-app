@@ -1,5 +1,6 @@
 package trik.testsys.webclient.controller.impl.user.developer
 
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.*
@@ -11,7 +12,10 @@ import trik.testsys.webclient.controller.user.AbstractWebUserController
 import trik.testsys.webclient.controller.user.AbstractWebUserMainController.Companion.LOGIN_PATH
 import trik.testsys.webclient.entity.impl.Solution
 import trik.testsys.webclient.entity.impl.Task
+import trik.testsys.webclient.entity.impl.TaskFile
 import trik.testsys.webclient.entity.user.impl.Developer
+import trik.testsys.webclient.service.FileManager
+import trik.testsys.webclient.service.Grader
 import trik.testsys.webclient.service.entity.impl.SolutionService
 import trik.testsys.webclient.service.entity.impl.TaskFileService
 import trik.testsys.webclient.service.entity.impl.TaskService
@@ -21,9 +25,11 @@ import trik.testsys.webclient.util.addPopupMessage
 import trik.testsys.webclient.view.impl.DeveloperView
 import trik.testsys.webclient.view.impl.TaskCreationView
 import trik.testsys.webclient.view.impl.TaskFileView.Companion.toView
+import trik.testsys.webclient.view.impl.TaskTestResultView.Companion.toTaskTestResultView
 import trik.testsys.webclient.view.impl.TaskView
 import trik.testsys.webclient.view.impl.TaskView.Companion.toView
 import java.util.*
+import javax.annotation.PostConstruct
 import javax.servlet.http.HttpServletRequest
 
 @Controller
@@ -33,7 +39,10 @@ class DeveloperTaskController(
 
     private val taskService: TaskService,
     private val taskFileService: TaskFileService,
-    private val solutionService: SolutionService
+    private val solutionService: SolutionService,
+
+    private val grader: Grader,
+    private val fileManager: FileManager
 ) : AbstractWebUserController<Developer, DeveloperView, DeveloperService>(loginData) {
 
     override val mainPage = TASK_PAGE
@@ -84,8 +93,14 @@ class DeveloperTaskController(
         val taskView = task.toView(timezone)
         model.addAttribute(TASK_ATTR, taskView)
 
-        val taskFiles = webUser.taskFiles.map { it.toView(timezone) }.sortedBy { it.id }
+        val taskFiles = webUser.taskFiles
+            .filter { it !in task.taskFiles }
+            .map { it.toView(timezone) }
+            .sortedBy { it.id }
         model.addAttribute(TASK_FILES_ATTR, taskFiles)
+
+        val taskTests = solutionService.findTaskTests(task)
+        model.addAttribute(TEST_RESULTS, taskTests.sortedByDescending { it.creationDate }.map { it.toTaskTestResultView(timezone) })
 
         return TASK_PAGE
     }
@@ -147,13 +162,64 @@ class DeveloperTaskController(
             return "redirect:$TASK_PATH/$taskId"
         }
 
+        if (taskFile.type == TaskFile.TaskFileType.SOLUTION && task.hasSolution) {
+            redirectAttributes.addPopupMessage("Задание ${task.name} уже имеет Эталонное решение.")
+            return "redirect:$TASK_PATH/$taskId"
+        }
+
+        if (taskFile.type == TaskFile.TaskFileType.EXERCISE && task.hasExercise) {
+            redirectAttributes.addPopupMessage("Задание ${task.name} уже имеет Упражнение.")
+            return "redirect:$TASK_PATH/$taskId"
+        }
+
+        task.fail()
         task.taskFiles.add(taskFile)
         taskService.save(task)
-
         taskFile.tasks.add(task)
         taskFileService.save(taskFile)
 
         redirectAttributes.addPopupMessage("Файл ${taskFile.name} успешно прикреплен к заданию ${task.name}.")
+
+        return "redirect:$TASK_PATH/$taskId"
+    }
+
+    @PostMapping("/deAttachTaskFile/{taskId}")
+    fun deAttachTaskFileToTask(
+        @PathVariable("taskId") taskId: Long,
+        @RequestParam("taskFileId") taskFileId: Long,
+        timeZone: TimeZone,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val webUser = loginData.validate(redirectAttributes) ?: return "redirect:$LOGIN_PATH"
+
+        val task = taskService.find(taskId) ?: run {
+            redirectAttributes.addPopupMessage("Задание с ID $taskId не найдено.")
+            return "redirect:$TASKS_PATH"
+        }
+
+        if (!webUser.checkTaskExistence(taskId)) {
+            redirectAttributes.addPopupMessage("Задание с ID $taskId не найдено.")
+            return "redirect:$TASKS_PATH"
+        }
+
+        val taskFile = taskFileService.find(taskFileId) ?: run {
+            redirectAttributes.addPopupMessage("Файл с ID $taskFileId не найден.")
+            return "redirect:$TASK_PATH/$taskId"
+        }
+
+        if (!webUser.checkTaskFileExistence(taskFileId)) {
+            redirectAttributes.addPopupMessage("Файл с ID $taskFileId не найден.")
+            return "redirect:$TASK_PATH/$taskId"
+        }
+
+        task.fail()
+        task.taskFiles.remove(taskFile)
+        taskService.save(task)
+
+        taskFile.tasks.remove(task)
+        taskFileService.save(taskFile)
+
+        redirectAttributes.addPopupMessage("Файл ${taskFile.name} успешно откреплен от задания ${task.name}.")
 
         return "redirect:$TASK_PATH/$taskId"
     }
@@ -176,12 +242,26 @@ class DeveloperTaskController(
             return "redirect:$TASKS_PATH"
         }
 
-        val solution = Solution().also {
-            it.task = task
+        if (!task.hasSolution) {
+            redirectAttributes.addPopupMessage("Задание ${task.name} не имеет Эталонного решения. Тестирование невозможно.")
+            return "redirect:$TASK_PATH/$taskId"
         }
+
+        if (task.polygonsCount == 0L) {
+            redirectAttributes.addPopupMessage("Задание ${task.name} не имеет Полигонов. Тестирование невозможно.")
+            return "redirect:$TASK_PATH/$taskId"
+        }
+
+        val solutionFile = fileManager.getTaskFile(task.solution!!)
+        val solution = Solution.qrsSolution(task)
         solutionService.save(solution)
 
-//        grader.sendToGrade(solution, task, Grader.GradingOptions(true, "1.0.0"))
+        fileManager.saveSolutionFile(solution, solutionFile!!)
+
+        grader.sendToGrade(
+            solution,
+            Grader.GradingOptions(true, "testsystrik/trik-studio:release-2023.1-2024-10-10-2.0.0")
+        )
 
         redirectAttributes.addPopupMessage("Тестирование задания ${task.name} запущено.")
 
@@ -190,12 +270,16 @@ class DeveloperTaskController(
 
     companion object {
 
+        private val logger = LoggerFactory.getLogger(DeveloperTaskController::class.java)
+
         const val TASK_PATH = "$TASKS_PATH/task"
         const val TASK_PAGE = "$DEVELOPER_PAGE/task"
 
         const val TASK_ATTR = "task"
 
         const val TASK_FILES_ATTR = "taskFiles"
+
+        const val TEST_RESULTS = "testResults"
 
         fun Developer.checkTaskExistence(taskId: Long?) = tasks.any { it.id == taskId }
 

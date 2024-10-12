@@ -3,11 +3,11 @@ package trik.testsys.webclient.view.impl
 import org.springframework.format.annotation.DateTimeFormat
 import trik.testsys.webclient.entity.impl.Contest
 import trik.testsys.webclient.util.atTimeZone
+import trik.testsys.webclient.util.format
 import trik.testsys.webclient.util.fromTimeZone
 import trik.testsys.webclient.view.NotedEntityView
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.time.format.DateTimeFormatter
 
 /**
  * @author Roman Shishkin
@@ -37,10 +37,10 @@ data class ContestView(
     }
 
     val formattedStartDate: String
-        get() = startDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"))
+        get() = startDate.format()
 
     val formattedEndDate: String
-        get() = endDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"))
+        get() = endDate.format()
 
     companion object {
 

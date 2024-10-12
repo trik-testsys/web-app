@@ -2,6 +2,7 @@ package trik.testsys.webclient.util
 
 import trik.testsys.core.entity.AbstractEntity
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.TimeZone
 
 /**
@@ -23,3 +24,8 @@ fun LocalDateTime.atTimeZone(timeZoneId: String?): LocalDateTime =
 fun LocalDateTime.fromTimeZone(timeZoneId: String?): LocalDateTime =
     atZone(TimeZone.getTimeZone(timeZoneId ?: "UTC").toZoneId()).withZoneSameInstant(AbstractEntity.DEFAULT_ZONE_ID)
         .toLocalDateTime()
+
+fun LocalDateTime.format(): String = format(DEFAULT_FORMATTER)
+
+val LocalDateTime.DEFAULT_FORMATTER: DateTimeFormatter
+    get() = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")

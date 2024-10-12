@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.beans.factory.config.BeanDefinition
 import org.springframework.context.annotation.Scope
+import org.springframework.stereotype.Service
 import trik.testsys.core.entity.Entity
 import trik.testsys.core.entity.user.AccessToken
 import trik.testsys.core.entity.user.UserEntity
@@ -27,7 +28,7 @@ import javax.xml.bind.annotation.XmlRootElement
  * @author Roman Shishkin
  * @since 2.0.0
  **/
-@org.springframework.stereotype.Service
+@Service
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 class EntityCreatorRunner(
     @Value("\${path.startup.entities}") private val entitiesDirPath: String,

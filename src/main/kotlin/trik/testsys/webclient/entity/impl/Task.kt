@@ -22,7 +22,7 @@ class Task(
     )
     lateinit var developer: Developer
 
-    @ManyToMany(mappedBy = "tasks")
+    @ManyToMany(mappedBy = "tasks", cascade = [CascadeType.ALL])
     val taskFiles: MutableSet<TaskFile> = mutableSetOf()
 
     @get:Transient
@@ -36,4 +36,28 @@ class Task(
     @get:Transient
     val solution: TaskFile?
         get() = taskFiles.firstOrNull { it.type == TaskFile.TaskFileType.SOLUTION }
+
+    @get:Transient
+    val polygonsCount: Long
+        get() = polygons.size.toLong()
+
+    @get:Transient
+    val hasExercise: Boolean
+        get() = exercise != null
+
+    @get:Transient
+    val hasSolution: Boolean
+        get() = solution != null
+
+    @Column(nullable = false, unique = false, updatable = true)
+    var passedTests: Boolean = false
+        private set
+
+    fun fail() {
+        passedTests = false
+    }
+
+    fun pass() {
+        passedTests = true
+    }
 }

@@ -80,7 +80,10 @@
                     </th>
                     <th>Дополнительная информация</th>
                     <th>Заметка</th>
-                    <th style="width: 10%">
+                    <th>
+                        Результат тестирования
+                    </th>
+                    <th style="width: 7%">
                         Действия
                     </th>
                 </tr>
@@ -90,13 +93,14 @@
                     <td th:text="${task.name}"></td>
                     <td th:text="${task.additionalInfo}"></td>
                     <td th:text="${task.note}"></td>
+                    <td th:text="${task.passedTest} ? 'Пройдено' : 'Не пройдено'"
+                        th:style="${task.passedTest} ? 'color: green' : 'color: red'"></td>
                     <td class="buttons">
-                        <a title="Удалить" th:href="@{/developer/tasks/task/remove/{id}(id=${task.id})}">
-                            <i class="fa-solid fa-trash"></i>
-                        </a>
-                        <a title="Войти" th:href="@{/developer/tasks/task/{id}(id=${task.id})}">
-                            <i class="fa-solid fa-right-to-bracket"></i>
-                        </a>
+                        <form th:action="@{/developer/tasks/task/{id}(id=${task.id})}" method="get">
+                            <button type="submit" title="Войти">
+                                <i class="fa-solid fa-right-to-bracket"></i>
+                            </button>
+                        </form>
                     </td>
                 </tr>
             </table>

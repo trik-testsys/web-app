@@ -3,6 +3,7 @@ package trik.testsys.webclient.view.impl
 import trik.testsys.core.view.named.NamedEntityView
 import trik.testsys.webclient.entity.impl.Contest
 import trik.testsys.webclient.util.atTimeZone
+import trik.testsys.webclient.util.format
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -23,10 +24,10 @@ data class StudentContestView(
     override fun toEntity(timeZoneId: String?) = TODO()
 
     val formattedStartDate: String
-        get() = startDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"))
+        get() = startDate.format()
 
     val formattedEndDate: String
-        get() = endDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"))
+        get() = endDate.format()
 
     companion object {
 

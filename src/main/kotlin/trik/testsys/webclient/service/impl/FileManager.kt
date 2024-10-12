@@ -8,8 +8,11 @@ import trik.testsys.webclient.entity.impl.Solution
 import trik.testsys.webclient.entity.impl.Task
 import trik.testsys.webclient.entity.impl.TaskFile
 import trik.testsys.webclient.service.FileManager
-import java.io.File
+import trik.testsys.webclient.service.Grader
+import java.io.*
 import java.nio.file.Files
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 import javax.annotation.PostConstruct
 
 /**
@@ -22,7 +25,9 @@ class FileManagerImpl(
     @Value("\${path.taskFiles.exercises}") taskFileExercisesPath: String,
     @Value("\${path.taskFiles.polygons}") taskFilePolygonsPath: String,
 
-    @Value("\${path.files.solutions}") solutionsPath: String
+    @Value("\${path.files.solutions}") solutionsPath: String,
+    @Value("\${path.files.verdicts}") verdictsPath: String,
+    @Value("\${path.files.recordings}") recordingsPath: String
 ) : FileManager {
 
     private val taskFileSolutionsDir = File(taskFileSolutionsPath)
@@ -30,6 +35,8 @@ class FileManagerImpl(
     private val taskFilePolygonsDir = File(taskFilePolygonsPath)
 
     private val solutionsDir = File(solutionsPath)
+    private val verdictsDir = File(verdictsPath)
+    private val recordingsDir = File(recordingsPath)
 
     @PostConstruct
     fun init() {
@@ -38,6 +45,8 @@ class FileManagerImpl(
         if (!taskFilePolygonsDir.exists()) taskFilePolygonsDir.mkdirs()
 
         if (!solutionsDir.exists()) solutionsDir.mkdirs()
+        if (!verdictsDir.exists()) verdictsDir.mkdirs()
+        if (!recordingsDir.exists()) recordingsDir.mkdirs()
     }
 
     override fun saveTaskFile(taskFile: TaskFile, fileData: MultipartFile): Boolean {
@@ -58,7 +67,7 @@ class FileManagerImpl(
     }
 
     override fun getTaskFile(taskFile: TaskFile): File? {
-        logger.info("Getting task file with id ${taskFile.id}")
+        logger.info("Getting task file with type '${taskFile.type}' and id ${taskFile.id}")
 
         val dir = getTaskFileDir(taskFile)
         val extension = getTaskFileExtension(taskFile)
@@ -119,6 +128,78 @@ class FileManagerImpl(
         }
 
         return file
+    }
+
+    override fun saveSuccessfulGradingInfo(fieldResult: Grader.GradingInfo.Ok) {
+        logger.info("Saving ok grading info")
+
+        val (solutionId, fieldResults) = fieldResult
+        fieldResults.forEach { (fieldName, verdict, recording) ->
+            logger.info("Field $fieldName: verdict ${verdict.name}, recording ${recording?.name}")
+
+            verdict.content.let { verdictContent ->
+                val verdictFile = File(verdictsDir, "${solutionId}_$fieldName.txt")
+                verdictFile.writeBytes(verdictContent)
+
+                logger.info("Verdict saved to ${verdictFile.absolutePath}")
+            }
+
+            recording?.content?.let { recordingContent ->
+                val recordingFile = File(recordingsDir, "${solutionId}_$fieldName.mp4")
+                recordingFile.writeBytes(recordingContent)
+
+                logger.info("Recording saved to ${recordingFile.absolutePath}")
+            }
+
+        }
+    }
+
+    override fun getVerdictFiles(solution: Solution): List<File> {
+        logger.info("Getting verdict files for solution with id ${solution.id}")
+
+        val verdictFiles = verdictsDir.listFiles { _, name -> name.startsWith("${solution.id}_") } ?: emptyArray()
+
+        return verdictFiles.toList()
+    }
+
+    override fun getRecordingFiles(solution: Solution): List<File> {
+        logger.info("Getting recording files for solution with id ${solution.id}")
+
+        val recordingFiles = recordingsDir.listFiles { _, name -> name.startsWith("${solution.id}_") } ?: emptyArray()
+
+        return recordingFiles.toList()
+    }
+
+    override fun getRecordingFilesCompressed(solution: Solution): File {
+        logger.info("Getting compressed recording files for solution with id ${solution.id}")
+
+        val recordingFiles = getRecordingFiles(solution)
+        val recordingFileNames = recordingFiles.map { it.absolutePath }
+        val recordingZippedFileName = "${verdictsDir.absolutePath}${solution.id}_recordings.zip"
+
+        ZipOutputStream(BufferedOutputStream(FileOutputStream(recordingZippedFileName))).use { out ->
+            val data = ByteArray(1024)
+            for (file in recordingFileNames) {
+                FileInputStream(file).use { fi ->
+                    BufferedInputStream(fi).use { origin ->
+                        val entry = ZipEntry(file)
+                        out.putNextEntry(entry)
+                        while (true) {
+                            val readBytes = origin.read(data)
+                            if (readBytes == -1) {
+                                break
+                            }
+                            out.write(data, 0, readBytes)
+                        }
+                    }
+                }
+            }
+        }
+
+        val zip = File(recordingZippedFileName)
+        logger.info("Compressed recording files to ${zip.absolutePath}")
+
+        return zip
     }
 
     companion object {

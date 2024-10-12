@@ -18,7 +18,7 @@ interface Grader {
 
     sealed class GradingInfo(open val submissionId: Int) {
 
-        data class Error(override val submissionId: Int, val kind: Int, val description: String): GradingInfo(submissionId)
+        data class Error(override val submissionId: Int, val kind: Int, val description: String): GradingInfo(submissionId) // kind == 4 - timeout error (score 0)
 
         data class File(val name: String, val content: ByteArray)
 

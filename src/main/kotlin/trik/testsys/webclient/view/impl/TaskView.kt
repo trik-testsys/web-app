@@ -16,6 +16,7 @@ data class TaskView(
     override val creationDate: LocalDateTime?,
     override val additionalInfo: String,
     override val note: String,
+    val passedTest: Boolean = false,
     val taskFiles: List<TaskFileView> = emptyList()
 ) : NotedEntityView<Task> {
 
@@ -35,7 +36,8 @@ data class TaskView(
             creationDate = creationDate?.atTimeZone(timeZone),
             additionalInfo = additionalInfo,
             note = note,
-            taskFiles = taskFiles.map { it.toView(timeZone) }.sortedBy { it.id }
+            taskFiles = taskFiles.map { it.toView(timeZone) }.sortedBy { it.id },
+            passedTest = passedTests
         )
     }
 }
