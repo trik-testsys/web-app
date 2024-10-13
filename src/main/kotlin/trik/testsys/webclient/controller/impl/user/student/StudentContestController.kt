@@ -192,7 +192,7 @@ class StudentContestController(
         }
 
         if (webUser.lastTime(contest).toSecondOfDay() < 1) {
-            redirectAttributes.addPopupMessage("Время на решение задачи истекло.")
+            redirectAttributes.addPopupMessage("Время на решение Задания истекло.")
             return "redirect:$CONTEST_PATH/$contestId"
         }
 
