@@ -52,12 +52,12 @@ class DeveloperContestController(
 
         contestService.validate(contest, redirectAttributes, "redirect:$CONTESTS_PATH")?.let { return it }
 
-        if (contest.startDate > contest.endDate) {
+        if (contest.startDate.isAfter(contest.endDate)) {
             redirectAttributes.addPopupMessage("Дата начала не может быть позже даты окончания.")
             return "redirect:$CONTESTS_PATH"
         }
 
-        if (contest.startDate == contest.endDate && contest.duration == LocalTime.of(0, 0)) {
+        if (contest.startDate.isEqual(contest.endDate) || contest.duration == LocalTime.of(0, 0)) {
             redirectAttributes.addPopupMessage("Длительность тура должна быть положительной.")
             return "redirect:$CONTESTS_PATH"
         }
@@ -121,6 +121,17 @@ class DeveloperContestController(
         }
 
         val contest = contestView.toEntity(timezone)
+
+        if (contest.startDate.isAfter(contest.endDate)) {
+            redirectAttributes.addPopupMessage("Дата начала не может быть позже даты окончания.")
+            return "redirect:$CONTEST_PATH/$contestId"
+        }
+
+        if (contest.startDate.isEqual(contest.endDate) || contest.duration == LocalTime.of(0, 0)) {
+            redirectAttributes.addPopupMessage("Длительность тура должна быть положительной.")
+            return "redirect:$CONTEST_PATH/$contestId"
+        }
+
         contest.developer = webUser
         val groups = contestService.find(contestId)?.groups ?: mutableSetOf()
         contest.groups.addAll(groups)
