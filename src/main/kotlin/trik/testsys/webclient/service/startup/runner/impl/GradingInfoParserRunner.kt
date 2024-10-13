@@ -32,6 +32,35 @@ class GradingInfoParserRunner(
     override fun runBlocking() {
         addGraderNodes()
         addGraderSubscription()
+        sendToGradeUngradedSolutions()
+    }
+
+    private fun sendToGradeUngradedSolutions() {
+        logger.info("Sending ungraded solutions to grade...")
+
+        val ungradedSolutions = solutionService.findAll()
+            .filter { it.status == Solution.SolutionStatus.NOT_STARTED || it.status == Solution.SolutionStatus.IN_PROGRESS }
+            .filter {
+                val file = fileManager.getSolutionFile(it)
+                if (file == null) {
+                    logger.error("Solution file for solution ${it.id} is missing.")
+
+                    it.status = Solution.SolutionStatus.ERROR
+                    it.score = 0
+                    if (it.isLastTaskTest()) changeTaskTestingResult(it)
+                    solutionService.save(it)
+
+                    false
+                } else {
+                    true
+                }
+            }
+
+        logger.info("Found ${ungradedSolutions.size} ungraded solutions.")
+
+        ungradedSolutions.forEach {
+            grader.sendToGrade(it, Grader.GradingOptions(true, "testsystrik/trik-studio:release-2023.1-2024-10-10-2.0.0"))
+        }
     }
 
     private fun addGraderNodes() {
@@ -115,24 +144,28 @@ class GradingInfoParserRunner(
             solution.score = score
         }
 
-        if (solution.student == null) {
-            if (solution.status == Solution.SolutionStatus.PASSED) {
-                solution.task.pass()
-            }
-
-            if (solution.status == Solution.SolutionStatus.FAILED) {
-                solution.task.fail()
-
-                solution.task.contests.forEach {
-                    it.tasks.remove(solution.task)
-                    contestService.save(it)
-                }
-                solution.task.contests.clear()
-            }
-            taskService.save(solution.task)
-        }
+        if (solution.isLastTaskTest()) changeTaskTestingResult(solution)
 
         solutionService.save(solution)
+    }
+
+    fun Solution.isLastTaskTest() = student == null && taskService.getLastTest(task) == this
+
+    private fun changeTaskTestingResult(solution: Solution) {
+        if (solution.status == Solution.SolutionStatus.PASSED) {
+            solution.task.pass()
+        }
+
+        if (solution.status == Solution.SolutionStatus.FAILED) {
+            solution.task.fail()
+
+            solution.task.contests.forEach {
+                it.tasks.remove(solution.task)
+                contestService.save(it)
+            }
+            solution.task.contests.clear()
+        }
+        taskService.save(solution.task)
     }
 
     private fun ObjectMapper.readVerdictElements(verdict: File): List<VerdictElement>? = try {

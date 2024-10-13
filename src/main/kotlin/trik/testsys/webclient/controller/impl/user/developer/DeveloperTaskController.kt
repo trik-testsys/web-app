@@ -221,6 +221,14 @@ class DeveloperTaskController(
             return "redirect:$TASK_PATH/$taskId"
         }
 
+        val taskTest = solutionService.findTaskTests(task)
+        val isTaskTestingNow =  taskTest.any { it.status == Solution.SolutionStatus.IN_PROGRESS }
+
+        if (isTaskTestingNow) {
+            redirectAttributes.addPopupMessage("Тестирование Задания ${task.name} в процессе. Открепление Файла невозможно.")
+            return "redirect:$TASK_PATH/$taskId"
+        }
+
         taskFile.tasks.remove(task)
         taskFileService.save(taskFile)
 
