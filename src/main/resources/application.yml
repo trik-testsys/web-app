@@ -25,7 +25,7 @@ logging:
 server:
   port: 8888                                                    # Entrypoint
   servlet:
-    context-path: /test
+    context-path: /2024
     session:
       timeout: 3h
 
@@ -40,3 +40,5 @@ path:
     exercises: "${PWD}/data/taskFiles/exercises/"
   files:
     solutions: "${PWD}/data/files/solutions/"
+    verdicts: "${PWD}/data/files/verdicts/"
+    recordings: "${PWD}/data/files/recordings/"
