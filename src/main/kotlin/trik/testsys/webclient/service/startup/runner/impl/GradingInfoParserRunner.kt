@@ -149,14 +149,10 @@ class GradingInfoParserRunner(
         solutionService.save(solution)
     }
 
-    fun Solution.isLastTaskTest() = student == null && taskService.getLastTest(task) == this
+    fun Solution.isLastTaskTest() = student == null && taskService.getLastTest(task)?.id == this.id
 
     private fun changeTaskTestingResult(solution: Solution) {
-        if (solution.status == Solution.SolutionStatus.PASSED) {
-            solution.task.pass()
-        }
-
-        if (solution.status == Solution.SolutionStatus.FAILED) {
+        if (solution.status == Solution.SolutionStatus.FAILED || !solution.task.hasExercise || !solution.task.hasSolution || solution.task.polygonsCount == 0L) {
             solution.task.fail()
 
             solution.task.contests.forEach {
@@ -164,6 +160,10 @@ class GradingInfoParserRunner(
                 contestService.save(it)
             }
             solution.task.contests.clear()
+        }
+
+        if (solution.status == Solution.SolutionStatus.PASSED && solution.task.hasExercise && solution.task.hasSolution && solution.task.polygonsCount > 0L) {
+            solution.task.pass()
         }
         taskService.save(solution.task)
     }

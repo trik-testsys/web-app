@@ -14,6 +14,7 @@ import trik.testsys.webclient.controller.impl.user.admin.AdminGroupsController.C
 import trik.testsys.webclient.controller.user.AbstractWebUserController
 import trik.testsys.webclient.entity.impl.Group
 import trik.testsys.webclient.entity.user.impl.Admin
+import trik.testsys.webclient.service.UserAgentParser
 import trik.testsys.webclient.service.entity.impl.ContestService
 import trik.testsys.webclient.service.entity.impl.GroupService
 import trik.testsys.webclient.service.entity.user.impl.AdminService
@@ -39,7 +40,8 @@ class AdminGroupController(
     @Qualifier("groupRegTokenGenerator") private val groupRegTokenGenerator: RegTokenGenerator,
 
     private val contestService: ContestService,
-    private val studentService: StudentService
+    private val studentService: StudentService,
+    private val userAgentParser: UserAgentParser
 ) : AbstractWebUserController<Admin, AdminView, AdminService>(loginData) {
 
     override val mainPage = GROUP_PAGE
@@ -137,7 +139,8 @@ class AdminGroupController(
     @GetMapping("/exportStudents/{groupId}")
     fun groupExportStudents(
         @PathVariable("groupId") groupId: Long,
-        @RequestParam("charset", defaultValue = "UTF-8") charsetName: String,
+        @RequestHeader("User-Agent") userAgent: String,
+        request: HttpServletRequest,
         redirectAttributes: RedirectAttributes
     ): Any {
         val webUser = loginData.validate(redirectAttributes) ?: return "redirect:${LoginController.LOGIN_PATH}"
@@ -158,12 +161,12 @@ class AdminGroupController(
         val contentDisposition = "attachment; filename=$filename"
 
         val csv = students.joinToString("\n") { "${it.id};${it.name};${it.accessToken}" }
-        val charset = charset(charsetName)
+        val charset = userAgentParser.getCharset(userAgent)
         val bytes = csv.toByteArray(charset)
 
         val responseEntity = ResponseEntity.ok()
             .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
-            .header(HttpHeaders.CONTENT_ENCODING, charsetName)
+            .header(HttpHeaders.CONTENT_ENCODING, charset.name())
             .contentType(MediaType.TEXT_PLAIN)
             .body(bytes)
 
