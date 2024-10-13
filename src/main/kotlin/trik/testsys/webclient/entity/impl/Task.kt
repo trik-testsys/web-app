@@ -22,7 +22,7 @@ class Task(
     )
     lateinit var developer: Developer
 
-    @ManyToMany(mappedBy = "tasks", cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "tasks", fetch = FetchType.EAGER)
     val taskFiles: MutableSet<TaskFile> = mutableSetOf()
 
     @get:Transient
@@ -61,7 +61,7 @@ class Task(
         passedTests = true
     }
 
-    @ManyToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "TASKS_BY_CONTESTS",
         joinColumns = [JoinColumn(name = "task_id")],

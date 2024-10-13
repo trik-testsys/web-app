@@ -23,6 +23,6 @@ class Viewer(
     override val regToken: AccessToken
 ) : WebUser(name, accessToken, UserType.VIEWER), RegEntity {
 
-    @OneToMany(mappedBy = "viewer", cascade = [CascadeType.ALL])
+    @OneToMany(mappedBy = "viewer")
     val admins: MutableSet<Admin> = mutableSetOf()
 }

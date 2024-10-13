@@ -20,21 +20,21 @@ class Developer(
     accessToken: AccessToken
 ) : WebUser(name, accessToken, UserType.DEVELOPER) {
 
-    @OneToMany(mappedBy = "developer", cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "developer", fetch = FetchType.EAGER)
     val tasks: MutableSet<Task> = mutableSetOf()
 
     /**
      * @author Roman Shishkin
      * @since 2.0.0
      **/
-    @OneToMany(mappedBy = "developer", cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "developer", fetch = FetchType.EAGER)
     val contests: MutableSet<Contest> = mutableSetOf()
 
     /**
      * @author Roman Shishkin
      * @since 2.0.0
      **/
-    @OneToMany(mappedBy = "developer", cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "developer", fetch = FetchType.EAGER)
     val taskFiles: MutableSet<TaskFile> = mutableSetOf()
 
     /**

@@ -10,6 +10,7 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneOffset
 import javax.persistence.*
+import kotlin.math.max
 import kotlin.math.min
 
 @Entity
@@ -26,7 +27,7 @@ class Student(
     )
     lateinit var group: Group
 
-    @OneToMany(mappedBy = "student", cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "student", fetch = FetchType.EAGER)
     val solutions: MutableSet<Solution> = mutableSetOf()
 
     @ElementCollection
@@ -44,14 +45,16 @@ class Student(
 
     fun lastTime(contest: Contest): LocalTime {
         val lastTimeForContest = contest.endDate.toEpochSecond(ZoneOffset.UTC) - LocalDateTime.now(DEFAULT_ZONE_ID).toEpochSecond(ZoneOffset.UTC)
-        val contestLastTime = contest.duration.toSecondOfDay().toLong()
+        val realLastTimeForContest = max(0, lastTimeForContest)
+        val contestDurationSeconds = contest.duration.toSecondOfDay().toLong()
 
-        val startTime = startTimesByContestId[contest.id!!] ?: return LocalTime.ofSecondOfDay(min(contestLastTime, lastTimeForContest))
+        val startTime = startTimesByContestId[contest.id!!] ?: return LocalTime.ofSecondOfDay(min(contestDurationSeconds, realLastTimeForContest))
         val usedSeconds =  LocalDateTime.now(DEFAULT_ZONE_ID).toEpochSecond(ZoneOffset.UTC) - startTime.toEpochSecond(ZoneOffset.UTC)
 
         val lastSeconds = contest.duration.toSecondOfDay() - usedSeconds
+        val realLastSeconds = max(0, lastSeconds)
 
-        val realLastTime = min(lastSeconds, lastTimeForContest)
+        val realLastTime = min(realLastSeconds, realLastSeconds)
 
         return LocalTime.ofSecondOfDay(realLastTime)
     }
