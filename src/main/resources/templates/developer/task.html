@@ -199,6 +199,7 @@
             </div>
             <table>
                 <tr>
+                    <th style="width: 10%">ID</th>
                     <th>Дата и время запуска</th>
                     <th>Статус</th>
                     <th>Результат</th>
@@ -206,6 +207,7 @@
                 </tr>
                 <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.TaskTestResultView"*/-->
                 <tr th:each="testResult : ${testResults}">
+                    <td th:text="${testResult.id}"></td>
                     <td th:text="${testResult.creationDate}"></td>
                     <td th:switch="${testResult.status}">
                         <span th:case="${testResult.status.PASSED}">Успешно</span>
