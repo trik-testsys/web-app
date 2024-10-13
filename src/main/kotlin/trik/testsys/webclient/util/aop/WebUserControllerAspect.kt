@@ -4,6 +4,8 @@ import org.aspectj.lang.ProceedingJoinPoint
 import org.aspectj.lang.annotation.Around
 import org.aspectj.lang.annotation.Aspect
 import org.slf4j.LoggerFactory
+import org.springframework.core.annotation.Order
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 import org.springframework.validation.support.BindingAwareModelMap
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
@@ -18,6 +20,7 @@ class WebUserControllerAspect(
     private val userValidator: UserValidator
 ) {
 
+    @Order(2)
     @Around("target(trik.testsys.webclient.controller.user.AbstractWebUserController)")
     fun addEmergencyMessage(joinPoint: ProceedingJoinPoint): Any {
         val target = joinPoint.target as AbstractWebUserController<*, *, *>
@@ -41,6 +44,38 @@ class WebUserControllerAspect(
         model?.addAttribute("emergencyMessage", emergencyMessage.additionalInfo)
 
         return joinPoint.proceed()
+    }
+
+    @Order(1)
+    @Around("target(trik.testsys.webclient.controller.user.AbstractWebUserController)")
+    fun log(joinPoint: ProceedingJoinPoint): Any {
+        try {
+            val target = joinPoint.target as AbstractWebUserController<*, *, *>
+
+            val accessToken = target.loginData.accessToken
+            val webUserId = userValidator.validateExistence(accessToken)?.id
+
+            val controllerName = target.javaClass.simpleName
+            val methodName = joinPoint.signature.name
+            val methodArgNames = target.javaClass.methods.find { it.name == methodName }?.parameters?.map { it.name }
+            val methodArgValues = joinPoint.args.mapIndexed { index, arg -> "${methodArgNames?.get(index)}=$arg" }
+
+            logger.info("[ $webUserId: $accessToken ] : Calling $controllerName.$methodName($methodArgValues)")
+
+            val result = joinPoint.proceed()
+            val logResult = if (result is ResponseEntity<*>) {
+                result.headers.contentDisposition.filename
+            } else {
+                result.toString()
+            }
+
+            logger.info("[ $webUserId: $accessToken ] : Called $controllerName.$methodName($methodArgValues). Result: $logResult")
+
+            return result
+        } catch (e: Exception) {
+            logger.error("Error in WebUserControllerAspect", e)
+            return joinPoint.proceed()
+        }
     }
 
     companion object {
