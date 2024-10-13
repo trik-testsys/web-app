@@ -100,6 +100,11 @@ class StudentContestController(
             return "redirect:$CONTEST_PATH/start/$contestId"
         }
 
+        if (webUser.lastTime(contest).toSecondOfDay() < 1) {
+            redirectAttributes.addPopupMessage("Время на участие в Туре истекло.")
+            return "redirect:$CONTESTS_PATH"
+        }
+
         model.addAttribute(CONTEST_ATTR, contest.toStudentView(timezone, webUser.lastTime(contest)))
 
         val tasksView = contest.tasks
@@ -143,6 +148,15 @@ class StudentContestController(
 
         if (contest.tasks.none { it.id == task.id }) {
             redirectAttributes.addPopupMessage("Задание c ID '$taskId' не доступно.")
+            return "redirect:$CONTEST_PATH/$contestId"
+        }
+
+        if (!webUser.startTimesByContestId.keys.contains(contest.id)) {
+            return "redirect:$CONTEST_PATH/start/$contestId"
+        }
+
+        if (webUser.lastTime(contest).toSecondOfDay() < 1) {
+            redirectAttributes.addPopupMessage("Время на решение Задания истекло.")
             return "redirect:$CONTEST_PATH/$contestId"
         }
 
