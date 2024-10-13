@@ -204,8 +204,12 @@
             </form>
 
             <a class="button" th:href="@{/admin/groups/group/exportStudents/{groupId}(groupId=${group.id})}"
-               charset="UTF-8" target="_self">
-                Экспорт Участников
+               target="_self">
+                Экспорт Участников для macOS/Linux
+            </a>
+            <a class="button" th:href="@{'/admin/groups/group/exportStudents/' + ${group.id} + '?charset=windows-1251'}"
+               target="_self">
+                Экспорт Участников для Windows
             </a>
         </div>
 

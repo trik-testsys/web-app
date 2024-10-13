@@ -137,6 +137,7 @@ class AdminGroupController(
     @GetMapping("/exportStudents/{groupId}")
     fun groupExportStudents(
         @PathVariable("groupId") groupId: Long,
+        @RequestParam("charset", defaultValue = "UTF-8") charsetName: String,
         redirectAttributes: RedirectAttributes
     ): Any {
         val webUser = loginData.validate(redirectAttributes) ?: return "redirect:${LoginController.LOGIN_PATH}"
@@ -153,17 +154,17 @@ class AdminGroupController(
 
         val students = group.students.sortedBy { it.id }
 
-        val csv = students.joinToString("\n") { "${it.id};${it.name};${it.accessToken}" }
         val filename = "students_${System.currentTimeMillis()}.csv"
-        val contentType = "text/csv"
-        val charset = "utf-8"
         val contentDisposition = "attachment; filename=$filename"
-        val bytes = csv.toByteArray()
+
+        val csv = students.joinToString("\n") { "${it.id};${it.name};${it.accessToken}" }
+        val charset = charset(charsetName)
+        val bytes = csv.toByteArray(charset)
 
         val responseEntity = ResponseEntity.ok()
             .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
-            .contentType(MediaType.parseMediaType(contentType))
-            .header(HttpHeaders.CONTENT_ENCODING, charset)
+            .header(HttpHeaders.CONTENT_ENCODING, charsetName)
+            .contentType(MediaType.TEXT_PLAIN)
             .body(bytes)
 
         redirectAttributes.addPopupMessage("Студенты успешно экспортированы.")
