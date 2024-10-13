@@ -92,6 +92,13 @@ class GradingInfoParserRunner(
             val infoElements = elements.filter { it.level == VerdictElement.LEVEL_INFO }
             val errorElements = elements.filter { it.level == VerdictElement.LEVEL_ERROR }
 
+            if (errorElements.isNotEmpty()) {
+                solution.status = Solution.SolutionStatus.FAILED
+                solution.score = 0
+
+                return@forEach
+            }
+
             val score = infoElements
                 .filter { (_, message) -> VerdictElement.SCORE_PATTERN.matcher(message).find() }
                 .mapNotNull { (_, message) -> VerdictElement.matchScore(message) }
