@@ -2,6 +2,7 @@ package trik.testsys.webclient.util
 
 import trik.testsys.core.entity.AbstractEntity
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.TimeZone
 
@@ -29,3 +30,17 @@ fun LocalDateTime.format(): String = format(DEFAULT_FORMATTER)
 
 val LocalDateTime.DEFAULT_FORMATTER: DateTimeFormatter
     get() = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")
+
+fun LocalDateTime.isBeforeOrEqual(other: LocalDateTime): Boolean = this.isBefore(other) || this == other
+
+fun LocalDateTime.isAfterOrEqual(other: LocalDateTime): Boolean = this.isAfter(other) || this == other
+
+fun LocalDateTime.isBeforeOrEqualNow(): Boolean = isBeforeOrEqual(LocalDateTime.now(AbstractEntity.DEFAULT_ZONE_ID))
+
+fun LocalDateTime.isAfterOrEqualNow(): Boolean = isAfterOrEqual(LocalDateTime.now(AbstractEntity.DEFAULT_ZONE_ID))
+
+fun LocalDateTime.isBeforeNow(): Boolean = isBefore(LocalDateTime.now(AbstractEntity.DEFAULT_ZONE_ID))
+
+fun LocalDateTime.isAfterNow(): Boolean = isAfter(LocalDateTime.now(AbstractEntity.DEFAULT_ZONE_ID))
+
+fun LocalDateTime.toEpochSecond(): Long = toEpochSecond(ZoneOffset.UTC)
