@@ -346,8 +346,6 @@ class DeveloperTaskController(
     }
     companion object {
 
-        private val logger = LoggerFactory.getLogger(DeveloperTaskController::class.java)
-
         const val TASK_PATH = "$TASKS_PATH/task"
         const val TASK_PAGE = "$DEVELOPER_PAGE/task"
 

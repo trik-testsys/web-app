@@ -69,7 +69,7 @@
                     <td th:text="${contest.lastTime}"></td>
                     <td th:text="${contest.isGoingOn} ? 'Да' : 'Нет'"></td>
                     <td class="buttons">
-                        <form th:action="@{/student/contests/contest/start/{contestId}(contestId=${contest.id})}" method="post">
+                        <form th:action="@{/student/contests/contest/start/{contestId}(contestId=${contest.id})}" method="get">
                             <button type="submit" title="Приступить к выполнению" th:disabled="${!contest.isGoingOn || contest.lastTime == '00:00:00'}">
                                 <i class="fa-solid fa-play"></i>
                             </button>

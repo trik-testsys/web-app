@@ -5,9 +5,11 @@ import trik.testsys.core.utils.enums.Enum
 import trik.testsys.core.utils.enums.converter.AbstractEnumConverter
 import trik.testsys.webclient.entity.AbstractNotedEntity
 import trik.testsys.webclient.entity.user.impl.Developer
+import trik.testsys.webclient.util.*
 import java.time.LocalDateTime
 import java.time.LocalTime
 import javax.persistence.*
+import kotlin.math.min
 
 
 @Entity
@@ -49,7 +51,29 @@ class Contest(
     )
     val groups: MutableSet<Group> = mutableSetOf()
 
-    fun isGoingOn() = startDate <= LocalDateTime.now(DEFAULT_ZONE_ID) && endDate >= LocalDateTime.now(DEFAULT_ZONE_ID)
+    fun isGoingOn(): Boolean {
+        val now = LocalDateTime.now(DEFAULT_ZONE_ID)
+        return startDate.isBeforeOrEqual(now) && endDate.isAfterOrEqual(now)
+    }
+
+    @get:Transient
+    val durationInSeconds: Long
+        get() {
+            return endDate.toEpochSecond() - startDate.toEpochSecond() + 1
+        }
+
+    @get:Transient
+    val lastSeconds: Long
+        get() {
+            if (!isGoingOn()) {
+                return 0
+            }
+
+            val now = LocalDateTime.now(DEFAULT_ZONE_ID)
+            val lastSeconds = endDate.toEpochSecond() - now.toEpochSecond() + 1
+
+            return min(duration.toSecondOfDay().toLong(), lastSeconds)
+        }
 
     @ElementCollection
     @MapKeyColumn(name = "student_id")
