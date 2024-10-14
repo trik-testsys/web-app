@@ -3,7 +3,6 @@ package trik.testsys.webclient.entity.user.impl
 import trik.testsys.core.entity.Entity.Companion.TABLE_PREFIX
 import trik.testsys.core.entity.user.AccessToken
 import trik.testsys.webclient.entity.impl.Contest
-import trik.testsys.webclient.entity.impl.Solution
 import trik.testsys.webclient.entity.impl.Task
 import trik.testsys.webclient.entity.impl.TaskFile
 import trik.testsys.webclient.entity.user.WebUser
