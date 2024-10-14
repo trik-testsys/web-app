@@ -2,6 +2,7 @@ package trik.testsys.webclient.util
 
 import trik.testsys.core.entity.AbstractEntity
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.TimeZone
@@ -28,8 +29,18 @@ fun LocalDateTime.fromTimeZone(timeZoneId: String?): LocalDateTime =
 
 fun LocalDateTime.format(): String = format(DEFAULT_FORMATTER)
 
+fun LocalDateTime.formatDate(): String = format(DEFAULT_DATE_FORMATTER)
+
+fun LocalTime.format(): String = format(DEFAULT_TIME_FORMATTER)
+
 val LocalDateTime.DEFAULT_FORMATTER: DateTimeFormatter
     get() = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")
+
+val LocalDateTime.DEFAULT_DATE_FORMATTER: DateTimeFormatter
+    get() = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+
+val LocalTime.DEFAULT_TIME_FORMATTER: DateTimeFormatter
+    get() = DateTimeFormatter.ofPattern("HH:mm:ss")
 
 fun LocalDateTime.isBeforeOrEqual(other: LocalDateTime): Boolean = this.isBefore(other) || this == other
 

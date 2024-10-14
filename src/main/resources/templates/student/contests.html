@@ -48,10 +48,7 @@
                         Дата и время окончания
                     </th>
                     <th>
-                        Время на прохождение
-                    </th>
-                    <th>
-                        Оставшееся время
+                        Время на выполнение
                     </th>
                     <th>
                         Идет
@@ -65,7 +62,6 @@
                     <td th:text="${contest.additionalInfo}"></td>
                     <td th:text="${contest.formattedStartDate}"></td>
                     <td th:text="${contest.formattedEndDate}"></td>
-                    <td th:text="${contest.duration}"></td>
                     <td th:text="${contest.lastTime}"></td>
                     <td th:text="${contest.isGoingOn} ? 'Да' : 'Нет'"></td>
                     <td class="buttons">

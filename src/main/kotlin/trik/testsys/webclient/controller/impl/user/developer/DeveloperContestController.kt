@@ -58,7 +58,7 @@ class DeveloperContestController(
         }
 
         if (contest.startDate.isEqual(contest.endDate) || contest.duration == LocalTime.of(0, 0)) {
-            redirectAttributes.addPopupMessage("Время на прохождение Тура должна быть положительной.")
+            redirectAttributes.addPopupMessage("Время на выполнение Тура должно быть положительным.")
             return "redirect:$CONTESTS_PATH"
         }
 
@@ -135,7 +135,7 @@ class DeveloperContestController(
         }
 
         if (contest.startDate.isEqual(contest.endDate) || contest.duration == LocalTime.of(0, 0)) {
-            redirectAttributes.addPopupMessage("Время на прохождение Тура должна быть положительной.")
+            redirectAttributes.addPopupMessage("Время на выполнение Тура должно быть положительным.")
             return "redirect:$CONTEST_PATH/$contestId"
         }
 

@@ -42,6 +42,9 @@ data class ContestView(
     val formattedEndDate: String
         get() = endDate.format()
 
+    val formattedDuration: String
+        get() = duration.format()
+
     companion object {
 
         fun Contest.toView(timeZone: String?) = ContestView(

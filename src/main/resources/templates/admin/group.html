@@ -105,7 +105,7 @@
                         Дата и время окончания
                     </th>
                     <th>
-                        Время на прохождение
+                        Время на выполнение
                     </th>
                     <th style="width: 7%">
                     </th>
@@ -117,7 +117,7 @@
                     <td th:text="${contest.additionalInfo}"></td>
                     <td th:text="${contest.formattedStartDate}"></td>
                     <td th:text="${contest.formattedEndDate}"></td>
-                    <td th:text="${contest.duration}"></td>
+                    <td th:text="${contest.formattedDuration}"></td>
                     <td class="buttons">
                         <form th:action="@{/admin/groups/group/unlinkContest/{id}(id=${group.id})}" method="post">
                             <input type="hidden" name="contestId" th:value="${contest.id}">
@@ -150,7 +150,7 @@
                         Дата и время окончания
                     </th>
                     <th>
-                        Время на прохождение
+                        Время на выполнение
                     </th>
                     <th style="width: 7%">
                     </th>
@@ -162,7 +162,7 @@
                     <td th:text="${contest.additionalInfo}"></td>
                     <td th:text="${contest.formattedStartDate}"></td>
                     <td th:text="${contest.formattedEndDate}"></td>
-                    <td th:text="${contest.duration}"></td>
+                    <td th:text="${contest.formattedDuration}"></td>
                     <td class="buttons">
                         <form th:action="@{/admin/groups/group/linkContest/{id}(id=${group.id})}" method="post">
                             <input type="hidden" name="contestId" th:value="${contest.id}">

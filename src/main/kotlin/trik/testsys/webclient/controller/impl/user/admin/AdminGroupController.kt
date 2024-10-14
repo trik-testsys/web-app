@@ -123,7 +123,7 @@ class AdminGroupController(
         }
 
         if (count < 1) {
-            redirectAttributes.addPopupMessage("Количество студентов должно быть больше 0.")
+            redirectAttributes.addPopupMessage("Количество Участников должно быть больше 0.")
             return "redirect:$GROUP_PATH/$groupId"
         }
 
@@ -131,7 +131,7 @@ class AdminGroupController(
 
         group.students.addAll(students)
 
-        redirectAttributes.addPopupMessage("Сгенерировано $count студентов.")
+        redirectAttributes.addPopupMessage("Сгенерировано $count Участников.")
 
         return "redirect:$GROUP_PATH/$groupId"
     }
