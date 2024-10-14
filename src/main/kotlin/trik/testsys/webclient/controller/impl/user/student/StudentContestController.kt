@@ -241,7 +241,7 @@ class StudentContestController(
             return "redirect:$CONTEST_PATH/$contestId"
         }
 
-        if (!task.hasExercise) {
+        if (!task.hasCondition) {
             redirectAttributes.addPopupMessage("У задания '${task.name}' нет Условия.")
             return "redirect:$CONTEST_PATH/$contestId"
         }

@@ -5,7 +5,7 @@ spring:
     open-in-view: on                                            # Enable JPA open-in-view
     defer-datasource-initialization: true
   datasource:
-    url: jdbc:mysql://localhost:3306/testsys_db   # Database URL
+    url: jdbc:mysql://${MYSQL_HOST:mysql_host}:3306/testsys_db   # Database URL
     username: testsys                                           # Database username
     password: p@ssw0rd                                          # Database password
     driver-class-name: com.mysql.cj.jdbc.Driver                 # Driver for MySQL
@@ -28,6 +28,10 @@ server:
     context-path: /2024
     session:
       timeout: 3h
+  error:
+    whitelabel:
+      enabled: false
+    include-message: always
 
 path:
   l10n: "${PWD}/src/main/resources/static/l10n"
