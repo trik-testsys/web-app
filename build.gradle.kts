@@ -52,6 +52,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     implementation("org.thymeleaf.extras:thymeleaf-extras-java8time")
 
+    implementation("org.yaml:snakeyaml:1.33")
+    implementation("com.github.ua-parser:uap-java:1.5.4")
+
 //    implementation("org.springframework.boot:spring-boot-starter-actuator")
 //    implementation("io.micrometer:micrometer-core:1.6.6")
 //    implementation("io.micrometer:micrometer-registry-prometheus:1.6.6")
