@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import trik.testsys.webclient.entity.impl.Solution
 import trik.testsys.webclient.service.FileManager
@@ -22,7 +23,9 @@ class GradingInfoParserRunner(
     private val fileManager: FileManager,
     private val solutionService: SolutionService,
     private val taskService: TaskService,
-    private val contestService: ContestService
+    private val contestService: ContestService,
+
+    @Value("\${trik.studio.version}") private val trikStudioVersion: String
 ) : StartupRunner {
 
     override suspend fun run() {
@@ -59,7 +62,7 @@ class GradingInfoParserRunner(
         logger.info("Found ${ungradedSolutions.size} ungraded solutions.")
 
         ungradedSolutions.forEach {
-            grader.sendToGrade(it, Grader.GradingOptions(true, "testsystrik/trik-studio:release-2023.1-2024-10-10-2.0.0"))
+            grader.sendToGrade(it, Grader.GradingOptions(true, trikStudioVersion))
         }
     }
 

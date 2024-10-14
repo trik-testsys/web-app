@@ -1,6 +1,6 @@
 package trik.testsys.webclient.controller.impl.user.developer
 
-import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
@@ -44,7 +44,9 @@ class DeveloperTaskController(
     private val contestService: ContestService,
 
     private val grader: Grader,
-    private val fileManager: FileManager
+    private val fileManager: FileManager,
+
+    @Value("\${trik.studio.version}") private val trikStudioVersion: String
 ) : AbstractWebUserController<Developer, DeveloperView, DeveloperService>(loginData) {
 
     override val mainPage = TASK_PAGE
@@ -311,7 +313,7 @@ class DeveloperTaskController(
 
         grader.sendToGrade(
             solution,
-            Grader.GradingOptions(true, "testsystrik/trik-studio:release-2023.1-2024-10-10-2.0.0")
+            Grader.GradingOptions(true, trikStudioVersion)
         )
 
         redirectAttributes.addPopupMessage("Тестирование задания ${task.name} запущено.")

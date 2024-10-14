@@ -5,7 +5,7 @@ spring:
     open-in-view: on                                            # Enable JPA open-in-view
     defer-datasource-initialization: true
   datasource:
-    url: jdbc:mysql://${MYSQL_HOST:mysql_host}:3306/testsys_db   # Database URL
+    url: jdbc:mysql://localhost:3306/testsys_db   # Database URL
     username: testsys                                           # Database username
     password: p@ssw0rd                                          # Database password
     driver-class-name: com.mysql.cj.jdbc.Driver                 # Driver for MySQL
@@ -38,7 +38,12 @@ path:
     solutions: "${PWD}/data/taskFiles/solutions/"
     polygons: "${PWD}/data/taskFiles/polygons/"
     exercises: "${PWD}/data/taskFiles/exercises/"
+    conditions: "${PWD}/data/taskFiles/conditions/"
   files:
     solutions: "${PWD}/data/files/solutions/"
     verdicts: "${PWD}/data/files/verdicts/"
     recordings: "${PWD}/data/files/recordings/"
+
+trik:
+  studio:
+    version: "testsystrik/trik-studio:release-2023.1-2024-10-10-2.0.0"
