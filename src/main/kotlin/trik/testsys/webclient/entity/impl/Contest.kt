@@ -5,6 +5,7 @@ import trik.testsys.core.utils.enums.Enum
 import trik.testsys.core.utils.enums.converter.AbstractEnumConverter
 import trik.testsys.webclient.entity.AbstractNotedEntity
 import trik.testsys.webclient.entity.user.impl.Developer
+import trik.testsys.webclient.entity.user.impl.Student
 import trik.testsys.webclient.util.*
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -54,6 +55,11 @@ class Contest(
     fun isGoingOn(): Boolean {
         val now = LocalDateTime.now(DEFAULT_ZONE_ID)
         return startDate.isBeforeOrEqual(now) && endDate.isAfterOrEqual(now)
+    }
+
+    fun isOutdatedFor(student: Student): Boolean {
+        val studentRemainingTime = student.remainingTimeFor(this)
+        return studentRemainingTime.toSecondOfDay() == 0
     }
 
     @get:Transient

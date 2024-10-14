@@ -63,7 +63,7 @@
     </div>
 
 
-    <div class="block">
+    <div class="block" th:if="${!contest.outdated}">
         <div class="block-title">Задания</div>
 
         <div class="table tasks-table">
@@ -101,7 +101,7 @@
     <div class="block">
         <div class="block-title">Посылки</div>
 
-        <div class="form-container">
+        <div class="form-container" th:if="${!contest.outdated}">
             <div class="form-header">
                 <h1>Отправка решения</h1>
             </div>
@@ -133,6 +133,7 @@
             <table>
                 <tr>
                     <th style="width: 10%">ID</th>
+                    <th>Задание</th>
                     <th>Дата и время запуска</th>
                     <th>Статус</th>
                     <th>Результат</th>
@@ -141,6 +142,7 @@
                 <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.TaskTestResultView"*/-->
                 <tr th:each="testResult : ${solutions}">
                     <td th:text="${testResult.id}"></td>
+                    <td th:text="${testResult.taskName}"></td>
                     <td th:text="${testResult.creationDate}"></td>
                     <td th:switch="${testResult.status}">
                         <span th:case="${testResult.status.PASSED}">Успешно</span>

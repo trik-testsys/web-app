@@ -6,6 +6,7 @@ import trik.testsys.webclient.util.format
 
 data class TaskTestResultView(
     val id: Long?,
+    val taskName: String,
     val creationDate: String?,
     val status: Solution.SolutionStatus,
     val score: Long
@@ -17,7 +18,8 @@ data class TaskTestResultView(
             id = id,
             creationDate = creationDate?.atTimeZone(timeZoneId)?.format(),
             status = status,
-            score = score
+            score = score,
+            taskName = "${task.id}: ${task.name}"
         )
     }
 }

@@ -18,7 +18,8 @@ data class StudentContestView(
     val lastTime: String,
     val isGoingOn: Boolean,
     val duration: LocalTime,
-    val tasks: List<TaskView> = emptyList()
+    val tasks: List<TaskView> = emptyList(),
+    val outdated: Boolean = false
 ) : NamedEntityView<Contest> {
 
     override fun toEntity(timeZoneId: String?) = TODO()
@@ -30,6 +31,19 @@ data class StudentContestView(
         get() = endDate.format()
 
     companion object {
+
+        fun Contest.toStudentView(timeZone: String?, outdated: Boolean = true) = StudentContestView(
+            id = this.id,
+            additionalInfo = this.additionalInfo,
+            creationDate = this.creationDate?.atTimeZone(timeZone),
+            name = this.name,
+            startDate = this.startDate.atTimeZone(timeZone),
+            endDate = this.endDate.atTimeZone(timeZone),
+            isGoingOn = this.isGoingOn(),
+            duration = this.duration,
+            lastTime = "—",
+            outdated = outdated
+        )
 
         fun Contest.toStudentView(timeZone: String?, lastTime: LocalTime) = StudentContestView(
             id = this.id,

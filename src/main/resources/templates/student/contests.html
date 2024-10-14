@@ -74,6 +74,51 @@
                 </tr>
             </table>
         </div>
+
+        <div class="table contests-table">
+            <div class="form-header">
+                <h1>Список оконченных Туров</h1>
+            </div>
+            <table>
+                <tr>
+                    <th style="width: 20%">
+                        Название
+                    </th>
+                    <th>Дополнительная информация</th>
+                    <th>
+                        Дата и время начала
+                    </th>
+                    <th>
+                        Дата и время окончания
+                    </th>
+                    <th>
+                        Время на выполнение
+                    </th>
+                    <th>
+                        Идет
+                    </th>
+                    <th style="width: 7%">
+                    </th>
+                </tr>
+                <!--/*@thymesVar id="contest" type="trik.testsys.webclient.view.impl.StudentContestView"*/-->
+                <tr th:each="contest : ${outdatedContests}">
+                    <td th:text="${contest.name}"></td>
+                    <td th:text="${contest.additionalInfo}"></td>
+                    <td th:text="${contest.formattedStartDate}"></td>
+                    <td th:text="${contest.formattedEndDate}"></td>
+                    <td th:text="${contest.lastTime}"></td>
+                    <td th:text="${contest.isGoingOn} ? 'Да' : 'Нет'"></td>
+                    <td class="buttons">
+                        <form th:action="@{/student/contests/contest/{contestId}(contestId=${contest.id})}" method="get">
+                            <input type="checkbox" name="outdated" th:checked="true" hidden>
+                            <button type="submit" title="Результаты выполнения">
+                                <i class="fa-solid fa-info"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            </table>
+        </div>
     </div>
 </div>
 

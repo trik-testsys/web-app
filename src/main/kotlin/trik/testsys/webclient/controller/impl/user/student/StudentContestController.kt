@@ -15,6 +15,7 @@ import trik.testsys.webclient.entity.impl.Solution
 import trik.testsys.webclient.entity.user.impl.Student
 import trik.testsys.webclient.service.FileManager
 import trik.testsys.webclient.service.Grader
+import trik.testsys.webclient.service.entity.impl.ContestService
 import trik.testsys.webclient.service.entity.impl.SolutionService
 import trik.testsys.webclient.service.entity.impl.TaskService
 import trik.testsys.webclient.service.entity.user.impl.StudentService
@@ -33,6 +34,7 @@ class StudentContestController(
     private val studentService: StudentService,
     private val tasksService: TaskService,
     private val solutionService: SolutionService,
+    private val contestService: ContestService,
 
     private val fileManager: FileManager,
     private val grader: Grader
@@ -79,11 +81,36 @@ class StudentContestController(
     @GetMapping("/{contestId}")
     fun contestGet(
         @PathVariable contestId: Long,
+        @RequestParam(name = "outdated", defaultValue = "false") isOutdated: Boolean,
         @CookieValue(name = "X-Timezone", defaultValue = "UTC") timezone: String,
         redirectAttributes: RedirectAttributes,
         model: Model
     ): String {
         val webUser = loginData.validate(redirectAttributes) ?: return "redirect:${LoginController.LOGIN_PATH}"
+
+        if (isOutdated) {
+            if (!webUser.startTimesByContestId.keys.contains(contestId)) {
+                return "redirect:$CONTEST_PATH/start/$contestId"
+            }
+
+            val outdatedContest = contestService.find(contestId) ?: run {
+                redirectAttributes.addPopupMessage("Тур c ID '$contestId' не найден.")
+                return "redirect:$CONTESTS_PATH"
+            }
+
+            if (!outdatedContest.isOutdatedFor(webUser)) {
+                redirectAttributes.addPopupMessage("Тур '${outdatedContest.name}' не закончен.")
+                return "redirect:$CONTEST_PATH/$contestId"
+            }
+
+            model.addAttribute(CONTEST_ATTR, outdatedContest.toStudentView(timezone))
+            val outdatedSolutions = solutionService.findByStudentAndContest(webUser, outdatedContest)
+                .sortedByDescending { it.creationDate }
+                .map { it.toTaskTestResultView(timezone) }
+            model.addAttribute(SOLUTIONS_ATTR, outdatedSolutions)
+
+            return CONTEST_PAGE
+        }
 
         if (!webUser.group.isContestAvailable(contestId)) {
             redirectAttributes.addPopupMessage("Тур c ID '$contestId' не доступен.")

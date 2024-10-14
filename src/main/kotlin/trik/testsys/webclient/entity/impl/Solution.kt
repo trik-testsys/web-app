@@ -40,6 +40,8 @@ class Solution(
 
     fun isScored() = score != -1L
 
+    // solutions should be linked not only with tasks but also with contests
+
     /**
      * @author Roman Shishkin
      * @since 1.1.0
