@@ -205,7 +205,12 @@
 
             <a class="button" th:href="@{/admin/groups/group/exportStudents/{groupId}(groupId=${group.id})}"
                target="_self">
-                Экспорт Участников
+                Экспорт Участников для macOS/Linux
+            </a>
+            <!--TODO: remove later-->
+            <a class="button" th:href="@{/admin/groups/group/exportStudents/{groupId}(groupId=${group.id})}"
+               target="_self">
+                Экспорт Участников для Windows
             </a>
         </div>
 
