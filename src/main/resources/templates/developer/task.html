@@ -63,7 +63,7 @@
                         <label for="task.passedTest">Результат тестирования</label>
                     </div>
                     <div class="form-input" style="flex-basis: 75%">
-                        <input type="text" id="task.passedTest"
+                        <input type="text" id="task.passedTest" class="readonly"
                                th:value="${task.passedTest} == true ? 'Пройдено' : 'Не пройдено'"
                                th:style="${task.passedTest} == true ? 'color: green' : 'color: red'"
                                readonly required/>

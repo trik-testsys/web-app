@@ -122,8 +122,20 @@ class DeveloperTaskController(
             return "redirect:$TASKS_PATH"
         }
 
-        val task = taskView.toEntity(timezone)
-        task.developer = webUser
+        val prevTask = taskService.find(taskId) ?: run {
+            redirectAttributes.addPopupMessage("Задание с ID $taskId не найдено.")
+            return "redirect:$TASKS_PATH"
+        }
+
+        val task = taskView.toEntity(timezone).also {
+            if (prevTask.passedTests) {
+                it.pass()
+            } else {
+                it.fail()
+            }
+
+            it.developer = webUser
+        }
 
         taskService.validate(task, redirectAttributes, "redirect:$TASK_PATH/$taskId")?.let { return it }
 
