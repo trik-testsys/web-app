@@ -198,6 +198,61 @@ class StudentContestController(
         return responseEntity
     }
 
+    @GetMapping("/downloadCondition/{contestId}")
+    fun downloadCondition(
+        @PathVariable contestId: Long,
+        @RequestParam taskId: Long,
+        @CookieValue(name = "X-Timezone", defaultValue = "UTC") timezone: String,
+        redirectAttributes: RedirectAttributes,
+        model: Model
+    ): Any {
+        val webUser = loginData.validate(redirectAttributes) ?: return "redirect:${LoginController.LOGIN_PATH}"
+
+        if (!webUser.group.isContestAvailable(contestId)) {
+            redirectAttributes.addPopupMessage("Тур c ID '$contestId' не доступен.")
+            return "redirect:$CONTESTS_PATH"
+        }
+
+        val contest = webUser.group.contests.first { it.id == contestId }
+        if (!contest.isGoingOn()) {
+            redirectAttributes.addPopupMessage("Тур '${contest.name}' не доступен.")
+            return "redirect:$CONTESTS_PATH"
+        }
+
+        val task = tasksService.find(taskId) ?: run {
+            redirectAttributes.addPopupMessage("Задание c ID '$taskId' не найдено.")
+            return "redirect:$CONTEST_PATH/$contestId"
+        }
+
+        if (contest.tasks.none { it.id == task.id }) {
+            redirectAttributes.addPopupMessage("Задание c ID '$taskId' не доступно.")
+            return "redirect:$CONTEST_PATH/$contestId"
+        }
+
+        if (!webUser.startTimesByContestId.keys.contains(contest.id)) {
+            return "redirect:$CONTEST_PATH/start/$contestId"
+        }
+
+        if (webUser.remainingTimeFor(contest).toSecondOfDay() < 1) {
+            redirectAttributes.addPopupMessage("Время на решение Задания истекло.")
+            return "redirect:$CONTEST_PATH/$contestId"
+        }
+
+        if (!task.hasExercise) {
+            redirectAttributes.addPopupMessage("У задания '${task.name}' нет Условия.")
+            return "redirect:$CONTEST_PATH/$contestId"
+        }
+
+        val condition = fileManager.getTaskFile(task.condition!!)!!
+
+        val responseEntity = ResponseEntity.ok()
+            .header("Content-Disposition", "attachment; filename=${task.id}.pdf")
+            .body(condition.readBytes())
+
+        return responseEntity
+    }
+
+
     @PostMapping("/submitSolution/{contestId}")
     fun submitSolution(
         @PathVariable contestId: Long,

@@ -59,4 +59,8 @@ class Developer(
     @get:Transient
     val solutions: MutableSet<TaskFile>
         get() = taskFiles.filter { it.type == TaskFile.TaskFileType.SOLUTION }.toMutableSet()
+
+    @get:Transient
+    val conditions: MutableSet<TaskFile>
+        get() = taskFiles.filter { it.type == TaskFile.TaskFileType.CONDITION }.toMutableSet()
 }

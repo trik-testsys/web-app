@@ -17,7 +17,8 @@ data class DeveloperView(
     val tasks: List<TaskView> = emptyList(),
     val polygons: List<TaskFileView> = emptyList(),
     val exercises: List<TaskFileView> = emptyList(),
-    val solutions: List<TaskFileView> = emptyList()
+    val solutions: List<TaskFileView> = emptyList(),
+    val conditions: List<TaskFileView> = emptyList()
 ) : UserView<Developer> {
 
     override fun toEntity(timeZoneId: String?) = Developer(

@@ -186,16 +186,24 @@ class DeveloperTaskController(
             return "redirect:$TASK_PATH/$taskId"
         }
 
+        if (taskFile.type == TaskFile.TaskFileType.CONDITION && task.hasCondition) {
+            redirectAttributes.addPopupMessage("Задание ${task.name} уже имеет Условие.")
+            return "redirect:$TASK_PATH/$taskId"
+        }
+
+        if (taskFile.type.cannotBeRemovedOnTaskTesting()) {
+            task.contests.forEach {
+                it.tasks.remove(task)
+                contestService.save(it)
+            }
+            task.contests.clear()
+
+            task.fail()
+        }
+
         taskFile.tasks.add(task)
         taskFileService.save(taskFile)
 
-        task.contests.forEach {
-            it.tasks.remove(task)
-            contestService.save(it)
-        }
-        task.contests.clear()
-
-        task.fail()
         task.taskFiles.add(taskFile)
         taskService.save(task)
 
@@ -236,21 +244,24 @@ class DeveloperTaskController(
         val taskTest = solutionService.findTaskTests(task)
         val isTaskTestingNow =  taskTest.any { it.status == Solution.SolutionStatus.IN_PROGRESS }
 
-        if (isTaskTestingNow) {
+        if (isTaskTestingNow && taskFile.type.cannotBeRemovedOnTaskTesting()) {
             redirectAttributes.addPopupMessage("Тестирование Задания ${task.name} в процессе. Открепление Файла невозможно.")
             return "redirect:$TASK_PATH/$taskId"
+        }
+
+        if (taskFile.type.cannotBeRemovedOnTaskTesting()) {
+            task.contests.forEach {
+                it.tasks.remove(task)
+                contestService.save(it)
+            }
+            task.contests.clear()
+
+            task.fail()
         }
 
         taskFile.tasks.remove(task)
         taskFileService.save(taskFile)
 
-        task.contests.forEach {
-            it.tasks.remove(task)
-            contestService.save(it)
-        }
-        task.contests.clear()
-
-        task.fail()
         task.taskFiles.remove(taskFile)
         taskService.save(task)
 

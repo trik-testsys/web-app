@@ -87,8 +87,13 @@
                     <td th:text="${task.name}"></td>
                     <td th:text="${task.additionalInfo}"></td>
                     <td class="buttons">
+                        <a class="button" th:href="@{'/student/contests/contest/downloadCondition/' + ${contest.id} + '?taskId=' + ${task.id}}" target="_self"
+                           th:if="${task.hasCondition}"
+                           title="Скачать Условие">
+                            <i class="fa-solid fa-file-pdf"></i>
+                        </a>
                         <a class="button" th:href="@{'/student/contests/contest/downloadExercise/' + ${contest.id} + '?taskId=' + ${task.id}}" target="_self"
-                            title="Скачать упражнение">
+                            title="Скачать Упражнение">
                             <i class="fa-solid fa-download"></i>
                         </a>
                     </td>

@@ -38,6 +38,10 @@ class Task(
         get() = taskFiles.firstOrNull { it.type == TaskFile.TaskFileType.SOLUTION }
 
     @get:Transient
+    val condition: TaskFile?
+        get() = taskFiles.firstOrNull { it.type == TaskFile.TaskFileType.CONDITION }
+
+    @get:Transient
     val polygonsCount: Long
         get() = polygons.size.toLong()
 
@@ -48,6 +52,10 @@ class Task(
     @get:Transient
     val hasSolution: Boolean
         get() = solution != null
+
+    @get:Transient
+    val hasCondition: Boolean
+        get() = condition != null
 
     @Column(nullable = false, unique = false, updatable = true)
     var passedTests: Boolean = false

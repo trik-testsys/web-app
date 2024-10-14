@@ -24,6 +24,8 @@ class FileManagerImpl(
     @Value("\${path.taskFiles.solutions}") taskFileSolutionsPath: String,
     @Value("\${path.taskFiles.exercises}") taskFileExercisesPath: String,
     @Value("\${path.taskFiles.polygons}") taskFilePolygonsPath: String,
+    @Value("\${path.taskFiles.conditions}") taskFileConditionsPath: String,
+
 
     @Value("\${path.files.solutions}") solutionsPath: String,
     @Value("\${path.files.verdicts}") verdictsPath: String,
@@ -33,6 +35,7 @@ class FileManagerImpl(
     private val taskFileSolutionsDir = File(taskFileSolutionsPath)
     private val taskFileExercisesDir = File(taskFileExercisesPath)
     private val taskFilePolygonsDir = File(taskFilePolygonsPath)
+    private val taskFileConditionsDir = File(taskFileConditionsPath)
 
     private val solutionsDir = File(solutionsPath)
     private val verdictsDir = File(verdictsPath)
@@ -43,6 +46,7 @@ class FileManagerImpl(
         if (!taskFileSolutionsDir.exists()) taskFileSolutionsDir.mkdirs()
         if (!taskFileExercisesDir.exists()) taskFileExercisesDir.mkdirs()
         if (!taskFilePolygonsDir.exists()) taskFilePolygonsDir.mkdirs()
+        if (!taskFileConditionsDir.exists()) taskFileConditionsDir.mkdirs()
 
         if (!solutionsDir.exists()) solutionsDir.mkdirs()
         if (!verdictsDir.exists()) verdictsDir.mkdirs()
@@ -85,12 +89,14 @@ class FileManagerImpl(
         TaskFile.TaskFileType.SOLUTION -> ".qrs"
         TaskFile.TaskFileType.EXERCISE -> ".qrs"
         TaskFile.TaskFileType.POLYGON -> ".xml"
+        TaskFile.TaskFileType.CONDITION -> ".pdf"
     }
 
     private fun getTaskFileDir(taskFile: TaskFile) = when (taskFile.type) {
         TaskFile.TaskFileType.SOLUTION -> taskFileSolutionsDir
         TaskFile.TaskFileType.EXERCISE -> taskFileExercisesDir
         TaskFile.TaskFileType.POLYGON -> taskFilePolygonsDir
+        TaskFile.TaskFileType.CONDITION -> taskFileConditionsDir
     }
 
     override fun getTaskFiles(task: Task): Collection<TaskFile> {

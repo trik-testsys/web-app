@@ -69,6 +69,7 @@ class DeveloperTaskFileController(
             TaskFile.TaskFileType.POLYGON -> ""
             TaskFile.TaskFileType.EXERCISE -> "exercises"
             TaskFile.TaskFileType.SOLUTION -> "solutions"
+            TaskFile.TaskFileType.CONDITION -> "conditions"
         }
 
         return "redirect:$TASK_FILES_PATH#$anchor"

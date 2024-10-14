@@ -37,7 +37,8 @@ class DeveloperTaskFilesController(
         additionalInfo = this.additionalInfo,
         polygons = this.polygons.map { it.toView(timeZoneId) }.sortedBy { it.id },
         exercises = this.exercises.map { it.toView(timeZoneId) }.sortedBy { it.id },
-        solutions = this.solutions.map { it.toView(timeZoneId) }.sortedBy { it.id }
+        solutions = this.solutions.map { it.toView(timeZoneId) }.sortedBy { it.id },
+        conditions = this.conditions.map { it.toView(timeZoneId) }.sortedBy { it.id }
     )
 
     @GetMapping
@@ -51,6 +52,7 @@ class DeveloperTaskFilesController(
         model.addAttribute(TASK_FILE_POLYGON_ATTR, TaskFileCreationView.emptyPolygon())
         model.addAttribute(TASK_FILE_EXERCISE_ATTR, TaskFileCreationView.emptyExercise())
         model.addAttribute(TASK_FILE_SOLUTION_ATTR, TaskFileCreationView.emptySolution())
+        model.addAttribute(TASK_FILE_CONDITION_ATTR, TaskFileCreationView.emptyCondition())
 
         model.addAttribute(WEB_USER_ATTR, webUser.toView(timezone))
 
@@ -65,5 +67,6 @@ class DeveloperTaskFilesController(
         const val TASK_FILE_POLYGON_ATTR = "polygon"
         const val TASK_FILE_EXERCISE_ATTR = "exercise"
         const val TASK_FILE_SOLUTION_ATTR = "solution"
+        const val TASK_FILE_CONDITION_ATTR = "condition"
     }
 }

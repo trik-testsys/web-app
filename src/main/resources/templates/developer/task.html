@@ -129,6 +129,7 @@
                         <span th:case="${taskFile.type.SOLUTION}">Эталонное решение</span>
                         <span th:case="${taskFile.type.EXERCISE}">Упражнение</span>
                         <span th:case="${taskFile.type.POLYGON}">Полигон</span>
+                        <span th:case="${taskFile.type.CONDITION}">Условие</span>
                     </td>
                     <td th:text="${taskFile.name}"></td>
                     <td th:text="${taskFile.additionalInfo}"></td>
@@ -171,6 +172,7 @@
                         <span th:case="${taskFile.type.SOLUTION}">Эталонное решение</span>
                         <span th:case="${taskFile.type.EXERCISE}">Упражнение</span>
                         <span th:case="${taskFile.type.POLYGON}">Полигон</span>
+                        <span th:case="${taskFile.type.CONDITION}">Условие</span>
                     </td>
                     <td th:text="${taskFile.name}"></td>
                     <td th:text="${taskFile.additionalInfo}"></td>
