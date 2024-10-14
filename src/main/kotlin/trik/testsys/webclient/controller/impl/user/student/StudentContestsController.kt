@@ -36,7 +36,7 @@ class StudentContestsController(
     ): String {
         val webUser = loginData.validate(redirectAttributes) ?: return "redirect:${LoginController.LOGIN_PATH}"
 
-        model.addAttribute(CONTESTS_ATTR, webUser.group.contests.map { it.toStudentView(timezone, webUser.lastTime(it)) }.sortedBy { it.id })
+        model.addAttribute(CONTESTS_ATTR, webUser.group.contests.map { it.toStudentView(timezone, webUser.remainingTimeFor(it)) }.sortedBy { it.id })
 
         return CONTESTS_PAGE
     }

@@ -6,9 +6,9 @@ import trik.testsys.webclient.entity.impl.Contest
 import trik.testsys.webclient.entity.impl.Group
 import trik.testsys.webclient.entity.impl.Solution
 import trik.testsys.webclient.entity.user.WebUser
+import trik.testsys.webclient.util.toEpochSecond
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.time.ZoneOffset
 import javax.persistence.*
 import kotlin.math.max
 import kotlin.math.min
@@ -43,22 +43,17 @@ class Student(
         startTimesByContestId[contest.id!!] = LocalDateTime.now(DEFAULT_ZONE_ID)
     }
 
-    fun lastTime(contest: Contest): LocalTime {
-        val lastTimeForContest = contest.endDate.toEpochSecond(ZoneOffset.UTC) - LocalDateTime.now(DEFAULT_ZONE_ID).toEpochSecond(ZoneOffset.UTC)
-        val realLastTimeForContest = max(0, lastTimeForContest)
-        val contestDurationSeconds = contest.duration.toSecondOfDay().toLong()
+    fun remainingTimeFor(contest: Contest): LocalTime {
+        val now = LocalDateTime.now(DEFAULT_ZONE_ID)
+        val nowInSeconds = now.toEpochSecond()
+        val contestLastSeconds = contest.lastSeconds
 
-        val startTime = startTimesByContestId[contest.id!!] ?: return LocalTime.ofSecondOfDay(min(contestDurationSeconds, realLastTimeForContest))
-        val usedSeconds =  LocalDateTime.now(DEFAULT_ZONE_ID).toEpochSecond(ZoneOffset.UTC) - startTime.toEpochSecond(ZoneOffset.UTC)
+        val startTime = startTimesByContestId[contest.id!!] ?: return LocalTime.ofSecondOfDay(contestLastSeconds)
+        val startTimeInSeconds = startTime.toEpochSecond()
 
-        val lastSeconds = contest.duration.toSecondOfDay() - usedSeconds
-        val realLastSeconds = max(0, lastSeconds)
+        val personalRemainingTime = contest.duration.toSecondOfDay() - (nowInSeconds - startTimeInSeconds)
+        val globalRemainingTime = contest.endDate.toEpochSecond() - nowInSeconds
 
-        val realLastTime = min(realLastSeconds, realLastSeconds)
-
-        return LocalTime.ofSecondOfDay(realLastTime)
+        return LocalTime.ofSecondOfDay(max(0, min(personalRemainingTime, globalRemainingTime)))
     }
-//
-//    @OneToMany(mappedBy = "student", cascade = [CascadeType.ALL])
-//    val taskActions: MutableSet<TaskAction> = mutableSetOf()
 }

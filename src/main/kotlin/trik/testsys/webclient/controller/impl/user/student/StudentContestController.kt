@@ -44,7 +44,7 @@ class StudentContestController(
 
     override fun Student.toView(timeZoneId: String?) = TODO()
 
-    @PostMapping("/start/{contestId}")
+    @GetMapping("/start/{contestId}")
     fun contestStart(
         @PathVariable contestId: Long,
         @CookieValue(name = "X-Timezone", defaultValue = "UTC") timezone: String,
@@ -100,12 +100,14 @@ class StudentContestController(
             return "redirect:$CONTEST_PATH/start/$contestId"
         }
 
-        if (webUser.lastTime(contest).toSecondOfDay() < 1) {
+        val lastTime = webUser.remainingTimeFor(contest)
+
+        if (lastTime.toSecondOfDay() < 1) {
             redirectAttributes.addPopupMessage("Время на участие в Туре истекло.")
             return "redirect:$CONTESTS_PATH"
         }
 
-        model.addAttribute(CONTEST_ATTR, contest.toStudentView(timezone, webUser.lastTime(contest)))
+        model.addAttribute(CONTEST_ATTR, contest.toStudentView(timezone, lastTime))
 
         val tasksView = contest.tasks
             .sortedBy { it.id }
@@ -155,7 +157,7 @@ class StudentContestController(
             return "redirect:$CONTEST_PATH/start/$contestId"
         }
 
-        if (webUser.lastTime(contest).toSecondOfDay() < 1) {
+        if (webUser.remainingTimeFor(contest).toSecondOfDay() < 1) {
             redirectAttributes.addPopupMessage("Время на решение Задания истекло.")
             return "redirect:$CONTEST_PATH/$contestId"
         }
@@ -205,7 +207,7 @@ class StudentContestController(
             return "redirect:$CONTEST_PATH/start/$contestId"
         }
 
-        if (webUser.lastTime(contest).toSecondOfDay() < 1) {
+        if (webUser.remainingTimeFor(contest).toSecondOfDay() < 1) {
             redirectAttributes.addPopupMessage("Время на решение Задания истекло.")
             return "redirect:$CONTEST_PATH/$contestId"
         }
