@@ -287,6 +287,11 @@ class DeveloperTaskController(
             return "redirect:$TASK_PATH/$taskId"
         }
 
+        if (!task.hasExercise) {
+            redirectAttributes.addPopupMessage("Задание ${task.name} не имеет Упражнение. Тестирование невозможно.")
+            return "redirect:$TASK_PATH/$taskId"
+        }
+
         val solutionFile = fileManager.getTaskFile(task.solution!!)
         val solution = Solution.qrsSolution(task)
         solutionService.save(solution)
