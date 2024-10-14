@@ -120,7 +120,14 @@ class DeveloperContestController(
             return "redirect:$CONTESTS_PATH"
         }
 
-        val contest = contestView.toEntity(timezone)
+        val prevContest = contestService.find(contestId) ?: run {
+            redirectAttributes.addPopupMessage("Тур с ID $contestId не найден.")
+            return "redirect:$CONTESTS_PATH"
+        }
+
+        val contest = contestView.toEntity(timezone).also {
+            it.startTimesByStudentId.putAll(prevContest.startTimesByStudentId)
+        }
 
         if (contest.startDate.isAfter(contest.endDate)) {
             redirectAttributes.addPopupMessage("Дата начала не может быть позже даты окончания.")
