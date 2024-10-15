@@ -14,24 +14,29 @@ class UserAgentParserImpl : UserAgentParser {
     override fun getClientInfo(userAgent: String): Client = parser.parse(userAgent)
 
     override fun getCharset(userAgent: String): Charset {
-        val clientInfo = getClientInfo(userAgent)
-        val osFamily = OsFamily.getOsFamily(clientInfo.os.family)
-        val charset = osFamily.getCharsetByVersion(clientInfo.os.major)
+        try {
+            val clientInfo = getClientInfo(userAgent)
+            val osFamily = OsFamily.getOsFamily(clientInfo.os.family)
+            val charset = osFamily.getCharsetByVersion(clientInfo.os.major)
 
-        return charset
+            return charset
+        } catch (e: Exception) {
+            return UTF_8
+        }
     }
 
     sealed interface OsFamily {
 
         val name: String
 
-        fun getCharsetByVersion(version: String): Charset = UTF_8
+        fun getCharsetByVersion(version: String?): Charset = UTF_8
 
         object WINDOWS : OsFamily {
 
             override val name = "Windows NT"
 
-            override fun getCharsetByVersion(version: String): Charset {
+            override fun getCharsetByVersion(version: String?): Charset {
+                version ?: super.getCharsetByVersion(version)
                 val charset = charsetsByVersion[version] ?: WINDOWS_1251
 
                 return charset
@@ -89,7 +94,7 @@ class UserAgentParserImpl : UserAgentParser {
                 Unknown.name to Unknown
             )
 
-            fun getOsFamily(osFamily: String): OsFamily = osFamiliesByName[osFamily] ?: Unknown
+            fun getOsFamily(osFamily: String?): OsFamily = osFamiliesByName[osFamily] ?: Unknown
         }
     }
 
