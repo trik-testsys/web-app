@@ -65,7 +65,13 @@ class ViewerAdminsController(
             .map { it.groups }.flatten()
             .map { it.students }.flatten()
             .toSet()
-            .sortedBy { it.id }
+            .sortedWith(
+                compareBy(
+                    { it.group.admin.id },
+                    { it.group.id },
+                    { it.id }
+                )
+            )
 
         val tasks = students.asSequence()
             .map { it.solutions }.flatten()
@@ -119,7 +125,7 @@ class ViewerAdminsController(
 
     private fun Student.getBestSolutionFor(task: Task): Solution? {
         return solutions
-            .filter { it.task.compareNames(task) }
+            .filter { it.task.id == task.id }
             .maxByOrNull { it.score }
     }
 
