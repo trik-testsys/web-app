@@ -35,5 +35,4 @@ COPY $JAR_FILE $APP
 
 #Running application
 EXPOSE 8888
-#ENV JAVA_TOOL_OPTIONS -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8889
-ENTRYPOINT java -jar app.jar
+ENTRYPOINT java $JAVA_OPTIONS -jar app.jar
