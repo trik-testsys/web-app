@@ -18,7 +18,7 @@ data class TaskView(
     override val note: String,
     val passedTest: Boolean = false,
     val taskFiles: List<TaskFileView> = emptyList(),
-    val hasCondition: Boolean
+    val hasCondition: Boolean?
 ) : NotedEntityView<Task> {
 
     override fun toEntity(timeZoneId: String?) = Task(
