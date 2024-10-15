@@ -9,12 +9,23 @@ spring:
     username: testsys                                           # Database username
     password: p@ssw0rd                                          # Database password
     driver-class-name: com.mysql.cj.jdbc.Driver                 # Driver for MySQL
+    hikari:
+      connection-timeout: 30000                                 # Connection timeout
+      maximum-pool-size: 20                                     # Maximum pool size
+      initialization-fail-timeout: 0                            # Initialization fail timeout
+      max-lifetime: 1800000                                     # Maximum lifetime
+      idle-timeout: 600000                                      # Idle timeout
+      minimum-idle: 5                                           # Minimum idle
   h2:
     console:
       enabled: off                                              # Disable H2 console
   sql:
     init:
       mode: never
+  data:
+    jdbc:
+      repositories:
+        enabled: false                                           # Disable JDBC repositories
 logging:
   file:
     name: "${PWD}/logs/server.log"                              # Path to log file
