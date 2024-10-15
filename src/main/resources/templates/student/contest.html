@@ -140,8 +140,9 @@
                     <th style="width: 10%">ID</th>
                     <th>Задание</th>
                     <th>Дата и время запуска</th>
-                    <th>Статус</th>
-                    <th>Результат</th>
+                    <th>Дополнительная информация</th>
+                    <th style="width: 10%">Статус</th>
+                    <th style="width: 10%">Результат</th>
                     <!--                    <th style="width: 7%"></th>-->
                 </tr>
                 <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.TaskTestResultView"*/-->
@@ -149,6 +150,7 @@
                     <td th:text="${testResult.id}"></td>
                     <td th:text="${testResult.taskName}"></td>
                     <td th:text="${testResult.creationDate}"></td>
+                    <td th:text="${testResult.additionalInfo}"></td>
                     <td th:switch="${testResult.status}">
                         <span th:case="${testResult.status.PASSED}">Успешно</span>
                         <span th:case="${testResult.status.FAILED}">Неуспешно</span>

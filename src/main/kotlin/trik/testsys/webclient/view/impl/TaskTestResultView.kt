@@ -9,7 +9,8 @@ data class TaskTestResultView(
     val taskName: String,
     val creationDate: String?,
     val status: Solution.SolutionStatus,
-    val score: Long
+    val score: Long,
+    val additionalInfo: String
 ) {
 
     companion object {
@@ -19,7 +20,8 @@ data class TaskTestResultView(
             creationDate = creationDate?.atTimeZone(timeZoneId)?.format(),
             status = status,
             score = score,
-            taskName = "${task.id}: ${task.name}"
+            taskName = "${task.id}: ${task.name}",
+            additionalInfo = additionalInfo
         )
     }
 }

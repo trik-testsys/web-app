@@ -299,7 +299,7 @@ class StudentContestController(
 
         val solution = Solution.qrsSolution(task).also {
             it.student = webUser
-            it.additionalInfo = "Оригинальное решение Участника"
+            it.additionalInfo = "Оригинальное решение Участника '${webUser.id}: ${webUser.name}' для Задания '${task.id}: ${task.name}'."
         }
         solutionService.save(solution)
 

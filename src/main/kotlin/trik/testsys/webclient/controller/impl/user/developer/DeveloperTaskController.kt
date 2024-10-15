@@ -307,7 +307,7 @@ class DeveloperTaskController(
 
         val solutionFile = fileManager.getTaskFile(task.solution!!)
         val solution = Solution.qrsSolution(task).also {
-            it.additionalInfo = "Тестирование Эталонного решения"
+            it.additionalInfo = "Тестирование Эталонного решения '${task.solution?.id}: ${task.solution?.name}' Задания '${task.id}: ${task.name}'."
         }
         solutionService.save(solution)
 
