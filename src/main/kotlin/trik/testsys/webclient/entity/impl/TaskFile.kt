@@ -23,7 +23,7 @@ class TaskFile(
     )
     lateinit var developer: Developer
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany
     @JoinTable(
         name = "TASK_FILES_BY_TASKS",
         joinColumns = [JoinColumn(name = "task_file_id")],

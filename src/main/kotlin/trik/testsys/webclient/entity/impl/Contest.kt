@@ -44,7 +44,7 @@ class Contest(
 
     fun isPublic() = visibility == Visibility.PUBLIC
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany
     @JoinTable(
         name = "CONTESTS_BY_GROUPS",
         joinColumns = [JoinColumn(name = "contest_id")],
@@ -90,7 +90,7 @@ class Contest(
     )
     val startTimesByStudentId: MutableMap<Long, LocalDateTime> = mutableMapOf()
 
-    @ManyToMany(mappedBy = "contests", fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "contests")
     val tasks: MutableSet<Task> = mutableSetOf()
 
     enum class Visibility(override val dbkey: String) : Enum {

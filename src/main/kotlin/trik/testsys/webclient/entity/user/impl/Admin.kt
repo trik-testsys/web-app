@@ -24,7 +24,7 @@ class Admin(
     )
     lateinit var viewer: Viewer
 
-    @OneToMany(mappedBy = "admin", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "admin")
     val groups: MutableSet<Group> = mutableSetOf()
 
 //

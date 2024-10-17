@@ -26,9 +26,9 @@ class Group(
     )
     lateinit var admin: Admin
 
-    @OneToMany(mappedBy = "group", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "group")
     val students: MutableSet<Student> = mutableSetOf()
 
-    @ManyToMany(mappedBy = "groups", fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "groups")
     val contests: MutableSet<Contest> = mutableSetOf()
 }

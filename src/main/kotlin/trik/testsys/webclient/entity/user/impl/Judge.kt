@@ -13,6 +13,5 @@ class Judge(
     accessToken: AccessToken
 ) : WebUser(name, accessToken, UserType.JUDGE) {
 
-//    @OneToMany(mappedBy = "judge", cascade = [CascadeType.ALL])
-//    val solutionActions: MutableSet<SolutionAction> = mutableSetOf()
+
 }
