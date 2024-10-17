@@ -64,31 +64,36 @@
             <div class="form-header">
                 <h1>Список сообщений</h1>
             </div>
-            <table>
-                <tr>
-                    <th style="width: 10%">
-                        ID
-                    </th>
-                    <th style="width: 20%">
-                        Тип пользователей
-                    </th>
-                    <th>Дополнительная информация</th>
-                    <th style="width: 7%"></th>
-                </tr>
-                <!--/*@thymesVar id="viewer" type="trik.testsys.webclient.entity.impl.EmergencyMessage"*/-->
-                <tr th:each="emergencyMessage : ${webUser.emergencyMessages}">
-                    <td th:text="${emergencyMessage.id}"></td>
-                    <td th:text="${emergencyMessage.userType}"></td>
-                    <td th:text="${emergencyMessage.additionalInfo}"></td>
-                    <td class="buttons">
-                        <form th:action="@{/superuser/emergency-messages/emergency-message/remove/{id}(id=${emergencyMessage.id})}" method="post">
-                            <button type="submit">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-            </table>
+            <div class="table-container">
+                <table>
+                    <thead>
+                    <tr>
+                        <th style="width: 10%">
+                            ID
+                        </th>
+                        <th style="width: 20%">
+                            Тип пользователей
+                        </th>
+                        <th>Дополнительная информация</th>
+                        <th style="width: 7%"></th>
+                    </tr>
+                    </thead>
+                    <!--/*@thymesVar id="viewer" type="trik.testsys.webclient.entity.impl.EmergencyMessage"*/-->
+                    <tr th:each="emergencyMessage : ${webUser.emergencyMessages}">
+                        <td th:text="${emergencyMessage.id}"></td>
+                        <td th:text="${emergencyMessage.userType}"></td>
+                        <td th:text="${emergencyMessage.additionalInfo}"></td>
+                        <td class="buttons">
+                            <form th:action="@{/superuser/emergency-messages/emergency-message/remove/{id}(id=${emergencyMessage.id})}" method="post">
+                                <button type="submit"
+                                        class="button">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </div>
     </div>
 </div>

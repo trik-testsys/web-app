@@ -70,35 +70,39 @@
             <div class="table-header">
                 <h1>Список Заданий</h1>
             </div>
-            <table>
-                <tr>
-                    <th style="width: 10%">
-                        ID
-                    </th>
-                    <th style="width: 20%">
-                        Название
-                    </th>
-                    <th>Дополнительная информация</th>
-                    <th style="width: 7%"></th>
-                </tr>
-                <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.TaskView"*/-->
-                <tr th:each="task : ${tasks}">
-                    <td th:text="${task.id}"></td>
-                    <td th:text="${task.name}"></td>
-                    <td th:text="${task.additionalInfo}"></td>
-                    <td class="buttons">
-                        <a class="button" th:href="@{'/student/contests/contest/downloadCondition/' + ${contest.id} + '?taskId=' + ${task.id}}" target="_self"
-                           th:if="${task.hasCondition}"
-                           title="Скачать Условие">
-                            <i class="fa-solid fa-file-pdf"></i>
-                        </a>
-                        <a class="button" th:href="@{'/student/contests/contest/downloadExercise/' + ${contest.id} + '?taskId=' + ${task.id}}" target="_self"
-                            title="Скачать Упражнение">
-                            <i class="fa-solid fa-download"></i>
-                        </a>
-                    </td>
-                </tr>
-            </table>
+            <div class="table-container">
+                <table>
+                    <thead>
+                    <tr>
+                        <th style="width: 10%">
+                            ID
+                        </th>
+                        <th style="width: 20%">
+                            Название
+                        </th>
+                        <th>Дополнительная информация</th>
+                        <th style="width: 7%"></th>
+                    </tr>
+                    </thead>
+                    <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.TaskView"*/-->
+                    <tr th:each="task : ${tasks}">
+                        <td th:text="${task.id}"></td>
+                        <td th:text="${task.name}"></td>
+                        <td th:text="${task.additionalInfo}"></td>
+                        <td class="buttons">
+                            <a class="button" th:href="@{'/student/contests/contest/downloadCondition/' + ${contest.id} + '?taskId=' + ${task.id}}" target="_self"
+                               th:if="${task.hasCondition}"
+                               title="Скачать Условие">
+                                <i class="fa-solid fa-file-pdf"></i>
+                            </a>
+                            <a class="button" th:href="@{'/student/contests/contest/downloadExercise/' + ${contest.id} + '?taskId=' + ${task.id}}" target="_self"
+                               title="Скачать Упражнение">
+                                <i class="fa-solid fa-download"></i>
+                            </a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -135,40 +139,44 @@
             <div class="table-header">
                 <h1>Список Посылок</h1>
             </div>
-            <table>
-                <tr>
-                    <th style="width: 10%">ID</th>
-                    <th>Задание</th>
-                    <th style="width: 12%">Дата и время запуска</th>
-                    <th>Дополнительная информация</th>
-                    <th style="width: 10%">Статус</th>
-                    <th style="width: 10%">Результат</th>
-                    <!--                    <th style="width: 7%"></th>-->
-                </tr>
-                <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.TaskTestResultView"*/-->
-                <tr th:each="testResult : ${solutions}">
-                    <td th:text="${testResult.id}"></td>
-                    <td th:text="${testResult.taskName}"></td>
-                    <td th:text="${testResult.creationDate}"></td>
-                    <td th:text="${testResult.additionalInfo}"></td>
-                    <td th:switch="${testResult.status}">
-                        <span th:case="${testResult.status.PASSED}">Успешно</span>
-                        <span th:case="${testResult.status.FAILED}">Неуспешно</span>
-                        <span th:case="${testResult.status.ERROR}">Ошибка</span>
-                        <span th:case="${testResult.status.IN_PROGRESS}">Тестируется</span>
-                        <span th:case="${testResult.status.NOT_STARTED}">Ожидает тестирования</span>
-                    </td>
-                    <td th:text="${testResult.score}"></td>
-                    <!--                    <td class="buttons">-->
-                    <!--                        <a class="button" th:href="@{'/developer/tasks/task/downloadRecording/' + ${task.id} + '?solutionId=' + ${testResult.id}}"-->
-                    <!--                           charset="UTF-8" target="_self"-->
+            <div class="table-container">
+                <table>
+                    <thead>
+                    <tr>
+                        <th style="width: 10%">ID</th>
+                        <th>Задание</th>
+                        <th style="width: 12%">Дата и время запуска</th>
+                        <th>Дополнительная информация</th>
+                        <th style="width: 10%">Статус</th>
+                        <th style="width: 10%">Результат</th>
+                        <!--                    <th style="width: 7%"></th>-->
+                    </tr>
+                    </thead>
+                    <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.TaskTestResultView"*/-->
+                    <tr th:each="testResult : ${solutions}">
+                        <td th:text="${testResult.id}"></td>
+                        <td th:text="${testResult.taskName}"></td>
+                        <td th:text="${testResult.creationDate}"></td>
+                        <td th:text="${testResult.additionalInfo}"></td>
+                        <td th:switch="${testResult.status}">
+                            <span th:case="${testResult.status.PASSED}">Успешно</span>
+                            <span th:case="${testResult.status.FAILED}">Неуспешно</span>
+                            <span th:case="${testResult.status.ERROR}">Ошибка</span>
+                            <span th:case="${testResult.status.IN_PROGRESS}">Тестируется</span>
+                            <span th:case="${testResult.status.NOT_STARTED}">Ожидает тестирования</span>
+                        </td>
+                        <td th:text="${testResult.score}"></td>
+                        <!--                    <td class="buttons">-->
+                        <!--                        <a class="button" th:href="@{'/developer/tasks/task/downloadRecording/' + ${task.id} + '?solutionId=' + ${testResult.id}}"-->
+                        <!--                           charset="UTF-8" target="_self"-->
 
-                    <!--                           th:disabled="${testResult.status != testResult.status.PASSED and testResult.status != testResult.status.FAILED}">-->
-                    <!--                            <i class="fa-solid fa-download"></i>-->
-                    <!--                        </a>-->
-                    <!--                    </td>-->
-                </tr>
-            </table>
+                        <!--                           th:disabled="${testResult.status != testResult.status.PASSED and testResult.status != testResult.status.FAILED}">-->
+                        <!--                            <i class="fa-solid fa-download"></i>-->
+                        <!--                        </a>-->
+                        <!--                    </td>-->
+                    </tr>
+                </table>
+            </div>
         </div>
     </div>
 </div>

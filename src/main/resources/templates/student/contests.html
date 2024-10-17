@@ -35,89 +35,99 @@
             <div class="form-header">
                 <h1>Список доступных Туров</h1>
             </div>
-            <table>
-                <tr>
-                    <th style="width: 20%">
-                        Название
-                    </th>
-                    <th>Дополнительная информация</th>
-                    <th style="width: 12%">
-                        Дата и время начала
-                    </th>
-                    <th style="width: 12%">
-                        Дата и время окончания
-                    </th>
-                    <th style="width: 8%">
-                        Время на выполнение
-                    </th>
-                    <th>
-                        Идет
-                    </th>
-                    <th style="width: 7%">
-                    </th>
-                </tr>
-                <!--/*@thymesVar id="contest" type="trik.testsys.webclient.view.impl.StudentContestView"*/-->
-                <tr th:each="contest : ${contests}">
-                    <td th:text="${contest.name}"></td>
-                    <td th:text="${contest.additionalInfo}"></td>
-                    <td th:text="${contest.formattedStartDate}"></td>
-                    <td th:text="${contest.formattedEndDate}"></td>
-                    <td th:text="${contest.lastTime}"></td>
-                    <td th:text="${contest.isGoingOn} ? 'Да' : 'Нет'"></td>
-                    <td class="buttons">
-                        <form th:action="@{/student/contests/contest/start/{contestId}(contestId=${contest.id})}" method="get">
-                            <button type="submit" title="Приступить к выполнению" th:disabled="${!contest.isGoingOn || contest.lastTime == '00:00:00'}">
-                                <i class="fa-solid fa-play"></i>
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-            </table>
+            <div class="table-container">
+                <table>
+                    <thead>
+                    <tr>
+                        <th style="width: 20%">
+                            Название
+                        </th>
+                        <th>Дополнительная информация</th>
+                        <th style="width: 12%">
+                            Дата и время начала
+                        </th>
+                        <th style="width: 12%">
+                            Дата и время окончания
+                        </th>
+                        <th style="width: 8%">
+                            Время на выполнение
+                        </th>
+                        <th>
+                            Идет
+                        </th>
+                        <th style="width: 7%">
+                        </th>
+                    </tr>
+                    </thead>
+                    <!--/*@thymesVar id="contest" type="trik.testsys.webclient.view.impl.StudentContestView"*/-->
+                    <tr th:each="contest : ${contests}">
+                        <td th:text="${contest.name}"></td>
+                        <td th:text="${contest.additionalInfo}"></td>
+                        <td th:text="${contest.formattedStartDate}"></td>
+                        <td th:text="${contest.formattedEndDate}"></td>
+                        <td th:text="${contest.lastTime}"></td>
+                        <td th:text="${contest.isGoingOn} ? 'Да' : 'Нет'"></td>
+                        <td class="buttons">
+                            <form th:action="@{/student/contests/contest/start/{contestId}(contestId=${contest.id})}" method="get">
+                                <button type="submit" title="Приступить к выполнению" th:disabled="${!contest.isGoingOn || contest.lastTime == '00:00:00'}"
+                                        class="button">
+                                    <i class="fa-solid fa-play"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </div>
 
         <div class="table contests-table">
             <div class="form-header">
                 <h1>Список оконченных Туров</h1>
             </div>
-            <table>
-                <tr>
-                    <th style="width: 20%">
-                        Название
-                    </th>
-                    <th>Дополнительная информация</th>
-                    <th style="width: 12%">
-                        Дата и время начала
-                    </th>
-                    <th style="width: 12%">
-                        Дата и время окончания
-                    </th>
-                    <th style="width: 8%">
-                        Время на выполнение
-                    </th>
-                    <th>
-                        Идет
-                    </th>
-                    <th style="width: 7%">
-                    </th>
-                </tr>
-                <!--/*@thymesVar id="contest" type="trik.testsys.webclient.view.impl.StudentContestView"*/-->
-                <tr th:each="contest : ${outdatedContests}">
-                    <td th:text="${contest.name}"></td>
-                    <td th:text="${contest.additionalInfo}"></td>
-                    <td th:text="${contest.formattedStartDate}"></td>
-                    <td th:text="${contest.formattedEndDate}"></td>
-                    <td th:text="${contest.lastTime}"></td>
-                    <td th:text="${contest.isGoingOn} ? 'Да' : 'Нет'"></td>
-                    <td class="buttons">
-                        <form th:action="@{/student/contests/contest/{contestId}(contestId=${contest.id})}" method="get">
-                            <input type="checkbox" name="outdated" th:checked="true" hidden>
-                            <button type="submit" title="Результаты выполнения">
-                                <i class="fa-solid fa-info"></i>
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-            </table>
+            <div class="table-container">
+                <table>
+                    <thead>
+                    <tr>
+                        <th style="width: 20%">
+                            Название
+                        </th>
+                        <th>Дополнительная информация</th>
+                        <th style="width: 12%">
+                            Дата и время начала
+                        </th>
+                        <th style="width: 12%">
+                            Дата и время окончания
+                        </th>
+                        <th style="width: 8%">
+                            Время на выполнение
+                        </th>
+                        <th>
+                            Идет
+                        </th>
+                        <th style="width: 7%">
+                        </th>
+                    </tr>
+                    </thead>
+                    <!--/*@thymesVar id="contest" type="trik.testsys.webclient.view.impl.StudentContestView"*/-->
+                    <tr th:each="contest : ${outdatedContests}">
+                        <td th:text="${contest.name}"></td>
+                        <td th:text="${contest.additionalInfo}"></td>
+                        <td th:text="${contest.formattedStartDate}"></td>
+                        <td th:text="${contest.formattedEndDate}"></td>
+                        <td th:text="${contest.lastTime}"></td>
+                        <td th:text="${contest.isGoingOn} ? 'Да' : 'Нет'"></td>
+                        <td class="buttons">
+                            <form th:action="@{/student/contests/contest/{contestId}(contestId=${contest.id})}" method="get">
+                                <input type="checkbox" name="outdated" th:checked="true" hidden>
+                                <button type="submit" title="Результаты выполнения"
+                                        class="button">
+                                    <i class="fa-solid fa-info"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </div>
     </div>
 </div>

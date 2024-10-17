@@ -52,6 +52,12 @@ body {
     transform: scale(0.95); /* Уменьшение кнопки при нажатии */
 }
 
+.button:disabled {
+    background-color: var(--trik-grey);
+    color: var(--trik-blue);
+    cursor: not-allowed;
+}
+
 .accessToken {
     font-family: monospace;
     font-size: 15px;

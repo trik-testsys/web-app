@@ -97,46 +97,52 @@
             <div class="form-header">
                 <h1>Список Туров</h1>
             </div>
-            <table>
-                <tr>
-                    <th style="width: 10%">
-                        ID
-                    </th>
-                    <th style="width: 20%">
-                        Название
-                    </th>
-                    <th>Дополнительная информация</th>
-                    <th>Заметка</th>
-                    <th style="width: 10%">
-                        Видимость
-                    </th>
-                    <th style="width: 15%">
-                    </th>
-                </tr>
-                <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.ContestView"*/-->
-                <tr th:each="contest : ${webUser.contests}">
-                    <td th:text="${contest.id}"></td>
-                    <td th:text="${contest.name}"></td>
-                    <td th:text="${contest.additionalInfo}"></td>
-                    <td th:text="${contest.note}"></td>
-                    <td th:switch="${contest.visibility.getDbkey()}">
-                        <span th:case="'PLC'">Публичный</span>
-                        <span th:case="'PRV'">Закрытый</span>
-                    </td>
-                    <td class="buttons">
-                        <form th:action="@{/developer/contests/contest/switchVisibility/{id}(id=${contest.id})}" method="post">
-                            <button type="submit" title="Изменить видимость">
-                                <i th:class="${contest.visibility.getDbkey()} == 'PLC' ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
-                            </button>
-                        </form>
-                        <form th:action="@{/developer/contests/contest/{id}(id=${contest.id})}" method="get">
-                            <button type="submit" title="Войти">
-                                <i class="fa-solid fa-right-to-bracket"></i>
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-            </table>
+            <div class="table-container">
+                <table>
+                    <thead>
+                    <tr>
+                        <th style="width: 10%">
+                            ID
+                        </th>
+                        <th style="width: 20%">
+                            Название
+                        </th>
+                        <th>Дополнительная информация</th>
+                        <th>Заметка</th>
+                        <th style="width: 10%">
+                            Видимость
+                        </th>
+                        <th style="width: 15%">
+                        </th>
+                    </tr>
+                    </thead>
+                    <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.ContestView"*/-->
+                    <tr th:each="contest : ${webUser.contests}">
+                        <td th:text="${contest.id}"></td>
+                        <td th:text="${contest.name}"></td>
+                        <td th:text="${contest.additionalInfo}"></td>
+                        <td th:text="${contest.note}"></td>
+                        <td th:switch="${contest.visibility.getDbkey()}">
+                            <span th:case="'PLC'">Публичный</span>
+                            <span th:case="'PRV'">Закрытый</span>
+                        </td>
+                        <td class="buttons">
+                            <form th:action="@{/developer/contests/contest/switchVisibility/{id}(id=${contest.id})}" method="post">
+                                <button type="submit" title="Изменить видимость"
+                                        class="button">
+                                    <i th:class="${contest.visibility.getDbkey()} == 'PLC' ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
+                                </button>
+                            </form>
+                            <form th:action="@{/developer/contests/contest/{id}(id=${contest.id})}" method="get">
+                                <button type="submit" title="Войти"
+                                        class="button">
+                                    <i class="fa-solid fa-right-to-bracket"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </div>
     </div>
 </div>

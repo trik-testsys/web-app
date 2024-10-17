@@ -75,33 +75,38 @@
             <div class="form-header">
                 <h1>Список Полигонов</h1>
             </div>
-            <table>
-                <tr>
-                    <th style="width: 10%">
-                        ID
-                    </th>
-                    <th style="width: 20%">
-                        Название
-                    </th>
-                    <th>Дополнительная информация</th>
-                    <th>Заметка</th>
-                    <th style="width: 7%"></th>
-                </tr>
-                <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.TaskFileView"*/-->
-                <tr th:each="taskFile : ${webUser.polygons}">
-                    <td th:text="${taskFile.id}"></td>
-                    <td th:text="${taskFile.name}"></td>
-                    <td th:text="${taskFile.additionalInfo}"></td>
-                    <td th:text="${taskFile.note}"></td>
-                    <td class="buttons">
-                        <form th:action="@{/developer/taskFiles/taskFile/{id}(id=${taskFile.id})}" method="get">
-                            <button type="submit" title="Войти">
-                                <i class="fa-solid fa-right-to-bracket"></i>
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-            </table>
+            <div class="table-container">
+                <table>
+                    <thead>
+                    <tr>
+                        <th style="width: 10%">
+                            ID
+                        </th>
+                        <th style="width: 20%">
+                            Название
+                        </th>
+                        <th>Дополнительная информация</th>
+                        <th>Заметка</th>
+                        <th style="width: 7%"></th>
+                    </tr>
+                    </thead>
+                    <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.TaskFileView"*/-->
+                    <tr th:each="taskFile : ${webUser.polygons}">
+                        <td th:text="${taskFile.id}"></td>
+                        <td th:text="${taskFile.name}"></td>
+                        <td th:text="${taskFile.additionalInfo}"></td>
+                        <td th:text="${taskFile.note}"></td>
+                        <td class="buttons">
+                            <form th:action="@{/developer/taskFiles/taskFile/{id}(id=${taskFile.id})}" method="get">
+                                <button type="submit" title="Войти"
+                                        class="button">
+                                    <i class="fa-solid fa-right-to-bracket"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </div>
 
         <div id="exercises"></div>
@@ -155,33 +160,38 @@
             <div class="form-header">
                 <h1>Список Упражнений</h1>
             </div>
-            <table>
-                <tr>
-                    <th style="width: 10%">
-                        ID
-                    </th>
-                    <th style="width: 20%">
-                        Название
-                    </th>
-                    <th>Дополнительная информация</th>
-                    <th>Заметка</th>
-                    <th style="width: 7%"></th>
-                </tr>
-                <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.TaskFileView"*/-->
-                <tr th:each="taskFile : ${webUser.exercises}">
-                    <td th:text="${taskFile.id}"></td>
-                    <td th:text="${taskFile.name}"></td>
-                    <td th:text="${taskFile.additionalInfo}"></td>
-                    <td th:text="${taskFile.note}"></td>
-                    <td class="buttons">
-                        <form th:action="@{/developer/taskFiles/taskFile/{id}(id=${taskFile.id})}" method="get">
-                            <button type="submit" title="Войти">
-                                <i class="fa-solid fa-right-to-bracket"></i>
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-            </table>
+            <div class="table-container">
+                <table>
+                    <thead>
+                    <tr>
+                        <th style="width: 10%">
+                            ID
+                        </th>
+                        <th style="width: 20%">
+                            Название
+                        </th>
+                        <th>Дополнительная информация</th>
+                        <th>Заметка</th>
+                        <th style="width: 7%"></th>
+                    </tr>
+                    </thead>
+                    <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.TaskFileView"*/-->
+                    <tr th:each="taskFile : ${webUser.exercises}">
+                        <td th:text="${taskFile.id}"></td>
+                        <td th:text="${taskFile.name}"></td>
+                        <td th:text="${taskFile.additionalInfo}"></td>
+                        <td th:text="${taskFile.note}"></td>
+                        <td class="buttons">
+                            <form th:action="@{/developer/taskFiles/taskFile/{id}(id=${taskFile.id})}" method="get">
+                                <button type="submit" title="Войти"
+                                        class="button">
+                                    <i class="fa-solid fa-right-to-bracket"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </div>
 
         <div id="solutions"></div>
@@ -236,33 +246,38 @@
             <div class="form-header">
                 <h1>Список Эталонных решений</h1>
             </div>
-            <table>
-                <tr>
-                    <th style="width: 10%">
-                        ID
-                    </th>
-                    <th style="width: 20%">
-                        Название
-                    </th>
-                    <th>Дополнительная информация</th>
-                    <th>Заметка</th>
-                    <th style="width: 7%"></th>
-                </tr>
-                <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.TaskFileView"*/-->
-                <tr th:each="taskFile : ${webUser.solutions}">
-                    <td th:text="${taskFile.id}"></td>
-                    <td th:text="${taskFile.name}"></td>
-                    <td th:text="${taskFile.additionalInfo}"></td>
-                    <td th:text="${taskFile.note}"></td>
-                    <td class="buttons">
-                        <form th:action="@{/developer/taskFiles/taskFile/{taskFileId}(taskFileId=${taskFile.id})}" method="get">
-                            <button type="submit" title="Войти">
-                                <i class="fa-solid fa-right-to-bracket"></i>
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-            </table>
+            <div class="table-container">
+                <table>
+                    <thead>
+                    <tr>
+                        <th style="width: 10%">
+                            ID
+                        </th>
+                        <th style="width: 20%">
+                            Название
+                        </th>
+                        <th>Дополнительная информация</th>
+                        <th>Заметка</th>
+                        <th style="width: 7%"></th>
+                    </tr>
+                    </thead>
+                    <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.TaskFileView"*/-->
+                    <tr th:each="taskFile : ${webUser.solutions}">
+                        <td th:text="${taskFile.id}"></td>
+                        <td th:text="${taskFile.name}"></td>
+                        <td th:text="${taskFile.additionalInfo}"></td>
+                        <td th:text="${taskFile.note}"></td>
+                        <td class="buttons">
+                            <form th:action="@{/developer/taskFiles/taskFile/{taskFileId}(taskFileId=${taskFile.id})}" method="get">
+                                <button type="submit" title="Войти"
+                                        class="button">
+                                    <i class="fa-solid fa-right-to-bracket"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </div>
 
         <div id="conditions"></div>
@@ -317,33 +332,38 @@
             <div class="form-header">
                 <h1>Список Условий</h1>
             </div>
-            <table>
-                <tr>
-                    <th style="width: 10%">
-                        ID
-                    </th>
-                    <th style="width: 20%">
-                        Название
-                    </th>
-                    <th>Дополнительная информация</th>
-                    <th>Заметка</th>
-                    <th style="width: 7%"></th>
-                </tr>
-                <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.TaskFileView"*/-->
-                <tr th:each="taskFile : ${webUser.conditions}">
-                    <td th:text="${taskFile.id}"></td>
-                    <td th:text="${taskFile.name}"></td>
-                    <td th:text="${taskFile.additionalInfo}"></td>
-                    <td th:text="${taskFile.note}"></td>
-                    <td class="buttons">
-                        <form th:action="@{/developer/taskFiles/taskFile/{taskFileId}(taskFileId=${taskFile.id})}" method="get">
-                            <button type="submit" title="Войти">
-                                <i class="fa-solid fa-right-to-bracket"></i>
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-            </table>
+            <div class="table-container">
+                <table>
+                    <thead>
+                    <tr>
+                        <th style="width: 10%">
+                            ID
+                        </th>
+                        <th style="width: 20%">
+                            Название
+                        </th>
+                        <th>Дополнительная информация</th>
+                        <th>Заметка</th>
+                        <th style="width: 7%"></th>
+                    </tr>
+                    </thead>
+                    <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.TaskFileView"*/-->
+                    <tr th:each="taskFile : ${webUser.conditions}">
+                        <td th:text="${taskFile.id}"></td>
+                        <td th:text="${taskFile.name}"></td>
+                        <td th:text="${taskFile.additionalInfo}"></td>
+                        <td th:text="${taskFile.note}"></td>
+                        <td class="buttons">
+                            <form th:action="@{/developer/taskFiles/taskFile/{taskFileId}(taskFileId=${taskFile.id})}" method="get">
+                                <button type="submit" title="Войти"
+                                        class="button">
+                                    <i class="fa-solid fa-right-to-bracket"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </div>
     </div>
 </div>

@@ -29,7 +29,9 @@ table th {
     background: var(--trik-blue);
     color: white;
     padding: 10px 15px;
-    position: relative;
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
 table th:after {
@@ -96,10 +98,50 @@ caption {
     border-radius: 6px;
 }
 
+.table-container {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.table-container::-webkit-scrollbar {
+    width: 10px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+    background-color: var(--trik-blue);
+    border-radius: 10px;
+}
+
+.table-container::-webkit-scrollbar-track {
+    background-color: var(--trik-white);
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+    background-color: var(--trik-blue);
+}
+
+.table-container::-webkit-scrollbar-thumb:active {
+    background-color: var(--trik-blue);
+}
+
+.table-container::-webkit-scrollbar-button {
+    display: none;
+}
+
+.table-container::-webkit-scrollbar-corner {
+    background-color: var(--trik-white);
+}
+
+.table-container::-webkit-scrollbar-track-piece {
+    background-color: var(--trik-white);
+}
+
 .buttons {
     display: flex;
     justify-content: space-around;
     align-items: center;
+/*    Space between elements 6px*/
+    gap: 6px;
 }
 
 .table-button {

@@ -129,73 +129,83 @@
             <div class="table-header">
                 <h1>Список прикрепленных Заданий</h1>
             </div>
-            <table>
-                <tr>
-                    <th style="width: 10%">
-                        ID
-                    </th>
-                    <th style="width: 20%">
-                        Название
-                    </th>
-                    <th>Дополнительная информация</th>
-                    <th>Заметка</th>
-                    <th style="width: 7%"></th>
-                </tr>
-                <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.TaskView"*/-->
-                <tr th:each="task : ${linkedTasks}">
-                    <td th:text="${task.id}"></td>
-                    <td th:text="${task.name}"></td>
-                    <td th:text="${task.additionalInfo}"></td>
-                    <td th:text="${task.note}"></td>
-                    <td class="buttons">
-                        <form id="task-file-deAttach" action="#" th:action="@{/developer/contests/contest/unlinkTask/{id}(id=${contest.id})}" method="post">
-                            <input type="hidden" name="taskId" th:value="${task.id}">
+            <div class="table-container">
+                <table>
+                    <thead>
+                    <tr>
+                        <th style="width: 10%">
+                            ID
+                        </th>
+                        <th style="width: 20%">
+                            Название
+                        </th>
+                        <th>Дополнительная информация</th>
+                        <th>Заметка</th>
+                        <th style="width: 7%"></th>
+                    </tr>
+                    </thead>
+                    <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.TaskView"*/-->
+                    <tr th:each="task : ${linkedTasks}">
+                        <td th:text="${task.id}"></td>
+                        <td th:text="${task.name}"></td>
+                        <td th:text="${task.additionalInfo}"></td>
+                        <td th:text="${task.note}"></td>
+                        <td class="buttons">
+                            <form id="task-file-deAttach" action="#" th:action="@{/developer/contests/contest/unlinkTask/{id}(id=${contest.id})}" method="post">
+                                <input type="hidden" name="taskId" th:value="${task.id}">
 
-                            <button type="submit" title="Прикрепить">
-                                <i class="fa-solid fa-link-slash"></i>
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-            </table>
+                                <button type="submit" title="Прикрепить"
+                                        class="button">
+                                    <i class="fa-solid fa-link-slash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </div>
 
         <div class="table tasks-table">
             <div class="table-header">
                 <h1>Список доступных к прикреплению Заданий</h1>
             </div>
-            <table>
-                <tr>
-                    <th style="width: 10%">
-                        ID
-                    </th>
-                    <th style="width: 20%">
-                        Название
-                    </th>
-                    <th>Дополнительная информация</th>
-                    <th>Заметка</th>
-                    <th>Результат тестирования</th>
-                    <th style="width: 7%"></th>
-                </tr>
-                <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.TaskView"*/-->
-                <tr th:each="task : ${unlinkedTasks}">
-                    <td th:text="${task.id}"></td>
-                    <td th:text="${task.name}"></td>
-                    <td th:text="${task.additionalInfo}"></td>
-                    <td th:text="${task.note}"></td>
-                    <td th:text="${task.passedTest} == true ? 'Пройдено' : 'Не пройдено'"
-                        th:style="${task.passedTest} == true ? 'color: green' : 'color: red'"></td>
-                    <td class="buttons">
-                        <form id="task-file2-deAttach" action="#" th:action="@{/developer/contests/contest/linkTask/{id}(id=${contest.id})}" method="post">
-                            <input type="hidden" name="taskId" th:value="${task.id}">
+            <div class="table-container">
+                <table>
+                    <thead>
+                    <tr>
+                        <th style="width: 10%">
+                            ID
+                        </th>
+                        <th style="width: 20%">
+                            Название
+                        </th>
+                        <th>Дополнительная информация</th>
+                        <th>Заметка</th>
+                        <th>Результат тестирования</th>
+                        <th style="width: 7%"></th>
+                    </tr>
+                    </thead>
+                    <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.TaskView"*/-->
+                    <tr th:each="task : ${unlinkedTasks}">
+                        <td th:text="${task.id}"></td>
+                        <td th:text="${task.name}"></td>
+                        <td th:text="${task.additionalInfo}"></td>
+                        <td th:text="${task.note}"></td>
+                        <td th:text="${task.passedTest} == true ? 'Пройдено' : 'Не пройдено'"
+                            th:style="${task.passedTest} == true ? 'color: green' : 'color: red'"></td>
+                        <td class="buttons">
+                            <form id="task-file2-deAttach" action="#" th:action="@{/developer/contests/contest/linkTask/{id}(id=${contest.id})}" method="post">
+                                <input type="hidden" name="taskId" th:value="${task.id}">
 
-                            <button type="submit" title="Открепить">
-                                <i class="fa-solid fa-link"></i>
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-            </table>
+                                <button type="submit" title="Открепить"
+                                        class="button">
+                                    <i class="fa-solid fa-link"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </div>
     </div>
 

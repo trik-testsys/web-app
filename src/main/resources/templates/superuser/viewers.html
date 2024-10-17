@@ -64,31 +64,35 @@
             <div class="form-header">
                 <h1>Список Наблюдателей</h1>
             </div>
-            <table>
-                <tr>
-                    <th style="width: 10%">
-                        ID
-                    </th>
-                    <th style="width: 20%">
-                        Псевдоним
-                    </th>
-                    <th>Дополнительная информация</th>
-                    <th style="width: 20%">
-                        Код-доступа
-                    </th>
-                    <th style="width: 20%">
-                        Код-регистрации
-                    </th>
-                </tr>
-                <!--/*@thymesVar id="viewer" type="trik.testsys.webclient.entity.user.impl.Viewer"*/-->
-                <tr th:each="viewer : ${webUser.viewers}">
-                    <td th:text="${viewer.id}"></td>
-                    <td th:text="${viewer.name}"></td>
-                    <td th:text="${viewer.additionalInfo}"></td>
-                    <td th:text="${viewer.accessToken}" class="accessToken"></td>
-                    <td th:text="${viewer.regToken}" class="accessToken"></td>
-                </tr>
-            </table>
+            <div class="table-container">
+                <table>
+                    <thead>
+                    <tr>
+                        <th style="width: 10%">
+                            ID
+                        </th>
+                        <th style="width: 20%">
+                            Псевдоним
+                        </th>
+                        <th>Дополнительная информация</th>
+                        <th style="width: 20%">
+                            Код-доступа
+                        </th>
+                        <th style="width: 20%">
+                            Код-регистрации
+                        </th>
+                    </tr>
+                    </thead>
+                    <!--/*@thymesVar id="viewer" type="trik.testsys.webclient.entity.user.impl.Viewer"*/-->
+                    <tr th:each="viewer : ${webUser.viewers}">
+                        <td th:text="${viewer.id}"></td>
+                        <td th:text="${viewer.name}"></td>
+                        <td th:text="${viewer.additionalInfo}"></td>
+                        <td th:text="${viewer.accessToken}" class="accessToken"></td>
+                        <td th:text="${viewer.regToken}" class="accessToken"></td>
+                    </tr>
+                </table>
+            </div>
         </div>
     </div>
 </div>

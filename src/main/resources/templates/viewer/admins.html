@@ -33,34 +33,29 @@
             <div class="form-header">
                 <h1>Список Организаторов</h1>
             </div>
-            <table>
-                <tr>
-                    <th style="width: 10%">
-                        ID
-                    </th>
-                    <th style="width: 20%">
-                        Псевдоним
-                    </th>
-                    <th>Дополнительная информация</th>
-                    <th>Дата регистрации</th>
-<!--                    <th style="width: 7%">-->
-<!--                    </th>-->
-                </tr>
-                <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.AdminView"*/-->
-                <tr th:each="admin : ${admins}">
-                    <td th:text="${admin.id}"></td>
-                    <td th:text="${admin.name}"></td>
-                    <td th:text="${admin.additionalInfo}"></td>
-                    <td th:text="${admin.creationDate}"></td>
-<!--                    <td class="buttons">-->
-<!--                        <form th:action="@{/admin/groups/group/{id}(id=${group.id})}" method="get">-->
-<!--                            <button type="submit" title="Войти">-->
-<!--                                <i class="fa-solid fa-right-to-bracket"></i>-->
-<!--                            </button>-->
-<!--                        </form>-->
-<!--                    </td>-->
-                </tr>
-            </table>
+            <div class="table-container">
+                <table>
+                    <thead>
+                    <tr>
+                        <th style="width: 10%">
+                            ID
+                        </th>
+                        <th style="width: 20%">
+                            Псевдоним
+                        </th>
+                        <th>Дополнительная информация</th>
+                        <th>Дата регистрации</th>
+                    </tr>
+                    </thead>
+                    <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.AdminView"*/-->
+                    <tr th:each="admin : ${admins}">
+                        <td th:text="${admin.id}"></td>
+                        <td th:text="${admin.name}"></td>
+                        <td th:text="${admin.additionalInfo}"></td>
+                        <td th:text="${admin.creationDate}"></td>
+                    </tr>
+                </table>
+            </div>
         </div>
 
         <a class="button" th:href="@{/viewer/admins/export}"
