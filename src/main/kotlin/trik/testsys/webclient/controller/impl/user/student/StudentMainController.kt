@@ -30,23 +30,6 @@ class StudentMainController(
         group = this.group
     )
 
-//    @ResponseBody
-//    @GetMapping("/task/download")
-//    fun downloadTask(
-//        redirectAttributes: RedirectAttributes,
-//        model: Model
-//    ): Any {
-//        validate(redirectAttributes) ?: return RedirectView(LoginController.LOGIN_PATH)
-//        val file = File("/Users/shisha/Projects/Kotlin/trik-testsys-web-client2/Dockerfile")
-//
-//        val responseEntity = ResponseEntity.ok()
-//            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"task.qrs\"")
-//            .contentType(MediaType.APPLICATION_OCTET_STREAM)
-//            .body(file.readBytes())
-//
-//        return responseEntity
-//    }
-
     companion object {
 
         internal const val STUDENT_PATH = "/student"
