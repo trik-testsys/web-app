@@ -4,6 +4,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
+import org.zeroturnaround.zip.ZipUtil
 import trik.testsys.webclient.entity.impl.Solution
 import trik.testsys.webclient.entity.impl.Task
 import trik.testsys.webclient.entity.impl.TaskFile
@@ -29,7 +30,8 @@ class FileManagerImpl(
 
     @Value("\${path.files.solutions}") solutionsPath: String,
     @Value("\${path.files.verdicts}") verdictsPath: String,
-    @Value("\${path.files.recordings}") recordingsPath: String
+    @Value("\${path.files.recordings}") recordingsPath: String,
+    @Value("\${path.files.results}") resultsPath: String
 ) : FileManager {
 
     private val taskFileSolutionsDir = File(taskFileSolutionsPath)
@@ -40,6 +42,7 @@ class FileManagerImpl(
     private val solutionsDir = File(solutionsPath)
     private val verdictsDir = File(verdictsPath)
     private val recordingsDir = File(recordingsPath)
+    private val resultsDir = File(resultsPath)
 
     @PostConstruct
     fun init() {
@@ -51,6 +54,7 @@ class FileManagerImpl(
         if (!solutionsDir.exists()) solutionsDir.mkdirs()
         if (!verdictsDir.exists()) verdictsDir.mkdirs()
         if (!recordingsDir.exists()) recordingsDir.mkdirs()
+        if (!resultsDir.exists()) resultsDir.mkdirs()
     }
 
     override fun saveTaskFile(taskFile: TaskFile, fileData: MultipartFile): Boolean {
@@ -190,36 +194,24 @@ class FileManagerImpl(
         return recordingFiles.toList()
     }
 
-    override fun getRecordingFilesCompressed(solution: Solution): File {
-        logger.info("Getting compressed recording files for solution with id ${solution.id}")
+    override fun getSolutionResultFilesCompressed(solution: Solution): File {
+        logger.info("Getting compressed solution result files for solution with id ${solution.id}")
 
-        val recordingFiles = getRecordingFiles(solution)
-        val recordingFileNames = recordingFiles.map { it.absolutePath }
-        val recordingZippedFileName = "${verdictsDir.absolutePath}${solution.id}_recordings.zip"
+        val resultsFile = File(resultsDir, "${solution.id}_results.zip")
 
-        ZipOutputStream(BufferedOutputStream(FileOutputStream(recordingZippedFileName))).use { out ->
-            val data = ByteArray(1024)
-            for (file in recordingFileNames) {
-                FileInputStream(file).use { fi ->
-                    BufferedInputStream(fi).use { origin ->
-                        val entry = ZipEntry(file)
-                        out.putNextEntry(entry)
-                        while (true) {
-                            val readBytes = origin.read(data)
-                            if (readBytes == -1) {
-                                break
-                            }
-                            out.write(data, 0, readBytes)
-                        }
-                    }
-                }
-            }
+        if (resultsFile.exists()) {
+            logger.info("Compressed solution result files for solution with id ${solution.id} already exist")
+
+            return resultsFile
         }
 
-        val zip = File(recordingZippedFileName)
-        logger.info("Compressed recording files to ${zip.absolutePath}")
+        val verdicts = getVerdictFiles(solution)
+        val recordings = getRecordingFiles(solution)
+        val results = verdicts + recordings
 
-        return zip
+        ZipUtil.packEntries(results.toTypedArray(), resultsFile)
+
+        return resultsFile
     }
 
     companion object {

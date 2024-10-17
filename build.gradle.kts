@@ -52,6 +52,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     implementation("org.thymeleaf.extras:thymeleaf-extras-java8time")
 
+    implementation("org.zeroturnaround:zt-zip:1.17")
     implementation("org.yaml:snakeyaml:1.33")
     implementation("com.github.ua-parser:uap-java:1.5.4")
 
@@ -61,7 +62,6 @@ dependencies {
 
     runtimeOnly("mysql:mysql-connector-java")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("com.beust:klaxon:5.6")
 
     implementation("com.h2database:h2")
     testImplementation("org.springframework.security:spring-security-test")

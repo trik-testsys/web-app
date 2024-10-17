@@ -31,5 +31,5 @@ interface FileManager {
 
     fun getRecordingFiles(solution: Solution): List<File>
 
-    fun getRecordingFilesCompressed(solution: Solution): File
+    fun getSolutionResultFilesCompressed(solution: Solution): File
 }

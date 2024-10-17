@@ -1,6 +1,7 @@
 package trik.testsys.webclient.controller.impl.user.developer
 
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
@@ -107,6 +108,53 @@ class DeveloperTaskController(
         model.addAttribute(TEST_RESULTS, taskTests.sortedByDescending { it.creationDate }.map { it.toTaskTestResultView(timezone) })
 
         return TASK_PAGE
+    }
+
+    @GetMapping("/testResult/{taskId}")
+    fun getTaskTestResult(
+        @PathVariable("taskId") taskId: Long,
+        @RequestParam("solutionId") solutionId: Long,
+        redirectAttributes: RedirectAttributes,
+        model: Model
+    ): Any {
+        val webUser = loginData.validate(redirectAttributes) ?: return "redirect:$LOGIN_PATH"
+
+        if (!webUser.checkTaskExistence(taskId)) {
+            redirectAttributes.addPopupMessage("Задание с ID $taskId не найдено.")
+            return "redirect:$TASKS_PATH"
+        }
+
+        val task = taskService.find(taskId) ?: run {
+            redirectAttributes.addPopupMessage("Задание с ID $taskId не найдено.")
+            return "redirect:$TASKS_PATH"
+        }
+
+        val solution = solutionService.find(solutionId) ?: run {
+            redirectAttributes.addPopupMessage("Решение с ID $solutionId не найдено.")
+            return "redirect:$TASK_PATH/$taskId"
+        }
+
+        if (solution.task != task || solution.student != null) {
+            redirectAttributes.addPopupMessage("Решение с ID $solutionId не принадлежит Заданию ${task.name}.")
+            return "redirect:$TASK_PATH/$taskId"
+        }
+
+        if (solution.status == Solution.SolutionStatus.IN_PROGRESS) {
+            redirectAttributes.addPopupMessage("Решение с ID $solutionId находится в процессе тестирования.")
+            return "redirect:$TASK_PATH/$taskId"
+        }
+
+        val testResult = fileManager.getSolutionResultFilesCompressed(solution)
+        val bytes = testResult.readBytes()
+
+        val responseEntity = ResponseEntity.ok()
+            .header("Content-Disposition", "attachment; filename=\"${testResult.name}\"")
+            .header("Content-Type", MediaType.APPLICATION_OCTET_STREAM_VALUE)
+            .header("Content-Transfer-Encoding", "binary")
+            .header("Content-Length", bytes.size.toString())
+            .body(bytes)
+
+        return responseEntity
     }
 
     @PostMapping("/update/{taskId}")
@@ -323,47 +371,6 @@ class DeveloperTaskController(
         return "redirect:$TASK_PATH/$taskId"
     }
 
-    @GetMapping("/downloadRecording/{taskId}")
-    fun getTaskTestingRecording(
-        @PathVariable("taskId") taskId: Long,
-        @RequestParam("solutionId") solutionId: Long,
-        redirectAttributes: RedirectAttributes
-    ): Any {
-        val webUser = loginData.validate(redirectAttributes) ?: return "redirect:$LOGIN_PATH"
-
-        if (!webUser.checkTaskExistence(taskId)) {
-            redirectAttributes.addPopupMessage("Задание с ID $taskId не найдено.")
-            return "redirect:$TASKS_PATH"
-        }
-
-        val task = taskService.find(taskId) ?: run {
-            redirectAttributes.addPopupMessage("Задание с ID $taskId не найдено.")
-            return "redirect:$TASKS_PATH"
-        }
-
-        val solution = solutionService.find(solutionId) ?: run {
-            redirectAttributes.addPopupMessage("Решение с ID $solutionId не найдено.")
-            return "redirect:$TASK_PATH/$taskId"
-        }
-
-        if (solution.task != task) {
-            redirectAttributes.addPopupMessage("Решение с ID $solutionId не принадлежит заданию ${task.name}.")
-            return "redirect:$TASK_PATH/$taskId"
-        }
-
-        if (solution.student != null) {
-            redirectAttributes.addPopupMessage("Решение с ID $solutionId не является Эталонным.")
-            return "redirect:$TASK_PATH/$taskId"
-        }
-
-        val recording = fileManager.getRecordingFilesCompressed(solution)
-
-        val responseEntity = ResponseEntity.ok()
-            .header("Content-Disposition", "attachment; filename=\"${recording.name}\"")
-            .body(recording)
-
-        return responseEntity
-    }
     companion object {
 
         const val TASK_PATH = "$TASKS_PATH/task"

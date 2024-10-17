@@ -58,6 +58,7 @@ path:
     solutions: "${PWD}/data/files/solutions/"
     verdicts: "${PWD}/data/files/verdicts/"
     recordings: "${PWD}/data/files/recordings/"
+    results: "${PWD}/data/files/results/"
 
 trik:
   studio:

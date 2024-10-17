@@ -206,7 +206,7 @@
                     <th>Дополнительная информация</th>
                     <th style="width: 10%">Статус</th>
                     <th style="width: 10%">Результат</th>
-<!--                    <th style="width: 7%"></th>-->
+                    <th style="width: 7%"></th>
                 </tr>
                 <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.TaskTestResultView"*/-->
                 <tr th:each="testResult : ${testResults}">
@@ -221,6 +221,12 @@
                         <span th:case="${testResult.status.NOT_STARTED}">Ожидает тестирования</span>
                     </td>
                     <td th:text="${testResult.score}"></td>
+                    <td class="buttons">
+                        <a title="Скачать результат тестирования"
+                           class="button" th:href="@{'/developer/tasks/task/testResult/' + ${task.id} + '?solutionId=' + ${testResult.id}}" target="_self">
+                            <i class="fa-solid fa-download"></i>
+                        </a>
+                    </td>
 <!--                    <td class="buttons">-->
 <!--                        <a class="button" th:href="@{'/developer/tasks/task/downloadRecording/' + ${task.id} + '?solutionId=' + ${testResult.id}}"-->
 <!--                           charset="UTF-8" target="_self"-->
