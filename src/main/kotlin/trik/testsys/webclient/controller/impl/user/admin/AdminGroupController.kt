@@ -127,6 +127,16 @@ class AdminGroupController(
             return "redirect:$GROUP_PATH/$groupId"
         }
 
+        if (count > 100) {
+            redirectAttributes.addPopupMessage("Количество Участников не должно превышать 100.")
+            return "redirect:$GROUP_PATH/$groupId"
+        }
+
+        if (group.students.size + count > 500) {
+            redirectAttributes.addPopupMessage("Количество Участников в Группе не должно превышать 500.")
+            return "redirect:$GROUP_PATH/$groupId"
+        }
+
         val students = studentService.generate(count, group)
 
         group.students.addAll(students)
