@@ -185,6 +185,41 @@ class AdminGroupController(
         return responseEntity
     }
 
+    @GetMapping("/exportResults/{groupId}")
+    fun groupExportResults(
+        @PathVariable("groupId") groupId: Long,
+        @RequestHeader("User-Agent") userAgent: String,
+        request: HttpServletRequest,
+        redirectAttributes: RedirectAttributes
+    ): Any {
+        val webUser = loginData.validate(redirectAttributes) ?: return "redirect:${LoginController.LOGIN_PATH}"
+
+        if (!webUser.validateGroupExistence(groupId)) {
+            redirectAttributes.addPopupMessage("Группа с ID $groupId не найдена.")
+            return "redirect:$GROUPS_PATH"
+        }
+
+        val group = groupService.find(groupId) ?: run {
+            redirectAttributes.addPopupMessage("Группа с ID $groupId не найдена.")
+            return "redirect:$GROUPS_PATH"
+        }
+
+        val exportData = studentService.export(listOf(group))
+
+        val filename = "result_${System.currentTimeMillis()}.csv"
+        val contentDisposition = "attachment; filename=$filename"
+        val charset = userAgentParser.getCharset(userAgent)
+        val bytes = exportData.toByteArray(charset)
+
+        val responseEntity = ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
+            .header(HttpHeaders.CONTENT_ENCODING, charset.name())
+            .contentType(MediaType.TEXT_PLAIN)
+            .body(bytes)
+
+        return responseEntity
+    }
+
     @PostMapping("/linkContest/{groupId}")
     fun groupLinkContest(
         @PathVariable("groupId") groupId: Long,

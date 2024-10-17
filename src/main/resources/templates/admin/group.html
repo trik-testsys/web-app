@@ -222,6 +222,17 @@
                target="_self">
                 Экспорт Участников для Windows
             </a>
+
+            <br/>
+
+            <a class="button" th:href="@{/admin/groups/group/exportResults/{groupId}(groupId=${group.id})}"
+               target="_self">
+                Экспорт результатов для macOS/Linux
+            </a>
+            <a class="button" th:href="@{/admin/groups/group/exportResults/{groupId}(groupId=${group.id})}"
+               target="_self">
+                Экспорт результатов для Windows
+            </a>
         </div>
 
         <div class="table contests-table">
