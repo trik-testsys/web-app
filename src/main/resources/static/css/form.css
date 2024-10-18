@@ -115,3 +115,19 @@ button {
         margin: 5px 0;
     }
 }
+
+select {
+    padding: 5px;
+    font-size: 1rem;
+    border: 1px solid var(--trik-grey);
+    border-radius: 4px;
+    width: 100%;
+}
+
+option {
+    padding: 5px;
+    font-size: 1rem;
+    border: 1px solid var(--trik-grey);
+    border-radius: 4px;
+    width: 100%;
+}

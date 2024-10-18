@@ -2,6 +2,7 @@ package trik.testsys.webclient.entity.user.impl
 
 import trik.testsys.core.entity.Entity.Companion.TABLE_PREFIX
 import trik.testsys.core.entity.user.AccessToken
+import trik.testsys.webclient.entity.impl.SolutionVerdict
 import trik.testsys.webclient.entity.user.WebUser
 import javax.persistence.*
 
@@ -13,5 +14,6 @@ class Judge(
     accessToken: AccessToken
 ) : WebUser(name, accessToken, UserType.JUDGE) {
 
-
+    @OneToMany(mappedBy = "judge")
+    val solutionVerdicts: MutableSet<SolutionVerdict> = mutableSetOf()
 }

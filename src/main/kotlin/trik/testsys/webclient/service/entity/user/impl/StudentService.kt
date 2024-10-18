@@ -7,6 +7,7 @@ import trik.testsys.webclient.entity.impl.Solution
 import trik.testsys.webclient.entity.impl.Task
 import trik.testsys.webclient.entity.user.impl.Student
 import trik.testsys.webclient.repository.user.StudentRepository
+import trik.testsys.webclient.service.entity.impl.SolutionVerdictService
 import trik.testsys.webclient.service.entity.user.WebUserService
 import trik.testsys.webclient.service.token.access.AccessTokenGenerator
 import kotlin.math.absoluteValue
@@ -18,7 +19,9 @@ import kotlin.random.Random
  */
 @Service
 class StudentService(
-    @Qualifier("studentAccessTokenGenerator") private val accessTokenGenerator: AccessTokenGenerator
+    @Qualifier("studentAccessTokenGenerator") private val accessTokenGenerator: AccessTokenGenerator,
+
+    private val solutionVerdictService: SolutionVerdictService
 ): WebUserService<Student, StudentRepository>() {
 
     override fun validateName(entity: Student) =
@@ -68,7 +71,10 @@ class StudentService(
 
         val bestScoresByStudents: Map<Student, List<String>> = students.associateWith { student ->
             tasks.map { task ->
-                student.getBestSolutionFor(task)?.score?.toString() ?: "–"
+                val solution = student.getBestSolutionFor(task) ?: return@map "–"
+
+                val solutionVerdict = solutionVerdictService.findByStudentAndTask(student, task).firstOrNull()
+                solutionVerdict?.score?.toString() ?: solution.score.toString()
             }
         }
 

@@ -5,6 +5,7 @@ import trik.testsys.core.entity.user.AccessToken
 import trik.testsys.webclient.entity.impl.Contest
 import trik.testsys.webclient.entity.impl.Group
 import trik.testsys.webclient.entity.impl.Solution
+import trik.testsys.webclient.entity.impl.SolutionVerdict
 import trik.testsys.webclient.entity.user.WebUser
 import trik.testsys.webclient.util.toEpochSecond
 import java.time.LocalDateTime
@@ -38,6 +39,9 @@ class Student(
         joinColumns = [JoinColumn(name = "student_id")]
     )
     val startTimesByContestId: MutableMap<Long, LocalDateTime> = mutableMapOf()
+
+    @OneToMany(mappedBy = "student")
+    val solutionVerdicts: MutableSet<SolutionVerdict> = mutableSetOf()
 
     fun startContest(contest: Contest) {
         startTimesByContestId[contest.id!!] = LocalDateTime.now(DEFAULT_ZONE_ID)
