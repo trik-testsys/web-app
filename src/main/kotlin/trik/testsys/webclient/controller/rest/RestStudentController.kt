@@ -8,7 +8,7 @@ interface RestStudentController : TrikRestController {
 
     fun register(apiKey: String): ResponseEntity<StudentData>
 
-    fun getResults(apiKey: String, userData: StudentData): ResponseEntity<List<TrikResult>>
+    fun getResults(apiKey: String, testSysId: Long): ResponseEntity<List<TrikResult>>
 
     fun loadSubmission(apiKey: String, submissionId: Long): ResponseEntity<ByteArray>
 

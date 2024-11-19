@@ -26,6 +26,9 @@ spring:
     jdbc:
       repositories:
         enabled: false                                           # Disable JDBC repositories
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
 logging:
   file:
     name: "${PWD}/app-test/logs/server.log"                              # Path to log file

@@ -1,6 +1,5 @@
 package trik.testsys.webclient.service.security.impl
 
-import com.beust.klaxon.internal.firstNotNullResult
 import org.springframework.context.ApplicationContext
 import org.springframework.stereotype.Service
 import trik.testsys.core.entity.user.AccessToken
@@ -17,7 +16,7 @@ class UserValidatorImpl(
 
     override fun validateExistence(accessToken: AccessToken?): WebUser? {
         accessToken ?: return null
-        val entity = webUserServices.firstNotNullResult { it.findByAccessToken(accessToken) }
+        val entity = webUserServices.firstNotNullOf { it.findByAccessToken(accessToken) }
         return entity
     }
 }

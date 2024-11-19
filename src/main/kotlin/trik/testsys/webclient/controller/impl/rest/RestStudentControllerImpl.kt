@@ -62,9 +62,9 @@ class RestStudentControllerImpl(
     @GetMapping("results")
     override fun getResults(
         @RequestParam(required = true) apiKey: String,
-        @RequestBody(required = true) userData: RestStudentController.StudentData
+        @RequestParam(required = true) testSysId: Long
     ): ResponseEntity<List<RestStudentController.TrikResult>> {
-        val student = studentService.find(userData.testSysId) ?: run {
+        val student = studentService.find(testSysId) ?: run {
             return ResponseEntity.notFound().build()
         }
 
