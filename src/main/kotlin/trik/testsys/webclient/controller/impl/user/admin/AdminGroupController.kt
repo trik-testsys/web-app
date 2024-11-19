@@ -19,6 +19,7 @@ import trik.testsys.webclient.service.entity.impl.ContestService
 import trik.testsys.webclient.service.entity.impl.GroupService
 import trik.testsys.webclient.service.entity.user.impl.AdminService
 import trik.testsys.webclient.service.entity.user.impl.StudentService
+import trik.testsys.webclient.service.impl.UserAgentParserImpl.Companion.WINDOWS_1251
 import trik.testsys.webclient.service.security.login.impl.LoginData
 import trik.testsys.webclient.service.token.reg.RegTokenGenerator
 import trik.testsys.webclient.util.addPopupMessage
@@ -150,6 +151,7 @@ class AdminGroupController(
     fun groupExportStudents(
         @PathVariable("groupId") groupId: Long,
         @RequestHeader("User-Agent") userAgent: String,
+        @RequestParam("Windows") isWindows: String?, // remove lately
         request: HttpServletRequest,
         redirectAttributes: RedirectAttributes
     ): Any {
@@ -171,7 +173,8 @@ class AdminGroupController(
         val contentDisposition = "attachment; filename=$filename"
 
         val csv = students.joinToString("\n") { "${it.id};${it.name};${it.accessToken}" }
-        val charset = userAgentParser.getCharset(userAgent)
+//        val charset = userAgentParser.getCharset(userAgent) TODO(commented for later usage)
+        val charset = isWindows?.let { WINDOWS_1251 } ?: Charsets.UTF_8
         val bytes = csv.toByteArray(charset)
 
         val responseEntity = ResponseEntity.ok()
@@ -189,6 +192,7 @@ class AdminGroupController(
     fun groupExportResults(
         @PathVariable("groupId") groupId: Long,
         @RequestHeader("User-Agent") userAgent: String,
+        @RequestParam("Windows") isWindows: String?, // remove lately
         request: HttpServletRequest,
         redirectAttributes: RedirectAttributes
     ): Any {
@@ -208,7 +212,8 @@ class AdminGroupController(
 
         val filename = "result_${System.currentTimeMillis()}.csv"
         val contentDisposition = "attachment; filename=$filename"
-        val charset = userAgentParser.getCharset(userAgent)
+        //        val charset = userAgentParser.getCharset(userAgent) TODO(commented for later usage)
+        val charset = isWindows?.let { WINDOWS_1251 } ?: Charsets.UTF_8
         val bytes = exportData.toByteArray(charset)
 
         val responseEntity = ResponseEntity.ok()

@@ -1,6 +1,7 @@
 package trik.testsys.webclient.controller.impl.user.student
 
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
@@ -150,6 +151,51 @@ class StudentContestController(
         model.addAttribute(SOLUTIONS_ATTR, solutions)
 
         return CONTEST_PAGE
+    }
+
+    @GetMapping("/downloadResults/{contestId}")
+    fun downloadTaskResults(
+        @PathVariable contestId: Long,
+        @RequestParam solutionId: Long,
+        @CookieValue(name = "X-Timezone", defaultValue = "UTC") timezone: String,
+        redirectAttributes: RedirectAttributes,
+        model: Model
+    ): Any {
+        val webUser = loginData.validate(redirectAttributes) ?: return "redirect:${LoginController.LOGIN_PATH}"
+
+        val contest = contestService.find(contestId) ?: run {
+            redirectAttributes.addPopupMessage("Тур c ID '$contestId' не найден.")
+            return "redirect:$CONTESTS_PATH"
+        }
+
+        val solution = solutionService.find(solutionId) ?: run {
+            redirectAttributes.addPopupMessage("Решение c ID '$solutionId' не найдено.")
+            return "redirect:$CONTEST_PATH/$contestId"
+        }
+
+        if (solution.student?.id != webUser.id) {
+            redirectAttributes.addPopupMessage("Решение c ID '$solutionId' не найдено.")
+            return "redirect:$CONTEST_PATH/$contestId"
+        }
+
+        val task = solution.task
+
+        if (contest.tasks.none { it.id == task.id }) {
+            redirectAttributes.addPopupMessage("Решение c ID '$solutionId' не найдено.")
+            return "redirect:$CONTEST_PATH/$contestId"
+        }
+
+        val results = fileManager.getSolutionResultFilesCompressed(solution)
+        val bytes = results.readBytes()
+
+        val responseEntity = ResponseEntity.ok()
+            .header("Content-Disposition", "attachment; filename=\"${results.name}\"")
+            .header("Content-Type", MediaType.APPLICATION_OCTET_STREAM_VALUE)
+            .header("Content-Transfer-Encoding", "binary")
+            .header("Content-Length", bytes.size.toString())
+            .body(bytes)
+
+        return responseEntity
     }
 
     @GetMapping("/downloadExercise/{contestId}")

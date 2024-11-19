@@ -69,7 +69,7 @@ class GradingInfoParserRunner(
     private fun addGraderNodes() {
         logger.info("Adding grader nodes...")
 
-        grader.addNode("87.228.25.186:8080")
+        grader.addNode("87.228.25.186:8081")
 
         logger.info("Grader nodes were added.")
     }

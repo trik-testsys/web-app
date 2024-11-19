@@ -214,24 +214,28 @@
             </form>
 
             <a class="button" th:href="@{/admin/groups/group/exportStudents/{groupId}(groupId=${group.id})}"
+               title="Экспорт в стандартной кодировке"
                target="_self">
-                Экспорт Участников для macOS/Linux
+                Экспорт Участников (UTF-8)
             </a>
             <!--TODO: remove later-->
-            <a class="button" th:href="@{/admin/groups/group/exportStudents/{groupId}(groupId=${group.id})}"
+            <a class="button" th:href="@{'/admin/groups/group/exportStudents/' + ${group.id} + '?Windows'}"
+               title="Экспорт в кодировке для Windows до версии 8.1 (включительно)"
                target="_self">
-                Экспорт Участников для Windows
+                Экспорт Участников (Windows-1251)
             </a>
 
             <br/>
 
             <a class="button" th:href="@{/admin/groups/group/exportResults/{groupId}(groupId=${group.id})}"
+               title="Экспорт в стандартной кодировке"
                target="_self">
-                Экспорт результатов для macOS/Linux
+                Экспорт результатов (UTF-8)
             </a>
-            <a class="button" th:href="@{/admin/groups/group/exportResults/{groupId}(groupId=${group.id})}"
+            <a class="button" th:href="@{'/admin/groups/group/exportResults/' + ${group.id} + '?Windows'}"
+               title="Экспорт в кодировке для Windows до версии 8.1 (включительно)"
                target="_self">
-                Экспорт результатов для Windows
+                Экспорт результатов (Windows-1251)
             </a>
         </div>
 

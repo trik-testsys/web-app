@@ -5,10 +5,7 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
-import org.springframework.web.bind.annotation.CookieValue
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestHeader
-import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import trik.testsys.webclient.controller.impl.main.LoginController
 import trik.testsys.webclient.controller.impl.user.viewer.ViewerMainController.Companion.VIEWER_PAGE
@@ -18,6 +15,7 @@ import trik.testsys.webclient.entity.user.impl.Viewer
 import trik.testsys.webclient.service.UserAgentParser
 import trik.testsys.webclient.service.entity.user.impl.StudentService
 import trik.testsys.webclient.service.entity.user.impl.ViewerService
+import trik.testsys.webclient.service.impl.UserAgentParserImpl.Companion.WINDOWS_1251
 import trik.testsys.webclient.service.security.login.impl.LoginData
 import trik.testsys.webclient.view.impl.AdminViewerView.Companion.toViewerView
 import trik.testsys.webclient.view.impl.ViewerView
@@ -56,6 +54,7 @@ class ViewerAdminsController(
     fun exportAdmins(
         @CookieValue(name = "X-Timezone", defaultValue = "UTC") timezone: String,
         @RequestHeader("User-Agent") userAgent: String,
+        @RequestParam("Windows") isWindows: String?, // remove lately
         redirectAttributes: RedirectAttributes,
         model: Model
     ): Any {
@@ -66,7 +65,8 @@ class ViewerAdminsController(
 
         val filename = "result_${System.currentTimeMillis()}.csv"
         val contentDisposition = "attachment; filename=$filename"
-        val charset = userAgentParser.getCharset(userAgent)
+        //        val charset = userAgentParser.getCharset(userAgent) TODO(commented for later usage)
+        val charset = isWindows?.let { WINDOWS_1251 } ?: Charsets.UTF_8
         val bytes = exportData.toByteArray(charset)
 
         val responseEntity = ResponseEntity.ok()

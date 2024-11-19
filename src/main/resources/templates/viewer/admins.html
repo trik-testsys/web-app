@@ -59,12 +59,15 @@
         </div>
 
         <a class="button" th:href="@{/viewer/admins/export}"
+           title="Экспорт в стандартной кодировке"
            target="_self">
-            Экспорт результатов для macOS/Linux
+            Экспорт результатов (UTF-8)
         </a>
-        <a class="button" th:href="@{/viewer/admins/export}"
+<!--        TODO(remove later)-->
+        <a class="button" th:href="@{'/viewer/admins/export?Windows'}"
+           title="Экспорт в кодировке для Windows до версии 8.1 (включительно)"
            target="_self">
-            Экспорт результатов для Windows
+            Экспорт результатов (Windows-1251)
         </a>
     </div>
 </div>

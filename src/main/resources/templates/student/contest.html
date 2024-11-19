@@ -149,7 +149,7 @@
                         <th>Дополнительная информация</th>
                         <th style="width: 10%">Статус</th>
                         <th style="width: 10%">Результат</th>
-                        <!--                    <th style="width: 7%"></th>-->
+                        <th style="width: 7%" th:if="${contest.outdated}"></th>
                     </tr>
                     </thead>
                     <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.TaskTestResultView"*/-->
@@ -166,14 +166,12 @@
                             <span th:case="${testResult.status.NOT_STARTED}">Ожидает тестирования</span>
                         </td>
                         <td th:text="${testResult.score}"></td>
-                        <!--                    <td class="buttons">-->
-                        <!--                        <a class="button" th:href="@{'/developer/tasks/task/downloadRecording/' + ${task.id} + '?solutionId=' + ${testResult.id}}"-->
-                        <!--                           charset="UTF-8" target="_self"-->
-
-                        <!--                           th:disabled="${testResult.status != testResult.status.PASSED and testResult.status != testResult.status.FAILED}">-->
-                        <!--                            <i class="fa-solid fa-download"></i>-->
-                        <!--                        </a>-->
-                        <!--                    </td>-->
+                        <td class="buttons" th:if="${contest.outdated}">
+                            <a class="button" th:href="@{'/student/contests/contest/downloadResults/' + ${contest.id} + '?solutionId=' + ${testResult.id}}" target="_self"
+                               title="Скачать результаты проверки">
+                                <i class="fa-solid fa-file-zipper"></i>
+                            </a>
+                        </td>
                     </tr>
                 </table>
             </div>

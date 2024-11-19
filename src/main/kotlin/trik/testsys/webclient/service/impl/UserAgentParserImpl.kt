@@ -100,8 +100,8 @@ class UserAgentParserImpl : UserAgentParser {
 
     companion object {
 
-        val WINDOWS_1251 = Charset.forName("windows-1251")
-        val WINDOWS_1252 = Charset.forName("windows-1252")
+        val WINDOWS_1251: Charset = Charset.forName("windows-1251")
+        val WINDOWS_1252: Charset = Charset.forName("windows-1252")
 
         val UTF_8 = Charsets.UTF_8
     }

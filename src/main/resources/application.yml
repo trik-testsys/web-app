@@ -5,7 +5,7 @@ spring:
     open-in-view: on                                            # Enable JPA open-in-view
     defer-datasource-initialization: true
   datasource:
-    url: jdbc:mysql://${MYSQL_HOST:mysql_host}:3306/testsys_db   # Database URL
+    url: jdbc:mysql://localhost:3306/testsys_db   # Database URL
     username: testsys                                           # Database username
     password: p@ssw0rd                                          # Database password
     driver-class-name: com.mysql.cj.jdbc.Driver                 # Driver for MySQL
@@ -28,7 +28,7 @@ spring:
         enabled: false                                           # Disable JDBC repositories
 logging:
   file:
-    name: "${PWD}/logs/server.log"                              # Path to log file
+    name: "${PWD}/app-test/logs/server.log"                              # Path to log file
   logback:
     rollingpolicy:
       clean-history-on-start: false                             # Not cleaning history on start
@@ -45,20 +45,20 @@ server:
     include-message: always
 
 path:
-  l10n: "${PWD}/src/main/resources/static/l10n"
+  l10n: "${PWD}/app-test/src/main/resources/static/l10n"
   startup:
-    entities: "${PWD}/data/entities/"
-    nodes: "${PWD}/data/nodes/"
+    entities: "${PWD}/app-test/data/entities/"
+    nodes: "${PWD}/app-test/data/nodes/"
   taskFiles:
-    solutions: "${PWD}/data/taskFiles/solutions/"
-    polygons: "${PWD}/data/taskFiles/polygons/"
-    exercises: "${PWD}/data/taskFiles/exercises/"
-    conditions: "${PWD}/data/taskFiles/conditions/"
+    solutions: "${PWD}/app-test/data/taskFiles/solutions/"
+    polygons: "${PWD}/app-test/data/taskFiles/polygons/"
+    exercises: "${PWD}/app-test/data/taskFiles/exercises/"
+    conditions: "${PWD}/app-test/data/taskFiles/conditions/"
   files:
-    solutions: "${PWD}/data/files/solutions/"
-    verdicts: "${PWD}/data/files/verdicts/"
-    recordings: "${PWD}/data/files/recordings/"
-    results: "${PWD}/data/files/results/"
+    solutions: "${PWD}/app-test/data/files/solutions/"
+    verdicts: "${PWD}/app-test/data/files/verdicts/"
+    recordings: "${PWD}/app-test/data/files/recordings/"
+    results: "${PWD}/app-test/data/files/results/"
 
 trik:
   studio:

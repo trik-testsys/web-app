@@ -2,7 +2,7 @@ version: '3'
 
 services:
   mysql_host:
-    image: mysql
+    image: mysql:8.0
     restart: always
 
     environment:
@@ -24,20 +24,21 @@ services:
     volumes:
       - ./data/mysql:/var/lib/mysql
 
-  web-client:
-    image: testsystrik/trik-testsys-web-client:2.0.0-alpha.32
-    restart: always
-
-    environment:
-      - JAVA_OPTIONS=-server -Xmx512m -Xms512m -XX:OnOutOfMemoryError="shutdown now" -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/web-client/logs/client.hprof -XX:PermSize=512m -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:ParallelGCThreads=20 -XX:ConcGCThreads=10 -XX:InitiatingHeapOccupancyPercent=70
-
-    ports:
-      - "8888:8888"
-    expose:
-      - "8888"
-
-    volumes:
-      - ./logs/web-client:/web-client/logs
-      - ./data:/web-client/data
-    links:
-      - mysql_host:mysql_host
+#  web-client:
+#    image: testsystrik/trik-testsys-web-client:2.0.0-alpha.37
+#    restart: always
+#
+#    environment:
+#      - JAVA_OPTIONS=-server -Xmx8g -Xms1g -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/web-client/dumps/ -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:ParallelGCThreads=20 -XX:ConcGCThreads=10 -XX:InitiatingHeapOccupancyPercent=70
+#
+#    ports:
+#      - "8888:8888"
+#    expose:
+#      - "8888"
+#
+#    volumes:
+#      - ./logs/web-client:/web-client/logs
+#      - ./data:/web-client/data
+#      - ./dumps:/web-client/dumps
+#    links:
+#      - mysql_host:mysql_host
