@@ -100,9 +100,11 @@ class StudentService(
         return csv
     }
 
-    private fun Student.getBestSolutionFor(task: Task): Solution? {
-        return solutions
-            .filter { it.task.id == task.id }
-            .maxByOrNull { it.score }
+    companion object {
+        fun Student.getBestSolutionFor(task: Task): Solution? {
+            return solutions
+                .filter { it.task.id == task.id && it.status == Solution.SolutionStatus.PASSED }
+                .maxByOrNull { it.score }
+        }
     }
 }
