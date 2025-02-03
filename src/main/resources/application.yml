@@ -39,7 +39,7 @@ logging:
 server:
   port: 8888                                                    # Entrypoint
   servlet:
-    context-path: /2024
+    context-path: ${CONTEXT_PATH:/}                              # Context path
     session:
       timeout: 3h
   error:
