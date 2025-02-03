@@ -6,7 +6,7 @@ ARG APP_DIR=web-client
 
 #Copying application
 WORKDIR /$APP_DIR
-ARG JAR_FILE=build/libs/trik-testsys-web-client-2.0.0-alpha.jar
+ARG JAR_FILE=build/libs/trik-testsys-web-client-2.0.0.RELEASE.jar
 ARG APP=app.jar
 COPY $JAR_FILE $APP
 
