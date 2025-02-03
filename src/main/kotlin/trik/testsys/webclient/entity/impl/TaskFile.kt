@@ -31,6 +31,17 @@ class TaskFile(
     )
     val tasks: MutableSet<Task> = mutableSetOf()
 
+    @OneToMany(mappedBy = "taskFile")
+    val taskFileAudits: MutableSet<TaskFileAudit> = mutableSetOf()
+
+    @get:Transient
+    val latestAudit: TaskFileAudit
+        get() = taskFileAudits.maxBy { it.creationDate!! }
+
+    @get:Transient
+    val latestFileName: String
+        get() = latestAudit.fileName
+
     enum class TaskFileType(override val dbkey: String) : Enum {
 
         POLYGON("PLG"),

@@ -88,6 +88,68 @@
         </div>
     </div>
 
+    <div class="block">
+        <div class="block-title">История изменений файлов</div>
+
+        <div class="form-container">
+            <div class="form-header">
+                <h1>Изменить файл</h1>
+            </div>
+
+            <!--/*@thymesVar id="webUser" type="trik.testsys.webclient.view.impl.TaskFileView"*/-->
+            <form id="file-change" action="#" th:action="@{/developer/taskFiles/taskFile/updateFile/{id}(id=${taskFile.id})}" th:object="${taskFileAudit}" method="post" enctype="multipart/form-data">
+                <div th:replace="fragments/form.html
+                    :: formField(id='taskFileAudit.additionalInfo', type='text',
+                                 labelName='Дополнительная информация', labelSize='20',
+                                 fieldName='additionalInfo', fieldSize='80',
+                                 size='100',
+                                 isReadonly='false', isRequired='false', isAccessToken='false')">
+                </div>
+
+                <label for="file" class="form-label">Файл</label>
+                <input id="file" name="file" type="file" required>
+                <!-- Кнопки редактирования, отправки и отмены -->
+                <div class="form-buttons">
+                    <button type="button" class="edit-button" id="file-change-edit" onclick="enableForm('file-change')">Редактировать</button>
+                    <button type="submit" class="save-button" id="file-change-save">Сохранить</button>
+                    <button type="button" class="cancel-button" id="file-change-cancel" onclick="disableForm('file-change')">Отменить</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="table tasks-table">
+            <div class="form-header">
+                <h1>Список изменений</h1>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                    <tr>
+                        <th style="width: 15%">
+                            Дата и время
+                        </th>
+                        <th>
+                            Дополнительная информация
+                        </th>
+                        <th style="width: 7%"></th>
+                    </tr>
+                    </thead>
+                    <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.TaskFileView"*/-->
+                    <tr th:each="taskFileAudit : ${taskFile.taskFileAudits}">
+                        <td th:text="${taskFileAudit.creationDate}"></td>
+                        <td th:text="${taskFileAudit.additionalInfo}"></td>
+                        <td class="buttons">
+                            <a class="button" th:href="@{'/developer/taskFiles/taskFile/downloadAudit/' + ${taskFileAudit.id}}" target="_self"
+                               title="Скачать файл">
+                                <i class="fa-solid fa-file-download"></i>
+                            </a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 </body>

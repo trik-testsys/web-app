@@ -8,12 +8,11 @@ import org.zeroturnaround.zip.ZipUtil
 import trik.testsys.webclient.entity.impl.Solution
 import trik.testsys.webclient.entity.impl.Task
 import trik.testsys.webclient.entity.impl.TaskFile
+import trik.testsys.webclient.entity.impl.TaskFileAudit
 import trik.testsys.webclient.service.FileManager
 import trik.testsys.webclient.service.Grader
 import java.io.*
 import java.nio.file.Files
-import java.util.zip.ZipEntry
-import java.util.zip.ZipOutputStream
 import javax.annotation.PostConstruct
 
 /**
@@ -57,14 +56,15 @@ class FileManagerImpl(
         if (!resultsDir.exists()) resultsDir.mkdirs()
     }
 
-    override fun saveTaskFile(taskFile: TaskFile, fileData: MultipartFile): Boolean {
+    override fun saveTaskFile(taskFileAudit: TaskFileAudit, fileData: MultipartFile): Boolean {
+        val taskFile = taskFileAudit.taskFile
         logger.info("Saving task file with id ${taskFile.id}")
 
         val dir = getTaskFileDir(taskFile)
         val extension = getTaskFileExtension(taskFile)
 
         try {
-            val file = File(dir, "${taskFile.id}$extension")
+            val file = File(dir, "${taskFileAudit.fileName}$extension")
             fileData.transferTo(file)
         } catch (e: Exception) {
             logger.error("Error while saving task file with id ${taskFile.id}", e)
@@ -79,10 +79,26 @@ class FileManagerImpl(
 
         val dir = getTaskFileDir(taskFile)
         val extension = getTaskFileExtension(taskFile)
-        val file = File(dir, "${taskFile.id}$extension")
+        val file = File(dir, "${taskFile.latestFileName}$extension")
 
         if (!file.exists()) {
             logger.error("Task file with id ${taskFile.id} not found")
+            return null
+        }
+
+        return file
+    }
+
+    override fun getTaskFileAuditFile(taskFileAudit: TaskFileAudit): File? {
+        logger.info("Getting task file audit file with id ${taskFileAudit.id}")
+
+        val taskFile = taskFileAudit.taskFile
+        val dir = getTaskFileDir(taskFile)
+        val extension = getTaskFileExtension(taskFile)
+        val file = File(dir, "${taskFileAudit.fileName}$extension")
+
+        if (!file.exists()) {
+            logger.error("Task file audit file with id ${taskFileAudit.id} not found")
             return null
         }
 
