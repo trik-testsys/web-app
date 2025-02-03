@@ -9,7 +9,7 @@
 
 <div th:fragment="superUserMenu"
      th:replace="fragments/menu
-        :: sideMenu(links=${ {'/superuser', '/superuser/viewers', '/superuser/developers', '/superuser/judges', '/superuser/emergency-messages', '/superuser?Logout=' } },
-                    names=${ { 'Профиль', 'Наблюдатели', 'Разработчики', 'Судьи', 'Экстренные сообщения', 'Выход' } })"></div>
+        :: sideMenu(links=${ {'/superuser', '/superuser/viewers', '/superuser/developers', '/superuser/judges', '/superuser/admins', '/superuser/emergency-messages', '/superuser?Logout=' } },
+                    names=${ { 'Профиль', 'Наблюдатели', 'Разработчики', 'Судьи', 'Организаторы', 'Экстренные сообщения', 'Выход' } })"></div>
 
 </html>
