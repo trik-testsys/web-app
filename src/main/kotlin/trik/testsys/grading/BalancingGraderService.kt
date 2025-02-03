@@ -89,7 +89,8 @@ class BalancingGraderService(
             }
             log.debug("Finished processing results")
         } catch (se: StatusException) {
-            log.warn("RPC is finished with status code ${se.status.code.value()}")
+            val status = se.status
+            log.warn("RPC is finished with status code ${status.code.value()}, description ${status.description}, cause ${status.cause}")
             resendSubmissions(sentSubmissions)
         } catch (e: Exception) {
             log.error("Unexpected error while processing results", e)
