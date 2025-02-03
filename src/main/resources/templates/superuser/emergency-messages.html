@@ -38,9 +38,9 @@
             <!--/*@thymesVar id="webUser" type="trik.testsys.webclient.view.impl.EmergencyMessageCreationView"*/-->
             <form id="emergency-message-creation" action="#" th:action="@{/superuser/emergency-messages/emergency-message/create}" th:object="${emergencyMessageObj}" method="post">
 
-                <label for="emergency-message-userType">Выберите Файл</label>
+                <label for="emergency-message-userType">Выберите тип пользователя</label>
                 <select id="emergency-message-userType" name="userType" required>
-                    <option value="" disabled selected>Выберите Файл</option>
+                    <option value="" disabled selected>Выберите тип пользователя</option>
                     <option th:each="userType : ${userTypes}" th:value="${userType}" th:text="${userType}">
                 </select>
 

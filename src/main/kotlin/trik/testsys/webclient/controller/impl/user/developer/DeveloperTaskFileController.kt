@@ -1,5 +1,6 @@
 package trik.testsys.webclient.controller.impl.user.developer
 
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.*
@@ -12,13 +13,16 @@ import trik.testsys.webclient.controller.user.AbstractWebUserController
 import trik.testsys.webclient.controller.user.AbstractWebUserMainController.Companion.LOGIN_PATH
 import trik.testsys.webclient.entity.impl.TaskFile
 import trik.testsys.webclient.entity.impl.TaskFile.TaskFileType.Companion.localized
+import trik.testsys.webclient.entity.impl.TaskFileAudit
 import trik.testsys.webclient.entity.user.impl.Developer
 import trik.testsys.webclient.service.FileManager
+import trik.testsys.webclient.service.entity.impl.TaskFileAuditService
 import trik.testsys.webclient.service.entity.impl.TaskFileService
 import trik.testsys.webclient.service.entity.user.impl.DeveloperService
 import trik.testsys.webclient.service.security.login.impl.LoginData
 import trik.testsys.webclient.util.addPopupMessage
 import trik.testsys.webclient.view.impl.DeveloperView
+import trik.testsys.webclient.view.impl.TaskFileAuditCreationView
 import trik.testsys.webclient.view.impl.TaskFileCreationView
 import trik.testsys.webclient.view.impl.TaskFileView
 import trik.testsys.webclient.view.impl.TaskFileView.Companion.toView
@@ -31,6 +35,7 @@ class DeveloperTaskFileController(
     loginData: LoginData,
 
     private val taskFileService: TaskFileService,
+    private val taskFileAuditService: TaskFileAuditService,
     private val fileManager: FileManager
 ) : AbstractWebUserController<Developer, DeveloperView, DeveloperService>(loginData) {
 
@@ -53,11 +58,14 @@ class DeveloperTaskFileController(
         val taskFile = taskFileView.toEntity(webUser)
 
         taskFileService.validate(taskFile, redirectAttributes, "redirect:$TASK_FILES_PATH")?.let { return it }
-
         taskFileService.save(taskFile)
 
-        val fileSavingResult = fileManager.saveTaskFile(taskFile, file)
+        val taskFileAudit = TaskFileAudit(taskFile)
+        taskFileAuditService.save(taskFileAudit)
+
+        val fileSavingResult = fileManager.saveTaskFile(taskFileAudit, file)
         if (!fileSavingResult) {
+            taskFileAuditService.delete(taskFileAudit)
             taskFileService.delete(taskFile)
             redirectAttributes.addPopupMessage("Ошибка при сохранении файла.")
             return "redirect:$TASK_FILES_PATH"
@@ -97,7 +105,103 @@ class DeveloperTaskFileController(
         val taskFileView = taskFile.toView(timezone)
         model.addAttribute(TASK_FILE_ATTR, taskFileView)
 
+        model.addAttribute(TASK_FILE_AUDIT_ATTR, TaskFileAuditCreationView.empty())
+
         return TASK_FILE_PAGE
+    }
+
+    @GetMapping("/download/{taskFileId}")
+    fun taskFileDownload(
+        @PathVariable("taskFileId") taskFileId: Long,
+        redirectAttributes: RedirectAttributes
+    ): Any {
+        val webUser = loginData.validate(redirectAttributes) ?: return "redirect:$LOGIN_PATH"
+
+        if (!webUser.checkTaskFileExistence(taskFileId)) {
+            redirectAttributes.addPopupMessage("Файл с ID $taskFileId не найден.")
+            return "redirect:$TASK_FILES_PATH"
+        }
+
+        val taskFile = taskFileService.find(taskFileId) ?: run {
+            redirectAttributes.addPopupMessage("Файл с ID $taskFileId не найден.")
+            return "redirect:$TASK_FILES_PATH"
+        }
+
+        val file = fileManager.getTaskFile(taskFile) ?: run {
+            redirectAttributes.addPopupMessage("Файл с ID $taskFileId не найден.")
+            return "redirect:$TASK_FILES_PATH"
+        }
+
+        val extension = fileManager.getTaskFileExtension(taskFile)
+        val responseEntity = ResponseEntity.ok()
+            .header("Content-Disposition", "attachment; filename=${taskFile.latestFileName}${extension}")
+            .body(file.readBytes())
+
+        return responseEntity
+    }
+
+    @PostMapping("/updateFile/{taskFileId}")
+    fun updateFile(
+        @PathVariable("taskFileId") taskFileId: Long,
+        @RequestParam("file") file: MultipartFile,
+        @ModelAttribute("taskFileAudit") taskFileAuditView: TaskFileAuditCreationView,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val webUser = loginData.validate(redirectAttributes) ?: return "redirect:$LOGIN_PATH"
+
+        if (!webUser.checkTaskFileExistence(taskFileId)) {
+            redirectAttributes.addPopupMessage("Файл с ID $taskFileId не найден.")
+            return "redirect:$DEVELOPER_PATH$TASK_FILES_PATH"
+        }
+
+        val taskFile = taskFileService.find(taskFileId) ?: run {
+            redirectAttributes.addPopupMessage("Файл с ID $taskFileId не найден.")
+            return "redirect:$DEVELOPER_PATH$TASK_FILES_PATH"
+        }
+
+        if (taskFile.tasks.any { it.contests.any { contest -> contest.isPublic() } }) {
+            redirectAttributes.addPopupMessage("Файл с ID $taskFileId не может быть изменен, так как он используется в публичных контестах.")
+            return "redirect:$TASK_FILE_PATH/$taskFileId"
+        }
+
+        val taskFileAudit = taskFileAuditView.toEntity(taskFile)
+        taskFileAuditService.save(taskFileAudit)
+
+        val fileSavingResult = fileManager.saveTaskFile(taskFileAudit, file)
+        if (!fileSavingResult) {
+            taskFileAuditService.delete(taskFileAudit)
+            redirectAttributes.addPopupMessage("Ошибка при сохранении файла.")
+            return "redirect:$TASK_FILE_PATH/$taskFileId"
+        }
+
+        redirectAttributes.addPopupMessage("Файл успешно обновлен.")
+
+        return "redirect:$TASK_FILE_PATH/$taskFileId"
+    }
+
+    @GetMapping("/downloadAudit/{taskFileAuditId}")
+    fun downloadAudit(
+        @PathVariable("taskFileAuditId") taskFileAuditId: Long,
+        redirectAttributes: RedirectAttributes
+    ): Any {
+        val webUser = loginData.validate(redirectAttributes) ?: return "redirect:$LOGIN_PATH"
+
+        val taskFileAudit = taskFileAuditService.find(taskFileAuditId) ?: run {
+            redirectAttributes.addPopupMessage("Аудит с ID $taskFileAuditId не найден.")
+            return "redirect:$TASK_FILES_PATH"
+        }
+
+        val file = fileManager.getTaskFileAuditFile(taskFileAudit) ?: run {
+            redirectAttributes.addPopupMessage("Файл с ID $taskFileAuditId не найден.")
+            return "redirect:$TASK_FILES_PATH"
+        }
+
+        val extension = fileManager.getTaskFileExtension(taskFileAudit.taskFile)
+        val responseEntity = ResponseEntity.ok()
+            .header("Content-Disposition", "attachment; filename=${taskFileAudit.fileName}${extension}")
+            .body(file.readBytes())
+
+        return responseEntity
     }
 
     @PostMapping("/update/{taskFileId}")
@@ -134,6 +238,8 @@ class DeveloperTaskFileController(
         const val TASK_FILE_PAGE = "$DEVELOPER_PAGE/taskFile"
 
         const val TASK_FILE_ATTR = "taskFile"
+
+        const val TASK_FILE_AUDIT_ATTR = "taskFileAudit"
 
         fun Developer.checkTaskFileExistence(taskFileId: Long?) = taskFiles.any { it.id == taskFileId }
 

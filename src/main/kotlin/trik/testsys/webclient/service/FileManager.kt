@@ -4,6 +4,7 @@ import org.springframework.web.multipart.MultipartFile
 import trik.testsys.webclient.entity.impl.Solution
 import trik.testsys.webclient.entity.impl.Task
 import trik.testsys.webclient.entity.impl.TaskFile
+import trik.testsys.webclient.entity.impl.TaskFileAudit
 import java.io.File
 
 /**
@@ -13,9 +14,13 @@ import java.io.File
  */
 interface FileManager {
 
-    fun saveTaskFile(taskFile: TaskFile, fileData: MultipartFile): Boolean
+    fun saveTaskFile(taskFileAudit: TaskFileAudit, fileData: MultipartFile): Boolean
 
     fun getTaskFile(taskFile: TaskFile): File?
+
+    fun getTaskFileAuditFile(taskFileAudit: TaskFileAudit): File?
+
+    fun getTaskFileExtension(taskFile: TaskFile): String
 
     fun saveSolutionFile(solution: Solution, file: File): Boolean
 

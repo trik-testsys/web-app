@@ -3,8 +3,7 @@ package trik.testsys.webclient.view.impl
 import trik.testsys.core.entity.user.AccessToken
 import trik.testsys.core.view.user.UserView
 import trik.testsys.webclient.entity.impl.EmergencyMessage
-import trik.testsys.webclient.entity.user.impl.SuperUser
-import trik.testsys.webclient.entity.user.impl.Viewer
+import trik.testsys.webclient.entity.user.impl.*
 import trik.testsys.webclient.util.fromTimeZone
 import java.time.LocalDateTime
 
@@ -20,6 +19,9 @@ data class SuperUserView(
     override val lastLoginDate: LocalDateTime?,
     override val additionalInfo: String,
     val viewers: List<Viewer> = emptyList(),
+    val developers: List<Developer> = emptyList(),
+    val judges: List<Judge> = emptyList(),
+    val admins: List<Admin> = emptyList(),
     val emergencyMessages: List<EmergencyMessage> = emptyList()
 ) : UserView<SuperUser> {
 
