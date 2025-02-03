@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -41,7 +42,7 @@ class RestStudentControllerImpl(
         return groupService.findByRegToken(groupRegToken)!!
     }
 
-    @GetMapping("register")
+    @PostMapping("register")
     override fun register(
         @RequestParam(required = true) apiKey: String
     ): ResponseEntity<RestStudentController.StudentData> {
@@ -73,13 +74,13 @@ class RestStudentControllerImpl(
         val results = tasks.map { task ->
             val solutions = solutionService.findByStudentAndTask(student, task).sortedByDescending { it.creationDate }
             val lastSolution = solutions.firstOrNull()
-            val bestSolution = student.getBestSolutionFor(task)
+            val firstPassed = solutions.firstPassed()
 
             val gradingResult = when (lastSolution?.status) {
                 null -> RestStudentController.GradingResult.NO_SUBMISSIONS
                 Solution.SolutionStatus.PASSED -> RestStudentController.GradingResult.PASSED
-                Solution.SolutionStatus.FAILED, Solution.SolutionStatus.ERROR -> if (bestSolution != null) RestStudentController.GradingResult.PASSED else RestStudentController.GradingResult.FAILED
-                Solution.SolutionStatus.IN_PROGRESS, Solution.SolutionStatus.NOT_STARTED -> RestStudentController.GradingResult.QUEUED
+                Solution.SolutionStatus.FAILED, Solution.SolutionStatus.ERROR -> if (firstPassed != null) RestStudentController.GradingResult.PASSED else RestStudentController.GradingResult.FAILED
+                Solution.SolutionStatus.IN_PROGRESS, Solution.SolutionStatus.NOT_STARTED -> if (firstPassed != null) RestStudentController.GradingResult.PASSED else RestStudentController.GradingResult.QUEUED
             }
 
             val bestSolutionId = when (gradingResult) {
@@ -87,7 +88,7 @@ class RestStudentControllerImpl(
                 RestStudentController.GradingResult.FAILED,
                 RestStudentController.GradingResult.QUEUED -> null
 
-                RestStudentController.GradingResult.PASSED -> bestSolution!!.id
+                RestStudentController.GradingResult.PASSED -> firstPassed!!.id
             }
 
             val trikTask = RestStudentController.TrikTask(task.id!!, task.name, task.contests.first().id!!, task.contests.first().name)
@@ -98,6 +99,10 @@ class RestStudentControllerImpl(
         }
 
         return ResponseEntity.ok(results)
+    }
+
+    private fun Collection<Solution>.firstPassed(): Solution? {
+        return this.sortedBy { it.creationDate }.firstOrNull { it.status == Solution.SolutionStatus.PASSED }
     }
 
     @GetMapping("submission")

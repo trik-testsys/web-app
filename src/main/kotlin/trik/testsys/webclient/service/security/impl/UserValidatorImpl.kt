@@ -16,7 +16,7 @@ class UserValidatorImpl(
 
     override fun validateExistence(accessToken: AccessToken?): WebUser? {
         accessToken ?: return null
-        val entity = webUserServices.firstNotNullOf { it.findByAccessToken(accessToken) }
+        val entity = webUserServices.firstNotNullOfOrNull { it.findByAccessToken(accessToken) }
         return entity
     }
 }
