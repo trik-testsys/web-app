@@ -16,6 +16,8 @@
 
 <div th:replace="fragments/popup :: popup"></div>
 
+<div th:replace="fragments/popup :: emergencyPopup"></div>
+
 <div th:replace="fragments/entity/developer
     :: developerHeader(breadCrumbNames=${ { 'Задания' } },
                        breadCrumbLinks=${ { '/developer/tasks' } })"></div>
@@ -68,36 +70,43 @@
             <div class="form-header">
                 <h1>Список Заданий</h1>
             </div>
-            <table>
-                <tr>
-                    <th style="width: 10%">
-                        ID
-                    </th>
-                    <th style="width: 20%">
-                        Название
-                    </th>
-                    <th>Дополнительная информация</th>
-                    <th>Заметка</th>
-                    <th style="width: 10%">
-                        Действия
-                    </th>
-                </tr>
-                <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.TaskView"*/-->
-                <tr th:each="task : ${webUser.tasks}">
-                    <td th:text="${task.id}"></td>
-                    <td th:text="${task.name}"></td>
-                    <td th:text="${task.additionalInfo}"></td>
-                    <td th:text="${task.note}"></td>
-                    <td class="buttons">
-                        <a title="Удалить" th:href="@{/developer/tasks/task/remove/{id}(id=${task.id})}">
-                            <i class="fa-solid fa-trash"></i>
-                        </a>
-                        <a title="Войти" th:href="@{/developer/tasks/task/{id}(id=${task.id})}">
-                            <i class="fa-solid fa-right-to-bracket"></i>
-                        </a>
-                    </td>
-                </tr>
-            </table>
+            <div class="table-container">
+                <table>
+                    <thead>
+                    <tr>
+                        <th style="width: 10%">
+                            ID
+                        </th>
+                        <th style="width: 20%">
+                            Название
+                        </th>
+                        <th>Дополнительная информация</th>
+                        <th>Заметка</th>
+                        <th>
+                            Результат тестирования
+                        </th>
+                        <th style="width: 7%"></th>
+                    </tr>
+                    </thead>
+                    <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.TaskView"*/-->
+                    <tr th:each="task : ${webUser.tasks}">
+                        <td th:text="${task.id}"></td>
+                        <td th:text="${task.name}"></td>
+                        <td th:text="${task.additionalInfo}"></td>
+                        <td th:text="${task.note}"></td>
+                        <td th:text="${task.passedTest} ? 'Пройдено' : 'Не пройдено'"
+                            th:style="${task.passedTest} ? 'color: green' : 'color: red'"></td>
+                        <td class="buttons">
+                            <form th:action="@{/developer/tasks/task/{id}(id=${task.id})}" method="get">
+                                <button type="submit" title="Войти"
+                                        class="button">
+                                    <i class="fa-solid fa-right-to-bracket"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </div>
     </div>
 </div>

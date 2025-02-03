@@ -26,14 +26,9 @@ class Group(
     )
     lateinit var admin: Admin
 
-    @OneToMany(mappedBy = "group", cascade = [CascadeType.ALL])
+    @OneToMany(mappedBy = "group")
     val students: MutableSet<Student> = mutableSetOf()
 
-    @ManyToMany
-    @JoinTable(
-        name = "TASKS_BY_GROUPS",
-        joinColumns = [JoinColumn(name = "group_id")],
-        inverseJoinColumns = [JoinColumn(name = "task_id")]
-    )
-    lateinit var tasks: MutableSet<Task>
+    @ManyToMany(mappedBy = "groups")
+    val contests: MutableSet<Contest> = mutableSetOf()
 }

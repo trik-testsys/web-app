@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.beans.factory.config.BeanDefinition
 import org.springframework.context.annotation.Scope
+import org.springframework.stereotype.Service
 import trik.testsys.core.entity.Entity
 import trik.testsys.core.entity.user.AccessToken
 import trik.testsys.core.entity.user.UserEntity
@@ -27,7 +28,7 @@ import javax.xml.bind.annotation.XmlRootElement
  * @author Roman Shishkin
  * @since 2.0.0
  **/
-@org.springframework.stereotype.Service
+@Service
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 class EntityCreatorRunner(
     @Value("\${path.startup.entities}") private val entitiesDirPath: String,
@@ -324,7 +325,7 @@ class EntityCreatorRunner(
         private const val DEVELOPERS_FILE_NAME = "developers.json"
         private const val JUDGES_FILE_NAME = "judges.json"
         private const val STUDENTS_FILE_NAME = "students.json"
-        private const val SUPER_USERS_FILE_NAME = "super_users.json"
+        private const val SUPER_USERS_FILE_NAME = "superusers.json"
         private const val VIEWERS_FILE_NAME = "viewers.json"
         private const val GROUPS_FILE_NAME = "groups.json"
 

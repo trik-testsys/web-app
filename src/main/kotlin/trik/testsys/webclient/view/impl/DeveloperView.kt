@@ -5,7 +5,6 @@ import trik.testsys.core.view.user.UserView
 import trik.testsys.webclient.entity.user.impl.Developer
 import trik.testsys.webclient.util.fromTimeZone
 import java.time.LocalDateTime
-import java.util.*
 
 data class DeveloperView(
     override val id: Long?,
@@ -14,18 +13,19 @@ data class DeveloperView(
     override val lastLoginDate: LocalDateTime?,
     override val creationDate: LocalDateTime?,
     override val additionalInfo: String,
-    val contests: List<ContestView>,
-    val tasks: List<TaskView>,
-    val polygons: List<TaskFileView>,
-    val exercises: List<TaskFileView>,
-    val solutions: List<TaskFileView>
+    val contests: List<ContestView> = emptyList(),
+    val tasks: List<TaskView> = emptyList(),
+    val polygons: List<TaskFileView> = emptyList(),
+    val exercises: List<TaskFileView> = emptyList(),
+    val solutions: List<TaskFileView> = emptyList(),
+    val conditions: List<TaskFileView> = emptyList()
 ) : UserView<Developer> {
 
-    override fun toEntity(timeZone: TimeZone) = Developer(
+    override fun toEntity(timeZoneId: String?) = Developer(
         name, accessToken
     ).also {
         it.id = id
-        it.lastLoginDate = lastLoginDate?.fromTimeZone(timeZone)
+        it.lastLoginDate = lastLoginDate?.fromTimeZone(timeZoneId)
         it.additionalInfo = additionalInfo
     }
 }

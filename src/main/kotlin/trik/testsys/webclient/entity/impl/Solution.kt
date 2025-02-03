@@ -4,7 +4,7 @@ import trik.testsys.core.entity.AbstractEntity
 import trik.testsys.core.entity.Entity.Companion.TABLE_PREFIX
 import trik.testsys.core.utils.enums.Enum
 import trik.testsys.core.utils.enums.converter.AbstractEnumConverter
-import trik.testsys.webclient.entity.user.impl.Developer
+import trik.testsys.webclient.entity.user.impl.Student
 import javax.persistence.*
 
 @Entity
@@ -21,19 +21,26 @@ class Solution(
     )
     lateinit var task: Task
 
-    /**
-     * @author Roman Shishkin
-     * @since 2.0.0
-     **/
     @ManyToOne
     @JoinColumn(
-        nullable = false, unique = false, updatable = false,
-        name = "developer_id", referencedColumnName = "id"
+        nullable = true, unique = false, updatable = false,
+        name = "student_id", referencedColumnName = "id"
     )
-    lateinit var developer: Developer
+    var student: Student? = null
+
+    @get:Transient
+    val isTest: Boolean
+        get() = student == null
 
     @Column(nullable = false, unique = false, updatable = true)
     var status: SolutionStatus = SolutionStatus.NOT_STARTED
+
+    @Column(nullable = false, unique = false, updatable = true)
+    var score: Long = -1
+
+    fun isScored() = score != -1L
+
+    // solutions should be linked not only with tasks but also with contests
 
     /**
      * @author Roman Shishkin
@@ -45,8 +52,7 @@ class Solution(
         PASSED("PAS"),
         IN_PROGRESS("INP"),
         NOT_STARTED("NST"),
-        ERROR("ERR"),
-        PARTIAL("PAR");
+        ERROR("ERR");
 
         companion object {
 
@@ -69,6 +75,13 @@ class Solution(
 
             @Converter(autoApply = true)
             class SolutionTypeConverter : AbstractEnumConverter<SolutionType>()
+        }
+    }
+
+    companion object {
+
+        fun qrsSolution(task: Task) = Solution(SolutionType.QRS).also {
+            it.task = task
         }
     }
 }

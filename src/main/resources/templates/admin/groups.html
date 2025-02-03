@@ -16,13 +16,13 @@
 
 <div th:replace="fragments/popup :: popup"></div>
 
-<div th:replace="fragments/menu :: header(title='Кабинет Организатора',
-                                          titleLink='/admin',
-                                          breadCrumbNames=${ { 'Группы' } },
-                                          breadCrumbLinks=${ { '/admin/groups' } })"></div>
+<div th:replace="fragments/popup :: emergencyPopup"></div>
 
-<div th:replace="fragments/menu :: sideMenu(links=${ {'/admin', '/admin/groups', '/admin?Logout=' } },
-                                            names=${ { 'Профиль', 'Группы', 'Выход' } })"></div>
+<div th:replace="fragments/entity/admin
+    :: adminHeader(breadCrumbNames=${ { 'Группы' } },
+                   breadCrumbLinks=${ { '/admin/groups' } })"></div>
+
+<div th:replace="fragments/entity/admin :: adminMenu"></div>
 
 <!-- Контент -->
 <div class="container">
@@ -64,38 +64,41 @@
             <div class="form-header">
                 <h1>Список Групп</h1>
             </div>
-            <table>
-                <tr>
-                    <th style="width: 10%">
-                        ID
-                    </th>
-                    <th style="width: 20%">
-                        Название
-                    </th>
-                    <th>Дополнительная информация</th>
-                    <th style="width: 20%">
-                        Код-регистрации
-                    </th>
-                    <th style="width: 10%">
-                        Действия
-                    </th>
-                </tr>
-                <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.GroupView"*/-->
-                <tr th:each="group : ${webUser.groups}">
-                    <td th:text="${group.id}"></td>
-                    <td th:text="${group.name}"></td>
-                    <td th:text="${group.additionalInfo}"></td>
-                    <td th:text="${group.regToken}" class="accessToken"></td>
-                    <td class="buttons">
-                        <a title="Удалить" th:href="@{/admin/groups/group/remove/{id}(id=${group.id})}">
-                            <i class="fa-solid fa-trash"></i>
-                        </a>
-                        <a title="Войти" th:href="@{/admin/groups/group/{id}(id=${group.id})}">
-                            <i class="fa-solid fa-right-to-bracket"></i>
-                        </a>
-                    </td>
-                </tr>
-            </table>
+            <div class="table-container">
+                <table>
+                    <thead>
+                    <tr>
+                        <th style="width: 10%">
+                            ID
+                        </th>
+                        <th style="width: 20%">
+                            Название
+                        </th>
+                        <th>Дополнительная информация</th>
+                        <th style="width: 20%">
+                            Код-регистрации
+                        </th>
+                        <th style="width: 7%">
+                        </th>
+                    </tr>
+                    </thead>
+                    <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.GroupView"*/-->
+                    <tr th:each="group : ${webUser.groups}">
+                        <td th:text="${group.id}"></td>
+                        <td th:text="${group.name}"></td>
+                        <td th:text="${group.additionalInfo}"></td>
+                        <td th:text="${group.regToken}" class="accessToken"></td>
+                        <td class="buttons">
+                            <form th:action="@{/admin/groups/group/{id}(id=${group.id})}" method="get">
+                                <button type="submit" title="Войти"
+                                        class="button">
+                                    <i class="fa-solid fa-right-to-bracket"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </div>
     </div>
 </div>

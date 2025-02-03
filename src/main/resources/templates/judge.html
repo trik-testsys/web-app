@@ -1,391 +1,88 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
 <head>
-    <meta charset="UTF-8">
-    <title>Кабинет приема апелляций</title>
+    <th:block th:include="fragments/main :: head('Кабинет Судьи')"></th:block>
 
-    <link rel="icon" th:href="@{/demo2024/img/trik_testsys_logo.ico}">
+    <link rel="stylesheet" th:href="@{/css/block.css}">
 
-    <link rel="stylesheet" th:href="@{/demo2024/css/style.css}"/>
-    <link rel="stylesheet" th:href="@{/demo2024/css/popup.css}"/>
-    <link rel="stylesheet" th:href="@{/demo2024/css/table.css}"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-
-    <!--    <link rel="stylesheet" th:href="@{/fontawesome-free-6.4.2-web/css/all.min.css}">-->
-
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script th:src="@{/demo2024/js/popup.js}"></script>
+    <th:block th:include="fragments/popup :: head"></th:block>
+    <th:block th:include="fragments/form :: head"></th:block>
+    <th:block th:include="fragments/menu :: head"></th:block>
 </head>
 <body>
+
+<div th:replace="fragments/main :: background"></div>
+
+<div th:replace="fragments/popup :: popup"></div>
+
+<div th:replace="fragments/popup :: emergencyPopup"></div>
+
+<div th:replace="fragments/entity/judge
+    :: judgeHeader(breadCrumbNames=${ {  } },
+                   breadCrumbLinks=${ {  } })"></div>
+
+<div th:replace="fragments/entity/judge :: judgeMenu"></div>
+
+<!-- Контент -->
 <div class="container">
-    <div class="header">
-        <div class="page-type">
-            <img th:src="@{/demo2024/img/trik_testsys_logo.svg}" alt="logo">
-            <p>Кабинет приема апелляций</p>
-        </div>
-        <div class="exit">
-            <form th:action="@{/demo2024}" method="get">
-                <input type="submit" value="Выйти"/>
+    <!-- Первый блок -->
+    <div class="block">
+        <div class="block-title">Профиль</div>
+
+        <div class="form-container">
+            <div class="form-header">
+                <h1>Информация о профиле</h1>
+            </div>
+
+            <!--/*@thymesVar id="webUser" type="trik.testsys.webclient.view.impl.JudgeView"*/-->
+            <form id="judge-info" action="#" th:action="@{/judge/update}" th:object="${webUser}" method="post">
+                <div th:replace="fragments/form.html :: hiddentInput(id='judge.id', fieldName='id')"></div>
+
+                <div th:replace="fragments/form.html
+                    :: formField(id='judge.name', type='text',
+                                 labelName='Псевдоним', labelSize='20',
+                                 fieldName='name', fieldSize='80',
+                                 size='50',
+                                 isReadonly='false', isRequired='true', isAccessToken='false')">
+                </div>
+                <div th:replace="fragments/form.html
+                    :: formField(id='judge.accessToken', type='text',
+                                 labelName='Код-доступа', labelSize='25',
+                                 fieldName='accessToken', fieldSize='75',
+                                 size='50',
+                                 isReadonly='true', isRequired='false', isAccessToken='true')">
+                </div>
+                <div th:replace="fragments/form.html
+                    :: formField(id='judge.lastLoginDate', type='text',
+                                 labelName='Дата и время входа', labelSize='40',
+                                 fieldName='lastLoginDate', fieldSize='60',
+                                 size='25',
+                                 isReadonly='true', isRequired='false', isAccessToken='false')">
+                </div>
+                <div th:replace="fragments/form.html
+                    :: formField(id='judge.creationDate', type='text',
+                                 labelName='Дата и время регистрации', labelSize='40',
+                                 fieldName='creationDate', fieldSize='60',
+                                 size='25',
+                                 isReadonly='true', isRequired='false', isAccessToken='false')">
+                </div>
+                <div th:replace="fragments/form.html
+                    :: formField(id='judge.additionalInfo', type='text',
+                                 labelName='Дополнительная информация', labelSize='20',
+                                 fieldName='additionalInfo', fieldSize='80',
+                                 size='100',
+                                 isReadonly='false', isRequired='false', isAccessToken='false')">
+                </div>
+                <!-- Кнопки редактирования, отправки и отмены -->
+                <div class="form-buttons">
+                    <button type="button" class="edit-button" id="judge-info-edit" onclick="enableForm('judge-info')">Редактировать</button>
+                    <button type="submit" class="save-button" id="judge-info-save">Сохранить</button>
+                    <button type="button" class="cancel-button" id="judge-info-cancel" onclick="disableForm('judge-info')">Отменить</button>
+                </div>
             </form>
         </div>
-    </div>
-
-    <div class="change-info-popup popup" id="changeInfoPopup">
-        <div class="popup-content">
-            <button class="close-button" id="closeChangeInfo"
-                    th:onclick="'closePopup(\'changeInfoPopup\')'">
-                <i class="fa fa-close"></i>
-            </button>
-            <h1>Редактирование данных</h1>
-            <form class="uploadForm" th:action="@{/demo2024/judge/info/change}" method="post">
-                <input type="text" name="accessToken" th:value="${accessToken}" placeholder="Код-доступа" required
-                       style="display: none"/>
-                <div class="input-name">
-                    <h2>Псевдоним</h2>
-                </div>
-                <input type="text" name="newUsername" th:value="${username}" placeholder="Псевдоним" required/>
-                <div class="input-name">
-                    <h2>Дополнительная информация</h2>
-                </div>
-                <input type="text" name="newAdditionalInfo" th:value="${additionalInfo}"
-                       placeholder="Дополнительная информация"/>
-                <input type="submit" value="Редактировать"/>
-            </form>
-        </div>
-    </div>
-
-    <div class="main">
-        <div class="info">
-            <div class="avatar-container">
-                <img th:src="@{/demo2024/img/trik_testsys_logo.svg}" alt="avatar">
-                <div class="username">
-                    <p th:text="${username}"></p>
-                </div>
-                <button id="changeInfo" class="edit-button"
-                        th:onclick="'showPopup(\'changeInfoPopup\')'">
-                    Редактировать
-                </button>
-            </div>
-            <div class="additional-info">
-                <table class="table info-table" style="width: 100%;">
-                    <caption>
-                        Информация о пользователе
-                    </caption>
-                    <tr>
-                        <td>Псевдоним</td>
-                        <td th:text="${username}"></td>
-                    </tr>
-                    <tr>
-                        <td>Код-доступа</td>
-                        <td th:text="${accessToken}"
-                            title="Нажмите, чтобы скопировать"
-                            id="accessToken" class="accessToken"
-                            onclick="copy('accessToken')">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Дополнительная информация</td>
-                        <td th:text="${additionalInfo}"></td>
-                    </tr>
-                    <tr>
-                        <td>Дата и время последнего входа</td>
-                        <td>
-                            <time th:datetime="${lastLoginDate}"
-                                  th:text="${#temporals.format(lastLoginDate, 'dd.MM.yyyy HH:mm')}">
-                            </time>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div class="table solution-actions-table">
-        <table>
-            <caption>
-                Последние изменения баллов
-            </caption>
-            <tr>
-                <th>Дата и время изменения</th>
-                <th>ID Участника</th>
-                <th>ID Группы</th>
-                <th>ID Организатора</th>
-                <th>ID Задачи</th>
-                <th>ID Посылки</th>
-                <th>Старый результат</th>
-                <th>Новый результат</th>
-            </tr>
-            <tr th:each="action : ${actions}">
-                <td>
-                    <time th:datetime="${action.dateTime}"
-                          th:text="${#temporals.format(action.dateTime, 'dd.MM.yyyy HH:mm')}">
-                    </time>
-                </td>
-                <td th:text="${action.solution.student.id}"></td>
-                <td th:text="${action.solution.student.group.id}"></td>
-                <td th:text="${action.solution.student.group.admin.id}"></td>
-                <td th:text="${action.solution.task.id}"></td>
-                <td th:text="${action.solution.id}"
-                    style="font-weight: bold"></td>
-                <td th:text="${action.prevScore}"
-                    style="font-weight: bold"></td>
-                <td th:text="${action.newScore}"
-                    style="font-weight: bold"></td>
-            </tr>
-        </table>
-    </div>
-
-    <div class="filter-params">
-        <div class="filter-header">
-            <h1>Параметры фильтрации</h1>
-        </div>
-        <form class="filter-form" th:action="@{/demo2024/judge/solutions}" method="get">
-            <input type="text" name="accessToken" th:value="${accessToken}" style="display: none"/>
-            <div class="filter-row">
-                <div class="filter-param">
-                    <div class="filter-name">
-                        <p>ID Участника</p>
-                    </div>
-                    <div class="filter-input">
-                        <input type="number" pattern="[0-9]*"
-                               th:value="${filterParams['studentId']}"
-                               name="studentId" placeholder="Введите число"/>
-                    </div>
-                </div>
-                <div class="filter-param">
-                    <div class="filter-name">
-                        <p>ID Группы</p>
-                    </div>
-                    <div class="filter-input">
-                        <input type="number" pattern="[0-9]*"
-                               th:value="${filterParams.get('groupId')}"
-                               name="groupId" placeholder="Введите число"/>
-                    </div>
-                </div>
-                <div class="filter-param">
-                    <div class="filter-name">
-                        <p>ID Организатора</p>
-                    </div>
-                    <div class="filter-input">
-                        <input type="number" pattern="[0-9]*"
-                               th:value="${filterParams.get('adminId')}"
-                               name="adminId" placeholder="Введите число"/>
-                    </div>
-                </div>
-            </div>
-            <div class="filter-row">
-                <div class="filter-param">
-                    <div class="filter-name">
-                        <p>ID Задачи</p>
-                    </div>
-                    <div class="filter-input">
-                        <input type="number" pattern="[0-9]*"
-                               th:value="${filterParams.get('taskId')}"
-                               name="taskId" placeholder="Введите число"/>
-                    </div>
-                </div>
-                <div class="filter-param">
-                    <div class="filter-name">
-                        <p>ID Посылки</p>
-                    </div>
-                    <label class="filter-input">
-                        <input type="number" pattern="[0-9]*"
-                               th:value="${filterParams.get('solutionId')}"
-                               name="solutionId" placeholder="Введите число"/>
-                    </label>
-                </div>
-            </div>
-            <div class="filter-buttons">
-                <input type="button" class="filter-button" id="resetFilterButton" value="Сбросить фильтры"
-                       onclick="resetFilter()"/>
-                <input type="submit" class="filter-button" id="filterButton" value="Поиск"/>
-            </div>
-        </form>
-    </div>
-
-    <div class="table solutions-table">
-        <table>
-            <caption th:if="${solutions != null && solutions.size > 0}">
-                Результаты поиска
-            </caption>
-            <caption th:if="${solutions != null && solutions.size == 0}">
-                Поиск не дал результатов
-            </caption>
-            <tr th:if="${solutions != null && solutions.size > 0}">
-                <th>ID Участника</th>
-                <th>ID Группы</th>
-                <th>ID Организатора</th>
-                <th>ID Задачи</th>
-                <th>ID Посылки</th>
-                <th>Результат</th>
-                <th>Дата и время отправки</th>
-                <th>Отправлена в срок</th>
-                <th>Действия</th>
-            </tr>
-            <tr th:each="solution : ${solutions}">
-                <td th:text="${solution.studentId}"></td>
-                <td th:text="${solution.groupId}"></td>
-                <td th:text="${solution.adminId}"></td>
-                <td th:text="${solution.taskId}"></td>
-                <td th:text="${solution.solutionId}"
-                    style="font-weight: bold"></td>
-                <td th:text="${solution.score}"
-                    style="font-weight: bold"></td>
-                <td>
-                    <time th:datetime="${solution.dateTime}"
-                          th:text="${#temporals.format(solution.dateTime, 'dd.MM.yyyy HH:mm')}">
-                    </time>
-                </td>
-                <td th:text="${solution.isInTime ? 'Да' : 'Нет'}"
-                    th:style="${solution.isInTime ? 'color: var(--trik-green)' : 'color: red'}"></td>
-                <td>
-                    <div class="popup edit-score-popup"
-                         th:id="'changeScorePopup' + ${solution.solutionId}">
-                        <div class="popup-content">
-                            <button id="close-group-delete-popup" class="close-button"
-                                    th:onclick="'closePopup(\'changeScorePopup' + ${solution.solutionId} + '\')'">
-                                <i class="fa fa-close"></i>
-                            </button>
-
-                            <h1>Изменение результата Посылки <span th:text="${solution.solutionId}"></span></h1>
-                            <h1>Участника <span th:text="${solution.studentId}"></span> по Задаче <span th:text="${solution.taskId}"></span></h1>
-                            <form class="uploadForm" th:action="@{/demo2024/judge/solution/edit}" method="post">
-                                <input type="text" name="accessToken" th:value="${accessToken}" style="display: none"/>
-
-                                <input type="number" name="studentId" th:value="${filterParams.get('studentId')}" style="display: none"/>
-                                <input type="number" name="groupId" th:value="${filterParams.get('groupId')}" style="display: none"/>
-                                <input type="number" name="adminId" th:value="${filterParams.get('adminId')}" style="display: none"/>
-                                <input type="number" name="taskId" th:value="${filterParams.get('taskId')}" style="display: none"/>
-                                <input type="number" name="solutionId" th:value="${filterParams.get('solutionId')}" style="display: none"/>
-
-                                <input type="text" name="solutionToChangeId" th:value="${solution.solutionId}" style="display: none"/>
-                                <div class="input-name">
-                                    <h2>Новый результат</h2>
-                                </div>
-                                <input type="number" name="newScore" placeholder="Введите число"
-                                       th:value="${solution.score}"
-                                       required/>
-                                <input type="submit" value="Изменить"/>
-                            </form>
-                        </div>
-                    </div>
-
-                    <div class="buttons">
-                        <button class="popup-button" title="Изменить результат"
-                                th:id="'changeScoreButton' + ${solution.solutionId}"
-                                th:onclick="'showPopup(\'changeScorePopup' + ${solution.solutionId} + '\')'">
-                            <i class="fa fa-edit"></i>
-                        </button>
-                        <form th:action="@{/demo2024/judge/solution/download}" method="get">
-                            <input type="text" name="accessToken" th:value="${accessToken}" style="display: none"/>
-                            <input type="text" name="solutionId" th:value="${solution.solutionId}" style="display: none"/>
-                            <button type="submit" class="popup-button"
-                                    title="Скачать файл с решением">
-                                <i class="fa fa-download"></i>
-                            </button>
-                        </form>
-                    </div>
-                </td>
-            </tr>
-        </table>
     </div>
 </div>
+
 </body>
 </html>
-
-<script>
-    function copy(id) {
-        var copyText = document.getElementById(id);
-        var textArea = document.createElement("textarea");
-
-        textArea.value = copyText.textContent;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand("Copy");
-        textArea.remove();
-    }
-
-    function resetFilter() {
-        var form = document.querySelector('.filter-form')
-        for (var i = 0; i < form.length; i++) {
-            if (form[i].type === 'number') {
-                form[i].value = ''
-            }
-        }
-    }
-</script>
-
-<style>
-    .filter-params {
-        background-color: var(--trik-grey);
-        width: 80%;
-        border-radius: 10px;
-        margin: 80px auto 20px;
-    }
-
-    .filter-form {
-        padding: 10px;
-    }
-
-    .filter-row {
-        display: flex;
-        justify-content: space-between;
-        width: 100%;
-        margin-top: -10px;
-    }
-
-    .filter-param {
-        margin: 10px;
-        flex: 1;
-    }
-
-    .filter-name {
-        font-size: 18px;
-        margin-bottom: -15px;
-        font-weight: bold;
-    }
-
-    .filter-input input {
-        width: 100%;
-        height: 20px;
-        border-radius: 5px;
-        border: 1px solid var(--trik-blue);
-        padding: 5px;
-        font-size: 16px;
-    }
-
-    .filter-header {
-        background-color: var(--trik-blue);
-        border-radius: 10px 10px 0 0;
-        padding: 2px;
-        text-align: center;
-    }
-
-    .filter-header h1 {
-        color: var(--trik-white);
-        font-size: 20px;
-    }
-
-    .filter-buttons {
-        display: flex;
-        justify-content: center;
-    }
-
-    .filter-button, input[type=button] {
-        width: 160px;
-        height: 30px;
-        border-radius: 5px;
-        border: 1px solid var(--trik-blue);
-        background-color: var(--trik-blue);
-        color: var(--trik-white);
-        font-size: 16px;
-        margin: 0 10px;
-    }
-
-    .filter-button:hover, input[type=button]:hover {
-        cursor: pointer;
-        background: var(--trik-green);
-        color: var(--trik-blue);
-        border: 1px solid var(--trik-green);
-    }
-</style>

@@ -10,6 +10,14 @@
     <link rel="stylesheet" th:href="@{/assets/fontawesome/css/all.css}"/>
 
     <script th:src="@{/js/scripts.js}"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            document.cookie = "X-Timezone=" + timezone;
+        });
+    </script>
+
 </head>
 
 <!--Background for every page-->

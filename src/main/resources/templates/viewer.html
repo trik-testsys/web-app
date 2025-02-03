@@ -15,15 +15,13 @@
 
 <div th:replace="fragments/popup :: popup"></div>
 
-<div th:replace="fragments/popup :: popup"></div>
+<div th:replace="fragments/popup :: emergencyPopup"></div>
 
-<div th:replace="fragments/menu :: header(title='Кабинет районного Наблюдателя',
-                                          titleLink='/viewer',
-                                          breadCrumbNames=${ {  } },
-                                          breadCrumbLinks=${ {  } })"></div>
+<div th:replace="fragments/entity/viewer
+    :: viewerHeader(breadCrumbNames=${ {  } },
+                    breadCrumbLinks=${ {  } })"></div>
 
-<div th:replace="fragments/menu :: sideMenu(links=${ {'/viewer', '/viewer?Logout=' } },
-                                            names=${ { 'Профиль', 'Выход' } })"></div>
+<div th:replace="fragments/entity/viewer :: viewerMenu"></div>
 
 <div class="container">
     <!-- Первый блок -->

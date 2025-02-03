@@ -1,0 +1,15 @@
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+
+<div th:fragment="judgeHeader(breadCrumbNames, breadCrumbLinks)"
+     th:replace="fragments/menu
+        :: header(title='Кабинет Судьи',
+                  titleLink='/judge',
+                  breadCrumbNames=${breadCrumbNames},
+                  breadCrumbLinks=${breadCrumbLinks})"></div>
+
+<div th:fragment="judgeMenu"
+     th:replace="fragments/menu
+        :: sideMenu(links=${ {'/judge', '/judge/students', '/judge?Logout=' } },
+                    names=${ { 'Профиль', 'Участники', 'Выход' } })"></div>
+
+</html>

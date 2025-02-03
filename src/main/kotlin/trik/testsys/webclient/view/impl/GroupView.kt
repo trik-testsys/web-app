@@ -5,7 +5,6 @@ import trik.testsys.core.view.named.NamedEntityView
 import trik.testsys.webclient.entity.impl.Group
 import trik.testsys.webclient.util.atTimeZone
 import java.time.LocalDateTime
-import java.util.*
 
 /**
  * @author Roman Shishkin
@@ -20,7 +19,7 @@ data class GroupView(
     val admin: AdminView? = null
 ): NamedEntityView<Group> {
 
-    override fun toEntity(timeZone: TimeZone) = Group(
+    override fun toEntity(timeZoneId: String?) = Group(
         name, regToken
     ).also {
         it.id = id
@@ -29,9 +28,9 @@ data class GroupView(
 
     companion object {
 
-        fun Group.toView(timeZone: TimeZone) = GroupView(
+        fun Group.toView(timeZoneId: String?) = GroupView(
             id = this.id,
-            creationDate = this.creationDate?.atTimeZone(timeZone),
+            creationDate = this.creationDate?.atTimeZone(timeZoneId),
             name = this.name,
             regToken = this.regToken,
             additionalInfo = this.additionalInfo

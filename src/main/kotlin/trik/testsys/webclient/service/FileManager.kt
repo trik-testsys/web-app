@@ -19,7 +19,17 @@ interface FileManager {
 
     fun saveSolutionFile(solution: Solution, file: File): Boolean
 
+    fun saveSolutionFile(solution: Solution, fileData: MultipartFile): Boolean
+
     fun getTaskFiles(task: Task): Collection<TaskFile>
 
     fun getSolutionFile(solution: Solution): File?
+
+    fun saveSuccessfulGradingInfo(fieldResult: Grader.GradingInfo.Ok)
+
+    fun getVerdictFiles(solution: Solution): List<File>
+
+    fun getRecordingFiles(solution: Solution): List<File>
+
+    fun getSolutionResultFilesCompressed(solution: Solution): File
 }

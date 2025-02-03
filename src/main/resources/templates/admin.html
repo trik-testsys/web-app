@@ -15,13 +15,13 @@
 
 <div th:replace="fragments/popup :: popup"></div>
 
-<div th:replace="fragments/menu :: header(title='Кабинет Организатора',
-                                          titleLink='/admin',
-                                          breadCrumbNames=${ {  } },
-                                          breadCrumbLinks=${ {  } })"></div>
+<div th:replace="fragments/popup :: emergencyPopup"></div>
 
-<div th:replace="fragments/menu :: sideMenu(links=${ {'/admin', '/admin/groups', '/admin?Logout=' } },
-                                            names=${ { 'Профиль', 'Группы', 'Выход' } })"></div>
+<div th:replace="fragments/entity/admin
+    :: adminHeader(breadCrumbNames=${ {  } },
+                   breadCrumbLinks=${ {  } })"></div>
+
+<div th:replace="fragments/entity/admin :: adminMenu"></div>
 
 <!-- Контент -->
 <div class="container">

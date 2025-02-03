@@ -47,6 +47,24 @@
     padding-right: 40px; /* Отступ для текста от кнопки */
 }
 
+/* Основной стиль попапа */
+.emergency-popup {
+    position: fixed;
+    top: 90px;
+    right: 30px;
+    width: 300px;
+    background: var(--trik-red); /* Полупрозрачный чёрный фон */
+    color: var(--trik-blue);
+    padding: 20px;
+    border-radius: 15px; /* Закруглённые углы */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); /* Плавная тень */
+    display: block;
+    z-index: 1000; /* Поверх всего остального контента */
+    animation: slideUp 0.5s ease; /* Анимация появления */
+    box-sizing: border-box;
+    overflow: hidden; /* Чтобы содержимое не вылезало за рамки */
+}
+
 /* Анимация плавного появления попапа */
 @keyframes slideUp {
     from {

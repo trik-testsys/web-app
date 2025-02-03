@@ -10,7 +10,7 @@ plugins {
     kotlin("plugin.jpa") version "1.6.21"
 }
 
-group = "Pupsen&Vupsen"
+group = "TestSys"
 version = "2.0.0"
 java.sourceCompatibility = JavaVersion.VERSION_17
 
@@ -50,6 +50,15 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
     implementation("org.springframework.boot:spring-boot-devtools")
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
+    implementation("org.thymeleaf.extras:thymeleaf-extras-java8time")
+
+    implementation("org.zeroturnaround:zt-zip:1.17")
+    implementation("org.yaml:snakeyaml:1.33")
+    implementation("com.github.ua-parser:uap-java:1.5.4")
+
+    implementation("io.springfox:springfox-swagger2:3.0.0")
+    implementation("io.springfox:springfox-swagger-ui:3.0.0")
+    implementation("io.springfox:springfox-boot-starter:3.0.0")
 
 //    implementation("org.springframework.boot:spring-boot-starter-actuator")
 //    implementation("io.micrometer:micrometer-core:1.6.6")
@@ -57,13 +66,15 @@ dependencies {
 
     runtimeOnly("mysql:mysql-connector-java")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("com.beust:klaxon:5.6")
 
     implementation("com.h2database:h2")
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.0")
+    testImplementation("org.mockito:mockito-core:2.1.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.1.0")
     testImplementation(platform("org.junit:junit-bom:5.9.0"))
+    testImplementation(kotlin("test"))
 }
 
 protobuf {

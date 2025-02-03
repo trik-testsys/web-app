@@ -2,7 +2,7 @@ version: '3'
 
 services:
   mysql_host:
-    image: mysql
+    image: mysql:8.0
     restart: always
 
     environment:
@@ -11,35 +11,34 @@ services:
       MYSQL_DATABASE: testsys_db
       MYSQL_PASSWORD: p@ssw0rd
 
+    ports:
+      - "3306:3306"
+    expose:
+      - "3306"
+
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
     volumes:
       - ./data/mysql:/var/lib/mysql
 
-  grading-system:
-    image: 5h15h4k1n9/trik-testsys-grading-system:3.0.0.1
-    restart: always
-
-    volumes:
-      - ./logs/grading-system:/logs
-      - ./data:/data
-      - ./data/tasks:/tasks
-      - ./data/submissions:/submissions
-
-    links:
-      - mysql_host:mysql_host
-
-  web-client:
-    image: 5h15h4k1n9/trik-testsys-web-client:2.0.0
-    restart: always
-
-    ports:
-      - "8800:8888"
-    expose:
-      - "8800"
-
-    volumes:
-      - ./logs/web-client:/web-client/logs
-
-    links:
-      - grading-system:grading-system
-      - mysql_host:mysql_host
-
+#  web-client:
+#    image: testsystrik/trik-testsys-web-client:2.0.0-alpha.37
+#    restart: always
+#
+#    environment:
+#      - JAVA_OPTIONS=-server -Xmx8g -Xms1g -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/web-client/dumps/ -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:ParallelGCThreads=20 -XX:ConcGCThreads=10 -XX:InitiatingHeapOccupancyPercent=70
+#
+#    ports:
+#      - "8888:8888"
+#    expose:
+#      - "8888"
+#
+#    volumes:
+#      - ./logs/web-client:/web-client/logs
+#      - ./data:/web-client/data
+#      - ./dumps:/web-client/dumps
+#    links:
+#      - mysql_host:mysql_host

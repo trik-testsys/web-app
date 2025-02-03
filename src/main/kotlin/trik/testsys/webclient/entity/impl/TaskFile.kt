@@ -35,17 +35,23 @@ class TaskFile(
 
         POLYGON("PLG"),
         EXERCISE("EXR"),
-        SOLUTION("SLN");
+        SOLUTION("SLN"),
+        CONDITION("CND");
+
+        fun canBeRemovedOnTaskTesting() = this == CONDITION || this == EXERCISE
+
+        fun cannotBeRemovedOnTaskTesting() = !canBeRemovedOnTaskTesting()
 
         companion object {
 
             @Converter(autoApply = true)
             class TaskFileTypeConverter : AbstractEnumConverter<TaskFileType>()
 
-            fun TaskFileType.toL10nMessage() = when(this) {
+            fun TaskFileType.localized() = when(this) {
                 POLYGON -> "Полигон"
                 EXERCISE -> "Упражнение"
                 SOLUTION -> "Решение"
+                CONDITION -> "Условие"
             }
         }
     }
@@ -57,5 +63,7 @@ class TaskFile(
         fun exercise(name: String) = TaskFile(name, TaskFileType.EXERCISE)
 
         fun solution(name: String) = TaskFile(name, TaskFileType.SOLUTION)
+
+        fun condition(name: String) = TaskFile(name, TaskFileType.CONDITION)
     }
 }

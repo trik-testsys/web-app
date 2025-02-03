@@ -1,0 +1,15 @@
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+
+<div th:fragment="superUserHeader(breadCrumbNames, breadCrumbLinks)"
+     th:replace="fragments/menu
+        :: header(title='Кабинет Супер-Пользователя',
+                  titleLink='/superuser',
+                  breadCrumbNames=${breadCrumbNames},
+                  breadCrumbLinks=${breadCrumbLinks})"></div>
+
+<div th:fragment="superUserMenu"
+     th:replace="fragments/menu
+        :: sideMenu(links=${ {'/superuser', '/superuser/viewers', '/superuser/emergency-messages', '/superuser?Logout=' } },
+                    names=${ { 'Профиль', 'Наблюдатели', 'Экстренные сообщения', 'Выход' } })"></div>
+
+</html>

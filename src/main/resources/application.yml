@@ -5,16 +5,30 @@ spring:
     open-in-view: on                                            # Enable JPA open-in-view
     defer-datasource-initialization: true
   datasource:
-    url: jdbc:mysql://${MYSQL_HOST:mysql_host}:3306/testsys_db   # Database URL
+    url: jdbc:mysql://${MYSQL_HOST:mysql_host}/testsys_db       # Database URL
     username: testsys                                           # Database username
     password: p@ssw0rd                                          # Database password
     driver-class-name: com.mysql.cj.jdbc.Driver                 # Driver for MySQL
+    hikari:
+      connection-timeout: 30000                                 # Connection timeout
+      maximum-pool-size: 20                                     # Maximum pool size
+      initialization-fail-timeout: 0                            # Initialization fail timeout
+      max-lifetime: 1800000                                     # Maximum lifetime
+      idle-timeout: 600000                                      # Idle timeout
+      minimum-idle: 5                                           # Minimum idle
   h2:
     console:
       enabled: off                                              # Disable H2 console
   sql:
     init:
       mode: never
+  data:
+    jdbc:
+      repositories:
+        enabled: false                                           # Disable JDBC repositories
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
 logging:
   file:
     name: "${PWD}/logs/server.log"                              # Path to log file
@@ -25,9 +39,13 @@ logging:
 server:
   port: 8888                                                    # Entrypoint
   servlet:
-    context-path: /test
+    context-path: /2024
     session:
       timeout: 3h
+  error:
+    whitelabel:
+      enabled: false
+    include-message: always
 
 path:
   l10n: "${PWD}/src/main/resources/static/l10n"
@@ -38,5 +56,20 @@ path:
     solutions: "${PWD}/data/taskFiles/solutions/"
     polygons: "${PWD}/data/taskFiles/polygons/"
     exercises: "${PWD}/data/taskFiles/exercises/"
+    conditions: "${PWD}/data/taskFiles/conditions/"
   files:
     solutions: "${PWD}/data/files/solutions/"
+    verdicts: "${PWD}/data/files/verdicts/"
+    recordings: "${PWD}/data/files/recordings/"
+    results: "${PWD}/data/files/results/"
+
+trik:
+  studio:
+    param:
+      version: "TRIK_STUDIO_VERSION"
+
+lektorium:
+  groupRegToken: "lektorium-group-kiqksnm"
+  viewerToken: "lektorium-viewer-123123"
+  adminToken: "lektorium-admin-123123"
+  developerToken: "lektorium-developer-123123"

@@ -4,7 +4,6 @@ import trik.testsys.webclient.entity.impl.TaskFile
 import trik.testsys.webclient.util.atTimeZone
 import trik.testsys.webclient.view.NotedEntityView
 import java.time.LocalDateTime
-import java.util.TimeZone
 
 /**
  * @author Roman Shishkin
@@ -19,7 +18,7 @@ data class TaskFileView(
     val type: TaskFile.TaskFileType
 ) : NotedEntityView<TaskFile> {
 
-    override fun toEntity(timeZone: TimeZone) = TaskFile(
+    override fun toEntity(timeZoneId: String?) = TaskFile(
         name, type
     ).also {
         it.id = id
@@ -29,7 +28,7 @@ data class TaskFileView(
 
     companion object {
 
-        fun TaskFile.toView(timeZone: TimeZone) = TaskFileView(
+        fun TaskFile.toView(timeZone: String?) = TaskFileView(
             id = id,
             name = name,
             creationDate = creationDate?.atTimeZone(timeZone),

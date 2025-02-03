@@ -5,7 +5,6 @@ import trik.testsys.webclient.util.atTimeZone
 import trik.testsys.webclient.view.NotedEntityView
 import trik.testsys.webclient.view.impl.TaskFileView.Companion.toView
 import java.time.LocalDateTime
-import java.util.*
 
 /**
  * @author Roman Shishkin
@@ -17,10 +16,12 @@ data class TaskView(
     override val creationDate: LocalDateTime?,
     override val additionalInfo: String,
     override val note: String,
-    val taskFiles: List<TaskFileView>
+    val passedTest: Boolean = false,
+    val taskFiles: List<TaskFileView> = emptyList(),
+    val hasCondition: Boolean?
 ) : NotedEntityView<Task> {
 
-    override fun toEntity(timeZone: TimeZone) = Task(
+    override fun toEntity(timeZoneId: String?) = Task(
         name
     ).also {
         it.id = id
@@ -30,13 +31,15 @@ data class TaskView(
 
     companion object {
 
-        fun Task.toView(timeZone: TimeZone) = TaskView(
+        fun Task.toView(timeZone: String?) = TaskView(
             id = id,
             name = name,
             creationDate = creationDate?.atTimeZone(timeZone),
             additionalInfo = additionalInfo,
             note = note,
-            taskFiles = taskFiles.map { it.toView(timeZone) }.sortedBy { it.id }
+            taskFiles = taskFiles.map { it.toView(timeZone) }.sortedBy { it.id },
+            passedTest = passedTests,
+            hasCondition = hasCondition
         )
     }
 }

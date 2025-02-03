@@ -26,6 +26,8 @@ data class TaskFileCreationView(
 
         fun emptySolution() = empty(TaskFile.TaskFileType.SOLUTION)
 
+        fun emptyCondition() = empty(TaskFile.TaskFileType.CONDITION)
+
         fun empty(type: TaskFile.TaskFileType) = TaskFileCreationView("", "", "", type)
     }
 }
