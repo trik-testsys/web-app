@@ -25,8 +25,10 @@ class GradingInfoParserRunner(
     private val taskService: TaskService,
     private val contestService: ContestService,
 
-    @Value("\${trik.studio.version}") private val trikStudioVersion: String
+    @Value("\${trik.studio.param.version}") private val trikStudioVersionParamName: String
 ) : StartupRunner {
+
+    private val trikStudioVersion: String = System.getenv(trikStudioVersionParamName) ?: throw IllegalStateException("$trikStudioVersionParamName not specified")
 
     override suspend fun run() {
         TODO("Not yet implemented")
@@ -69,7 +71,7 @@ class GradingInfoParserRunner(
     private fun addGraderNodes() {
         logger.info("Adding grader nodes...")
 
-        grader.addNode("87.228.25.186:8081")
+        grader.addNode("87.228.27.134:8080")
 
         logger.info("Grader nodes were added.")
     }
