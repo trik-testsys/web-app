@@ -8,9 +8,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
       - uses: actions/setup-java@v1
         with:
-          java-version: 11
+          java-version: 17
           java-package: jdk
           architecture: x64
 
@@ -34,6 +37,7 @@ jobs:
           report_path: build/jacoco/report.csv
         run: |
           awk -F"," '{ instructions += $4 + $5; covered += $5; branches += $6 + $7; branches_covered +=$7 } END { print "Instructions covered:", covered"/"instructions, "--", 100*covered/instructions"%"; print "Branches covered:", branches_covered"/"branches, "--", 100*branches_covered/branches"%" }' $report_path
+
       - uses: actions/upload-artifact@v4
         with:
           name: test-and-coverage-reports
