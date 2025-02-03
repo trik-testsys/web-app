@@ -1,5 +1,6 @@
 package trik.testsys.webclient.controller.impl.user.developer
 
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.*
@@ -14,6 +15,7 @@ import trik.testsys.webclient.entity.impl.TaskFile
 import trik.testsys.webclient.entity.impl.TaskFile.TaskFileType.Companion.localized
 import trik.testsys.webclient.entity.user.impl.Developer
 import trik.testsys.webclient.service.FileManager
+import trik.testsys.webclient.service.entity.impl.TaskFileAuditService
 import trik.testsys.webclient.service.entity.impl.TaskFileService
 import trik.testsys.webclient.service.entity.user.impl.DeveloperService
 import trik.testsys.webclient.service.security.login.impl.LoginData
@@ -31,6 +33,7 @@ class DeveloperTaskFileController(
     loginData: LoginData,
 
     private val taskFileService: TaskFileService,
+    private val taskFileAuditService: TaskFileAuditService,
     private val fileManager: FileManager
 ) : AbstractWebUserController<Developer, DeveloperView, DeveloperService>(loginData) {
 
@@ -98,6 +101,36 @@ class DeveloperTaskFileController(
         model.addAttribute(TASK_FILE_ATTR, taskFileView)
 
         return TASK_FILE_PAGE
+    }
+
+    @GetMapping("/download/{taskFileId}")
+    fun taskFileDownload(
+        @PathVariable("taskFileId") taskFileId: Long,
+        redirectAttributes: RedirectAttributes
+    ): Any {
+        val webUser = loginData.validate(redirectAttributes) ?: return "redirect:$LOGIN_PATH"
+
+        if (!webUser.checkTaskFileExistence(taskFileId)) {
+            redirectAttributes.addPopupMessage("Файл с ID $taskFileId не найден.")
+            return "redirect:$TASK_FILES_PATH"
+        }
+
+        val taskFile = taskFileService.find(taskFileId) ?: run {
+            redirectAttributes.addPopupMessage("Файл с ID $taskFileId не найден.")
+            return "redirect:$TASK_FILES_PATH"
+        }
+
+        val file = fileManager.getTaskFile(taskFile) ?: run {
+            redirectAttributes.addPopupMessage("Файл с ID $taskFileId не найден.")
+            return "redirect:$TASK_FILES_PATH"
+        }
+
+        val extension = fileManager.getTaskFileExtension(taskFile)
+        val responseEntity = ResponseEntity.ok()
+            .header("Content-Disposition", "attachment; filename=${taskFile.id}${extension}")
+            .body(file.readBytes())
+
+        return responseEntity
     }
 
     @PostMapping("/update/{taskFileId}")

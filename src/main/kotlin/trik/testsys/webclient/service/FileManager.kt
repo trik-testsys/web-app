@@ -17,6 +17,8 @@ interface FileManager {
 
     fun getTaskFile(taskFile: TaskFile): File?
 
+    fun getTaskFileExtension(taskFile: TaskFile): String
+
     fun saveSolutionFile(solution: Solution, file: File): Boolean
 
     fun saveSolutionFile(solution: Solution, fileData: MultipartFile): Boolean

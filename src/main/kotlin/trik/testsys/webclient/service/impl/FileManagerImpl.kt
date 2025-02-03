@@ -89,7 +89,7 @@ class FileManagerImpl(
         return file
     }
 
-    private fun getTaskFileExtension(taskFile: TaskFile) = when (taskFile.type) {
+    override fun getTaskFileExtension(taskFile: TaskFile) = when (taskFile.type) {
         TaskFile.TaskFileType.SOLUTION -> ".qrs"
         TaskFile.TaskFileType.EXERCISE -> ".qrs"
         TaskFile.TaskFileType.POLYGON -> ".xml"
