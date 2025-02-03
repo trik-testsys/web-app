@@ -2,8 +2,9 @@
   <configuration default="false" name="Web Client" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
     <option name="ALTERNATIVE_JRE_PATH" value="corretto-17" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
-    <module name="trik-testsys-web-client.main" />
+    <module name="TestSys.trik-testsys-web-client.main" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="trik.testsys.Application" />
+    <option name="VM_PARAMETERS" value="-Xmx1g" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="trik.testsys.*" />

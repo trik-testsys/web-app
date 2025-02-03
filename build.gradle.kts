@@ -10,7 +10,7 @@ plugins {
     kotlin("plugin.jpa") version "1.6.21"
 }
 
-group = "Pupsen&Vupsen"
+group = "TestSys"
 version = "2.0.0"
 java.sourceCompatibility = JavaVersion.VERSION_17
 
@@ -71,7 +71,10 @@ dependencies {
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.0")
+    testImplementation("org.mockito:mockito-core:2.1.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.1.0")
     testImplementation(platform("org.junit:junit-bom:5.9.0"))
+    testImplementation(kotlin("test"))
 }
 
 protobuf {
