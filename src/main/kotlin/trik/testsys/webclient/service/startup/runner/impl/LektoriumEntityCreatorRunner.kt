@@ -15,27 +15,26 @@ import trik.testsys.webclient.service.entity.user.impl.AdminService
 import trik.testsys.webclient.service.entity.user.impl.DeveloperService
 import trik.testsys.webclient.service.entity.user.impl.ViewerService
 import trik.testsys.webclient.service.startup.runner.StartupRunner
+import trik.testsys.webclient.service.token.access.AccessTokenGenerator
 import trik.testsys.webclient.service.token.reg.RegTokenGenerator
 
 @Service
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 class LektoriumEntityCreatorRunner(
-    @Value("\${lektorium.groupRegToken}") val groupRegToken: AccessToken,
-    @Value("\${lektorium.adminToken}") val adminToken: AccessToken,
-    @Value("\${lektorium.viewerToken}") val viewerToken: AccessToken,
-    @Value("\${lektorium.developerToken}") val developerToken: AccessToken,
+    @Value("\${create-lektorium-users}") private val createLektoriumUsers: Boolean,
+    @Value("\${lektorium-group-reg-token}") private val groupRegToken: AccessToken,
 
     private val groupService: GroupService,
     private val developerService: DeveloperService,
     private val viewerService: ViewerService,
     private val adminService: AdminService,
 
-    @Qualifier("adminRegTokenGenerator")
-    private val adminRegTokenGenerator: RegTokenGenerator,
+    @Qualifier("adminRegTokenGenerator") private val adminRegTokenGenerator: RegTokenGenerator,
+    @Qualifier("webUserAccessTokenGenerator") private val webUserAccessTokenGenerator: AccessTokenGenerator,
 ) : StartupRunner {
 
     override fun runBlocking() {
-        if (hasLektoriumInitialized()) {
+        if (!createLektoriumUsers || hasLektoriumInitialized()) {
             return
         }
 
@@ -50,18 +49,20 @@ class LektoriumEntityCreatorRunner(
     }
 
     private fun hasLektoriumInitialized(): Boolean {
-        return viewerService.findByAccessToken(viewerToken) != null
+        return viewerService.findAll().any { it.accessToken.startsWith(LEKTORIUM_PREFIX) }
     }
 
     private fun createViewer(): Viewer {
-        val adminRegToken = adminRegTokenGenerator.generate(viewerToken)
-        val viewer = Viewer("Lektorium Viewer", viewerToken, adminRegToken)
+        val adminRegToken = adminRegTokenGenerator.generate(LEKTORIUM_PREFIX)
+        val viewerToken = webUserAccessTokenGenerator.generate(LEKTORIUM_PREFIX)
+        val viewer = Viewer("Lektorium Viewer", "$LEKTORIUM_PREFIX-$viewerToken", adminRegToken)
 
         return viewerService.save(viewer)
     }
 
     private fun createAdmin(viewer: Viewer): Admin {
-        val admin = Admin("Lektorium Admin", adminToken).also {
+        val adminToken = webUserAccessTokenGenerator.generate(LEKTORIUM_PREFIX)
+        val admin = Admin("Lektorium Admin", "$LEKTORIUM_PREFIX-$adminToken").also {
             it.viewer = viewer
         }
 
@@ -77,8 +78,14 @@ class LektoriumEntityCreatorRunner(
     }
 
     private fun createDeveloper(): Developer {
-        val developer = Developer("Lektorium Developer", developerToken)
+        val developerToken = webUserAccessTokenGenerator.generate(LEKTORIUM_PREFIX)
+        val developer = Developer("Lektorium Developer", "$LEKTORIUM_PREFIX-$developerToken")
 
         return developerService.save(developer)
+    }
+
+    companion object {
+
+        private const val LEKTORIUM_PREFIX = "lkt"
     }
 }

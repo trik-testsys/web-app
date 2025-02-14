@@ -47,7 +47,7 @@ class DeveloperTaskController(
     private val grader: Grader,
     private val fileManager: FileManager,
 
-    @Value("\${trik.studio.version}") private val trikStudioVersion: String
+    @Value("\${trik-studio-version}") private val trikStudioVersion: String
 ) : AbstractWebUserController<Developer, DeveloperView, DeveloperService>(loginData) {
 
     override val mainPage = TASK_PAGE
