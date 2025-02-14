@@ -5,7 +5,7 @@ spring:
     open-in-view: on                                            # Enable JPA open-in-view
     defer-datasource-initialization: true
   datasource:
-    url: jdbc:mysql://${MYSQL_HOST:mysql_host}/testsys_db       # Database URL
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/testsys_db       # Database URL
     username: testsys                                           # Database username
     password: p@ssw0rd                                          # Database password
     driver-class-name: com.mysql.cj.jdbc.Driver                 # Driver for MySQL
@@ -51,7 +51,6 @@ path:
   l10n: "${PWD}/src/main/resources/static/l10n"
   startup:
     entities: "${PWD}/data/entities/"
-    nodes: "${PWD}/data/nodes/"
   taskFiles:
     solutions: "${PWD}/data/taskFiles/solutions/"
     polygons: "${PWD}/data/taskFiles/polygons/"
@@ -63,13 +62,8 @@ path:
     recordings: "${PWD}/data/files/recordings/"
     results: "${PWD}/data/files/results/"
 
-trik:
-  studio:
-    param:
-      version: "TRIK_STUDIO_VERSION"
+trik-studio-version: "${TRIK_STUDIO_VERSION:latest}"
+grading-node-addresses: "${GRADING_NODE_ADDRESSES:}"
 
-lektorium:
-  groupRegToken: "lektorium-group-kiqksnm"
-  viewerToken: "lektorium-viewer-123123"
-  adminToken: "lektorium-admin-123123"
-  developerToken: "lektorium-developer-123123"
+create-lektorium-users: ${CREATE_LEKTORIUM_USERS:false}
+lektorium-group-reg-token: "${LEKTORIUM_GROUP_REG_TOKEN:}"
