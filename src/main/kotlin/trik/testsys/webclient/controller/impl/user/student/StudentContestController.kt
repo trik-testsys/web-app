@@ -41,7 +41,7 @@ class StudentContestController(
     private val fileManager: FileManager,
     private val grader: Grader,
 
-    @Value("\${trik.studio.version}") private val trikStudioVersion: String
+    @Value("\${trik-studio-version}") private val trikStudioVersion: String
 ) : AbstractWebUserController<Student, StudentView, StudentService>(loginData) {
 
     override val mainPage = CONTEST_PAGE

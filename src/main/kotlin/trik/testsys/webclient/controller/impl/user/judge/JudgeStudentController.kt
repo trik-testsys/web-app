@@ -46,7 +46,7 @@ class JudgeStudentController(
     private val fileManager: FileManager,
     private val grader: Grader,
 
-    @Value("\${trik.studio.version}") private val trikStudioVersion: String
+    @Value("\${trik-studio-version}") private val trikStudioVersion: String
 ) : AbstractWebUserController<Judge, JudgeView, JudgeService>(loginData) {
 
     override val mainPath = STUDENTS_PATH
