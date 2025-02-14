@@ -20,7 +20,7 @@ services:
       - ./data/mysql:/var/lib/mysql
 
   web-client:
-    image: testsystrik/trik-testsys-web-client:2.2.0
+    image: testsystrik/trik-testsys-web-client:2.2.1
     restart: always
 
     environment:
