@@ -23,7 +23,7 @@ class TaskFile(
     )
     lateinit var developer: Developer
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "TASK_FILES_BY_TASKS",
         joinColumns = [JoinColumn(name = "task_file_id")],
@@ -31,7 +31,7 @@ class TaskFile(
     )
     val tasks: MutableSet<Task> = mutableSetOf()
 
-    @OneToMany(mappedBy = "taskFile")
+    @OneToMany(mappedBy = "taskFile", fetch = FetchType.EAGER)
     val taskFileAudits: MutableSet<TaskFileAudit> = mutableSetOf()
 
     @get:Transient
