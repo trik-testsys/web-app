@@ -6,8 +6,8 @@ spring:
     defer-datasource-initialization: true
   datasource:
     url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/testsys_db       # Database URL
-    username: testsys                                           # Database username
-    password: p@ssw0rd                                          # Database password
+    username: ${MYSQL_USERNAME:testsys}                                           # Database username
+    password: ${MYSQL_PASSWORD:p@ssw0rd}                                          # Database password
     driver-class-name: com.mysql.cj.jdbc.Driver                 # Driver for MySQL
     hikari:
       connection-timeout: 30000                                 # Connection timeout
