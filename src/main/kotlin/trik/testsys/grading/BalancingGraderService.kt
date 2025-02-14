@@ -18,6 +18,9 @@ import trik.testsys.grading.converter.FileConverter
 import trik.testsys.grading.converter.ResultConverter
 import trik.testsys.grading.converter.SubmissionBuilder
 import trik.testsys.webclient.service.entity.impl.SolutionService
+import java.time.Duration
+import java.time.LocalDateTime
+import java.time.Period
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.LinkedBlockingQueue
 
@@ -28,18 +31,26 @@ class BalancingGraderService(
 ): Grader {
 
     private val replayCount = 1
+    // TODO: Use proper type for intervals and timeouts
     private val statusRequestTimeout = 2000L
     private val nodePollingInterval = 1000L
+    private val resendHangingSubmissionsInterval = 60000L
+    // TODO: get from status per each grading node
+    private val hangTimeout = 2 * 5 * 60 * 1000L
     private val log = LoggerFactory.getLogger(this.javaClass)
-
+    private data class SubmissionInfo(
+        val solution: Solution,
+        val submission: Submission,
+        val sentTime: LocalDateTime,
+    )
     private data class NodeInfo (
         val node: GradingNodeGrpcKt.GradingNodeCoroutineStub,
         val submissions: MutableSharedFlow<Submission>,
         val results: Flow<Result>,
-        val sentSubmissions: LinkedBlockingQueue<Pair<Solution, Submission>> = LinkedBlockingQueue()
+        val sentSubmissions: LinkedBlockingQueue<SubmissionInfo> = LinkedBlockingQueue(),
     )
     private val nodes = ConcurrentHashMap<String, NodeInfo>()
-    private val submissionQueue = LinkedBlockingQueue<Pair<Solution, Submission>>()
+    private val submissionQueue = LinkedBlockingQueue<SubmissionInfo>()
 
     private val subscriptions = mutableListOf<(GradingInfo) -> Unit>()
     private val converter = ResultConverter(FieldResultConverter(FileConverter()))
@@ -49,15 +60,15 @@ class BalancingGraderService(
     private val submissionSendScope = CoroutineScope(Dispatchers.IO)
     private val submissionSendJob = submissionSendScope.launch {
         while (isActive) {
-            val solution2submission = submissionQueue.take()
+            val submissionInfo = submissionQueue.take()
             var nodeInfo = findFreeNode()
             while (nodeInfo == null) {
                 delay(nodePollingInterval)
                 nodeInfo = findFreeNode()
             }
-
-            val (solution, submission) = solution2submission
-            nodeInfo.sentSubmissions.add(solution2submission)
+            val submission = submissionInfo.submission
+            val solution = submissionInfo.solution
+            nodeInfo.sentSubmissions.add(submissionInfo)
             nodeInfo.submissions.emit(submission)
             log.info("Submission[id=${submission.id}] emitted")
             resultProcessingScope.launch {
@@ -69,7 +80,25 @@ class BalancingGraderService(
         }
     }
 
-    private fun resendSubmissions(sentSubmissions: LinkedBlockingQueue<Pair<Solution, Submission>>) {
+    private val resendHangingSubmissionsJob = submissionSendScope.launch {
+        while (isActive) {
+            delay(resendHangingSubmissionsInterval)
+
+            val currentTime = LocalDateTime.now()
+
+            for ((ipPort, nodeInfo) in nodes) {
+                for (submission in nodeInfo.sentSubmissions) {
+                    if (Duration.between(currentTime, submission.sentTime) > Duration.ofMillis(hangTimeout)) {
+                        log.warn("Resend hanging submission[${submission.submission.id}] on node[${ipPort}]")
+                        submissionQueue.add(submission)
+                        nodeInfo.sentSubmissions.remove(submission)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun resendSubmissions(sentSubmissions: LinkedBlockingQueue<SubmissionInfo>) {
         if (sentSubmissions.isNotEmpty()) {
             log.warn("${sentSubmissions.size} submissions are ungraded. Resending them")
             sentSubmissions.drainTo(submissionQueue)
@@ -78,7 +107,7 @@ class BalancingGraderService(
 
     private suspend fun processResults(
         results: Flow<Result>,
-        sentSubmissions: LinkedBlockingQueue<Pair<Solution, Submission>>
+        sentSubmissions: LinkedBlockingQueue<SubmissionInfo>
     ) = withContext(Dispatchers.IO) {
         try {
             results.collect { result ->
@@ -125,7 +154,7 @@ class BalancingGraderService(
             this.gradingOptions = gradingOptions
         }
 
-        submissionQueue.put(solution to submission)
+        submissionQueue.put(SubmissionInfo(solution, submission, LocalDateTime.now()))
     }
 
     override fun subscribeOnGraded(onGraded: (GradingInfo) -> Unit) {
