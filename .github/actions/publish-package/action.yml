@@ -35,8 +35,11 @@ runs:
     - name: Set image names
       shell: bash
       run: |
+        REPOSITORY_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+        echo "REPOSITORY_OWNER=$REPOSITORY_OWNER" >> $GITHUB_ENV
+        
         IMAGE_NAME_DH="${{ inputs.docker-username }}/${{ env.REPOSITORY_NAME }}"
-        IMAGE_NAME_GH="ghcr.io/${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}"
+        IMAGE_NAME_GH="ghcr.io/${{ env.REPOSITORY_OWNER }}/${{ env.REPOSITORY_NAME }}"
         
         echo "IMAGE_NAME_DH=$IMAGE_NAME_DH" >> $GITHUB_ENV
         echo "IMAGE_NAME_GH=$IMAGE_NAME_GH" >> $GITHUB_ENV
