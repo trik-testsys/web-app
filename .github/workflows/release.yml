@@ -59,19 +59,19 @@ jobs:
       - name: Update versions
         uses: ./.github/actions/update-versions
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.USER_TOKEN }}
 
       - name: Create branches
         uses: ./.github/actions/create-branches
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.USER_TOKEN }}
 
       - name: Publish package
         uses: ./.github/actions/publish-package
         with:
           docker-token: ${{ secrets.DOCKER_TOKEN }}
           docker-username: ${{ secrets.DOCKER_USERNAME }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.USER_TOKEN }}
 
   delete-release:
     needs:
@@ -86,7 +86,7 @@ jobs:
       - name: Delete release
         uses: ./.github/actions/delete-release
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.USER_TOKEN }}
 
   delete-branches:
     needs:
@@ -107,4 +107,4 @@ jobs:
       - name: Delete branches
         uses: ./.github/actions/delete-branches
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.USER_TOKEN }}
