@@ -1,0 +1,45 @@
+name: Update versions
+description: Replaces %CURRENT_VERSION% string in every source file with the current version
+inputs:
+  github-token:
+    description: 'The GitHub token'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Get files with changes needed
+      id: get-files
+      shell: bash
+      run: |
+        set +e
+        result=$(grep -rn "%CURRENT_VERSION%" ./src >> files.txt)
+        exit_code=$?
+        set -e
+      
+        if [ $exit_code -eq 1 ]; then
+          echo -e "\n\e[33mNo files with changes found\e[0m"
+        fi
+      
+        echo "EXIT_CODE=$exit_code" >> "$GITHUB_OUTPUT"
+
+    - name: Replace version
+      if: steps.get-files.outputs.exit_code == 0
+      shell: bash
+      run: find ./src -type f -exec sed -i "s/%CURRENT_VERSION%/${{ env.VERSION }}/g" {} +
+
+    - name: Commit and push changes
+      if: steps.get-files.outputs.exit_code == 0
+      shell: bash
+      run: |
+        git checkout ${{ inputs.branch-name }}
+        git add ./src
+        git commit -m "release: Update version to ${{ env.version }}"
+        git push https://x-access-token:${{ inputs.github-token }}@github.com/${{ github.repository }}.git ${{ env.BRANCH_NAME }}
+
+    - name: Log change files
+      shell: bash
+      run: |
+        echo -e "\n\e[33mFiles with changes:"
+        cat files.txt
+        echo -e "\e[0m"

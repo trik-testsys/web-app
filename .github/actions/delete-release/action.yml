@@ -1,0 +1,25 @@
+name: Delete Release
+description: Deletes release and its tag
+inputs:
+  github-token:
+    description: 'The GitHub token'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Delete release
+      shell: bash
+      run: |
+        echo -e "\n\e[33mDeleting release ${{ github.event.release.tag_name }} due to failure in previous jobs\e[0m"
+        curl -X DELETE \
+          -H "Authorization: token ${{ inputs.github-token }}" \
+          https://api.github.com/repos/"${{ github.repository }}"/releases/"${{ github.event.release.id }}"
+
+    - name: Delete release tag
+      shell: bash
+      run: |
+        echo -e "\n\e[33mDeleting release tag ${{ github.event.release.tag_name }} due to failure in previous jobs\e[0m"
+        curl -X DELETE \
+          -H "Authorization: token ${{ inputs.github-token }}" \
+          https://api.github.com/repos/"${{ github.repository }}"/git/refs/tags/"${{ github.event.release.tag_name }}"

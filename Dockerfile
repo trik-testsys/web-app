@@ -3,10 +3,11 @@ MAINTAINER Roman Shishkin <romashkin.2001@yandex.ru>
 
 #Setting directories args
 ARG APP_DIR=web-client
+ARG VERSION=2.2.0-snapshot
 
 #Copying application
 WORKDIR /$APP_DIR
-ARG JAR_FILE=build/libs/trik-testsys-web-client-2.2.0.jar
+ARG JAR_FILE=build/libs/trik-testsys-web-client-$VERSION.jar
 ARG APP=app.jar
 COPY $JAR_FILE $APP
 

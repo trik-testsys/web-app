@@ -1,0 +1,20 @@
+name: Delete branches
+description: Deletes created branches
+inputs:
+  github-token:
+    description: 'The GitHub token'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Delete release branch
+      shell: bash
+      run: |
+        git push https://x-access-token:${{ inputs.github-token }}@github.com/${{ github.repository }}.git --delete "release/${{ env.VERSION }}"
+        echo -e "\n\e[33mDeleted release branch release/${{ env.VERSION }}\e[0m"
+        
+        if [[ "${{ env.BRANCH_NAME }}" == "master" ]]; then
+          git push https://x-access-token:${{ inputs.github-token }}@github.com/${{ github.repository }}.git --delete "patch/${{ env.PATCH_VERSION }}"
+          echo -e "\n\e[33mDeleted patch branch patch/${{ env.PATCH_VERSION }}\e[0m"
+        fi

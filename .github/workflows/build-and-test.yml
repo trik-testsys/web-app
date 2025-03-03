@@ -1,0 +1,41 @@
+name: Build and test
+on:
+  pull_request:
+  push:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Build
+        uses: ./.github/actions/execute-gradle
+        with:
+          gradle-commands: ':clean :assemble'
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Test
+        uses: ./.github/actions/execute-gradle
+        with:
+          gradle-commands: ':clean :test --stacktrace'
+
+      - name: JaCoCo Coverage Report
+        env:
+          report_path: build/jacoco/report.csv
+        run: |
+          awk -F"," '{ instructions += $4 + $5; covered += $5; branches += $6 + $7; branches_covered +=$7 } END { print "Instructions covered:", covered"/"instructions, "--", 100*covered/instructions"%"; print "Branches covered:", branches_covered"/"branches, "--", 100*branches_covered/branches"%" }' $report_path
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: test-and-coverage-reports
+          path: build/reports
