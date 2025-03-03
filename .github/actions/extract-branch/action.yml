@@ -1,0 +1,20 @@
+name: Extract Branch
+description: Extracts the branch name from the tag
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Extract branch name
+      shell: bash
+      run: |
+        if [[ ${{ env.VERSION }} =~ ^[0-9]+\.[0-9]+\.0$ ]]; then
+            BRANCH_NAME=master
+        else
+            BRANCH_NAME="patch/${{ env.PATCH_VERSION }}"
+        fi
+        echo "BRANCH_NAME=$BRANCH_NAME" >> "$GITHUB_ENV"
+
+    - name: Log branch name
+      shell: bash
+      run: |
+        echo -e "\n\e[32mBRANCH_NAME=$BRANCH_NAME\e[0m"

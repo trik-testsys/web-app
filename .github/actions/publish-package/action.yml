@@ -1,0 +1,77 @@
+name: Publish package
+description: Publishes package to GitHub Package Registry and Docker Hub
+inputs:
+  docker-token:
+    description: 'Docker Hub token'
+    required: true
+  docker-username:
+    description: 'Docker Hub username'
+    required: true
+  github-token:
+    description: 'GitHub token'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout release branch
+      shell: bash
+      run: git checkout "release/$VERSION"
+
+    - name: Login to DockerHub
+      shell: bash
+      run: echo "${{ inputs.docker-token }}" | docker login -u "${{ inputs.docker-username }}" --password-stdin
+
+    - name: Login to Github Package Registry
+      shell: bash
+      run: echo "${{ inputs.github-token }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+    - name: Get repository name
+      shell: bash
+      run: |
+        REPOSITORY_NAME=$(echo ${{ github.repository }} | cut -d '/' -f 2)
+        echo "REPOSITORY_NAME=$REPOSITORY_NAME" >> $GITHUB_ENV
+
+    - name: Set image names
+      shell: bash
+      run: |
+        IMAGE_NAME_DH="${{ inputs.docker-username }}/${{ env.REPOSITORY_NAME }}"
+        IMAGE_NAME_GH="ghcr.io/${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}"
+        
+        echo "IMAGE_NAME_DH=$IMAGE_NAME_DH" >> $GITHUB_ENV
+        echo "IMAGE_NAME_GH=$IMAGE_NAME_GH" >> $GITHUB_ENV
+
+    - name: Build boot jar
+      uses: ./.github/actions/execute-gradle
+      with:
+        gradle-commands: ':bootJar'
+
+    - name: Cache Docker layers
+      uses: actions/cache@v3
+      with:
+        path: /tmp/.buildx-cache
+        key: ${{ runner.os }}-buildx-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-buildx-
+
+    - name: Build and Tag Docker Image
+      shell: bash
+      run: |
+        docker build -t "$IMAGE_NAME_DH:${{ env.VERSION }}" .
+        docker build -t "$IMAGE_NAME_GH:${{ env.VERSION }}" .
+        
+        if [[ "${{ env.BRANCH_NAME }}" == "master" ]]; then
+          docker build -t "$IMAGE_NAME_DH:latest" .
+          docker build -t "$IMAGE_NAME_GH:latest" .
+        fi
+
+    - name: Push Docker Image
+      shell: bash
+      run: |
+        docker push $IMAGE_NAME_DH:${{ env.VERSION }}
+        docker push $IMAGE_NAME_GH:${{ env.VERSION }}
+        
+        if [[ "${{ env.BRANCH_NAME }}" == "master" ]]; then
+          docker push $IMAGE_NAME_DH:latest
+          docker push $IMAGE_NAME_GH:latest
+        fi

@@ -1,0 +1,25 @@
+name: Configure Git
+description: Adds the necessary configurations to Git
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Extract version from release tag
+      shell: bash
+      run: ./.github/scripts/extract-versions.sh "${{ github.event.release.tag_name }}"
+
+    - name: Validate version
+      shell: bash
+      run: |
+        if [[ ! $VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          echo -e "\n\e[31mInvalid version format: $VERSION\e[0m"
+          exit 1
+        fi
+
+    - name: Log version
+      shell: bash
+      run: |
+        echo -e "\n\e[32mVERSION=$VERSION\e[0m"
+        echo -e "\e[32mNEXT_MINOR_VERSION=$NEXT_MINOR_VERSION\e[0m"
+        echo -e "\e[32mNEXT_PATCH_VERSION=$NEXT_PATCH_VERSION\e[0m"
+        echo -e "\n\e[32mPATCH_VERSION=$PATCH_VERSION\e[0m"

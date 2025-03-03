@@ -1,0 +1,33 @@
+name: Create Branches
+description: Create branches for the release and patch
+inputs:
+  github-token:
+    description: 'The GitHub token'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Create branches
+      shell: bash
+      run: |
+        git checkout ${{ env.BRANCH_NAME }}
+        
+        if [[ ${{ env.BRANCH_NAME }} == "master" ]]; then
+          git checkout -b "patch/${{ env.PATCH_VERSION }}"
+          ./.github/scripts/update-project-version.sh "patch/${{ env.PATCH_VERSION }}" "${{ env.PATCH_VERSION }}-patch" ${{ inputs.github-token }} ${{ github.repository }}
+        
+          git checkout -b "release/${{ env.VERSION }}" "patch/${{ env.PATCH_VERSION }}"
+        
+          ./.github/scripts/update-project-version.sh "release/${{ env.VERSION }}" "${{ env.VERSION }}-release" ${{ inputs.github-token }} ${{ github.repository }}
+          ./.github/scripts/update-project-version.sh "patch/${{ env.PATCH_VERSION }}" "${{ env.NEXT_PATCH_VERSION }}-snapshot" ${{ inputs.github-token }} ${{ github.repository }}
+          ./.github/scripts/update-project-version.sh ${{ env.BRANCH_NAME }} "${{ env.NEXT_MINOR_VERSION }}-snapshot" ${{ inputs.github-token }} ${{ github.repository }}
+        else
+          git checkout -b "release/${{ env.VERSION }}"
+        
+          ./.github/scripts/update-project-version.sh "release/${{ env.VERSION }}" "${{ env.VERSION }}-release" ${{ inputs.github-token }} ${{ github.repository }}
+          ./.github/scripts/update-project-version.sh ${{ env.BRANCH_NAME }} "${{ env.NEXT_PATCH_VERSION }}-snapshot" ${{ inputs.github-token }} ${{ github.repository }}
+        fi
+
+        git tag -f ${{ github.event.release.tag_name }} "release/${{ env.VERSION }}"
+        git push --tags -f
