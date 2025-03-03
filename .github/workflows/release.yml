@@ -1,0 +1,110 @@
+name: Release Automation
+
+on:
+  release:
+    types:
+      - created
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Build
+        uses: ./.github/actions/execute-gradle
+        with:
+          gradle-commands: 'build'
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Test
+        uses: ./.github/actions/execute-gradle
+        with:
+          gradle-commands: 'test'
+
+  publish-release:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Configure Git
+        uses: ./.github/actions/configure-git
+        with:
+          user-name: ${{ secrets.USER_NAME }}
+          user-mail: ${{ secrets.USER_MAIL }}
+
+      - name: Extract versions
+        uses: ./.github/actions/extract-version
+
+      - name: Extract branch
+        uses: ./.github/actions/extract-branch
+
+      - name: Update versions
+        uses: ./.github/actions/update-versions
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create branches
+        uses: ./.github/actions/create-branches
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish package
+        uses: ./.github/actions/publish-package
+        with:
+          docker-token: ${{ secrets.DOCKER_TOKEN }}
+          docker-username: ${{ secrets.DOCKER_USERNAME }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  delete-release:
+    needs:
+      - build
+      - test
+      - publish-release
+    if: ${{ failure() }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Delete release
+        uses: ./.github/actions/delete-release
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  delete-branches:
+    needs:
+      - publish-release
+    if: ${{ failure() }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract versions
+        uses: ./.github/actions/extract-version
+
+      - name: Extract branch
+        uses: ./.github/actions/extract-branch
+
+      - name: Delete branches
+        uses: ./.github/actions/delete-branches
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
