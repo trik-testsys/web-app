@@ -14,9 +14,11 @@ import trik.testsys.core.entity.user.UserEntity
 import trik.testsys.core.service.EntityService
 import trik.testsys.core.service.user.UserService
 import trik.testsys.webclient.entity.RegEntity
+import trik.testsys.webclient.entity.impl.ApiKey
 import trik.testsys.webclient.entity.impl.Group
 import trik.testsys.webclient.entity.user.impl.*
 import trik.testsys.webclient.service.entity.RegEntityService
+import trik.testsys.webclient.service.entity.impl.ApiKeyService
 import trik.testsys.webclient.service.entity.impl.GroupService
 import trik.testsys.webclient.service.entity.user.impl.*
 import trik.testsys.webclient.service.startup.runner.StartupRunner
@@ -39,7 +41,8 @@ class EntityCreatorRunner(
     private val studentService: StudentService,
     private val superUserService: SuperUserService,
     private val viewerService: ViewerService,
-    private val groupService: GroupService
+    private val groupService: GroupService,
+    private val apiKeyService: ApiKeyService
 ) : StartupRunner {
 
     private lateinit var entitiesDir: File
@@ -72,6 +75,7 @@ class EntityCreatorRunner(
         judgeService.createEntitiesWithoutDependencies<Judge, JudgeData>(JUDGES_FILE_NAME)
         superUserService.createEntitiesWithoutDependencies<SuperUser, SuperUserData>(SUPER_USERS_FILE_NAME)
         viewerService.createEntitiesWithoutDependencies<Viewer, ViewerData>(VIEWERS_FILE_NAME)
+        apiKeyService.createEntitiesWithoutDependencies<ApiKey, ApiKeyData>(API_KEYS_FILE_NAME)
 
         // Entities with dependencies to others. They should be created after entities without dependencies.
         adminService.createEntitiesWithWebUserDependencies<Admin, AdminData>(ADMINS_FILE_NAME, viewerService) // Depends on Viewer
@@ -317,6 +321,18 @@ class EntityCreatorRunner(
             }
     }
 
+    /**
+     * @author Roman Shishkin
+     * @since %CURRENT_VERSION%
+     */
+    @XmlRootElement
+    private data class ApiKeyData(
+        val value: String = ""
+    ) : EntityData.EntityDataWithoutDependencies<ApiKey> {
+
+        override fun toEntity() = ApiKey(value)
+    }
+
     companion object {
 
         private val logger = LoggerFactory.getLogger(EntityCreatorRunner::class.java)
@@ -328,6 +344,8 @@ class EntityCreatorRunner(
         private const val SUPER_USERS_FILE_NAME = "superusers.json"
         private const val VIEWERS_FILE_NAME = "viewers.json"
         private const val GROUPS_FILE_NAME = "groups.json"
+
+        private const val API_KEYS_FILE_NAME = "api_keys.json"
 
         private const val BACKUP_DIR_NAME = "backup"
     }
