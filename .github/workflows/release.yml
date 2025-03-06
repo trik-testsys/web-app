@@ -73,10 +73,34 @@ jobs:
           docker-username: ${{ secrets.DOCKER_USERNAME }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-  delete-release:
+  delete-release-after-build-failure:
     needs:
       - build
+    if: ${{ failure() }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Delete release
+        uses: ./.github/actions/delete-release
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  delete-release-after-test-failure:
+    needs:
       - test
+    if: ${{ failure() }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Delete release
+        uses: ./.github/actions/delete-release
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  delete-release-after-publish-failure:
+    needs:
       - publish-release
     if: ${{ failure() }}
     runs-on: ubuntu-latest
