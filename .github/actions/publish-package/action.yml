@@ -64,7 +64,7 @@ runs:
       shell: bash
       run: |
         LATEST_TAG=$(git tag -l 'v*' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n 1)
-        echo "LATEST_TAG=LATEST_TAG" >> $GITHUB_ENV
+        echo "$LATEST_TAG=LATEST_TAG" >> $GITHUB_ENV
         echo -e "\n\e[32mLATEST_TAG=$LATEST_TAG\e[0m"
 
     - name: Build and Tag Docker Image
