@@ -21,7 +21,7 @@ repositories {
 sourceSets {
     main {
         proto {
-            srcDir("trik-testsys/protos")
+            srcDir("libs/trik-testsys/protos")
         }
     }
 }
