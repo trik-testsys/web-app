@@ -1,3 +1,3 @@
 
-rootProject.name = "trik-testsys-web-client"
+rootProject.name = "web-app"
 
