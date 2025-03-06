@@ -84,7 +84,7 @@ runs:
         docker push $IMAGE_NAME_DH:${{ env.VERSION }}
         docker push $IMAGE_NAME_GH:${{ env.VERSION }}
         
-        if [[ "${{ env.BRANCH_NAME }}" == "master" ]]; then
+        if [[ "${{ github.event.release.tag_name }}" == "${{ env.LATEST_TAG }}" ]]; then
           docker push $IMAGE_NAME_DH:latest
           docker push $IMAGE_NAME_GH:latest
         fi
