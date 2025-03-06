@@ -1,6 +1,9 @@
 FROM openjdk:17-alpine
 MAINTAINER Roman Shishkin <romashkin.2001@yandex.ru>
 
+#Build bootJar
+RUN ./gradlew :bootJar
+
 #Setting directories args
 ARG APP_DIR=web-app
 ARG VERSION=2.6.0-snapshot
