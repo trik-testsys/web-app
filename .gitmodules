@@ -1,3 +1,3 @@
-[submodule "libs/trik-testsys/protos"]
+[submodule "protos"]
 	path = libs/trik-testsys/protos
 	url = https://github.com/trik-testsys/protos.git
