@@ -63,7 +63,7 @@ runs:
     - name: Get latest release tag
       shell: bash
       run: |
-        LATEST_TAG=$(git describe --tags --abbrev=0)
+        LATEST_TAG=$(git tag -l 'v*' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n 1)
         echo "LATEST_TAG=LATEST_TAG" >> $GITHUB_ENV
         echo -e "\n\e[32mLATEST_TAG=$LATEST_TAG\e[0m"
 
