@@ -21,7 +21,10 @@ import java.io.ByteArrayInputStream
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
-
+/**
+ * @author Roman Shishkin
+ * @since %CURRENT_VERSION%
+ */
 internal class StudentExportControllerTest {
 
     private val adminService = mock<AdminService>()
