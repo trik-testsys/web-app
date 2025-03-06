@@ -20,7 +20,7 @@ services:
       - ./data/mysql:/var/lib/mysql
 
   web-app:
-    image: testsystrik/web-app:2.2.0
+    image: ghcr.io/trik-testsys/web-app:2.2.0
     restart: always
 
     environment:
