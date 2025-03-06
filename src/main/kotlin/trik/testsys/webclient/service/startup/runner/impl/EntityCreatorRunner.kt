@@ -323,7 +323,7 @@ class EntityCreatorRunner(
 
     /**
      * @author Roman Shishkin
-     * @since %CURRENT_VERSION%
+     * @since 2.5.0
      */
     @XmlRootElement
     private data class ApiKeyData(

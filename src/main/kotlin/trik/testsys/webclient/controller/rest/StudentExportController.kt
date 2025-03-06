@@ -8,7 +8,7 @@ import trik.testsys.core.controller.TrikRestController
  * Controller for exporting students from files.
  *
  * @author Roman Shishkin
- * @since %CURRENT_VERSION%
+ * @since 2.5.0
  */
 interface StudentExportController : TrikRestController {
 
@@ -23,7 +23,7 @@ interface StudentExportController : TrikRestController {
      * @return Student data
      *
      * @author Roman Shishkin
-     * @since %CURRENT_VERSION%
+     * @since 2.5.0
      */
     fun exportFromCsvFile(
         apiKey: String,

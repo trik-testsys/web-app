@@ -15,7 +15,7 @@ import trik.testsys.webclient.service.entity.user.impl.StudentService
 
 /**
  * @author Roman Shishkin
- * @since %CURRENT_VERSION%
+ * @since 2.5.0
  */
 @RestController
 @RequestMapping("rest/student/export")

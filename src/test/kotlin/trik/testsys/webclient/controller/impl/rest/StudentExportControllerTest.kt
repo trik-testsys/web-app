@@ -23,7 +23,7 @@ import kotlin.test.assertNotNull
 
 /**
  * @author Roman Shishkin
- * @since %CURRENT_VERSION%
+ * @since 2.5.0
  */
 internal class StudentExportControllerTest {
 
