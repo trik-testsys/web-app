@@ -98,6 +98,24 @@ class StudentService(
         return csv
     }
 
+    fun generate(additionalInfos: List<String>, group: Group): List<Student> {
+        val students = mutableListOf<Student>()
+
+        for (additionalInfo in additionalInfos) {
+            val accessToken = accessTokenGenerator.generate(additionalInfo)
+            val name = "st-${UUID.randomUUID().toString().substring(4, 18)}"
+
+            val student = Student(name, accessToken).also { it.group = group }
+            student.additionalInfo = additionalInfo
+
+            students.add(student)
+        }
+
+        repository.saveAll(students)
+
+        return students
+    }
+
     companion object {
         fun Student.getBestSolutionFor(task: Task): Solution? {
             return solutions
