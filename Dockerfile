@@ -6,7 +6,7 @@ RUN ./gradlew :bootJar
 
 #Setting directories args
 ARG APP_DIR=web-app
-ARG VERSION=2.6.0-snapshot
+ARG VERSION=2.7.0-snapshot
 
 #Copying application
 WORKDIR /$APP_DIR
