@@ -63,6 +63,11 @@ runs:
         github-token: ${{ inputs.github-token }}
         tags: ${{ env.TAGS }}
 
+    - name: Build bootJar
+      uses: ./.github/actions/execute-gradle
+      with:
+        gradle-commands: ':bootJar'
+
     - name: Build and push Docker image
       id: build-and-push
       uses: docker/build-push-action@0565240e2d4ab88bba5387d719585280857ece09
