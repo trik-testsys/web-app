@@ -47,7 +47,7 @@ runs:
       run: |
         LATEST_TAG=$(git tag -l 'v*' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n 1)
         if [[ "${{ github.event.release.tag_name }}" == "$LATEST_TAG" ]]; then
-            TAGS="latest\n${{ env.VERSION }}"
+            TAGS="latest,${{ env.VERSION }}"
         else
             TAGS="${{ env.VERSION }}"
         fi
@@ -62,6 +62,7 @@ runs:
         images: ${{ inputs.registry }}/${{ inputs.image-name }}
         github-token: ${{ inputs.github-token }}
         tags: ${{ env.TAGS }}
+        sep-tags: ','
 
     - name: Build bootJar
       uses: ./.github/actions/execute-gradle
