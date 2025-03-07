@@ -18,11 +18,9 @@ jobs:
           submodules: recursive
 
       - name: Build
-        shell: bash
-        run: exit 1
-#        uses: ./.github/actions/execute-gradle
-#        with:
-#          gradle-commands: 'build'
+        uses: ./.github/actions/execute-gradle
+        with:
+          gradle-commands: 'build'
 
   test:
     runs-on: ubuntu-latest
