@@ -70,6 +70,7 @@ jobs:
         uses: ./.github/actions/publish-package
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          version: '${{ env.VERSION }}'
 
   delete-release-after-build-failure:
     needs:

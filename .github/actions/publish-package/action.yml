@@ -12,6 +12,10 @@ inputs:
     description: 'The name of the Docker image'
     default: ${{ github.repository }}
     required: false
+  version:
+    description: 'The version of the Docker image'
+    default: ${{ env.VERSION }}
+    required: true
 
 env:
   REGISTRY: ghcr.io
