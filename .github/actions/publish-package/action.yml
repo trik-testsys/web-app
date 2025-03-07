@@ -5,6 +5,10 @@ branding:
   color: blue
 
 inputs:
+  registry:
+    description: 'The Docker registry'
+    default: ghcr.io
+    required: true
   github-token:
     description: 'GitHub token'
     required: true
@@ -12,22 +16,16 @@ inputs:
     description: 'The name of the Docker image'
     default: ${{ github.repository }}
     required: false
-  version:
-    description: 'The version of the Docker image'
-    default: ${{ env.VERSION }}
+  release-branch:
+    description: 'The release branch'
     required: true
-
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ inputs.image-name }}
-  RELEASE_BRANCH: release/${{ env.VERSION }}
 
 runs:
   using: 'composite'
   steps:
     - name: Checkout release branch
       shell: bash
-      run: git checkout ${{ env.RELEASE_BRANCH }}
+      run: git checkout ${{ inputs.release-branch }}
 
     - name: Install cosign
       uses: sigstore/cosign-installer@59acb6260d9c0ba8f4a2f9d9b48431a222b68e20
@@ -37,10 +35,10 @@ runs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@f95db51fddba0c2d1ec667646a06c2ce06100226
 
-    - name: Log into registry ${{ env.REGISTRY }}
+    - name: Log into registry ${{ inputs.registry }}
       uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d
       with:
-        registry: ${{ env.REGISTRY }}
+        registry: ${{ inputs.registry }}
         username: ${{ github.actor }}
         password: ${{ inputs.github-token }}
 
@@ -61,7 +59,7 @@ runs:
       id: meta
       uses: docker/metadata-action@96383f45573cb7f253c731d3b3ab81c87ef81934
       with:
-        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        images: ${{ inputs.registry }}/${{ inputs.image-name }}
         github-token: ${{ inputs.github-token }}
         tags: ${{ env.TAGS }}
 
