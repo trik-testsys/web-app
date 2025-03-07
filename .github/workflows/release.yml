@@ -38,11 +38,10 @@ jobs:
           submodules: recursive
 
       - name: Test
-        shell: bash
-        run: exit 24
-#        uses: ./.github/actions/execute-gradle
-#        with:
-#          gradle-commands: 'test'
+        uses: ./.github/actions/execute-gradle
+        with:
+          gradle-commands: 'test'
+
       - name: Rollback release
         if: ${{ failure() || cancelled() }}
         uses: ./.github/actions/delete-release
