@@ -23,10 +23,11 @@ jobs:
         with:
           gradle-commands: 'build'
 
-      - name: Exit with error
+      - name: Rollback release
         if: ${{ failure() || cancelled() }}
-        shell: bash
-        run: exit 1
+        uses: ./.github/actions/delete-release
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
   test:
     runs-on: ubuntu-latest
@@ -42,10 +43,11 @@ jobs:
 #        uses: ./.github/actions/execute-gradle
 #        with:
 #          gradle-commands: 'test'
-      - name: Exit with error
+      - name: Rollback release
         if: ${{ failure() || cancelled() }}
-        shell: bash
-        run: exit 1
+        uses: ./.github/actions/delete-release
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
   publish-release:
     needs: test
@@ -74,9 +76,12 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create branches
-        uses: ./.github/actions/create-branches
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+        id: create-branches
+        shell: bash
+        run: exit 123
+#        uses: ./.github/actions/create-branches
+#        with:
+#          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish package
         uses: ./.github/actions/publish-package
@@ -84,67 +89,15 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           release-branch: release/${{ env.VERSION }}
 
-      - name: Exit with error
+      - name: Rollback release
         if: ${{ failure() || cancelled() }}
-        shell: bash
-        run: exit 1
-
-  delete-release-after-build-failure:
-    needs:
-      - build
-    if: ${{ failure() || cancelled() }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Delete release
         uses: ./.github/actions/delete-release
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-  delete-release-after-test-failure:
-    needs:
-      - test
-    if: ${{ failure() || cancelled() }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Delete release
-        uses: ./.github/actions/delete-release
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
-  delete-release-after-publish-failure:
-    needs:
-      - publish-release
-    if: ${{ failure() || cancelled() }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Delete release
-        uses: ./.github/actions/delete-release
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
-  delete-branches:
-    needs:
-      - publish-release
-    if: ${{ failure() || cancelled() }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Extract versions
-        uses: ./.github/actions/extract-version
-
-      - name: Extract branch
-        uses: ./.github/actions/extract-branch
-
-      - name: Delete branches
+      - name: Rollback branches
+        needs: create-branches
+        if: ${{ failure() || cancelled() }}
         uses: ./.github/actions/delete-branches
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
