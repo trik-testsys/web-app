@@ -5,19 +5,17 @@ branding:
   color: blue
 
 inputs:
-  docker-token:
-    description: 'Docker Hub token'
-    required: true
-  docker-username:
-    description: 'Docker Hub username'
-    required: true
   github-token:
     description: 'GitHub token'
     required: true
+  image-name:
+    description: 'The name of the Docker image'
+    default: ${{ github.repository }}
+    required: false
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: ${{ inputs.image-name }}
   RELEASE_BRANCH: release/${{ env.VERSION }}
 
 runs:
@@ -76,6 +74,7 @@ runs:
 
     - name: Sign the published Docker image
       if: ${{ github.event_name != 'pull_request' }}
+      shell: bash
       env:
         META_TAGS: ${{ steps.meta.outputs.tags }}
         DIGEST: ${{ steps.build-and-push.outputs.digest }}

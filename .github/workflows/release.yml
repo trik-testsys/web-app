@@ -71,8 +71,6 @@ jobs:
       - name: Publish package
         uses: ./.github/actions/publish-package
         with:
-          docker-token: ${{ secrets.DOCKER_TOKEN }}
-          docker-username: ${{ secrets.DOCKER_USERNAME }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
   delete-release-after-build-failure:
