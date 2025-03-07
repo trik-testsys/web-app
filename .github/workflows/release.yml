@@ -75,12 +75,9 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create branches
-        id: create-branches
-        shell: bash
-        run: exit 123
-#        uses: ./.github/actions/create-branches
-#        with:
-#          github-token: ${{ secrets.GITHUB_TOKEN }}
+        uses: ./.github/actions/create-branches
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish package
         uses: ./.github/actions/publish-package
