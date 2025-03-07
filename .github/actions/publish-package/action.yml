@@ -46,7 +46,7 @@ runs:
       shell: bash
       run: |
         LATEST_TAG=$(git tag -l 'v*' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n 1)
-        if (${{ github.event.release.tag_name }} == $LATEST_TAG); then
+        if ("${{ github.event.release.tag_name }}" == "$LATEST_TAG"); then
             TAGS="latest\n${{ env.VERSION }}"
         else
             TAGS="${{ env.VERSION }}"

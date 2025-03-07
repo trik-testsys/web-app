@@ -8,6 +8,7 @@ on:
 permissions:
   contents: write
   packages: write
+  id-token: write
 
 jobs:
   build:
@@ -17,7 +18,9 @@ jobs:
         with:
           submodules: recursive
 
-#      - name: Build
+      - name: Build
+        shell: bash
+        run: exit 123
 #        uses: ./.github/actions/execute-gradle
 #        with:
 #          gradle-commands: 'build'
@@ -30,10 +33,10 @@ jobs:
         with:
           submodules: recursive
 
-#      - name: Test
-#        uses: ./.github/actions/execute-gradle
-#        with:
-#          gradle-commands: 'test'
+      - name: Test
+        uses: ./.github/actions/execute-gradle
+        with:
+          gradle-commands: 'test'
 
   publish-release:
     needs: test
@@ -88,7 +91,7 @@ jobs:
   delete-release-after-test-failure:
     needs:
       - test
-    if: failure()
+    if: failure() || cancelled()
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -101,7 +104,7 @@ jobs:
   delete-release-after-publish-failure:
     needs:
       - publish-release
-    if: failure()
+    if: failure() || cancelled()
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -114,7 +117,7 @@ jobs:
   delete-branches:
     needs:
       - publish-release
-    if: failure()
+    if: failure() || cancelled()
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
