@@ -96,7 +96,6 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Rollback branches
-        needs: create-branches
         if: ${{ failure() || cancelled() }}
         uses: ./.github/actions/delete-branches
         with:
