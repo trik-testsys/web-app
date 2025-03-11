@@ -39,8 +39,8 @@ val LocalDateTime.DEFAULT_FORMATTER: DateTimeFormatter
 val LocalDateTime.DEFAULT_DATE_FORMATTER: DateTimeFormatter
     get() = DateTimeFormatter.ofPattern("dd.MM.yyyy")
 
-val LocalTime.DEFAULT_TIME_FORMATTER: DateTimeFormatter
-    get() = DateTimeFormatter.ofPattern("HH:mm:ss")
+val DEFAULT_TIME_FORMATTER: DateTimeFormatter
+    get() = DateTimeFormatter.ofPattern("HH:mm")
 
 fun LocalDateTime.isBeforeOrEqual(other: LocalDateTime): Boolean = this.isBefore(other) || this == other
 
@@ -55,3 +55,21 @@ fun LocalDateTime.isBeforeNow(): Boolean = isBefore(LocalDateTime.now(AbstractEn
 fun LocalDateTime.isAfterNow(): Boolean = isAfter(LocalDateTime.now(AbstractEntity.DEFAULT_ZONE_ID))
 
 fun LocalDateTime.toEpochSecond(): Long = toEpochSecond(ZoneOffset.UTC)
+
+/**
+ * @author Roman Shishkin
+ * @since %CURRENT_VERSION%
+ */
+fun String.isLocalTimeFormatted(pattern: String = "HH:mm"): Boolean = try {
+    LocalTime.parse(this, DateTimeFormatter.ofPattern(pattern))
+    true
+} catch (e: Exception) {
+    false
+}
+
+
+/**
+ * @author Roman Shishkin
+ * @since %CURRENT_VERSION%
+ */
+fun String.convertToLocalTime(): LocalTime = LocalTime.parse(this, DEFAULT_TIME_FORMATTER)
