@@ -16,6 +16,7 @@ import trik.testsys.webclient.service.entity.impl.TaskService
 import trik.testsys.webclient.service.entity.user.impl.DeveloperService
 import trik.testsys.webclient.service.security.login.impl.LoginData
 import trik.testsys.webclient.util.addPopupMessage
+import trik.testsys.webclient.util.isLocalTimeFormatted
 import trik.testsys.webclient.view.impl.ContestCreationView
 import trik.testsys.webclient.view.impl.ContestView
 import trik.testsys.webclient.view.impl.ContestView.Companion.toView
@@ -47,6 +48,11 @@ class DeveloperContestController(
         redirectAttributes: RedirectAttributes
     ): String {
         val webUser = loginData.validate(redirectAttributes) ?: return "redirect:$LOGIN_PATH"
+
+        if (!contestView.duration.isLocalTimeFormatted()) {
+            redirectAttributes.addPopupMessage("Время на выполнение Тура должно быть в формате HH:mm.")
+            return "redirect:$CONTESTS_PATH"
+        }
 
         val contest = contestView.toEntity(webUser, timezone)
 
@@ -123,6 +129,12 @@ class DeveloperContestController(
         val prevContest = contestService.find(contestId) ?: run {
             redirectAttributes.addPopupMessage("Тур с ID $contestId не найден.")
             return "redirect:$CONTESTS_PATH"
+        }
+
+
+        if (!contestView.duration.isLocalTimeFormatted()) {
+            redirectAttributes.addPopupMessage("Время на выполнение Тура должно быть в формате HH:mm.")
+            return "redirect:$CONTEST_PATH/$contestId"
         }
 
         val contest = contestView.toEntity(timezone).also {

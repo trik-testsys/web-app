@@ -3,9 +3,9 @@ package trik.testsys.webclient.view.impl
 import org.springframework.format.annotation.DateTimeFormat
 import trik.testsys.webclient.entity.impl.Contest
 import trik.testsys.webclient.entity.user.impl.Developer
+import trik.testsys.webclient.util.convertToLocalTime
 import trik.testsys.webclient.util.fromTimeZone
 import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 /**
@@ -20,13 +20,13 @@ data class ContestCreationView(
     val startDate: LocalDateTime,
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     val endDate: LocalDateTime,
-    val duration: LocalTime
+    val duration: String
 ) {
 
     fun toEntity(developer: Developer, timeZoneId: String?) = Contest(
         name,
         startDate.fromTimeZone(timeZoneId), endDate.fromTimeZone(timeZoneId),
-        duration
+        duration.convertToLocalTime()
     ).also {
         it.additionalInfo = additionalInfo
         it.note = note
@@ -43,7 +43,7 @@ data class ContestCreationView(
 
         fun empty() = ContestCreationView(
             "", "", "",
-            LocalDateTime.now(), LocalDateTime.now(), LocalTime.of(0, 0)
+            LocalDateTime.now(), LocalDateTime.now(), "01:00"
         )
     }
 }
