@@ -58,7 +58,7 @@ fun LocalDateTime.toEpochSecond(): Long = toEpochSecond(ZoneOffset.UTC)
 
 /**
  * @author Roman Shishkin
- * @since %CURRENT_VERSION%
+ * @since 2.6.1
  */
 fun String.isLocalTimeFormatted(pattern: String = "HH:mm"): Boolean = try {
     LocalTime.parse(this, DateTimeFormatter.ofPattern(pattern))
@@ -70,6 +70,6 @@ fun String.isLocalTimeFormatted(pattern: String = "HH:mm"): Boolean = try {
 
 /**
  * @author Roman Shishkin
- * @since %CURRENT_VERSION%
+ * @since 2.6.1
  */
 fun String.convertToLocalTime(): LocalTime = LocalTime.parse(this, DEFAULT_TIME_FORMATTER)
