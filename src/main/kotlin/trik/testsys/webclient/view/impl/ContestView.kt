@@ -3,11 +3,11 @@ package trik.testsys.webclient.view.impl
 import org.springframework.format.annotation.DateTimeFormat
 import trik.testsys.webclient.entity.impl.Contest
 import trik.testsys.webclient.util.atTimeZone
+import trik.testsys.webclient.util.convertToLocalTime
 import trik.testsys.webclient.util.format
 import trik.testsys.webclient.util.fromTimeZone
 import trik.testsys.webclient.view.NotedEntityView
 import java.time.LocalDateTime
-import java.time.LocalTime
 
 /**
  * @author Roman Shishkin
@@ -24,11 +24,11 @@ data class ContestView(
     val startDate: LocalDateTime,
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     val endDate: LocalDateTime,
-    val duration: LocalTime
+    val duration: String
 ) : NotedEntityView<Contest> {
 
     override fun toEntity(timeZoneId: String?) = Contest(
-        name, startDate.fromTimeZone(timeZoneId), endDate.fromTimeZone(timeZoneId), duration
+        name, startDate.fromTimeZone(timeZoneId), endDate.fromTimeZone(timeZoneId), duration.convertToLocalTime()
     ).also {
         it.id = id
         it.additionalInfo = additionalInfo
@@ -56,7 +56,7 @@ data class ContestView(
             visibility = this.visibility,
             startDate = this.startDate.atTimeZone(timeZone),
             endDate = this.endDate.atTimeZone(timeZone),
-            duration = this.duration
+            duration = this.duration.toString()
         )
     }
 }
