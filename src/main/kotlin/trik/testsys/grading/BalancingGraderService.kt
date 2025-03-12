@@ -60,40 +60,48 @@ class BalancingGraderService(
     private val submissionSendScope = CoroutineScope(Dispatchers.IO)
     private val submissionSendJob = submissionSendScope.launch {
         while (isActive) {
-            val submissionInfo = submissionQueue.take()
-            var nodeInfo = findFreeNode()
-            while (nodeInfo == null) {
-                delay(nodePollingInterval)
-                nodeInfo = findFreeNode()
-            }
-            val submission = submissionInfo.submission
-            val solution = submissionInfo.solution
-            nodeInfo.sentSubmissions.add(submissionInfo)
-            nodeInfo.submissions.emit(submission)
-            log.info("Submission[id=${submission.id}] emitted")
-            resultProcessingScope.launch {
-                processResults(nodeInfo.results, nodeInfo.sentSubmissions)
-            }
+            try {
+                val submissionInfo = submissionQueue.take()
+                var nodeInfo = findFreeNode()
+                while (nodeInfo == null) {
+                    delay(nodePollingInterval)
+                    nodeInfo = findFreeNode()
+                }
+                val submission = submissionInfo.submission
+                val solution = submissionInfo.solution
+                nodeInfo.sentSubmissions.add(submissionInfo)
+                nodeInfo.submissions.emit(submission)
+                log.info("Submission[id=${submission.id}] emitted")
+                resultProcessingScope.launch {
+                    processResults(nodeInfo.results, nodeInfo.sentSubmissions)
+                }
 
-            solution.status = Solution.SolutionStatus.IN_PROGRESS
-            solutionService.save(solution)
+                solution.status = Solution.SolutionStatus.IN_PROGRESS
+                solutionService.save(solution)
+            } catch (e: Exception) {
+                log.error("Submission send job iteration end up with error:", e)
+            }
         }
     }
 
     private val resendHangingSubmissionsJob = submissionSendScope.launch {
         while (isActive) {
-            delay(resendHangingSubmissionsInterval)
+            try {
+                delay(resendHangingSubmissionsInterval)
 
-            val currentTime = LocalDateTime.now()
+                val currentTime = LocalDateTime.now()
 
-            for ((ipPort, nodeInfo) in nodes) {
-                for (submission in nodeInfo.sentSubmissions) {
-                    if (Duration.between(currentTime, submission.sentTime) > Duration.ofMillis(hangTimeout)) {
-                        log.warn("Resend hanging submission[${submission.submission.id}] on node[${ipPort}]")
-                        submissionQueue.add(submission)
-                        nodeInfo.sentSubmissions.remove(submission)
+                for ((ipPort, nodeInfo) in nodes) {
+                    for (submission in nodeInfo.sentSubmissions) {
+                        if (Duration.between(currentTime, submission.sentTime) > Duration.ofMillis(hangTimeout)) {
+                            log.warn("Resend hanging submission[${submission.submission.id}] on node[${ipPort}]")
+                            submissionQueue.add(submission)
+                            nodeInfo.sentSubmissions.remove(submission)
+                        }
                     }
                 }
+            } catch (e: Exception) {
+                log.error("Submission resend job iteration end up with error:", e)
             }
         }
     }
