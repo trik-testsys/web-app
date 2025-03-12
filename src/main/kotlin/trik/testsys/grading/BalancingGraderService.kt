@@ -162,15 +162,25 @@ class BalancingGraderService(
     }
 
     override fun addNode(address: String) {
-        val channel = ManagedChannelBuilder.forTarget(address)
-            .usePlaintext() // TODO: Make proper channel initialization
-            .build()
+        log.info("Adding node with address '$address'")
 
-        val node = GradingNodeGrpcKt.GradingNodeCoroutineStub(channel)
-        // grpc backend becomes listener of submissions only after the solution is sent, thus need to replay submission for it
-        val submissions = MutableSharedFlow<Submission>(replayCount)
-        val results = node.grade(submissions)
-        nodes[address] = NodeInfo(node, submissions, results)
+        try {
+            val channel = ManagedChannelBuilder.forTarget(address)
+                .usePlaintext() // TODO: Make proper channel initialization
+                .build()
+
+            val node = GradingNodeGrpcKt.GradingNodeCoroutineStub(channel)
+            // grpc backend becomes listener of submissions only after the solution is sent, thus need to replay submission for it
+            val submissions = MutableSharedFlow<Submission>(replayCount)
+            val results = node.grade(submissions)
+            nodes[address] = NodeInfo(node, submissions, results)
+
+            log.info("Added node with address '$address'")
+        } catch (se: StatusException) {
+            log.error("The grade request end up with status error (code ${se.status.code})")
+        } catch (e: Exception) {
+            log.error("The grade request end up with error:", e)
+        }
     }
 
     override fun removeNode(address: String) {
