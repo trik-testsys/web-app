@@ -41,6 +41,8 @@ logging:
     rollingpolicy:
       clean-history-on-start: false                             # Not cleaning history on start
       max-history: 31                                           # Stores a month of logs
+  level:
+     trik.testsys: debug
 server:
   port: 8888                                                    # Entrypoint
   servlet:
