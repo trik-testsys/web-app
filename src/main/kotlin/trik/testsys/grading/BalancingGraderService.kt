@@ -20,11 +20,11 @@ import trik.testsys.grading.converter.SubmissionBuilder
 import trik.testsys.webclient.service.entity.impl.SolutionService
 import java.time.Duration
 import java.time.LocalDateTime
-import java.time.Period
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.LinkedBlockingQueue
 
 @Service
+@Suppress("unused")
 class BalancingGraderService(
     private val fileManager: FileManager,
     private val solutionService: SolutionService
@@ -201,9 +201,18 @@ class BalancingGraderService(
     }
 
     override fun getAllNodeStatuses(): Map<String, NodeStatus> {
-        return runBlocking {
+        val nodeStatuses = runBlocking {
             nodes.mapValues { async { getNodeStatus(it.value) } }
                 .mapValues { it.value.await() }
         }
+
+        nodeStatuses.forEach { (address, nodeStatus) ->
+            when (nodeStatus) {
+                is NodeStatus.Alive -> log.debug("Node with ID ${nodeStatus.id} available by address $address (${nodeStatus.queued}/${nodeStatus.capacity})")
+                is NodeStatus.Unreachable -> log.warn("Node is not available by address $address: ${nodeStatus.reason}")
+            }
+        }
+
+        return nodeStatuses
     }
 }
