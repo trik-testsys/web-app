@@ -134,8 +134,7 @@ class GradingInfoParserRunner(
             val score = infoElements
                 .filter { (_, message) -> VerdictElement.SCORE_PATTERN.matcher(message).find() }
                 .mapNotNull { (_, message) -> VerdictElement.matchScore(message) }
-                .maxOrNull()
-                ?: return@forEach
+                .maxOrNull() ?: return@forEach
 
             allFailed = false
             totalScore += score
