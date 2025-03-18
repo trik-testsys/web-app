@@ -49,7 +49,7 @@ class DeveloperContestController(
     ): String {
         val webUser = loginData.validate(redirectAttributes) ?: return "redirect:$LOGIN_PATH"
 
-        if (!contestView.duration.isLocalTimeFormatted()) {
+        if (contestView.isOpenEnded == false && !contestView.duration.isLocalTimeFormatted()) {
             redirectAttributes.addPopupMessage("Время на выполнение Тура должно быть в формате HH:mm.")
             return "redirect:$CONTESTS_PATH"
         }
@@ -63,7 +63,9 @@ class DeveloperContestController(
             return "redirect:$CONTESTS_PATH"
         }
 
-        if (contest.startDate.isEqual(contest.endDate) || contest.duration == LocalTime.of(0, 0)) {
+        if (contestView.isOpenEnded == false &&
+            (contest.startDate.isEqual(contest.endDate) || contest.duration == LocalTime.of(0, 0))
+        ) {
             redirectAttributes.addPopupMessage("Время на выполнение Тура должно быть положительным.")
             return "redirect:$CONTESTS_PATH"
         }
@@ -132,7 +134,7 @@ class DeveloperContestController(
         }
 
 
-        if (!contestView.duration.isLocalTimeFormatted()) {
+        if (contestView.isOpenEnded == false && !contestView.duration.isLocalTimeFormatted()) {
             redirectAttributes.addPopupMessage("Время на выполнение Тура должно быть в формате HH:mm.")
             return "redirect:$CONTEST_PATH/$contestId"
         }
@@ -146,7 +148,9 @@ class DeveloperContestController(
             return "redirect:$CONTEST_PATH/$contestId"
         }
 
-        if (contest.startDate.isEqual(contest.endDate) || contest.duration == LocalTime.of(0, 0)) {
+        if (contestView.isOpenEnded == false &&
+            (contest.startDate.isEqual(contest.endDate) || contest.duration == LocalTime.of(0, 0))
+        ) {
             redirectAttributes.addPopupMessage("Время на выполнение Тура должно быть положительным.")
             return "redirect:$CONTEST_PATH/$contestId"
         }

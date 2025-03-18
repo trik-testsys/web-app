@@ -93,6 +93,12 @@ class Contest(
     @ManyToMany(mappedBy = "contests")
     val tasks: MutableSet<Task> = mutableSetOf()
 
+    /**
+     * @author Roman Shishkin
+     * @since %CURRENT_VERSION%
+     */
+    var isOpenEnded: Boolean = false
+
     enum class Visibility(override val dbkey: String) : Enum {
 
         PUBLIC("PLC"),
