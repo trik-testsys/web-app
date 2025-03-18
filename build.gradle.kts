@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "TestSys"
-version = "2.0.6-snapshot"
+version = "2.0.5-release"
 java.sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
