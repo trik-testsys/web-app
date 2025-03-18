@@ -19,6 +19,14 @@ jobs:
         with:
           gradle-commands: ':clean :assemble'
 
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
       - name: Test
         uses: ./.github/actions/execute-gradle
         with:

@@ -1,14 +1,23 @@
 name: Publish package
 description: Publishes package to GitHub Package Registry and Docker Hub
+branding:
+  icon: package
+  color: blue
+
 inputs:
-  docker-token:
-    description: 'Docker Hub token'
-    required: true
-  docker-username:
-    description: 'Docker Hub username'
+  registry:
+    description: 'The Docker registry'
+    default: ghcr.io
     required: true
   github-token:
     description: 'GitHub token'
+    required: true
+  image-name:
+    description: 'The name of the Docker image'
+    default: ${{ github.repository }}
+    required: false
+  release-branch:
+    description: 'The release branch'
     required: true
 
 runs:
@@ -16,75 +25,66 @@ runs:
   steps:
     - name: Checkout release branch
       shell: bash
-      run: git checkout "release/$VERSION"
+      run: git checkout ${{ inputs.release-branch }}
 
-    - name: Login to DockerHub
-      shell: bash
-      run: echo "${{ inputs.docker-token }}" | docker login -u "${{ inputs.docker-username }}" --password-stdin
+    #    - name: Install cosign
+    #      uses: sigstore/cosign-installer@59acb6260d9c0ba8f4a2f9d9b48431a222b68e20
+    #      with:
+    #        cosign-release: 'v2.2.4'
 
-    - name: Login to Github Package Registry
-      shell: bash
-      run: echo "${{ inputs.github-token }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
 
-    - name: Get repository name
-      shell: bash
-      run: |
-        REPOSITORY_NAME=$(echo ${{ github.repository }} | cut -d '/' -f 2)
-        echo "REPOSITORY_NAME=$REPOSITORY_NAME" >> $GITHUB_ENV
+    - name: Log into registry ${{ inputs.registry }}
+      uses: docker/login-action@v3.0.0
+      with:
+        registry: ${{ inputs.registry }}
+        username: ${{ github.actor }}
+        password: ${{ inputs.github-token }}
 
-    - name: Get repository owner name
-      shell: bash
-      run: |
-        REPOSITORY_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-        echo "REPOSITORY_OWNER=$REPOSITORY_OWNER" >> $GITHUB_ENV
-
-    - name: Set image names
+    - name: Generate tags
       shell: bash
       run: |
-        IMAGE_NAME_DH="${{ inputs.docker-username }}/${{ env.REPOSITORY_NAME }}"
-        IMAGE_NAME_GH="ghcr.io/${{ env.REPOSITORY_OWNER }}/${{ env.REPOSITORY_NAME }}"
+        LAST_TAG=$(git tag -l 'v*' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n 1)
+        if [[ "${{ github.event.release.tag_name }}" == "$LAST_TAG" ]]; then
+            LATEST_TAG="latest"
+        else
+            LAST_TAG="${{ env.VERSION }}"
+        fi
         
-        echo "IMAGE_NAME_DH=$IMAGE_NAME_DH" >> $GITHUB_ENV
-        echo "IMAGE_NAME_GH=$IMAGE_NAME_GH" >> $GITHUB_ENV
+        echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
 
-    - name: Build boot jar
+    #    - name: Extract Docker metadata
+    #      id: meta
+    #      uses: docker/metadata-action@v5
+    #      with:
+    #        images: ${{ inputs.registry }}/${{ inputs.image-name }}
+    #        github-token: ${{ inputs.github-token }}
+    #        tags:
+    #        sep-tags: ','
+
+    - name: Build bootJar
       uses: ./.github/actions/execute-gradle
       with:
         gradle-commands: ':bootJar'
 
-    - name: Cache Docker layers
-      uses: actions/cache@v3
+    - name: Build and push Docker image
+      id: build-and-push
+      uses: docker/build-push-action@v5
       with:
-        path: /tmp/.buildx-cache
-        key: ${{ runner.os }}-buildx-${{ github.sha }}
-        restore-keys: |
-          ${{ runner.os }}-buildx-
+        context: .
+        push: 'true'
+        tags: |
+          ${{ inputs.registry }}/${{ inputs.image-name }}:${{ env.VERSION }}
+          ${{ inputs.registry }}/${{ inputs.image-name }}:${{ env.LATEST_TAG }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+#        labels: ${{ steps.meta.outputs.labels }}
 
-    - name: Get latest release tag
-      shell: bash
-      run: |
-        LATEST_TAG=$(git tag -l 'v*' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n 1)
-        echo "LATEST_TAG=LATEST_TAG" >> $GITHUB_ENV
-        echo -e "\n\e[32mLATEST_TAG=$LATEST_TAG\e[0m"
-
-    - name: Build and Tag Docker Image
-      shell: bash
-      run: |
-        docker build -t "$IMAGE_NAME_DH:${{ env.VERSION }}" .
-        docker build -t "$IMAGE_NAME_GH:${{ env.VERSION }}" .
-        
-        if [[ "${{ github.event.release.tag_name }}" == "${{ env.LATEST_TAG }}" ]]; then
-          docker build -t "$IMAGE_NAME_DH:latest" .
-          docker build -t "$IMAGE_NAME_GH:latest" .
-        fi
-
-    - name: Push Docker Image
-      shell: bash
-      run: |
-        docker push $IMAGE_NAME_DH:${{ env.VERSION }}
-        docker push $IMAGE_NAME_GH:${{ env.VERSION }}
-        
-        if [[ "${{ env.BRANCH_NAME }}" == "master" ]]; then
-          docker push $IMAGE_NAME_DH:latest
-          docker push $IMAGE_NAME_GH:latest
-        fi
+#    - name: Sign the published Docker image
+#      if: ${{ github.event_name != 'pull_request' }}
+#      shell: bash
+#      env:
+#        META_TAGS: ${{ steps.meta.outputs.tags }}
+#        DIGEST: ${{ steps.build-and-push.outputs.digest }}
+#      run: echo "${{ env.META_TAGS }}" | xargs -I {} cosign sign --yes {}@${{ env.DIGEST }}
