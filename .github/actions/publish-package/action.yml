@@ -49,7 +49,7 @@ runs:
         if [[ "${{ github.event.release.tag_name }}" == "$LAST_TAG" ]]; then
             LATEST_TAG="latest"
         else
-            LAST_TAG="${{ env.VERSION }}"
+            LATEST_TAG="${{ env.VERSION }}"
         fi
         
         echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
