@@ -71,31 +71,47 @@
                                  size='50',
                                  isReadonly='true', isRequired='true', isAccessToken='false')">
                 </div>
-                <div class="form-field" style="flex-basis: 40%">
-                    <div class="form-label" style="flex-basis: 25%">
+                <div class="form-field" style="flex-basis: 35%">
+                    <div class="form-label" style="flex-basis: 57%">
                         <label for="contest.startDate">Дата и время начала</label>
                     </div>
-                    <div class="form-input" style="flex-basis: 75%">
+                    <div class="form-input" style="flex-basis: 43%">
                         <input name="startDate"
                                th:value="${contest.startDate}"
                                type="datetime-local" id="contest.startDate" readonly required/>
                     </div>
                 </div>
-                <div class="form-field" style="flex-basis: 40%">
-                    <div class="form-label" style="flex-basis: 25%">
+                <div class="form-field" style="flex-basis: 35%">
+                    <div class="form-label" style="flex-basis: 57%">
                         <label for="contest.endDate">Дата и время окончания</label>
                     </div>
-                    <div class="form-input" style="flex-basis: 75%">
+                    <div class="form-input" style="flex-basis: 43%">
                         <input name="endDate" th:value="${contest.endDate}"
                                type="datetime-local" id="contest.endDate" readonly required/>
                     </div>
                 </div>
-                <div th:replace="fragments/form.html
-                    :: formField(id='contest.duration', type='text',
-                                 labelName='Время на прохождение', labelSize='50',
-                                 fieldName='duration', fieldSize='50',
-                                 size='20',
-                                 isReadonly='false', isRequired='true', isAccessToken='false')">
+
+                <div class="form-field" style="flex-basis: 10%">
+                    <div class="form-label" style="flex-basis: 90%">
+                        <label for="contest.isOpenEnded">Бессрочный</label>
+                    </div>
+                    <div class="form-input" style="flex-basis: 10%">
+                        <input name="isOpenEnded" th:field="*{isOpenEnded}" th:checked="${contest.isOpenEnded}"
+                               onclick="toggleVisibility(this.id, 'contest.duration-label', 'contest.duration')"
+                               type="checkbox" id="contest.isOpenEnded" readonly/>
+                    </div>
+                </div>
+                <div class="form-field" style="flex-basis: 20%">
+                    <div class="form-label" style="flex-basis: 50%">
+                        <label for="contest.duration" id="contest.duration-label"
+                               th:hidden="${contest.isOpenEnded}">Время на прохождение</label>
+                    </div>
+                    <div class="form-input" style="flex-basis: 50%">
+                        <input name="duration" th:value="${contest.duration}"
+                               placeholder="01:00"
+                               th:hidden="${contest.isOpenEnded}" th:required="${!contest.isOpenEnded}"
+                               type="text" id="contest.duration" readonly/>
+                    </div>
                 </div>
                 <div th:replace="fragments/form.html
                     :: formField(id='contest.additionalInfo', type='text',
