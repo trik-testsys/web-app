@@ -19,3 +19,22 @@ function copy(id) {
     document.execCommand("Copy");
     textArea.remove();
 }
+
+function toggleVisibility(dependencyId, labelId, fieldId) {
+    let dependency = document.getElementById(dependencyId);
+    let label = document.getElementById(labelId);
+    let field = document.getElementById(fieldId);
+
+
+    if (dependency.checked) {
+        label.setAttribute("hidden", ""); // Скрываем поле
+        field.setAttribute("hidden", ""); // Скрываем поле
+
+        field.removeAttribute("required"); // Убираем обязательность
+    } else {
+        label.removeAttribute("hidden"); // Показываем поле
+        field.removeAttribute("hidden"); // Показываем поле
+
+        field.setAttribute("required", ""); // Делаем обязательным
+    }
+}
