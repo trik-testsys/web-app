@@ -95,7 +95,7 @@ class Contest(
 
     /**
      * @author Roman Shishkin
-     * @since %CURRENT_VERSION%
+     * @since 2.0.6
      */
     var isOpenEnded: Boolean = false
 
