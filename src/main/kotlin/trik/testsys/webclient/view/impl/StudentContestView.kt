@@ -50,7 +50,7 @@ data class StudentContestView(
             additionalInfo = this.additionalInfo,
             creationDate = this.creationDate?.atTimeZone(timeZone),
             name = this.name,
-            lastTime = lastTime.format(DateTimeFormatter.ofPattern("HH:mm:ss")),
+            lastTime = if (isOpenEnded) "Неограниченно" else lastTime.format(DateTimeFormatter.ofPattern("HH:mm:ss")),
             startDate = this.startDate.atTimeZone(timeZone),
             endDate = this.endDate.atTimeZone(timeZone),
             isGoingOn = this.isGoingOn(),
