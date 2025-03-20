@@ -108,6 +108,7 @@
                     </div>
                     <div class="form-input" style="flex-basis: 50%">
                         <input name="duration" th:value="${contest.duration}"
+                               placeholder="01:00"
                                th:hidden="${contest.isOpenEnded}" th:required="${!contest.isOpenEnded}"
                                type="text" id="contest.duration" readonly/>
                     </div>

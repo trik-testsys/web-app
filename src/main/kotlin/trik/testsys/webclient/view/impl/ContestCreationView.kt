@@ -46,7 +46,7 @@ data class ContestCreationView(
 
         fun empty() = ContestCreationView(
             "", "", "",
-            LocalDateTime.now(), LocalDateTime.now(), "01:00",
+            LocalDateTime.now(), LocalDateTime.now(), "",
             false
         )
     }
