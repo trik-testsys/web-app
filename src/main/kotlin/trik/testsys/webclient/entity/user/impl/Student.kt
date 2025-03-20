@@ -52,6 +52,8 @@ class Student(
         val nowInSeconds = now.toEpochSecond()
         val contestLastSeconds = contest.lastSeconds
 
+        if (contest.isOpenEnded && contestLastSeconds > 0) return LocalTime.MAX
+
         val startTime = startTimesByContestId[contest.id!!] ?: return LocalTime.ofSecondOfDay(contestLastSeconds)
         val startTimeInSeconds = startTime.toEpochSecond()
 

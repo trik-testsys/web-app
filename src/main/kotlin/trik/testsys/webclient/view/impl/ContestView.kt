@@ -46,8 +46,7 @@ data class ContestView(
     val formattedEndDate: String
         get() = endDate.format()
 
-    val formattedDuration: String
-        get() = duration.format()
+    val formattedDuration = if (isOpenEnded == true) "Неограниченно" else duration
 
     companion object {
 

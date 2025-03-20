@@ -78,7 +78,7 @@ class Contest(
             val now = LocalDateTime.now(DEFAULT_ZONE_ID)
             val lastSeconds = endDate.toEpochSecond() - now.toEpochSecond() + 1
 
-            return min(duration.toSecondOfDay().toLong(), lastSeconds)
+            return if (isOpenEnded) lastSeconds else min(duration.toSecondOfDay().toLong(), lastSeconds)
         }
 
     @ElementCollection
