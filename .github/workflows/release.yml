@@ -19,7 +19,7 @@ jobs:
           submodules: recursive
 
       - name: Build
-        uses: trik-testsys/execute-gradle-action@v1.0.1
+        uses: trik-testsys/execute-gradle-action@v2
         with:
           gradle-commands: 'build'
 
@@ -38,7 +38,7 @@ jobs:
           submodules: recursive
 
       - name: Test
-        uses: trik-testsys/execute-gradle-action@v1.0.1
+        uses: trik-testsys/execute-gradle-action@v2
         with:
           gradle-commands: 'test'
 
