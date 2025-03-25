@@ -37,8 +37,8 @@ class RegistrationController(
     fun registrationGet(model: Model): String {
         loginData.accessToken?.let { model.addSessionActiveInfo() }
 
-        val sponsorLogos = logoService.getLogos()
-        model.addAttribute("logos", sponsorLogos)
+        val logos = logoService.getLogos()
+        model.addAttribute("logos", logos)
 
         return REGISTRATION_PAGE
     }
