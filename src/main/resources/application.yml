@@ -68,6 +68,9 @@ path:
     verdicts: "${PWD}/data/files/verdicts/"
     recordings: "${PWD}/data/files/recordings/"
     results: "${PWD}/data/files/results/"
+  logos:
+    sponsor: "${PWD}/data/logos/sponsor/"
+    main: "${PWD}/data/logos/main.png"
 
 trik-studio-version: "${TRIK_STUDIO_VERSION:latest}"
 grading-node-addresses: "${GRADING_NODE_ADDRESSES:}"

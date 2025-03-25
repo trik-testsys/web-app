@@ -11,6 +11,7 @@
     background-repeat: no-repeat;
     background-size: 50%;
     background-position: center;
+    flex-direction: column;
 }
 
 /* Окно (модальное) */
@@ -74,4 +75,28 @@
         opacity: 1;
         transform: scale(1);
     }
+}
+
+.main-logo {
+    margin: 10px 0;
+    height: 120px;
+}
+
+.main-logo img {
+    height: 100%;
+}
+
+.sponsor-logos {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin: 10px 0;
+    height: 120px;
+    width: auto;
+}
+
+.sponsor-logos img {
+    height: 100%;
+    object-fit: contain;
+    margin: auto;
 }
