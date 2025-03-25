@@ -180,10 +180,5 @@ gradle-app.setting
 # .gz files
 *.gz
 
-data
-
-src/main/resources/static/avatars
-
-/nodes
-/entities
-/data
+# Demo application data
+demo/
