@@ -4,7 +4,7 @@ package trik.testsys.webclient.view.impl
  * View for sponsor logos.
  *
  * @author Roman Shishkin
- * @since %CURRENT_VERSION%
+ * @since 2.6.5
  */
 data class LogosView(
     val hasSponsors: Boolean = false,

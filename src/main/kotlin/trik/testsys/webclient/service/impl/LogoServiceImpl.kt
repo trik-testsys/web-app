@@ -9,7 +9,7 @@ import java.io.File
 
 /**
  * @author Roman Shishkin
- * @since %CURRENT_VERSION%
+ * @since 2.6.5
  */
 @Service
 class LogoServiceImpl(

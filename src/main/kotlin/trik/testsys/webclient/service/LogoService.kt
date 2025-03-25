@@ -6,7 +6,7 @@ import trik.testsys.webclient.view.impl.LogosView
  * Service for logos management.
  *
  * @author Roman Shishkin
- * @since %CURRENT_VERSION%
+ * @since 2.6.5
  */
 interface LogoService {
 
