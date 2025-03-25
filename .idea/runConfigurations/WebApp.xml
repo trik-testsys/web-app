@@ -1,10 +1,11 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Web Client" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+  <configuration default="false" name="WebApp" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
     <option name="ALTERNATIVE_JRE_PATH" value="corretto-17" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
-    <module name="TestSys.trik-testsys-web-client.main" />
+    <module name="web-app.main" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="trik.testsys.Application" />
     <option name="VM_PARAMETERS" value="-Xmx1g" />
+    <option name="WORKING_DIRECTORY" value="file://demo" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="trik.testsys.*" />
