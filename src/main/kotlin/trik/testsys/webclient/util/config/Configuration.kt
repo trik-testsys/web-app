@@ -1,5 +1,6 @@
 package trik.testsys.webclient.util.config
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.EnableAspectJAutoProxy
@@ -19,7 +20,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 @EnableScheduling
 @EnableAspectJAutoProxy
 @EnableWebMvc
-class Configuration : WebMvcConfigurer {
+class Configuration(
+    @Value("\${path.logos.sponsor}") private val sponsorLogosPath: String,
+    @Value("\${path.logos.main}") private val mainLogoFilePath: String
+) : WebMvcConfigurer {
 
     override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
         registry.addResourceHandler(
@@ -31,7 +35,9 @@ class Configuration : WebMvcConfigurer {
             "classpath:/static/img/",
             "classpath:/static/css/",
             "classpath:/static/js/",
-            "classpath:/static/assets/"
+            "classpath:/static/assets/",
+            "file:$sponsorLogosPath/",
+            "file:$mainLogoFilePath"
         )
     }
 

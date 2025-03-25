@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.View
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import trik.testsys.core.entity.user.UserEntity
+import trik.testsys.webclient.service.LogoService
 import trik.testsys.webclient.service.entity.RegEntityService
 import trik.testsys.webclient.service.security.login.impl.LoginData
 import trik.testsys.webclient.util.addPopupMessage
@@ -25,7 +26,9 @@ import javax.servlet.http.HttpServletRequest
 @RequestMapping(RegistrationController.REGISTRATION_PATH)
 class RegistrationController(
     context: ApplicationContext,
-    private val loginData: LoginData
+    private val loginData: LoginData,
+
+    private val logoService: LogoService
 ) {
 
     private val registrationServices = context.getBeansOfType(RegEntityService::class.java).values
@@ -33,6 +36,10 @@ class RegistrationController(
     @GetMapping
     fun registrationGet(model: Model): String {
         loginData.accessToken?.let { model.addSessionActiveInfo() }
+
+        val sponsorLogos = logoService.getLogos()
+        model.addAttribute("logos", sponsorLogos)
+
         return REGISTRATION_PAGE
     }
 

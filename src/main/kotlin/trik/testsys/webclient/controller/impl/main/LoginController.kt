@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
+import trik.testsys.webclient.service.LogoService
 import trik.testsys.webclient.service.security.login.impl.LoginData
 import trik.testsys.webclient.service.security.login.impl.LoginProcessor
 import trik.testsys.webclient.util.addInvalidAccessTokenMessage
@@ -20,12 +21,18 @@ import trik.testsys.webclient.util.addSessionActiveInfo
 @RequestMapping("/login")
 class LoginController(
     private val loginData: LoginData,
-    private val loginProcessor: LoginProcessor
+    private val loginProcessor: LoginProcessor,
+
+    private val logoService: LogoService
 ) {
 
     @GetMapping
     fun loginGet(model: Model): String {
         loginData.accessToken?.let { model.addSessionActiveInfo() }
+
+        val sponsorLogos = logoService.getLogos()
+        model.addAttribute("logos", sponsorLogos)
+
         return LOGIN_PAGE
     }
 

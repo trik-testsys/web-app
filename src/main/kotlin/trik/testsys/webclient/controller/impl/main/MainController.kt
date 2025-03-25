@@ -4,6 +4,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
+import trik.testsys.webclient.service.LogoService
 import trik.testsys.webclient.service.security.login.impl.LoginData
 import trik.testsys.webclient.util.addSessionActiveInfo
 
@@ -14,12 +15,16 @@ import trik.testsys.webclient.util.addSessionActiveInfo
 @Controller
 @RequestMapping(MainController.MAIN_PATH)
 class MainController(
-    private val loginData: LoginData
+    private val loginData: LoginData,
+    private val logoService: LogoService
 ) {
 
     @GetMapping
     fun mainGet(model: Model): String {
         loginData.accessToken?.let { model.addSessionActiveInfo() }
+
+        val sponsorLogos = logoService.getLogos()
+        model.addAttribute("logos", sponsorLogos)
 
         return MAIN_PAGE
     }
