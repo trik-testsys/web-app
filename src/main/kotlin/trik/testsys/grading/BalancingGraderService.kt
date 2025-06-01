@@ -175,6 +175,8 @@ class BalancingGraderService(
         try {
             val channel = ManagedChannelBuilder.forTarget(address)
                 .usePlaintext() // TODO: Make proper channel initialization
+                .maxInboundMessageSize(400_000_000)
+                .maxInboundMetadataSize(400_000_000)
                 .build()
 
             val node = GradingNodeGrpcKt.GradingNodeCoroutineStub(channel)
