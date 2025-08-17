@@ -2,8 +2,8 @@
   <configuration default="false" name="WebApp" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
     <option name="ALTERNATIVE_JRE_PATH" value="corretto-17" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
-    <module name="web-app.main" />
-    <option name="SPRING_BOOT_MAIN_CLASS" value="trik.testsys.Application" />
+    <module name="web-app" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="trik.testsys.sac.application.TSApp" />
     <option name="VM_PARAMETERS" value="-Xmx1g" />
     <option name="WORKING_DIRECTORY" value="file://demo" />
     <extension name="coverage">
