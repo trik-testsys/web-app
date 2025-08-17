@@ -1,13 +1,13 @@
 package trik.testsys.webclient.entity.impl
 
-import trik.testsys.core.entity.AbstractEntity
-import trik.testsys.core.entity.Entity.Companion.TABLE_PREFIX
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.Table
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.Table
+import trik.testsys.sac.data.entity.AbstractEntity
+import trik.testsys.sac.data.entity.AbstractEntity.Companion.TABLE_PREFIX
 
 @Entity
-@Table(name = "${TABLE_PREFIX}_API_KEY")
+@Table(name = "${TABLE_PREFIX}api_key")
 class ApiKey(
     @Column(nullable = false, unique = true, updatable = false)
     val value: String
