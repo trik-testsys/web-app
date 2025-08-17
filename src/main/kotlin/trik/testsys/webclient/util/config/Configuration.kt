@@ -1,6 +1,8 @@
 package trik.testsys.webclient.util.config
 
+import jakarta.servlet.MultipartConfigElement
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.web.servlet.MultipartConfigFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.EnableAspectJAutoProxy
@@ -10,6 +12,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.util.unit.DataSize
+import org.springframework.util.unit.DataUnit
 import org.springframework.web.servlet.config.annotation.EnableWebMvc
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
@@ -54,5 +58,13 @@ class Configuration(
     @Bean
     fun passwordEncoder(): PasswordEncoder {
         return BCryptPasswordEncoder(8)
+    }
+
+    @Bean
+    fun multipartConfigElement(): MultipartConfigElement {
+        val factory = MultipartConfigFactory()
+        factory.setMaxFileSize(DataSize.of(4, DataUnit.MEGABYTES))
+        factory.setMaxRequestSize(DataSize.of(4, DataUnit.MEGABYTES))
+        return factory.createMultipartConfig()
     }
 }
