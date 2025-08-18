@@ -9,7 +9,7 @@ import trik.testsys.webapp.core.data.service.EntityService
  */
 interface TokenService<T : Token> : EntityService<T> {
 
-    fun generate(seed: Long = DEFAULT_SEED): T
+    fun generate(seed: Long? = DEFAULT_SEED): T
 
     companion object {
 

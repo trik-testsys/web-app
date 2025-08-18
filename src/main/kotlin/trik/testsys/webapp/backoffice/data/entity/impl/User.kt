@@ -11,6 +11,7 @@ import jakarta.persistence.Enumerated
 import jakarta.persistence.FetchType
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToMany
+import jakarta.persistence.ManyToOne
 import jakarta.persistence.OneToMany
 import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
@@ -55,6 +56,17 @@ class User() : AbstractEntity() {
 
     @ManyToMany(mappedBy = "members", cascade = [CascadeType.PERSIST, CascadeType.MERGE])
     var memberedStudentGroups: MutableSet<StudentGroup> = mutableSetOf()
+
+    @OneToMany(mappedBy = "viewer", cascade = [CascadeType.PERSIST, CascadeType.MERGE], orphanRemoval = true)
+    var managedAdmins: MutableSet<User> = mutableSetOf()
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST, CascadeType.MERGE])
+    @JoinColumn(name = "viewer_id")
+    var viewer: User? = null
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST], orphanRemoval = true)
+    @JoinColumn(name = "admin_reg_token_id", unique = true)
+    var adminRegToken: RegToken? = null
 
     @Suppress("unused")
     enum class Privilege(override val dbKey: String) : PersistableEnum {
