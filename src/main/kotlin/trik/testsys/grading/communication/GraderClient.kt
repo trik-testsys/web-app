@@ -5,6 +5,7 @@ import io.grpc.Channel
 import io.grpc.ManagedChannelBuilder
 import io.grpc.Status
 import io.grpc.StatusException
+import io.grpc.StatusRuntimeException
 import io.grpc.stub.StreamObserver
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.coroutineScope
@@ -63,8 +64,12 @@ class GraderClient(
             }
         } catch (se: StatusException) {
             NodeStatus.Unreachable("The request end up with status error (code ${se.status.code})")
+        } catch (se: StatusRuntimeException) {
+            NodeStatus.Unreachable("The request end up with status error (code ${se.status.code})")
         } catch (_: TimeoutCancellationException) {
             NodeStatus.Unreachable("Status request timeout reached")
+        } catch (_: Exception) {
+            NodeStatus.Unreachable("Unknown reason")
         }
     }
 
