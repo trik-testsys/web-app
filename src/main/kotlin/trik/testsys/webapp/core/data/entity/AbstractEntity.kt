@@ -1,4 +1,4 @@
-package trik.testsys.core.data.entity
+package trik.testsys.webapp.core.data.entity
 
 import jakarta.persistence.Column
 import jakarta.persistence.EntityListeners

@@ -1,4 +1,4 @@
-package trik.testsys.core.service.startup
+package trik.testsys.webapp.core.service.startup
 
 import org.slf4j.LoggerFactory
 import org.springframework.boot.context.event.ApplicationReadyEvent

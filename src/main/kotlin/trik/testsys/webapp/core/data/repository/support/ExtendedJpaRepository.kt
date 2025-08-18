@@ -1,13 +1,13 @@
 @file:Suppress("unused")
 
-package trik.testsys.core.data.repository.support
+package trik.testsys.webapp.core.data.repository.support
 
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository
 import jakarta.persistence.EntityManager
-import trik.testsys.core.data.entity.AbstractEntity
+import trik.testsys.webapp.core.data.entity.AbstractEntity
 
 /**
  * Optional repository helpers to ease pagination and specification composition.

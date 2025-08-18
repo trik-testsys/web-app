@@ -1,4 +1,4 @@
-package trik.testsys.core.data.service
+package trik.testsys.webapp.core.data.service
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
@@ -6,8 +6,8 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.transaction.annotation.Transactional
-import trik.testsys.core.data.entity.AbstractEntity
-import trik.testsys.core.data.repository.EntityRepository
+import trik.testsys.webapp.core.data.entity.AbstractEntity
+import trik.testsys.webapp.core.data.repository.EntityRepository
 
 /**
  * Abstract base implementation of [EntityService] backed by a Spring Data [EntityRepository].
@@ -24,6 +24,7 @@ import trik.testsys.core.data.repository.EntityRepository
  * @since %CURRENT_VERSION%
  */
 @Transactional(readOnly = true)
+
 abstract class AbstractService<E, R> : EntityService<E>
         where E : AbstractEntity,
               R : EntityRepository<E> {

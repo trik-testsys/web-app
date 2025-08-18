@@ -1,8 +1,8 @@
-package trik.testsys.core.data.repository.user
+package trik.testsys.webapp.core.data.repository.user
 
 import org.springframework.data.repository.NoRepositoryBean
-import trik.testsys.core.data.entity.user.AbstractUserEntity
-import trik.testsys.core.data.repository.EntityRepository
+import trik.testsys.webapp.core.data.entity.user.AbstractUserEntity
+import trik.testsys.webapp.core.data.repository.EntityRepository
 
 /**
  * Repository contract for accessing user entities that extend [AbstractUserEntity].

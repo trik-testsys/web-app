@@ -1,4 +1,4 @@
-package trik.testsys.core.service.startup
+package trik.testsys.webapp.core.service.startup
 
 import kotlinx.coroutines.runBlocking
 

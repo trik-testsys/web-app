@@ -1,4 +1,4 @@
-package trik.testsys.core.config
+package trik.testsys.webapp.core.config
 
 import org.springframework.boot.autoconfigure.domain.EntityScan
 import org.springframework.context.annotation.Configuration

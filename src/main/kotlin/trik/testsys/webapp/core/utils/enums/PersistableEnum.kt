@@ -1,4 +1,4 @@
-package trik.testsys.core.utils.enums
+package trik.testsys.webapp.core.utils.enums
 
 /**
  * Marker for enums that are stored in DB via a short stable key.

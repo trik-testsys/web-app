@@ -1,9 +1,9 @@
-package trik.testsys.core.data.service
+package trik.testsys.webapp.core.data.service
 
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.domain.Specification
-import trik.testsys.core.data.entity.AbstractEntity
+import trik.testsys.webapp.core.data.entity.AbstractEntity
 
 /**
  * Base service contract for entities extending [AbstractEntity].

@@ -1,8 +1,8 @@
-package trik.testsys.core.data.entity.user
+package trik.testsys.webapp.core.data.entity.user
 
 import jakarta.persistence.Column
 import jakarta.persistence.MappedSuperclass
-import trik.testsys.core.data.entity.AbstractEntity
+import trik.testsys.webapp.core.data.entity.AbstractEntity
 import java.time.Instant
 
 /**

@@ -1,8 +1,7 @@
-package trik.testsys.core.utils.enums.converter
+package trik.testsys.webapp.core.utils.enums.converter
 
 import jakarta.persistence.AttributeConverter
-import jakarta.persistence.MappedSuperclass
-import trik.testsys.core.utils.enums.PersistableEnum
+import trik.testsys.webapp.core.utils.enums.PersistableEnum
 import java.lang.IllegalStateException
 import java.lang.reflect.ParameterizedType
 
@@ -13,7 +12,7 @@ import java.lang.reflect.ParameterizedType
  * @author Roman Shishkin
  * @since %CURRENT_VERSION%
  */
-@MappedSuperclass
+@Suppress("unused")
 abstract class AbstractPersistableEnumConverter<E> : AttributeConverter<E, String>
         where E : Enum<E>,
               E : PersistableEnum {

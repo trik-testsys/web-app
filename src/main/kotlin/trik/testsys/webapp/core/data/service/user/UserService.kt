@@ -1,7 +1,7 @@
-package trik.testsys.core.data.service.user
+package trik.testsys.webapp.core.data.service.user
 
-import trik.testsys.core.data.entity.user.AbstractUserEntity
-import trik.testsys.core.data.service.EntityService
+import trik.testsys.webapp.core.data.entity.user.AbstractUserEntity
+import trik.testsys.webapp.core.data.service.EntityService
 
 /**
  * Service contract focused on user entities extending [AbstractUserEntity].

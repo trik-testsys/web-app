@@ -1,9 +1,9 @@
-package trik.testsys.core.data.repository
+package trik.testsys.webapp.core.data.repository
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 import org.springframework.data.repository.NoRepositoryBean
-import trik.testsys.core.data.entity.AbstractEntity
+import trik.testsys.webapp.core.data.entity.AbstractEntity
 
 /**
  * Base Spring Data repository for all entities extending [AbstractEntity].

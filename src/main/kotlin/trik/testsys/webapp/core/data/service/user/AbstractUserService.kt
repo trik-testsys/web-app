@@ -1,9 +1,9 @@
-package trik.testsys.core.data.service.user
+package trik.testsys.webapp.core.data.service.user
 
 import org.springframework.transaction.annotation.Transactional
-import trik.testsys.core.data.entity.user.AbstractUserEntity
-import trik.testsys.core.data.repository.user.UserEntityRepository
-import trik.testsys.core.data.service.AbstractService
+import trik.testsys.webapp.core.data.entity.user.AbstractUserEntity
+import trik.testsys.webapp.core.data.repository.user.UserEntityRepository
+import trik.testsys.webapp.core.data.service.AbstractService
 
 /**
  * Abstract base implementation of [UserService] backed by a [UserEntityRepository].
