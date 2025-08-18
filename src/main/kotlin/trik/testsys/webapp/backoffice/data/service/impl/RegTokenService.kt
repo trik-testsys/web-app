@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional
 import trik.testsys.webapp.backoffice.data.entity.impl.RegToken
 import trik.testsys.webapp.backoffice.data.repository.RegTokenRepository
 import trik.testsys.webapp.backoffice.data.service.TokenService
+import trik.testsys.webapp.backoffice.data.service.TokenService.Companion.DEFAULT_SEED
 import trik.testsys.webapp.core.data.service.AbstractService
 import java.util.Random
 
@@ -19,8 +20,8 @@ class RegTokenService :
     TokenService<RegToken> {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    override fun generate(seed: Long): RegToken {
-        val random = Random(seed)
+    override fun generate(seed: Long?): RegToken {
+        val random = Random(seed ?: DEFAULT_SEED)
         val token = RegToken()
 
         fun nextChunk(): String = Integer.toHexString(random.nextInt(0x10000)).padStart(5, '0')
