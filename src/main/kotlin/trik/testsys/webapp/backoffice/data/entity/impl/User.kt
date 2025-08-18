@@ -16,12 +16,13 @@ import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
 import jakarta.persistence.Transient
 import trik.testsys.webapp.core.data.entity.AbstractEntity
+import trik.testsys.webapp.core.data.entity.AbstractEntity.Companion.TABLE_PREFIX
 import trik.testsys.webapp.core.utils.enums.PersistableEnum
 import trik.testsys.webapp.core.utils.enums.converter.AbstractPersistableEnumConverter
 import java.time.Instant
 
 @Entity
-@Table(name = "ts_user")
+@Table(name = "${TABLE_PREFIX}user")
 class User() : AbstractEntity() {
 
     @Column(name = "name", nullable = false)
