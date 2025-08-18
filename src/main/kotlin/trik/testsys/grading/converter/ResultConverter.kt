@@ -12,7 +12,8 @@ class ResultConverter(private val fieldResultConverter: FieldResultConverter) {
             val fieldResults = ok.resultsList.map { fieldResultConverter.convert(it) }
             Grader.GradingInfo.Ok(submissionId, fieldResults)
         } ?: result.error.let {
-            Grader.GradingInfo.Error(submissionId, it.kind, it.description)
+            val errorKind = KindConverter.convert(it.kind, it.description)
+            Grader.GradingInfo.Error(submissionId, errorKind)
         }
     }
 

@@ -205,12 +205,14 @@ class GradingInfoParserRunner(
     }
 
 
-    private fun Grader.GradingInfo.Error.parse() = let { (solutionId, kind, description) ->
-        logger.info("Solution $solutionId was graded with error: $kind. Description: $description.")
+    private fun Grader.GradingInfo.Error.parse() = let { (solutionId, kind) ->
+        logger.info("Solution $solutionId was graded with error: $kind.")
         val solution = solutionService.find(solutionId.toLong()) ?: return@let
 
-        // timeout error
-        solution.status = if (kind == 4) Solution.SolutionStatus.FAILED else Solution.SolutionStatus.ERROR
+        solution.status = when (kind) {
+            is Grader.ErrorKind.InnerTimeoutExceed -> Solution.SolutionStatus.FAILED
+            else -> Solution.SolutionStatus.ERROR
+        }
         solution.score = 0
 
         solutionService.save(solution)
