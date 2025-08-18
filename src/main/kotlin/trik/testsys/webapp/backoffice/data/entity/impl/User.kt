@@ -1,5 +1,6 @@
 package trik.testsys.webapp.backoffice.data.entity.impl
 
+import jakarta.persistence.CascadeType
 import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
 import jakarta.persistence.Converter
@@ -9,6 +10,8 @@ import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.FetchType
 import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToMany
+import jakarta.persistence.OneToMany
 import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
 import jakarta.persistence.Transient
@@ -39,6 +42,12 @@ class User() : AbstractEntity() {
     @Column(name = "${TABLE_PREFIX}privilege")
     @Enumerated(EnumType.STRING)
     val privileges: MutableSet<Privilege> = mutableSetOf()
+
+    @OneToMany(mappedBy = "owner", orphanRemoval = true)
+    var ownedGroups: MutableSet<UserGroup> = mutableSetOf()
+
+    @ManyToMany(mappedBy = "members", cascade = [CascadeType.PERSIST, CascadeType.MERGE])
+    var memberedGroups: MutableSet<UserGroup> = mutableSetOf()
 
     @Suppress("unused")
     enum class Privilege(override val dbKey: String) : PersistableEnum {
