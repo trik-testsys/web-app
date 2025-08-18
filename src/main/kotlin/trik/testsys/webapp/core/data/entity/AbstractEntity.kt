@@ -7,6 +7,7 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Version
 import jakarta.persistence.MappedSuperclass
+import jakarta.persistence.SequenceGenerator
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.domain.Persistable
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
@@ -40,8 +41,9 @@ abstract class AbstractEntity : Persistable<Long> {
      * @since %CURRENT_VERSION%
      */
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", updatable = false, nullable = false)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "${TABLE_PREFIX}entity_seq")
+    @SequenceGenerator(name = "${TABLE_PREFIX}entity_seq")
+    @Column(name = "id", nullable = false)
     private var id: Long? = null
 
     /**
