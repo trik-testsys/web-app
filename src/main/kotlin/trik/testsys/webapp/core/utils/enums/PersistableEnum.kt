@@ -14,7 +14,7 @@ interface PersistableEnum {
      * @author Roman Shishkin
      * @since %CURRENT_VERSION%
      */
-    val dbkey: String
+    val dbKey: String
 }
 
 
