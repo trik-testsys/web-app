@@ -68,6 +68,13 @@ class User() : AbstractEntity() {
     @JoinColumn(name = "admin_reg_token_id", unique = true)
     var adminRegToken: RegToken? = null
 
+    @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST, CascadeType.MERGE])
+    @JoinColumn(name = "super_user_id")
+    var superUser: User? = null
+
+    @OneToMany(mappedBy = "superUser", cascade = [CascadeType.PERSIST, CascadeType.MERGE], orphanRemoval = true)
+    var createdUsers: MutableSet<User> = mutableSetOf()
+
     @Suppress("unused")
     enum class Privilege(override val dbKey: String) : PersistableEnum {
 
