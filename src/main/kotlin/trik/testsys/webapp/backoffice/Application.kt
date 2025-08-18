@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
  * @author Roman Shishkin
  * @since %CURRENT_VERSION%
  */
-@SpringBootApplication(scanBasePackages = ["trik.testsys.*"])
+@SpringBootApplication(scanBasePackages = ["trik.testsys.webapp.**"])
 class Application {
 
     companion object {
