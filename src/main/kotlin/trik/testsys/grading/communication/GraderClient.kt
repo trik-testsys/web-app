@@ -5,7 +5,6 @@ import io.grpc.Channel
 import io.grpc.ManagedChannelBuilder
 import io.grpc.Status
 import io.grpc.StatusException
-import io.grpc.StatusRuntimeException
 import io.grpc.stub.StreamObserver
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.coroutineScope
@@ -14,6 +13,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import trik.testsys.grading.GraderConfiguration
 import trik.testsys.grading.GradingNodeGrpc
+import trik.testsys.grading.communication.GradingNodeManager
 import trik.testsys.grading.GradingNodeOuterClass
 import trik.testsys.grading.SubmissionInfo
 import trik.testsys.grading.converter.FieldResultConverter
@@ -64,12 +64,8 @@ class GraderClient(
             }
         } catch (se: StatusException) {
             NodeStatus.Unreachable("The request end up with status error (code ${se.status.code})")
-        } catch (se: StatusRuntimeException) {
-            NodeStatus.Unreachable("The request end up with status error (code ${se.status.code})")
         } catch (_: TimeoutCancellationException) {
             NodeStatus.Unreachable("Status request timeout reached")
-        } catch (_: Exception) {
-            NodeStatus.Unreachable("Unknown reason")
         }
     }
 
