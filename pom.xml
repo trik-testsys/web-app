@@ -73,16 +73,16 @@
     </developers>
 
     <dependencies>
-        <dependency>
-            <groupId>trik.testsys.sac</groupId>
-            <artifactId>core-commons</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>trik.testsys.sac</groupId>
-            <artifactId>core-ui</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>trik.testsys.sac</groupId>-->
+<!--            <artifactId>core-commons</artifactId>-->
+<!--            <version>${project.parent.version}</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>trik.testsys.sac</groupId>-->
+<!--            <artifactId>core-ui</artifactId>-->
+<!--            <version>${project.parent.version}</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>trik.testsys.grading</groupId>
             <artifactId>protos</artifactId>
