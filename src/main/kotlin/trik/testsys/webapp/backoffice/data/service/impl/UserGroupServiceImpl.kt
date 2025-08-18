@@ -1,4 +1,4 @@
-package trik.testsys.webapp.backoffice.data.service.impl;
+package trik.testsys.webapp.backoffice.data.service.impl
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service

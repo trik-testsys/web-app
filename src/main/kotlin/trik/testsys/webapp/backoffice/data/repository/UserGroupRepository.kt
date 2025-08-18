@@ -1,4 +1,4 @@
-package trik.testsys.webapp.backoffice.data.repository;
+package trik.testsys.webapp.backoffice.data.repository
 
 import org.springframework.stereotype.Repository
 import trik.testsys.webapp.backoffice.data.entity.impl.User
