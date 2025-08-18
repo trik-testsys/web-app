@@ -1,0 +1,399 @@
+//package trik.testsys.webapp.backoffice.controller.impl.user.developer
+//
+//import org.springframework.beans.factory.annotation.Value
+//import org.springframework.http.MediaType
+//import org.springframework.http.ResponseEntity
+//import org.springframework.stereotype.Controller
+//import org.springframework.ui.Model
+//import org.springframework.web.bind.annotation.*
+//import org.springframework.web.servlet.mvc.support.RedirectAttributes
+//import trik.testsys.backoffice.controller.impl.user.developer.DeveloperMainController.Companion.DEVELOPER_PAGE
+//import trik.testsys.backoffice.controller.impl.user.developer.DeveloperTaskFileController.Companion.checkTaskFileExistence
+//import trik.testsys.backoffice.controller.impl.user.developer.DeveloperTasksController.Companion.TASKS_PATH
+//import trik.testsys.backoffice.controller.user.AbstractWebUserController
+//import trik.testsys.backoffice.controller.user.AbstractWebUserMainController.Companion.LOGIN_PATH
+//import trik.testsys.backoffice.entity.impl.Solution
+//import trik.testsys.backoffice.entity.impl.Task
+//import trik.testsys.backoffice.entity.impl.TaskFile
+//import trik.testsys.backoffice.entity.user.impl.Developer
+//import trik.testsys.backoffice.service.FileManager
+//import trik.testsys.backoffice.service.Grader
+//import trik.testsys.backoffice.service.entity.impl.ContestService
+//import trik.testsys.backoffice.service.entity.impl.SolutionService
+//import trik.testsys.backoffice.service.entity.impl.TaskFileService
+//import trik.testsys.backoffice.service.entity.impl.TaskService
+//import trik.testsys.backoffice.service.entity.user.impl.DeveloperService
+//import trik.testsys.backoffice.service.security.login.impl.LoginData
+//import trik.testsys.backoffice.util.addPopupMessage
+//import trik.testsys.backoffice.view.impl.DeveloperView
+//import trik.testsys.backoffice.view.impl.TaskCreationView
+//import trik.testsys.backoffice.view.impl.TaskTestResultView.Companion.toTaskTestResultView
+//import trik.testsys.backoffice.view.impl.TaskView
+//import java.util.*
+//import javax.servlet.http.HttpServletRequest
+//
+//@Controller
+//@RequestMapping(DeveloperTaskController.TASK_PATH)
+//class DeveloperTaskController(
+//    loginData: LoginData,
+//
+//    private val taskService: TaskService,
+//    private val taskFileService: TaskFileService,
+//    private val solutionService: SolutionService,
+//    private val contestService: ContestService,
+//
+//    private val grader: Grader,
+//    private val fileManager: FileManager,
+//
+//    @Value("\${trik-studio-version}") private val trikStudioVersion: String
+//) : AbstractWebUserController<Developer, DeveloperView, DeveloperService>(loginData) {
+//
+//    override val mainPage = TASK_PAGE
+//
+//    override val mainPath = TASK_PATH
+//
+//    override fun Developer.toView(timeZoneId: String?) = TODO()
+//
+//    @PostMapping("/create")
+//    fun taskPost(
+//        @ModelAttribute("task") taskView: TaskCreationView,
+//        timeZone: TimeZone,
+//        request: HttpServletRequest,
+//        redirectAttributes: RedirectAttributes
+//    ): String {
+//        val webUser = loginData.validate(redirectAttributes) ?: return "redirect:$LOGIN_PATH"
+//
+//        val task = taskView.toEntity(webUser)
+//
+//        taskService.validate(task, redirectAttributes, "redirect:$TASKS_PATH")?.let { return it }
+//
+//        taskService.save(task)
+//
+//        redirectAttributes.addPopupMessage("Задание '${task.name}' успешно создана.")
+//
+//        return "redirect:$TASKS_PATH"
+//    }
+//
+//    @GetMapping("/{taskId}")
+//    fun taskGet(
+//        @PathVariable("taskId") taskId: Long,
+//        @CookieValue(name = "X-Timezone", defaultValue = "UTC") timezone: String,
+//        redirectAttributes: RedirectAttributes,
+//        model: Model
+//    ): String {
+//        val webUser = loginData.validate(redirectAttributes) ?: return "redirect:$LOGIN_PATH"
+//
+//        if (!webUser.checkTaskExistence(taskId)) {
+//            redirectAttributes.addPopupMessage("Задание с ID $taskId не найдено.")
+//            return "redirect:$TASKS_PATH"
+//        }
+//
+//        val task = taskService.find(taskId) ?: run {
+//            redirectAttributes.addPopupMessage("Задание с ID $taskId не найдено.")
+//            return "redirect:$TASKS_PATH"
+//        }
+//
+//        val taskView = task.toView(timezone)
+//        model.addAttribute(TASK_ATTR, taskView)
+//
+//        val taskFiles = webUser.taskFiles
+//            .filter { it !in task.taskFiles }
+//            .map { it.toView(timezone) }
+//            .sortedBy { it.id }
+//        model.addAttribute(TASK_FILES_ATTR, taskFiles)
+//
+//        val taskTests = solutionService.findTaskTests(task)
+//        model.addAttribute(TEST_RESULTS, taskTests.sortedByDescending { it.creationDate }.map { it.toTaskTestResultView(timezone) })
+//
+//        return TASK_PAGE
+//    }
+//
+//    @GetMapping("/testResult/{taskId}")
+//    fun getTaskTestResult(
+//        @PathVariable("taskId") taskId: Long,
+//        @RequestParam("solutionId") solutionId: Long,
+//        redirectAttributes: RedirectAttributes,
+//        model: Model
+//    ): Any {
+//        val webUser = loginData.validate(redirectAttributes) ?: return "redirect:$LOGIN_PATH"
+//
+//        if (!webUser.checkTaskExistence(taskId)) {
+//            redirectAttributes.addPopupMessage("Задание с ID $taskId не найдено.")
+//            return "redirect:$TASKS_PATH"
+//        }
+//
+//        val task = taskService.find(taskId) ?: run {
+//            redirectAttributes.addPopupMessage("Задание с ID $taskId не найдено.")
+//            return "redirect:$TASKS_PATH"
+//        }
+//
+//        val solution = solutionService.find(solutionId) ?: run {
+//            redirectAttributes.addPopupMessage("Решение с ID $solutionId не найдено.")
+//            return "redirect:$TASK_PATH/$taskId"
+//        }
+//
+//        if (solution.task != task || solution.student != null) {
+//            redirectAttributes.addPopupMessage("Решение с ID $solutionId не принадлежит Заданию ${task.name}.")
+//            return "redirect:$TASK_PATH/$taskId"
+//        }
+//
+//        if (solution.status == Solution.SolutionStatus.IN_PROGRESS) {
+//            redirectAttributes.addPopupMessage("Решение с ID $solutionId находится в процессе тестирования.")
+//            return "redirect:$TASK_PATH/$taskId"
+//        }
+//
+//        val testResult = fileManager.getSolutionResultFilesCompressed(solution)
+//        val bytes = testResult.readBytes()
+//
+//        val responseEntity = ResponseEntity.ok()
+//            .header("Content-Disposition", "attachment; filename=\"${testResult.name}\"")
+//            .header("Content-Type", MediaType.APPLICATION_OCTET_STREAM_VALUE)
+//            .header("Content-Transfer-Encoding", "binary")
+//            .header("Content-Length", bytes.size.toString())
+//            .body(bytes)
+//
+//        return responseEntity
+//    }
+//
+//    @PostMapping("/update/{taskId}")
+//    fun taskUpdate(
+//        @PathVariable("taskId") taskId: Long,
+//        @ModelAttribute("task") taskView: TaskView,
+//        @CookieValue(name = "X-Timezone", defaultValue = "UTC") timezone: String,
+//        redirectAttributes: RedirectAttributes,
+//        model: Model
+//    ): String {
+//        val webUser = loginData.validate(redirectAttributes) ?: return "redirect:$LOGIN_PATH"
+//
+//        if (!webUser.checkTaskExistence(taskId)) {
+//            redirectAttributes.addPopupMessage("Задание с ID $taskId не найдено.")
+//            return "redirect:$TASKS_PATH"
+//        }
+//
+//        val prevTask = taskService.find(taskId) ?: run {
+//            redirectAttributes.addPopupMessage("Задание с ID $taskId не найдено.")
+//            return "redirect:$TASKS_PATH"
+//        }
+//
+//        val task = taskView.toEntity(timezone).also {
+//            if (prevTask.passedTests) {
+//                it.pass()
+//            } else {
+//                it.fail()
+//            }
+//
+//            it.developer = webUser
+//        }
+//
+//        taskService.validate(task, redirectAttributes, "redirect:$TASK_PATH/$taskId")?.let { return it }
+//
+//        val updatedTask = taskService.save(task)
+//
+//        model.addAttribute(TASK_ATTR, updatedTask.toView(timezone))
+//        redirectAttributes.addPopupMessage("Данные успешно изменены.")
+//
+//        return "redirect:$TASK_PATH/$taskId"
+//    }
+//
+//    @PostMapping("/attachTaskFile/{taskId}")
+//    fun attachTaskFileToTask(
+//        @PathVariable("taskId") taskId: Long,
+//        @RequestParam("taskFileId") taskFileId: Long,
+//        timeZone: TimeZone,
+//        redirectAttributes: RedirectAttributes
+//    ): String {
+//        val webUser = loginData.validate(redirectAttributes) ?: return "redirect:$LOGIN_PATH"
+//
+//        val task = taskService.find(taskId) ?: run {
+//            redirectAttributes.addPopupMessage("Задание с ID $taskId не найдено.")
+//            return "redirect:$TASKS_PATH"
+//        }
+//
+//        if (!webUser.checkTaskExistence(taskId)) {
+//            redirectAttributes.addPopupMessage("Задание с ID $taskId не найдено.")
+//            return "redirect:$TASKS_PATH"
+//        }
+//
+//        val taskFile = taskFileService.find(taskFileId) ?: run {
+//            redirectAttributes.addPopupMessage("Файл с ID $taskFileId не найден.")
+//            return "redirect:$TASK_PATH/$taskId"
+//        }
+//
+//        if (!webUser.checkTaskFileExistence(taskFileId)) {
+//            redirectAttributes.addPopupMessage("Файл с ID $taskFileId не найден.")
+//            return "redirect:$TASK_PATH/$taskId"
+//        }
+//
+//        if (taskFile.type == TaskFile.TaskFileType.SOLUTION && task.hasSolution) {
+//            redirectAttributes.addPopupMessage("Задание ${task.name} уже имеет Эталонное решение.")
+//            return "redirect:$TASK_PATH/$taskId"
+//        }
+//
+//        if (taskFile.type == TaskFile.TaskFileType.EXERCISE && task.hasExercise) {
+//            redirectAttributes.addPopupMessage("Задание ${task.name} уже имеет Упражнение.")
+//            return "redirect:$TASK_PATH/$taskId"
+//        }
+//
+//        if (taskFile.type == TaskFile.TaskFileType.CONDITION && task.hasCondition) {
+//            redirectAttributes.addPopupMessage("Задание ${task.name} уже имеет Условие.")
+//            return "redirect:$TASK_PATH/$taskId"
+//        }
+//
+//        if (taskFile.type.cannotBeRemovedOnTaskTesting()) {
+//            task.contests.forEach {
+//                it.tasks.remove(task)
+//                contestService.save(it)
+//            }
+//            task.contests.clear()
+//
+//            task.fail()
+//        }
+//
+//        taskFile.tasks.add(task)
+//        taskFileService.save(taskFile)
+//
+//        task.taskFiles.add(taskFile)
+//        taskService.save(task)
+//
+//        redirectAttributes.addPopupMessage("Файл ${taskFile.name} успешно прикреплен к заданию ${task.name}.")
+//
+//        return "redirect:$TASK_PATH/$taskId"
+//    }
+//
+//    @PostMapping("/deAttachTaskFile/{taskId}")
+//    fun deAttachTaskFileToTask(
+//        @PathVariable("taskId") taskId: Long,
+//        @RequestParam("taskFileId") taskFileId: Long,
+//        timeZone: TimeZone,
+//        redirectAttributes: RedirectAttributes
+//    ): String {
+//        val webUser = loginData.validate(redirectAttributes) ?: return "redirect:$LOGIN_PATH"
+//
+//        val task = taskService.find(taskId) ?: run {
+//            redirectAttributes.addPopupMessage("Задание с ID $taskId не найдено.")
+//            return "redirect:$TASKS_PATH"
+//        }
+//
+//        if (!webUser.checkTaskExistence(taskId)) {
+//            redirectAttributes.addPopupMessage("Задание с ID $taskId не найдено.")
+//            return "redirect:$TASKS_PATH"
+//        }
+//
+//        val taskFile = taskFileService.find(taskFileId) ?: run {
+//            redirectAttributes.addPopupMessage("Файл с ID $taskFileId не найден.")
+//            return "redirect:$TASK_PATH/$taskId"
+//        }
+//
+//        if (!webUser.checkTaskFileExistence(taskFileId)) {
+//            redirectAttributes.addPopupMessage("Файл с ID $taskFileId не найден.")
+//            return "redirect:$TASK_PATH/$taskId"
+//        }
+//
+//        val taskTest = solutionService.findTaskTests(task)
+//        val isTaskTestingNow =  taskTest.any { it.status == Solution.SolutionStatus.IN_PROGRESS }
+//
+//        if (isTaskTestingNow && taskFile.type.cannotBeRemovedOnTaskTesting()) {
+//            redirectAttributes.addPopupMessage("Тестирование Задания ${task.name} в процессе. Открепление Файла невозможно.")
+//            return "redirect:$TASK_PATH/$taskId"
+//        }
+//
+//        if (taskFile.type.cannotBeRemovedOnTaskTesting()) {
+//            task.contests.forEach {
+//                it.tasks.remove(task)
+//                contestService.save(it)
+//            }
+//            task.contests.clear()
+//
+//            task.fail()
+//        }
+//
+//        taskFile.tasks.remove(task)
+//        taskFileService.save(taskFile)
+//
+//        task.taskFiles.remove(taskFile)
+//        taskService.save(task)
+//
+//        redirectAttributes.addPopupMessage("Файл ${taskFile.name} успешно откреплен от задания ${task.name}.")
+//
+//        return "redirect:$TASK_PATH/$taskId"
+//    }
+//
+//    @PostMapping("/test/{taskId}")
+//    fun testTask(
+//        @PathVariable("taskId") taskId: Long,
+//        timeZone: TimeZone,
+//        redirectAttributes: RedirectAttributes
+//    ): String {
+//        val webUser = loginData.validate(redirectAttributes) ?: return "redirect:$LOGIN_PATH"
+//
+//        val task = taskService.find(taskId) ?: run {
+//            redirectAttributes.addPopupMessage("Задание с ID $taskId не найдено.")
+//            return "redirect:$TASKS_PATH"
+//        }
+//
+//        if (!webUser.checkTaskExistence(taskId)) {
+//            redirectAttributes.addPopupMessage("Задание с ID $taskId не найдено.")
+//            return "redirect:$TASKS_PATH"
+//        }
+//
+//        if (!task.hasSolution) {
+//            redirectAttributes.addPopupMessage("Задание ${task.name} не имеет Эталонного решения. Тестирование невозможно.")
+//            return "redirect:$TASK_PATH/$taskId"
+//        }
+//
+//        if (task.polygonsCount == 0L) {
+//            redirectAttributes.addPopupMessage("Задание ${task.name} не имеет Полигонов. Тестирование невозможно.")
+//            return "redirect:$TASK_PATH/$taskId"
+//        }
+//
+//        if (!task.hasExercise) {
+//            redirectAttributes.addPopupMessage("Задание ${task.name} не имеет Упражнение. Тестирование невозможно.")
+//            return "redirect:$TASK_PATH/$taskId"
+//        }
+//
+//        val solutionFile = fileManager.getTaskFile(task.solution!!)
+//        val solution = Solution.qrsSolution(task).also {
+//            it.additionalInfo = "Тестирование Эталонного решения '${task.solution?.id}: ${task.solution?.name}' Задания '${task.id}: ${task.name}'."
+//        }
+//        solutionService.save(solution)
+//
+//        fileManager.saveSolutionFile(solution, solutionFile!!)
+//
+//        grader.sendToGrade(
+//            solution,
+//            Grader.GradingOptions(true, trikStudioVersion)
+//        )
+//
+//        redirectAttributes.addPopupMessage("Тестирование задания ${task.name} запущено.")
+//
+//        return "redirect:$TASK_PATH/$taskId"
+//    }
+//
+//    companion object {
+//
+//        const val TASK_PATH = "$TASKS_PATH/task"
+//        const val TASK_PAGE = "$DEVELOPER_PAGE/task"
+//
+//        const val TASK_ATTR = "task"
+//
+//        const val TASK_FILES_ATTR = "taskFiles"
+//
+//        const val TEST_RESULTS = "testResults"
+//
+//        fun Developer.checkTaskExistence(taskId: Long?) = tasks.any { it.id == taskId }
+//
+//        fun TaskService.validate(task: Task, redirectAttributes: RedirectAttributes, redirect: String): String? {
+//            if (!validateName(task)) {
+//                redirectAttributes.addPopupMessage("Название Задания не должно содержать Код-доступа.")
+//                return redirect
+//            }
+//
+//            if (!validateAdditionalInfo(task)) {
+//                redirectAttributes.addPopupMessage("Дополнительная информация не должна содержать Код-доступа.")
+//                return redirect
+//            }
+//
+//            return null
+//        }
+//    }
+//}
