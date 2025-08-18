@@ -13,7 +13,6 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import trik.testsys.grading.GraderConfiguration
 import trik.testsys.grading.GradingNodeGrpc
-import trik.testsys.grading.communication.GradingNodeManager
 import trik.testsys.grading.GradingNodeOuterClass
 import trik.testsys.grading.SubmissionInfo
 import trik.testsys.grading.converter.FieldResultConverter

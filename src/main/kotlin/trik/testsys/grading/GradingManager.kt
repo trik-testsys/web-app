@@ -8,9 +8,6 @@ import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import trik.testsys.grading.communication.GradingNodeManager
-import trik.testsys.webclient.entity.impl.Solution
-import java.time.Duration
-import java.time.LocalDateTime
 import java.util.concurrent.LinkedBlockingQueue
 
 @Suppress("UNUSED")
