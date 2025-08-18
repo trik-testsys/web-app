@@ -28,12 +28,12 @@ abstract class AbstractPersistableEnumConverter<E> : AttributeConverter<E, Strin
         }
     }
 
-    override fun convertToDatabaseColumn(attribute: E?): String? = attribute?.dbkey
+    override fun convertToDatabaseColumn(attribute: E?): String? = attribute?.dbKey
 
     override fun convertToEntityAttribute(dbData: String?): E? {
         if (dbData == null) return null
         val all = enumClass.enumConstants ?: emptyArray()
-        return all.firstOrNull { it.dbkey == dbData }
+        return all.firstOrNull { it.dbKey == dbData }
             ?: throw IllegalArgumentException("Unknown dbkey '$dbData' for enum ${enumClass.name}")
     }
 }
