@@ -7,6 +7,7 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.JoinTable
 import jakarta.persistence.ManyToMany
 import jakarta.persistence.ManyToOne
+import jakarta.persistence.PrePersist
 import jakarta.persistence.Table
 import trik.testsys.webapp.core.data.entity.AbstractEntity
 
@@ -17,6 +18,11 @@ import trik.testsys.webapp.core.data.entity.AbstractEntity
 @Entity
 @Table(name = "user_group")
 class UserGroup : AbstractEntity() {
+
+    @PrePersist
+    fun prePersist() {
+        owner?.let { members.add(it) } ?: error("'owner' field must be initialized")
+    }
 
     @ManyToOne(
         fetch = FetchType.LAZY,

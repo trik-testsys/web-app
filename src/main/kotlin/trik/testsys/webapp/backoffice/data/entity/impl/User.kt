@@ -50,6 +50,12 @@ class User() : AbstractEntity() {
     @ManyToMany(mappedBy = "members", cascade = [CascadeType.PERSIST, CascadeType.MERGE])
     var memberedGroups: MutableSet<UserGroup> = mutableSetOf()
 
+    @OneToMany(mappedBy = "owner", orphanRemoval = true)
+    var ownedStudentGroups: MutableSet<StudentGroup> = mutableSetOf()
+
+    @ManyToMany(mappedBy = "members", cascade = [CascadeType.PERSIST, CascadeType.MERGE])
+    var memberedStudentGroups: MutableSet<StudentGroup> = mutableSetOf()
+
     @Suppress("unused")
     enum class Privilege(override val dbKey: String) : PersistableEnum {
 
