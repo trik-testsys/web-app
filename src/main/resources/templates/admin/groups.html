@@ -9,11 +9,11 @@
 
 <main class="app-main">
     <section class="card">
-        <h2 class="card-title">Мои группы</h2>
+        <h2 class="card-title">Группы</h2>
         <div class="card-body">
             <div class="alert" th:if="${message}" th:text="${message}"></div>
             <div style="margin-bottom:10px;">
-                <a class="btn" th:href="@{/user/admin/groups/create}">Создать группу</a>
+                <a class="button" th:href="@{/user/admin/groups/create}">Создать группу</a>
             </div>
             <div th:if="${#lists.isEmpty(groups)}" style="color: var(--color-text-muted);">У вас пока нет групп.</div>
             <table th:if="${!#lists.isEmpty(groups)}" class="table">

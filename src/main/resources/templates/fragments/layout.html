@@ -41,7 +41,7 @@
                 <ul class="menu-items">
                     <li class="menu-item" th:each="item : ${section.items}">
                         <a th:href="@{__${item.link}__}" th:text="${item.name}"
-                           th:classappend="${#vars.effectiveUri == item.link} ? ' active'"
+                           th:classappend="${#vars.effectiveUri == item.link or #strings.startsWith(#vars.effectiveUri, item.link + '/')} ? ' active'"
                            th:attr="aria-current=${#vars.effectiveUri == item.link} ? 'page' : null"></a>
                     </li>
                 </ul>

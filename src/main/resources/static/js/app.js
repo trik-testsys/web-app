@@ -49,7 +49,12 @@ document.addEventListener('DOMContentLoaded', () => {
 function markActiveNavigation() {
   try {
     var currentPath = window.location.pathname;
-    var links = document.querySelectorAll('.app-sidebar .menu-item a');
+    var links = Array.from(document.querySelectorAll('.app-sidebar .menu-item a'));
+    if (!links.length) return;
+
+    var bestLink = null;
+    var bestLen = -1;
+
     links.forEach(function (a) {
       var hrefPath;
       try {
@@ -58,13 +63,22 @@ function markActiveNavigation() {
         hrefPath = a.getAttribute('href') || '';
       }
       if (!hrefPath) return;
-      var isActive = (currentPath === hrefPath);
-      if (isActive) {
-        a.classList.add('active');
-        var section = a.closest('.menu-section');
-        if (section) section.classList.add('active');
+      var matches = (currentPath === hrefPath) || (hrefPath !== '/' && currentPath.indexOf(hrefPath + '/') === 0);
+      if (matches && hrefPath.length > bestLen) {
+        bestLink = a;
+        bestLen = hrefPath.length;
       }
     });
+
+    // Reset existing states to avoid multiple actives
+    links.forEach(function (a) { a.classList.remove('active'); });
+    Array.from(document.querySelectorAll('.app-sidebar .menu-section')).forEach(function (s) { s.classList.remove('active'); });
+
+    if (bestLink) {
+      bestLink.classList.add('active');
+      var section = bestLink.closest('.menu-section');
+      if (section) section.classList.add('active');
+    }
   } catch (_) {
     // no-op
   }

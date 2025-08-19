@@ -76,27 +76,23 @@ body {
 }
 
 .button {
+    appearance: none;
     display: inline-block;
-    padding: 10px 20px;
+    padding: 10px 14px;
     margin: 5px;
-    background-color: var(--trik-grey); /* Цвет фона */
-    color: var(--trik-blue); /* Цвет текста */
-    text-decoration: none; /* Убираем подчеркивание у ссылок */
-    border: none; /* Убираем стандартную рамку у кнопок */
-    border-radius: 5px; /* Закругленные углы */
-    transition: background-color 0.3s, transform 0.3s; /* Плавные переходы */
-    cursor: pointer; /* Курсор как у кнопки */
+    background-color: var(--trik-grey);
+    color: var(--trik-blue);
+    text-decoration: none;
+    border: 0;
+    border-radius: 10px;
+    transition: background-color 0.2s ease;
+    cursor: pointer;
     font-size: 16px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 .button:hover {
-    background-color: var(--trik-green); /* Цвет фона при наведении */
-    transform: scale(1.05); /* Увеличение кнопки при наведении */
-}
-
-.button:active {
-    transform: scale(0.95); /* Уменьшение кнопки при нажатии */
+    background-color: #e9ebef;
 }
 
 .button:disabled {

@@ -9,7 +9,7 @@
 
 <main class="app-main">
     <section class="card">
-        <h2 class="card-title">Группа</h2>
+        <h2 class="card-title"><a th:href="@{/user/admin/groups}">Группы</a> / <span th:text="${group.name ?: 'Без названия'}"></span></h2>
         <div class="card-body">
             <div class="alert" th:if="${message}" th:text="${message}"></div>
             <dl class="kv">
@@ -23,9 +23,9 @@
             <div style="margin: 12px 0; display:flex; gap:8px;">
                 <form th:action="@{'/user/admin/groups/' + ${group.id} + '/generate'}" method="post" style="display:flex; gap:8px; align-items:center;">
                     <input type="number" min="1" max="200" name="count" placeholder="Количество" style="width:120px; padding:8px 10px; border:1px solid #dde3ea; border-radius:8px;">
-                    <button type="submit" class="btn btn-primary">Сгенерировать</button>
+                    <button type="submit" class="button button--primary">Сгенерировать</button>
                 </form>
-                <a class="btn" th:href="@{'/user/admin/groups/' + ${group.id} + '/export'}">Экспорт CSV</a>
+                <a class="button" th:href="@{'/user/admin/groups/' + ${group.id} + '/export'}">Экспорт CSV</a>
             </div>
             <div style="margin-top: 12px;">
                 <h3 style="margin: 0 0 8px 0;">Участники</h3>

@@ -9,7 +9,7 @@
 
 <main class="app-main">
     <section class="card">
-        <h2 class="card-title">Создание группы</h2>
+        <h2 class="card-title"><a th:href="@{/user/admin/groups}">Группы</a> / Создание группы</h2>
         <div class="card-body">
             <form th:action="@{/user/admin/groups/create}" method="post" style="display:grid; gap:12px; max-width:560px;">
                 <label>
@@ -21,8 +21,8 @@
                     <textarea name="info" placeholder="Краткое описание" rows="3" style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;"></textarea>
                 </label>
                 <div>
-                    <button type="submit" class="btn btn-primary">Создать</button>
-                    <a class="btn" th:href="@{/user/admin/groups}">Отмена</a>
+                    <button type="submit" class="button button--primary">Создать</button>
+                    <a class="button" th:href="@{/user/admin/groups}">Отмена</a>
                 </div>
             </form>
         </div>
