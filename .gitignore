@@ -191,3 +191,5 @@ target/
 *.iml
 
 data/**
+
+amplicode.xml
