@@ -2,6 +2,7 @@ package trik.testsys.webapp.backoffice.data.service
 
 import trik.testsys.webapp.backoffice.data.entity.impl.User
 import trik.testsys.webapp.core.data.service.EntityService
+import java.time.Instant
 
 /**
  * @author Roman Shishkin
@@ -10,4 +11,6 @@ import trik.testsys.webapp.core.data.service.EntityService
 interface UserService : EntityService<User> {
 
     fun updateName(user: User, newName: String): User
+
+    fun updateLastLoginAt(user: User, lastLoginAt: Instant? = null): User
 }

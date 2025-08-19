@@ -2,13 +2,13 @@ package trik.testsys.webapp.backoffice.data.service.impl
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import trik.testsys.webapp.backoffice.data.entity.impl.RegToken
 import trik.testsys.webapp.backoffice.data.entity.impl.User
 import trik.testsys.webapp.backoffice.data.repository.UserRepository
 import trik.testsys.webapp.backoffice.data.service.UserService
 import trik.testsys.webapp.backoffice.data.service.SuperUserService
 import trik.testsys.webapp.backoffice.data.service.ViewerService
 import trik.testsys.webapp.core.data.service.AbstractService
+import java.time.Instant
 import kotlin.random.Random
 
 /**
@@ -28,9 +28,17 @@ class UserServiceImpl(
         return save(user)
     }
 
-    override fun createAdmin(regToken: RegToken, name: String?): User? {
-        val viewer = regToken.viewer ?: run {
-            logger.warn("Could not create user with unassigned regToken(id=${regToken.id}).")
+    override fun updateLastLoginAt(user: User, lastLoginAt: Instant?): User {
+        lastLoginAt?.let {
+            user.lastLoginAt = it
+        } ?: run { user.lastLoginAt = Instant.now() }
+
+        return save(user)
+    }
+
+    override fun createAdmin(viewer: User, name: String?): User? {
+        viewer.adminRegToken ?: run {
+            logger.warn("Could not create user for VIEWER privileged user.")
             return null
         }
 
