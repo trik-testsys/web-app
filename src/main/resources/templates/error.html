@@ -17,8 +17,8 @@
             <h1 th:text="${message}">Ошибка</h1>
         </div>
         <div class="modal-body">
-            <a th:href="@{/redirect}"
-               class="button">Вернуться в активную сессию</a>
+            <a th:if="${session.accessToken != null}" th:href="@{/user}" class="button">Вернуться в активную сессию</a>
+            <a th:href="@{/}" class="button">Вернуться на главную страницу</a>
         </div>
     </div>
 </div>

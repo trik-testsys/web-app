@@ -16,6 +16,7 @@
         <div class="modal-body">
             <a th:href="@{/login}" class="button">Войти</a>
             <a th:href="@{/reg}" class="button">Зарегистрироваться</a>
+            <a th:if="${hasActiveSession}" th:href="@{/user}" class="button">Вернуться в активную сессию</a>
         </div>
     </div>
 </div>

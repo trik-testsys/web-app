@@ -22,6 +22,7 @@
                 <button type="submit" class="button">Зарегистрироваться</button>
             </form>
             <a th:href="@{/}" class="button">Вернуться на главную страницу</a>
+            <a th:if="${hasActiveSession}" th:href="@{/user}" class="button">Вернуться в активную сессию</a>
         </div>
     </div>
 </div>
