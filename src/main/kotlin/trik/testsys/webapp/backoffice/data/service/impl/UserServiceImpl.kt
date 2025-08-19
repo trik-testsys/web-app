@@ -21,10 +21,10 @@ class UserServiceImpl(
     AbstractService<User, UserRepository>(),
     ViewerService, SuperUserService {
 
-    override fun createAdmin(regToken: RegToken): Boolean {
+    override fun createAdmin(regToken: RegToken): User? {
         val viewer = regToken.viewer ?: run {
             logger.warn("Could not create user with unassigned regToken(id=${regToken.id}).")
-            return false
+            return null
         }
 
         val accessToken = accessTokenService.generate(viewer.id)
@@ -38,7 +38,7 @@ class UserServiceImpl(
 
         accessTokenService.save(accessToken)
         saveAll(listOf(admin, viewer))
-        return true
+        return admin
     }
 
     override fun createUser(superUser: User, name: String, privileges: Collection<User.Privilege>): Boolean {

@@ -32,4 +32,8 @@ class RegTokenService :
 
         return save(token)
     }
+
+    override fun findByValue(value: String): RegToken? {
+        return repository.findByValue(value)
+    }
 }

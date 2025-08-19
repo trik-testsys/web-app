@@ -30,4 +30,8 @@ class AccessTokenService : AbstractService<AccessToken, AccessTokenRepository>()
 
         return save(token)
     }
+
+    override fun findByValue(value: String): AccessToken? {
+        return repository.findByValue(value)
+    }
 }
