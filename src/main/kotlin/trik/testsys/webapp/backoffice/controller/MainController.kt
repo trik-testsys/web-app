@@ -6,16 +6,20 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.ui.Model
 import jakarta.servlet.http.HttpSession
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import trik.testsys.webapp.backoffice.data.service.ViewerService
 import trik.testsys.webapp.backoffice.data.service.impl.AccessTokenService
 import trik.testsys.webapp.backoffice.data.service.impl.RegTokenService
+import trik.testsys.webapp.backoffice.data.service.impl.UserServiceImpl
+import java.time.Instant
 
 @Controller
 class MainController(
     private val accessTokenService: AccessTokenService,
     private val regTokenService: RegTokenService,
-    private val viewerService: ViewerService
+    private val viewerService: ViewerService,
+    private val userService: UserServiceImpl
 ) {
 
     @GetMapping("/")
@@ -34,17 +38,22 @@ class MainController(
 
     @PostMapping("/login")
     fun login(
-        @RequestParam("accessToken") accessTokenValue: String,
+        @RequestParam("accessToken", required = false) accessTokenValue: String?,
+        request: HttpServletRequest,
         session: HttpSession,
         redirectAttributes: RedirectAttributes
     ): String {
-        val provided = accessTokenValue.trim()
+        val provided = (accessTokenValue ?: (request.getAttribute("accessToken") as? String) ?: "").trim()
         val token = accessTokenService.findByValue(provided)
 
         if (token?.user == null) {
             redirectAttributes.addFlashAttribute("message", "Неверный Код-доступа.")
             return "redirect:/login"
         }
+
+        // Update last login timestamp
+        token.user!!.lastLoginAt = Instant.now()
+        userService.save(token.user!!)
 
         session.setAttribute(SESSION_USER_ID, token.user!!.id)
         session.setAttribute(SESSION_ACCESS_TOKEN, token.value)
@@ -68,7 +77,7 @@ class MainController(
     fun register(
         @RequestParam("regToken") regTokenValue: String,
         @RequestParam("name") name: String,
-        session: HttpSession,
+        request: HttpServletRequest,
         redirectAttributes: RedirectAttributes
     ): String {
         val provided = regTokenValue.trim()
@@ -87,9 +96,11 @@ class MainController(
             return "redirect:/login"
         }
 
-        session.setAttribute(SESSION_USER_ID, newUser.id)
-        session.setAttribute(SESSION_ACCESS_TOKEN, token.value)
-        return "redirect:/user"
+        val accessToken = newUser.accessToken
+
+        // Forward POST to /login with accessToken as request attribute to avoid exposing it in URL
+        request.setAttribute("accessToken", accessToken?.value)
+        return "forward:/login"
     }
 
     companion object {

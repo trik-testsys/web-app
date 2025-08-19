@@ -31,6 +31,7 @@ class UserServiceImpl(
         val accessToken = accessTokenService.generate(viewer.id)
         val admin = User().also {
             it.accessToken = accessToken
+
             it.viewer = viewer
             it.privileges.add(User.Privilege.ADMIN)
             it.name = name ?: "New User ${Random.nextInt()}"
@@ -38,8 +39,9 @@ class UserServiceImpl(
             viewer.managedAdmins.add(it)
         }
 
-        accessTokenService.save(accessToken)
         saveAll(listOf(admin, viewer))
+        // set inverse side after user is persisted to avoid transient reference during flush
+        accessToken.user = admin
         return admin
     }
 
@@ -57,14 +59,14 @@ class UserServiceImpl(
             it.superUser = superUser
 
             it.accessToken = accessToken
-            accessToken.user = it
 
             addPrivileges(superUser, it, privileges)
             superUser.createdUsers.add(it)
         }
 
         saveAll(listOf(newUser, superUser))
-        accessTokenService.save(accessToken)
+        // set inverse side after user is persisted to avoid transient reference during flush
+        accessToken.user = newUser
 
         return true
     }
