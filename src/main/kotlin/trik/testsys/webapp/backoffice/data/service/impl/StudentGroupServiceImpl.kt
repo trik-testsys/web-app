@@ -49,6 +49,20 @@ class StudentGroupServiceImpl :
         }
     }
 
+    override fun findByOwner(owner: User): Set<StudentGroup> {
+        return repository.findByOwner(owner)
+    }
+
+    override fun create(owner: User, name: String, info: String?): StudentGroup? {
+        val newGroup = StudentGroup().also {
+            it.owner = owner
+            it.name = name.trim()
+            it.info = info?.trim()
+        }
+
+        return save(newGroup)
+    }
+
     companion object {
 
         private val logger = LoggerFactory.getLogger(StudentGroupServiceImpl::class.java)
