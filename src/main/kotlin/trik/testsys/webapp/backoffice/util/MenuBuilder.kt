@@ -1,4 +1,4 @@
-package trik.testsys.webapp.backoffice.controller.menu
+package trik.testsys.webapp.backoffice.util
 
 import org.springframework.stereotype.Component
 import trik.testsys.webapp.backoffice.data.entity.impl.User
@@ -22,7 +22,6 @@ class MenuBuilder {
                 title = "Наблюдатель",
                 items = listOf(
                     MenuItem(name = "Организаторы", link = "/user/viewer/admins"),
-                    MenuItem(name = "Рег-токен", link = "/user/viewer/token"),
                     MenuItem(name = "Экспорт результатов", link = "/user/viewer/export"),
                 )
             )

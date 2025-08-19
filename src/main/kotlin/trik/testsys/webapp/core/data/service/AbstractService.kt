@@ -24,7 +24,6 @@ import trik.testsys.webapp.core.data.repository.EntityRepository
  * @since %CURRENT_VERSION%
  */
 @Transactional(readOnly = true)
-
 abstract class AbstractService<E, R> : EntityService<E>
         where E : AbstractEntity,
               R : EntityRepository<E> {
