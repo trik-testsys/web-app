@@ -74,6 +74,7 @@ class UserServiceImpl(
         val newUser = User().also {
             it.superUser = superUser
             it.accessToken = accessToken
+            it.name = name
         }
 
         // Persist the new user before assigning it to collections or creating tokens referencing it

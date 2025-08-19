@@ -99,7 +99,7 @@ class UserController(
                     role = "SUPER_USER",
                     localized = "Супервайзер",
                     authorities = "Управление Пользователями и их Ролями",
-                    link = null
+                    link = "/user/superuser/users"
                 )
                 User.Privilege.VIEWER -> PrivRow(
                     role = "VIEWER",
