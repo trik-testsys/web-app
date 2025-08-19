@@ -12,5 +12,5 @@ import trik.testsys.webapp.backoffice.data.entity.impl.User
 interface ViewerService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    fun createAdmin(regToken: RegToken): User?
+    fun createAdmin(regToken: RegToken, name: String?): User?
 }

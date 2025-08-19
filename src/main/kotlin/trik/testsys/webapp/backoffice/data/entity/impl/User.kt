@@ -1,6 +1,5 @@
 package trik.testsys.webapp.backoffice.data.entity.impl
 
-import jakarta.persistence.CascadeType
 import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
 import jakarta.persistence.Converter
@@ -45,34 +44,34 @@ class User() : AbstractEntity() {
     @Enumerated(EnumType.STRING)
     val privileges: MutableSet<Privilege> = mutableSetOf()
 
-    @OneToMany(mappedBy = "owner", orphanRemoval = true)
+    @OneToMany(mappedBy = "owner")
     var ownedGroups: MutableSet<UserGroup> = mutableSetOf()
 
-    @ManyToMany(mappedBy = "members", cascade = [CascadeType.PERSIST, CascadeType.MERGE])
+    @ManyToMany(mappedBy = "members")
     var memberedGroups: MutableSet<UserGroup> = mutableSetOf()
 
-    @OneToMany(mappedBy = "owner", orphanRemoval = true)
+    @OneToMany(mappedBy = "owner")
     var ownedStudentGroups: MutableSet<StudentGroup> = mutableSetOf()
 
-    @ManyToMany(mappedBy = "members", cascade = [CascadeType.PERSIST, CascadeType.MERGE])
+    @ManyToMany(mappedBy = "members")
     var memberedStudentGroups: MutableSet<StudentGroup> = mutableSetOf()
 
-    @OneToMany(mappedBy = "viewer", cascade = [CascadeType.PERSIST, CascadeType.MERGE], orphanRemoval = true)
+    @OneToMany(mappedBy = "viewer")
     var managedAdmins: MutableSet<User> = mutableSetOf()
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST, CascadeType.MERGE])
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "viewer_id")
     var viewer: User? = null
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST], orphanRemoval = true)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "admin_reg_token_id", unique = true)
     var adminRegToken: RegToken? = null
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST, CascadeType.MERGE])
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "super_user_id")
     var superUser: User? = null
 
-    @OneToMany(mappedBy = "superUser", cascade = [CascadeType.PERSIST, CascadeType.MERGE], orphanRemoval = true)
+    @OneToMany(mappedBy = "superUser")
     var createdUsers: MutableSet<User> = mutableSetOf()
 
     @Suppress("unused")

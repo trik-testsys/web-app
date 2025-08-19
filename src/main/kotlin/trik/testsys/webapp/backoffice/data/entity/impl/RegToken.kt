@@ -1,6 +1,5 @@
 package trik.testsys.webapp.backoffice.data.entity.impl
 
-import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
 import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
@@ -18,6 +17,6 @@ import trik.testsys.webapp.core.data.entity.AbstractEntity.Companion.TABLE_PREFI
 ])
 class RegToken() : Token(Type.REGISTRATION) {
 
-    @OneToOne(mappedBy = "adminRegToken", cascade = [CascadeType.PERSIST], orphanRemoval = true)
+    @OneToOne(mappedBy = "adminRegToken")
     var viewer: User? = null
 }

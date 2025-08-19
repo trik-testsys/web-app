@@ -1,6 +1,5 @@
 package trik.testsys.webapp.backoffice.data.entity.impl
 
-import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
 import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
@@ -18,6 +17,6 @@ import trik.testsys.webapp.core.data.entity.AbstractEntity.Companion.TABLE_PREFI
 ])
 class AccessToken() : Token(Type.ACCESS) {
 
-    @OneToOne(mappedBy = "accessToken", cascade = [CascadeType.REMOVE], optional = false, orphanRemoval = true)
+    @OneToOne(mappedBy = "accessToken")
     var user: User? = null
 }

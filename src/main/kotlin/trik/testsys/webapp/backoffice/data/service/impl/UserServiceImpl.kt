@@ -8,6 +8,7 @@ import trik.testsys.webapp.backoffice.data.repository.UserRepository
 import trik.testsys.webapp.backoffice.data.service.SuperUserService
 import trik.testsys.webapp.backoffice.data.service.ViewerService
 import trik.testsys.webapp.core.data.service.AbstractService
+import kotlin.random.Random
 
 /**
  * @author Roman Shishkin
@@ -21,7 +22,7 @@ class UserServiceImpl(
     AbstractService<User, UserRepository>(),
     ViewerService, SuperUserService {
 
-    override fun createAdmin(regToken: RegToken): User? {
+    override fun createAdmin(regToken: RegToken, name: String?): User? {
         val viewer = regToken.viewer ?: run {
             logger.warn("Could not create user with unassigned regToken(id=${regToken.id}).")
             return null
@@ -32,6 +33,7 @@ class UserServiceImpl(
             it.accessToken = accessToken
             it.viewer = viewer
             it.privileges.add(User.Privilege.ADMIN)
+            it.name = name ?: "New User ${Random.nextInt()}"
 
             viewer.managedAdmins.add(it)
         }

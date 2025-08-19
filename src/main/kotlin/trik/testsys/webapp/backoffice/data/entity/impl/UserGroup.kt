@@ -1,6 +1,5 @@
 package trik.testsys.webapp.backoffice.data.entity.impl
 
-import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
 import jakarta.persistence.JoinColumn
@@ -26,13 +25,12 @@ class UserGroup : AbstractEntity() {
 
     @ManyToOne(
         fetch = FetchType.LAZY,
-        cascade = [CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE],
         optional = false
     )
     @JoinColumn(name = "owner_id", nullable = false)
     var owner: User? = null
 
-    @ManyToMany(cascade = [CascadeType.PERSIST, CascadeType.MERGE])
+    @ManyToMany
     @JoinTable(
         name = "${TABLE_PREFIX}user_group_members",
         joinColumns = [JoinColumn(name = "userGroup_id")],
