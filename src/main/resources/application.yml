@@ -77,3 +77,9 @@ grading-node-addresses: "${GRADING_NODE_ADDRESSES:}"
 
 create-lektorium-users: ${CREATE_LEKTORIUM_USERS:false}
 lektorium-group-reg-token: "${LEKTORIUM_GROUP_REG_TOKEN:}"
+
+trik:
+  testsys:
+    superuser:
+      name: "${SUPER_USER_NAME:Default Super User}"
+      accessToken: "${SUPER_USER_AT:}"

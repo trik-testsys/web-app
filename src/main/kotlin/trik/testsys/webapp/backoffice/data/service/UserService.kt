@@ -12,9 +12,12 @@ import java.time.Instant
  */
 interface UserService : EntityService<User> {
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.MANDATORY)
     fun updateName(user: User, newName: String): User
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     fun updateLastLoginAt(user: User, lastLoginAt: Instant? = null): User
+
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+    fun findAllSuperUser(): Set<User>
 }

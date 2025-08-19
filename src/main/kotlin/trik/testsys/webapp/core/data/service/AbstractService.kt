@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import trik.testsys.webapp.core.data.entity.AbstractEntity
 import trik.testsys.webapp.core.data.repository.EntityRepository
@@ -50,15 +51,15 @@ abstract class AbstractService<E, R> : EntityService<E>
 
     override fun count(): Long = repository.count()
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
     override fun save(entity: E): E = repository.save(entity)
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
     override fun saveAll(entities: Iterable<E>): List<E> = repository.saveAll(entities)
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
     override fun deleteById(id: Long) = repository.deleteById(id)
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
     override fun delete(entity: E) = repository.delete(entity)
 }

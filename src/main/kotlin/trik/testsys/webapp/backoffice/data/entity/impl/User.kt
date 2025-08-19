@@ -91,4 +91,10 @@ class User() : AbstractEntity() {
             class JpaConverter : AbstractPersistableEnumConverter<Privilege>()
         }
     }
+
+    companion object {
+
+        const val ACCESS_TOKEN = "accessToken"
+        const val PRIVILEGES = "privileges"
+    }
 }

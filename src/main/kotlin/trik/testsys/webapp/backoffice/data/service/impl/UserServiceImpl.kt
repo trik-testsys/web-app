@@ -1,6 +1,7 @@
 package trik.testsys.webapp.backoffice.data.service.impl
 
 import org.slf4j.LoggerFactory
+import jakarta.persistence.criteria.JoinType
 import org.springframework.stereotype.Service
 import trik.testsys.webapp.backoffice.data.entity.impl.User
 import trik.testsys.webapp.backoffice.data.repository.UserRepository
@@ -119,6 +120,13 @@ class UserServiceImpl(
         save(user)
         return true
     }
+
+    override fun findAllSuperUser() = repository.findAll({ root, q, cb ->
+        root.fetch<Any, Any>(User.ACCESS_TOKEN, JoinType.LEFT)
+        q?.distinct(true)
+        val privilegesPath = root.get<Set<User.Privilege>>(User.PRIVILEGES)
+        cb.isMember(User.Privilege.SUPER_USER, privilegesPath)
+    }).toSet()
 
     companion object {
 
