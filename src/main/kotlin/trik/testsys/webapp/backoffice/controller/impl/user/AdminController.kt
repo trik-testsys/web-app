@@ -15,7 +15,11 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import trik.testsys.webapp.backoffice.controller.AbstractUserController
 import trik.testsys.webapp.backoffice.data.service.StudentGroupService
-import trik.testsys.webapp.backoffice.util.getRedirection
+import trik.testsys.webapp.backoffice.utils.getRedirection
+import trik.testsys.webapp.backoffice.utils.addHasActiveSession
+import trik.testsys.webapp.backoffice.utils.addMessage
+import trik.testsys.webapp.backoffice.utils.addSections
+import trik.testsys.webapp.backoffice.utils.addUser
 
 @Controller
 @RequestMapping("/user/admin")
@@ -30,10 +34,13 @@ class AdminController(
 
         val groups = studentGroupService.findByOwner(admin).sortedBy { it.id }
 
-        model.addAttribute("hasActiveSession", true)
-        model.addAttribute("user", admin)
-        model.addAttribute("menuSections", menuBuilder.buildFor(admin))
-        model.addAttribute("groups", groups)
+        model.apply {
+            addHasActiveSession(session)
+            addUser(admin)
+            addSections(menuBuilder.buildFor(admin))
+            addAttribute("groups", groups)
+        }
+
         return "admin/groups"
     }
 
@@ -48,18 +55,21 @@ class AdminController(
         val admin = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
 
         val group = studentGroupService.findById(id) ?: run {
-            redirectAttributes.addFlashAttribute("message", "Группа не найдена.")
+            redirectAttributes.addMessage("Группа не найдена.")
             return "redirect:/user/admin/groups"
         }
         if (group.owner?.id != admin.id) {
-            redirectAttributes.addFlashAttribute("message", "Нет доступа к группе.")
+            redirectAttributes.addMessage("Нет доступа к группе.")
             return "redirect:/user/admin/groups"
         }
 
-        model.addAttribute("hasActiveSession", true)
-        model.addAttribute("user", admin)
-        model.addAttribute("menuSections", menuBuilder.buildFor(admin))
-        model.addAttribute("group", group)
+        model.apply {
+            addHasActiveSession(session)
+            addUser(admin)
+            addSections(menuBuilder.buildFor(admin))
+            addAttribute("group", group)
+        }
+
         return "admin/group"
     }
 
@@ -68,9 +78,12 @@ class AdminController(
         val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
         val admin = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
 
-        model.addAttribute("hasActiveSession", true)
-        model.addAttribute("user", admin)
-        model.addAttribute("menuSections", menuBuilder.buildFor(admin))
+        model.apply {
+            addHasActiveSession(session)
+            addUser(admin)
+            addSections(menuBuilder.buildFor(admin))
+        }
+
         return "admin/group-create"
     }
 
@@ -85,11 +98,11 @@ class AdminController(
         val admin = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
 
         val group = studentGroupService.create(admin, name, info) ?: run {
-            redirectAttributes.addFlashAttribute("message", "Ошибка при создании Группы.")
+            redirectAttributes.addMessage("Ошибка при создании Группы.")
             return "redirect:/user/admin/groups/create"
         }
 
-        redirectAttributes.addFlashAttribute("message", "Группа создана (id=${group.id}).")
+        redirectAttributes.addMessage("Группа создана (id=${group.id}).")
         return "redirect:/user/admin/groups"
     }
 
@@ -107,12 +120,12 @@ class AdminController(
         if (group.owner?.id != admin.id) return "redirect:/user/admin/groups"
 
         if (count < 1 || count > 200) {
-            redirectAttributes.addFlashAttribute("message", "Количество должно быть от 1 до 200.")
+            redirectAttributes.addMessage("Количество должно быть от 1 до 200.")
             return "redirect:/user/admin/groups/$id"
         }
 
         val created = studentGroupService.generateStudents(admin, group, count)
-        redirectAttributes.addFlashAttribute("message", "Сгенерировано ${created.size} участников.")
+        redirectAttributes.addMessage("Сгенерировано ${created.size} участников.")
         return "redirect:/user/admin/groups/$id"
     }
 

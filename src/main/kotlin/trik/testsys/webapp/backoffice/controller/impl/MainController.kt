@@ -12,6 +12,9 @@ import trik.testsys.webapp.backoffice.data.service.UserService
 import trik.testsys.webapp.backoffice.data.service.ViewerService
 import trik.testsys.webapp.backoffice.data.service.impl.AccessTokenService
 import trik.testsys.webapp.backoffice.data.service.impl.RegTokenService
+import trik.testsys.webapp.backoffice.utils.SESSION_ACCESS_TOKEN
+import trik.testsys.webapp.backoffice.utils.addHasActiveSession
+import trik.testsys.webapp.backoffice.utils.addMessage
 
 @Controller
 class MainController(
@@ -23,22 +26,19 @@ class MainController(
 
     @GetMapping("/")
     fun mainPage(model: Model, session: HttpSession): String {
-        val hasActiveSession = session.getAttribute(SESSION_ACCESS_TOKEN) != null
-        model.addAttribute("hasActiveSession", hasActiveSession)
+        model.addHasActiveSession(session)
         return "main"
     }
 
     @GetMapping("/login")
     fun loginPage(model: Model, session: HttpSession): String {
-        val hasActiveSession = session.getAttribute(SESSION_ACCESS_TOKEN) != null
-        model.addAttribute("hasActiveSession", hasActiveSession)
+        model.addHasActiveSession(session)
         return "login"
     }
 
     @GetMapping("/reg")
     fun regPage(model: Model, session: HttpSession): String {
-        val hasActiveSession = session.getAttribute(SESSION_ACCESS_TOKEN) != null
-        model.addAttribute("hasActiveSession", hasActiveSession)
+        model.addHasActiveSession(session)
         return "reg"
     }
 
@@ -53,7 +53,7 @@ class MainController(
         val token = accessTokenService.findByValue(provided)
 
         val user = token?.user ?: run {
-            redirectAttributes.addFlashAttribute("message", "Неверный Код-доступа.")
+            redirectAttributes.addMessage("Неверный Код-доступа.")
             return "redirect:/login"
         }
 
@@ -79,17 +79,17 @@ class MainController(
     ): String {
         val provided = regTokenValue.trim()
         val token = regTokenService.findByValue(provided) ?: run {
-                redirectAttributes.addFlashAttribute("message", "Неверный Код-доступа.")
+                redirectAttributes.addMessage("Неверный Код-доступа.")
                 return "redirect:/login"
             }
 
         val viewer = token.viewer ?: run {
-            redirectAttributes.addFlashAttribute("message", "Неверный Код-доступа.")
+            redirectAttributes.addMessage("Неверный Код-доступа.")
             return "redirect:/login"
         }
 
         val newUser = viewerService.createAdmin(viewer, name) ?: run {
-            redirectAttributes.addFlashAttribute("message", "Ошибка")
+            redirectAttributes.addMessage("Ошибка")
             return "redirect:/login"
         }
 
@@ -99,7 +99,6 @@ class MainController(
     }
 
     companion object {
-        private const val SESSION_ACCESS_TOKEN = "accessToken"
         private const val SESSION_USER_ID = "userId"
     }
 }

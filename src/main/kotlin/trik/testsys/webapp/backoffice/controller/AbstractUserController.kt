@@ -8,6 +8,7 @@ import trik.testsys.webapp.backoffice.data.entity.impl.User
 import trik.testsys.webapp.backoffice.data.service.UserService
 import trik.testsys.webapp.backoffice.data.service.impl.AccessTokenService
 import trik.testsys.webapp.backoffice.service.menu.MenuBuilder
+import trik.testsys.webapp.backoffice.utils.addMessage
 
 /**
  * @author Roman Shishkin
@@ -28,7 +29,7 @@ abstract class AbstractUserController {
         val accessToken = (session.getAttribute(ACCESS_TOKEN) as? String)?.let {
             accessTokenService.findByValue(it)
         } ?: run {
-            redirectAttributes.addFlashAttribute("message", "Пожалуйста, войдите в систему.")
+            redirectAttributes.addMessage("Пожалуйста, войдите в систему.")
             return null
         }
 
@@ -37,7 +38,7 @@ abstract class AbstractUserController {
 
     protected fun getUser(accessToken: AccessToken, redirectAttributes: RedirectAttributes): User? {
         accessToken.user ?: run {
-            redirectAttributes.addFlashAttribute("message", "Пользователь не найден.")
+            redirectAttributes.addMessage("Пользователь не найден.")
             return null
         }
 

@@ -9,6 +9,10 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import trik.testsys.webapp.backoffice.controller.AbstractUserController
+import trik.testsys.webapp.backoffice.utils.addHasActiveSession
+import trik.testsys.webapp.backoffice.utils.addMessage
+import trik.testsys.webapp.backoffice.utils.addSections
+import trik.testsys.webapp.backoffice.utils.addUser
 
 @Controller
 @RequestMapping("/user")
@@ -22,9 +26,11 @@ class UserController : AbstractUserController() {
         // Build dynamic menu from privileges
         val sections = menuBuilder.buildFor(user)
 
-        model.addAttribute("hasActiveSession", true)
-        model.addAttribute("user", user)
-        model.addAttribute("menuSections", sections)
+        model.apply {
+            addHasActiveSession(session)
+            addUser(user)
+            addSections(sections)
+        }
         return "user"
     }
 
@@ -39,12 +45,12 @@ class UserController : AbstractUserController() {
 
         val trimmed = (newName ?: "").trim()
         if (trimmed.isEmpty()) {
-            redirectAttributes.addFlashAttribute("message", "Псевдоним не может быть пустым.")
+            redirectAttributes.addMessage("Псевдоним не может быть пустым.")
             return "redirect:/user"
         }
 
         userService.updateName(user, trimmed)
-        redirectAttributes.addFlashAttribute("message", "Псевдоним успешно обновлен.")
+        redirectAttributes.addMessage("Псевдоним успешно обновлен.")
         return "redirect:/user"
     }
 }
