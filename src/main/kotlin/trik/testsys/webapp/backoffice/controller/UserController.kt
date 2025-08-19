@@ -9,15 +9,14 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
 import trik.testsys.webapp.backoffice.data.service.impl.AccessTokenService
-import trik.testsys.webapp.backoffice.data.entity.impl.User
-import trik.testsys.webapp.backoffice.data.service.impl.UserServiceImpl
 import trik.testsys.webapp.backoffice.controller.menu.MenuBuilder
+import trik.testsys.webapp.backoffice.data.service.UserService
 
 @Controller
 @RequestMapping("/user")
 class UserController(
     private val accessTokenService: AccessTokenService,
-    private val userService: UserServiceImpl,
+    private val userService: UserService,
     private val menuBuilder: MenuBuilder
 ) {
 
@@ -61,13 +60,12 @@ class UserController(
 
         val trimmed = (newName ?: "").trim()
         if (trimmed.isEmpty()) {
-            redirectAttributes.addFlashAttribute("message", "Имя не может быть пустым.")
+            redirectAttributes.addFlashAttribute("message", "Псевдоним не может быть пустым.")
             return "redirect:/user"
         }
 
-        user.name = trimmed
-        userService.save(user)
-        redirectAttributes.addFlashAttribute("message", "Имя обновлено.")
+        userService.updateName(user, trimmed)
+        redirectAttributes.addFlashAttribute("message", "Псевдоним успешно обновлен.")
         return "redirect:/user"
     }
 }

@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service
 import trik.testsys.webapp.backoffice.data.entity.impl.RegToken
 import trik.testsys.webapp.backoffice.data.entity.impl.User
 import trik.testsys.webapp.backoffice.data.repository.UserRepository
+import trik.testsys.webapp.backoffice.data.service.UserService
 import trik.testsys.webapp.backoffice.data.service.SuperUserService
 import trik.testsys.webapp.backoffice.data.service.ViewerService
 import trik.testsys.webapp.core.data.service.AbstractService
@@ -20,7 +21,12 @@ class UserServiceImpl(
     private val regTokenService: RegTokenService
 ) :
     AbstractService<User, UserRepository>(),
-    ViewerService, SuperUserService {
+    UserService, ViewerService, SuperUserService {
+
+    override fun updateName(user: User, newName: String): User {
+        user.name = newName
+        return save(user)
+    }
 
     override fun createAdmin(regToken: RegToken, name: String?): User? {
         val viewer = regToken.viewer ?: run {
