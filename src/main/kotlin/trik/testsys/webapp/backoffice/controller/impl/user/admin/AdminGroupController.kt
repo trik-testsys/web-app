@@ -1,358 +1,118 @@
-//package trik.testsys.webapp.backoffice.controller.impl.user.admin
-//
-//import jakarta.servlet.http.HttpServletRequest
-//import org.springframework.beans.factory.annotation.Qualifier
-//import org.springframework.http.HttpHeaders
-//import org.springframework.http.MediaType
-//import org.springframework.http.ResponseEntity
-//import org.springframework.stereotype.Controller
-//import org.springframework.ui.Model
-//import org.springframework.web.bind.annotation.*
-//import org.springframework.web.servlet.mvc.support.RedirectAttributes
-//import trik.testsys.backoffice.controller.impl.main.LoginController
-//import trik.testsys.backoffice.controller.impl.user.admin.AdminGroupController.Companion.GROUP_PATH
-//import trik.testsys.backoffice.controller.impl.user.admin.AdminGroupsController.Companion.GROUPS_PATH
-//import trik.testsys.backoffice.controller.user.AbstractWebUserController
-//import trik.testsys.backoffice.entity.impl.StudentGroup
-//import trik.testsys.backoffice.entity.user.impl.Admin
-//import trik.testsys.backoffice.service.UserAgentParser
-//import trik.testsys.backoffice.service.entity.impl.ContestService
-//import trik.testsys.backoffice.service.entity.impl.GroupService
-//import trik.testsys.backoffice.service.entity.user.impl.AdminService
-//import trik.testsys.backoffice.service.entity.user.impl.StudentService
-//import trik.testsys.backoffice.service.impl.UserAgentParserImpl.Companion.WINDOWS_1251
-//import trik.testsys.backoffice.service.security.login.impl.LoginData
-//import trik.testsys.backoffice.service.token.reg.RegTokenGenerator
-//import trik.testsys.backoffice.util.addPopupMessage
-//import trik.testsys.backoffice.view.impl.AdminView
-//import trik.testsys.backoffice.view.impl.GroupCreationView
-//import trik.testsys.backoffice.view.impl.GroupView
-//import java.util.*
-//
-//@Controller
-//@RequestMapping(GROUP_PATH)
-//class AdminGroupController(
-//    loginData: LoginData,
-//
-//    private val groupService: GroupService,
-//    @Qualifier("groupRegTokenGenerator") private val groupRegTokenGenerator: RegTokenGenerator,
-//
-//    private val contestService: ContestService,
-//    private val studentService: StudentService,
-//    private val userAgentParser: UserAgentParser
-//) : AbstractWebUserController<Admin, AdminView, AdminService>(loginData) {
-//
-//    override val mainPage = GROUP_PAGE
-//
-//    override val mainPath = GROUP_PATH
-//
-//    override fun Admin.toView(timeZoneId: String?) = TODO()
-//
-//    @PostMapping("/create")
-//    fun groupPost(
-//        @ModelAttribute("group") groupView: GroupCreationView,
-//        timeZone: TimeZone,
-//        request: HttpServletRequest,
-//        redirectAttributes: RedirectAttributes
-//    ): String {
-//        val webUser = loginData.validate(redirectAttributes) ?: return "redirect:${LoginController.LOGIN_PATH}"
-//
-//        val regToken = groupRegTokenGenerator.generate(groupView.name)
-//        val group = groupView.toEntity(regToken, webUser)
-//
-//        groupService.validate(group, redirectAttributes, "redirect:$GROUPS_PATH")?.let { return it }
-//
-//        groupService.save(group)
-//
-//        redirectAttributes.addPopupMessage("Группа ${group.name} успешно создана.")
-//
-//        return "redirect:$GROUPS_PATH"
-//    }
-//
-//    @GetMapping("/{groupId}")
-//    fun groupGet(
-//        @PathVariable("groupId") id: Long,
-//        @CookieValue(name = "X-Timezone", defaultValue = "UTC") timezone: String,
-//        redirectAttributes: RedirectAttributes,
-//        model: Model
-//    ): String {
-//        val webUser = loginData.validate(redirectAttributes) ?: return "redirect:${LoginController.LOGIN_PATH}"
-//
-//        if (!webUser.validateGroupExistence(id)) {
-//            redirectAttributes.addPopupMessage("Группа с ID $id не найдена.")
-//            return "redirect:$GROUPS_PATH"
-//        }
-//
-//        val group = groupService.find(id) ?: run {
-//            redirectAttributes.addPopupMessage("Группа с ID $id не найдена.")
-//            return "redirect:$GROUPS_PATH"
-//        }
-//
-//        val groupView = group.toView(timezone)
-//        model.addAttribute(GROUP_ATTR, groupView)
-//
-//        val publicContests = contestService.findAllPublic()
-//        val linkedContests = group.contests
-//        val unLinkedContests = publicContests.filter { it !in linkedContests }.toSet()
-//
-//        model.addAttribute(LINKED_CONTESTS_ATTR, linkedContests.map { it.toView(timezone) }.sortedBy { it.id })
-//        model.addAttribute(UNLINKED_CONTESTS_ATTR, unLinkedContests.map { it.toView(timezone) }.sortedBy { it.id })
-//        model.addAttribute(STUDENTS_ATTR, group.students.map { it.toView(timezone) }.sortedBy { it.id })
-//
-//        return GROUP_PAGE
-//    }
-//
-//    @PostMapping("/generateStudents/{groupId}")
-//    fun groupGenerateStudents(
-//        @PathVariable("groupId") groupId: Long,
-//        @RequestParam("count") count: Long,
-//        redirectAttributes: RedirectAttributes
-//    ): String {
-//        val webUser = loginData.validate(redirectAttributes) ?: return "redirect:${LoginController.LOGIN_PATH}"
-//
-//        if (!webUser.validateGroupExistence(groupId)) {
-//            redirectAttributes.addPopupMessage("Группа с ID $groupId не найдена.")
-//            return "redirect:$GROUPS_PATH"
-//        }
-//
-//        val group = groupService.find(groupId) ?: run {
-//            redirectAttributes.addPopupMessage("Группа с ID $groupId не найдена.")
-//            return "redirect:$GROUPS_PATH"
-//        }
-//
-//        if (count < 1) {
-//            redirectAttributes.addPopupMessage("Количество Участников должно быть больше 0.")
-//            return "redirect:$GROUP_PATH/$groupId"
-//        }
-//
-//        if (count > 100) {
-//            redirectAttributes.addPopupMessage("Количество Участников не должно превышать 100.")
-//            return "redirect:$GROUP_PATH/$groupId"
-//        }
-//
-//        if (group.students.size + count > 500) {
-//            redirectAttributes.addPopupMessage("Количество Участников в Группе не должно превышать 500.")
-//            return "redirect:$GROUP_PATH/$groupId"
-//        }
-//
-//        val students = studentService.generate(count, group)
-//
-//        group.students.addAll(students)
-//
-//        redirectAttributes.addPopupMessage("Сгенерировано $count Участников.")
-//
-//        return "redirect:$GROUP_PATH/$groupId"
-//    }
-//
-//    @GetMapping("/exportStudents/{groupId}")
-//    fun groupExportStudents(
-//        @PathVariable("groupId") groupId: Long,
-//        @RequestHeader("User-Agent") userAgent: String,
-//        @RequestParam("Windows") isWindows: String?, // remove lately
-//        request: HttpServletRequest,
-//        redirectAttributes: RedirectAttributes
-//    ): Any {
-//        val webUser = loginData.validate(redirectAttributes) ?: return "redirect:${LoginController.LOGIN_PATH}"
-//
-//        if (!webUser.validateGroupExistence(groupId)) {
-//            redirectAttributes.addPopupMessage("Группа с ID $groupId не найдена.")
-//            return "redirect:$GROUPS_PATH"
-//        }
-//
-//        val group = groupService.find(groupId) ?: run {
-//            redirectAttributes.addPopupMessage("Группа с ID $groupId не найдена.")
-//            return "redirect:$GROUPS_PATH"
-//        }
-//
-//        val students = group.students.sortedBy { it.id }
-//
-//        val filename = "students_${System.currentTimeMillis()}.csv"
-//        val contentDisposition = "attachment; filename=$filename"
-//
-//        val csv = students.joinToString("\n") { "${it.id};${it.name};${it.accessToken}" }
-////        val charset = userAgentParser.getCharset(userAgent) TODO(commented for later usage)
-//        val charset = isWindows?.let { WINDOWS_1251 } ?: Charsets.UTF_8
-//        val bytes = csv.toByteArray(charset)
-//
-//        val responseEntity = ResponseEntity.ok()
-//            .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
-//            .header(HttpHeaders.CONTENT_ENCODING, charset.name())
-//            .contentType(MediaType.TEXT_PLAIN)
-//            .body(bytes)
-//
-//        redirectAttributes.addPopupMessage("Студенты успешно экспортированы.")
-//
-//        return responseEntity
-//    }
-//
-//    @GetMapping("/exportResults/{groupId}")
-//    fun groupExportResults(
-//        @PathVariable("groupId") groupId: Long,
-//        @RequestHeader("User-Agent") userAgent: String,
-//        @RequestParam("Windows") isWindows: String?, // remove lately
-//        request: HttpServletRequest,
-//        redirectAttributes: RedirectAttributes
-//    ): Any {
-//        val webUser = loginData.validate(redirectAttributes) ?: return "redirect:${LoginController.LOGIN_PATH}"
-//
-//        if (!webUser.validateGroupExistence(groupId)) {
-//            redirectAttributes.addPopupMessage("Группа с ID $groupId не найдена.")
-//            return "redirect:$GROUPS_PATH"
-//        }
-//
-//        val group = groupService.find(groupId) ?: run {
-//            redirectAttributes.addPopupMessage("Группа с ID $groupId не найдена.")
-//            return "redirect:$GROUPS_PATH"
-//        }
-//
-//        val exportData = studentService.export(listOf(group))
-//
-//        val filename = "result_${System.currentTimeMillis()}.csv"
-//        val contentDisposition = "attachment; filename=$filename"
-//        //        val charset = userAgentParser.getCharset(userAgent) TODO(commented for later usage)
-//        val charset = isWindows?.let { WINDOWS_1251 } ?: Charsets.UTF_8
-//        val bytes = exportData.toByteArray(charset)
-//
-//        val responseEntity = ResponseEntity.ok()
-//            .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
-//            .header(HttpHeaders.CONTENT_ENCODING, charset.name())
-//            .contentType(MediaType.TEXT_PLAIN)
-//            .body(bytes)
-//
-//        return responseEntity
-//    }
-//
-//    @PostMapping("/linkContest/{groupId}")
-//    fun groupLinkContest(
-//        @PathVariable("groupId") groupId: Long,
-//        @RequestParam("contestId") contestId: Long,
-//        redirectAttributes: RedirectAttributes
-//    ): String {
-//        val webUser = loginData.validate(redirectAttributes) ?: return "redirect:${LoginController.LOGIN_PATH}"
-//
-//        if (!webUser.validateGroupExistence(groupId)) {
-//            redirectAttributes.addPopupMessage("Группа с ID $groupId не найдена.")
-//            return "redirect:$GROUPS_PATH"
-//        }
-//
-//        val group = groupService.find(groupId) ?: run {
-//            redirectAttributes.addPopupMessage("Группа с ID $groupId не найдена.")
-//            return "redirect:$GROUPS_PATH"
-//        }
-//
-//        val contest = contestService.find(contestId) ?: run {
-//            redirectAttributes.addPopupMessage("Тур с ID $contestId не найден.")
-//            return "redirect:$GROUP_PATH/$groupId"
-//        }
-//
-//        if (!contest.isPublic()) {
-//            redirectAttributes.addPopupMessage("Тур с ID $contestId не найден.")
-//            return "redirect:$GROUP_PATH/$groupId"
-//        }
-//
-//        group.contests.add(contest)
-//        groupService.save(group)
-//        contest.groups.add(group)
-//        contestService.save(contest)
-//
-//        redirectAttributes.addPopupMessage("Тур ${contest.name} успешно привязан к группе ${group.name}.")
-//
-//        return "redirect:$GROUP_PATH/$groupId"
-//    }
-//
-//    @PostMapping("/unlinkContest/{groupId}")
-//    fun groupUnlinkContest(
-//        @PathVariable("groupId") groupId: Long,
-//        @RequestParam("contestId") contestId: Long,
-//        redirectAttributes: RedirectAttributes
-//    ): String {
-//        val webUser = loginData.validate(redirectAttributes) ?: return "redirect:${LoginController.LOGIN_PATH}"
-//
-//        if (!webUser.validateGroupExistence(groupId)) {
-//            redirectAttributes.addPopupMessage("Группа с ID $groupId не найдена.")
-//            return "redirect:$GROUPS_PATH"
-//        }
-//
-//        val group = groupService.find(groupId) ?: run {
-//            redirectAttributes.addPopupMessage("Группа с ID $groupId не найдена.")
-//            return "redirect:$GROUPS_PATH"
-//        }
-//
-//        val contest = contestService.find(contestId) ?: run {
-//            redirectAttributes.addPopupMessage("Тур с ID $contestId не найден.")
-//            return "redirect:$GROUP_PATH/$groupId"
-//        }
-//
-//        if (!contest.isPublic()) {
-//            redirectAttributes.addPopupMessage("Тур с ID $contestId не найден.")
-//            return "redirect:$GROUP_PATH/$groupId"
-//        }
-//
-//        contest.groups.remove(group)
-//        contestService.save(contest)
-//
-//        group.contests.remove(contest)
-//        groupService.save(group)
-//
-//        redirectAttributes.addPopupMessage("Тур ${contest.name} успешно откреплен от группы ${group.name}.")
-//
-//        return "redirect:$GROUP_PATH/$groupId"
-//    }
-//
-//    @PostMapping("/update/{groupId}")
-//    fun groupUpdate(
-//        @PathVariable("groupId") groupId: Long,
-//        @ModelAttribute("group") groupView: GroupView,
-//        @CookieValue(name = "X-Timezone", defaultValue = "UTC") timezone: String,
-//        redirectAttributes: RedirectAttributes,
-//        model: Model
-//    ): String {
-//        val webUser = loginData.validate(redirectAttributes) ?: return "redirect:${LoginController.LOGIN_PATH}"
-//
-//        if (!webUser.validateGroupExistence(groupId)) {
-//            redirectAttributes.addPopupMessage("Группа с ID $groupId не найдена.")
-//            return "redirect:$GROUPS_PATH"
-//        }
-//
-//        val group = groupView.toEntity(timezone)
-//        group.admin = webUser
-//
-//        groupService.validate(group, redirectAttributes, "redirect:$GROUP_PATH/$groupId")?.let { return it }
-//
-//        val updatedGroup = groupService.save(group)
-//
-//        model.addAttribute(GROUP_ATTR, updatedGroup.toView(timezone))
-//        redirectAttributes.addPopupMessage("Данные успешно изменены.")
-//
-//        return "redirect:$GROUP_PATH/$groupId"
-//    }
-//
-//    companion object {
-//
-//        const val GROUP_PATH = "$GROUPS_PATH/group"
-//        const val GROUP_PAGE = "admin/group"
-//
-//        const val GROUP_ATTR = "group"
-//
-//        const val STUDENTS_ATTR = "students"
-//
-//        const val LINKED_CONTESTS_ATTR = "linkedContests"
-//        const val UNLINKED_CONTESTS_ATTR = "unlinkedContests"
-//
-//        fun Admin.validateGroupExistence(groupId: Long?) = groups.any { it.id == groupId }
-//
-//        fun GroupService.validate(group: StudentGroup, redirectAttributes: RedirectAttributes, redirect: String): String? {
-//            if (!validateName(group)) {
-//                redirectAttributes.addPopupMessage("Название группы не должно содержать Код-доступа.")
-//                return redirect
-//            }
-//
-//            if (!validateAdditionalInfo(group)) {
-//                redirectAttributes.addPopupMessage("Дополнительная информация не должна содержать Код-доступа.")
-//                return redirect
-//            }
-//
-//            return null
-//        }
-//    }
-//}
+package trik.testsys.webapp.backoffice.controller.impl.user.admin
+
+import jakarta.servlet.http.HttpSession
+import org.springframework.stereotype.Controller
+import org.springframework.ui.Model
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.servlet.mvc.support.RedirectAttributes
+import trik.testsys.webapp.backoffice.controller.menu.MenuBuilder
+import trik.testsys.webapp.backoffice.data.service.impl.AccessTokenService
+import trik.testsys.webapp.backoffice.data.service.impl.StudentGroupServiceImpl
+import trik.testsys.webapp.backoffice.data.service.impl.UserServiceImpl
+import trik.testsys.webapp.backoffice.data.entity.impl.User
+import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
+
+@Controller
+@RequestMapping("/user/admin/groups")
+class AdminGroupController(
+    private val accessTokenService: AccessTokenService,
+    private val groupService: StudentGroupServiceImpl,
+    private val userService: UserServiceImpl,
+    private val menuBuilder: MenuBuilder
+) {
+
+    @GetMapping("/{id}")
+    fun view(
+        @PathVariable id: Long,
+        model: Model,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val token = (session.getAttribute("accessToken") as? String)?.let { accessTokenService.findByValue(it) }
+            ?: return "redirect:/login"
+        val admin = token.user ?: return "redirect:/login"
+
+        val group = groupService.findById(id) ?: run {
+            redirectAttributes.addFlashAttribute("message", "Группа не найдена.")
+            return "redirect:/user/admin/groups"
+        }
+        if (group.owner?.id != admin.id) {
+            redirectAttributes.addFlashAttribute("message", "Нет доступа к группе.")
+            return "redirect:/user/admin/groups"
+        }
+
+        model.addAttribute("hasActiveSession", true)
+        model.addAttribute("user", admin)
+        model.addAttribute("menuSections", menuBuilder.buildFor(admin))
+        model.addAttribute("group", group)
+        return "admin/group"
+    }
+
+    @PostMapping("/{id}/generate")
+    fun generateStudents(
+        @PathVariable id: Long,
+        @RequestParam(name = "count", defaultValue = "1") count: Int,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val token = (session.getAttribute("accessToken") as? String)?.let { accessTokenService.findByValue(it) }
+            ?: return "redirect:/login"
+        val admin = token.user ?: return "redirect:/login"
+
+        val group = groupService.findById(id) ?: return "redirect:/user/admin/groups"
+        if (group.owner?.id != admin.id) return "redirect:/user/admin/groups"
+
+        if (count < 1 || count > 200) {
+            redirectAttributes.addFlashAttribute("message", "Количество должно быть от 1 до 200.")
+            return "redirect:/user/admin/groups/$id"
+        }
+
+        // Generate users with STUDENT privilege and add them to the group
+        repeat(count) { idx ->
+            val token = accessTokenService.generate(admin.id)
+            val student = User().also {
+                it.name = "st-${group.id}-${System.currentTimeMillis()}-${idx + 1}"
+                it.accessToken = token
+                it.privileges.add(User.Privilege.STUDENT)
+            }
+            // Persist user first
+            val persisted = userService.save(student)
+            // Link inverse side and persist token
+            token.user = persisted
+            accessTokenService.save(token)
+            // Add to group members
+            group.members.add(persisted)
+        }
+        groupService.save(group)
+        redirectAttributes.addFlashAttribute("message", "Сгенерировано ${count} участников.")
+        return "redirect:/user/admin/groups/$id"
+    }
+
+    @GetMapping("/{id}/export")
+    fun exportStudents(
+        @PathVariable id: Long,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): ResponseEntity<ByteArray> {
+        val token = (session.getAttribute("accessToken") as? String)?.let { accessTokenService.findByValue(it) }
+            ?: return ResponseEntity.status(302).header(HttpHeaders.LOCATION, "/login").build()
+        val admin = token.user ?: return ResponseEntity.status(302).header(HttpHeaders.LOCATION, "/login").build()
+
+        val group = groupService.findById(id) ?: return ResponseEntity.badRequest().build()
+        if (group.owner?.id != admin.id) return ResponseEntity.status(403).build()
+
+        val header = "user_id,user_name,access_token\n"
+        val body = group.members.joinToString("\n") { (it.id ?: 0).toString() + "," + (it.name ?: "") + "," + (it.accessToken?.value ?: "") }
+        val csv = (header + body).toByteArray()
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=group_${group.id}_students.csv")
+            .contentType(MediaType.TEXT_PLAIN)
+            .body(csv)
+    }
+}

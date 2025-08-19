@@ -28,6 +28,16 @@ class MenuBuilder {
             )
         }
 
+        if (user?.privileges?.contains(User.Privilege.ADMIN) == true) {
+            sections += MenuSection(
+                title = "Организатор",
+                items = listOf(
+                    MenuItem(name = "Группы", link = "/user/admin/groups"),
+                    MenuItem(name = "Создать группу", link = "/user/admin/groups/create")
+                )
+            )
+        }
+
         // Additional privileges can be added here similarly (ADMIN, DEVELOPER, JUDGE, SUPER_USER)
 
         return sections

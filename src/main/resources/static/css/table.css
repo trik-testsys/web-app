@@ -32,6 +32,7 @@ table th {
     position: sticky;
     top: 0;
     z-index: 10;
+    border: 1px solid #e3eef7;
 }
 
 table th:after {
@@ -56,6 +57,9 @@ table td {
     transition: all 0.5s ease;
     word-break: break-all;
 }
+
+/* Sorting affordance for legacy pages */
+th.sortable { cursor: pointer; }
 
 table tbody:hover td {
     color: transparent;

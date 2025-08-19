@@ -1,110 +1,45 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
 <head>
-    <th:block th:include="fragments/main :: head('Кабинет Организатора')"></th:block>
-
-    <link rel="stylesheet" th:href="@{/css/block.css}">
-    <link rel="stylesheet" th:href="@{/css/table.css}">
-
-    <th:block th:include="fragments/popup :: head"></th:block>
-    <th:block th:include="fragments/form :: head"></th:block>
-    <th:block th:include="fragments/menu :: head"></th:block>
+    <th:block th:include="fragments/layout :: head('Группы')"></th:block>
 </head>
-
-<div th:replace="fragments/table :: table-sort"></div>
-
 <body>
+<header th:replace="fragments/layout :: header(userName=${user.name})"></header>
+<aside th:replace="fragments/layout :: sidebar(sections=${menuSections})"></aside>
 
-<div th:replace="fragments/main :: background"></div>
-
-<div th:replace="fragments/popup :: popup"></div>
-
-<div th:replace="fragments/popup :: emergencyPopup"></div>
-
-<div th:replace="fragments/entity/admin
-    :: adminHeader(breadCrumbNames=${ { 'Группы' } },
-                   breadCrumbLinks=${ { '/admin/groups' } })"></div>
-
-<div th:replace="fragments/entity/admin :: adminMenu"></div>
-
-<!-- Контент -->
-<div class="container">
-    <!-- Первый блок -->
-    <div class="block">
-        <div class="block-title">Группы</div>
-
-        <div class="form-container">
-            <div class="form-header">
-                <h1>Создание Группы</h1>
+<main class="app-main">
+    <section class="card">
+        <h2 class="card-title">Мои группы</h2>
+        <div class="card-body">
+            <div class="alert" th:if="${message}" th:text="${message}"></div>
+            <div style="margin-bottom:10px;">
+                <a class="btn" th:href="@{/user/admin/groups/create}">Создать группу</a>
             </div>
-
-            <!--/*@thymesVar id="webUser" type="trik.testsys.webclient.view.impl.GroupCreationView"*/-->
-            <form id="group-creation" action="#" th:action="@{/admin/groups/group/create}" th:object="${group}" method="post">
-                <div th:replace="fragments/form.html
-                    :: formField(id='group.name', type='text',
-                                 labelName='Название', labelSize='20',
-                                 fieldName='name', fieldSize='80',
-                                 size='100',
-                                 isReadonly='false', isRequired='true', isAccessToken='false')">
-                </div>
-                <div th:replace="fragments/form.html
-                    :: formField(id='group.additionalInfo', type='text',
-                                 labelName='Дополнительная информация', labelSize='20',
-                                 fieldName='additionalInfo', fieldSize='80',
-                                 size='100',
-                                 isReadonly='false', isRequired='false', isAccessToken='false')">
-                </div>
-                <!-- Кнопки редактирования, отправки и отмены -->
-                <div class="form-buttons">
-                    <button type="button" class="edit-button" id="group-creation-edit" onclick="enableForm('group-creation')">Создать Группу</button>
-                    <button type="submit" class="save-button" id="group-creation-save">Создать</button>
-                    <button type="button" class="cancel-button" id="group-creation-cancel" onclick="disableForm('group-creation')">Отменить</button>
-                </div>
-            </form>
-        </div>
-
-        <div class="table admins-table">
-            <div class="form-header">
-                <h1>Список Групп</h1>
-            </div>
-            <div class="table-container">
-                <table>
-                    <thead>
+            <div th:if="${#lists.isEmpty(groups)}" style="color: var(--color-text-muted);">У вас пока нет групп.</div>
+            <table th:if="${!#lists.isEmpty(groups)}" class="table" style="width:100%; border-collapse: collapse;">
+                <thead>
                     <tr>
-                        <th style="width: 10%">
-                            ID
-                        </th>
-                        <th style="width: 20%">
-                            Название
-                        </th>
-                        <th>Дополнительная информация</th>
-                        <th style="width: 20%">
-                            Код-регистрации
-                        </th>
-                        <th style="width: 7%">
-                        </th>
+                        <th style="text-align:left; padding:8px;">ID</th>
+                        <th style="text-align:left; padding:8px;">Название</th>
+                        <th style="text-align:left; padding:8px;">Описание</th>
+                        <th style="text-align:left; padding:8px;">Участники</th>
                     </tr>
-                    </thead>
-                    <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.GroupView"*/-->
-                    <tr th:each="group : ${webUser.groups}">
-                        <td th:text="${group.id}"></td>
-                        <td th:text="${group.name}"></td>
-                        <td th:text="${group.additionalInfo}"></td>
-                        <td th:text="${group.regToken}" class="accessToken"></td>
-                        <td class="buttons">
-                            <form th:action="@{/admin/groups/group/{id}(id=${group.id})}" method="get">
-                                <button type="submit" title="Войти"
-                                        class="button">
-                                    <i class="fa-solid fa-right-to-bracket"></i>
-                                </button>
-                            </form>
+                </thead>
+                <tbody>
+                    <tr th:each="g : ${groups}">
+                        <td style="padding:8px;" th:text="${g.id}"></td>
+                        <td style="padding:8px;">
+                            <a th:href="@{'/user/admin/groups/' + ${g.id}}" th:text="${g.name ?: 'Без названия'}"></a>
                         </td>
+                        <td style="padding:8px;" th:text="${g.info ?: '—'}"></td>
+                        <td style="padding:8px;" th:text="${#lists.size(g.members)}"></td>
                     </tr>
-                </table>
-            </div>
+                </tbody>
+            </table>
         </div>
-    </div>
-</div>
+    </section>
+</main>
 
+<footer th:replace="fragments/layout :: footer"></footer>
 </body>
 </html>

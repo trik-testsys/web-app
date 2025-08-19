@@ -12,6 +12,9 @@ import trik.testsys.webapp.core.data.entity.AbstractEntity.Companion.TABLE_PREFI
 @Table(name = "${TABLE_PREFIX}student_group")
 class StudentGroup() : AbstractEntity() {
 
+    @Column(name = "name")
+    var name: String? = null
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "owner_id", nullable = false)
     var owner: User? = null
