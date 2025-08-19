@@ -1,4 +1,4 @@
-package trik.testsys.webapp.backoffice.controller.impl.user.superuser
+package trik.testsys.webapp.backoffice.controller.impl.user
 
 import jakarta.servlet.http.HttpSession
 import org.springframework.stereotype.Controller
@@ -123,5 +123,3 @@ class SuperUserController(
         return "redirect:/user/superuser/users"
     }
 }
-
-
