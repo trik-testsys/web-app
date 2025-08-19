@@ -29,7 +29,11 @@ class MenuBuilderImpl(
 
         sections += MenuBuilder.MenuSection(
             title = "Профиль",
-            items = listOf(MenuBuilder.MenuItem(name = "Обзор", link = "/user"))
+            items = listOf(
+                MenuBuilder.MenuItem(name = "Обзор", link = "/user"),
+                MenuBuilder.MenuItem(name = "Группы пользователей", link = "/user/groups"),
+                MenuBuilder.MenuItem(name = "Роли", link = "/user/privileges")
+            )
         )
 
         menuSectionBuilders.forEach { (privilege, builder) ->

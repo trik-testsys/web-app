@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+<head>
+    <th:block th:include="fragments/layout :: head('Роли пользователя')"></th:block>
+</head>
+<body>
+
+<header th:replace="fragments/layout :: header(userName=${user.name})"></header>
+<aside th:replace="fragments/layout :: sidebar(sections=${menuSections})"></aside>
+
+<main class="app-main">
+    <section class="card">
+        <h2 class="card-title">Роли пользователя</h2>
+        <div class="card-body">
+            <div class="alert" th:if="${message}" th:text="${message}"></div>
+            <div th:if="${#lists.isEmpty(privRows)}" style="color: var(--color-text-muted);">Нет прав.</div>
+            <table th:if="${!#lists.isEmpty(privRows)}" class="table">
+                <thead>
+                    <tr>
+                        <th style="text-align:left; padding:8px;">Роль</th>
+                        <th style="text-align:left; padding:8px;">Название</th>
+                        <th style="text-align:left; padding:8px;">Возможности</th>
+                        <th style="text-align:left; padding:8px;">Страница</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="row : ${privRows}">
+                        <td style="padding:8px;" th:text="${row.role}"></td>
+                        <td style="padding:8px;" th:text="${row.localized}"></td>
+                        <td style="padding:8px;" th:text="${row.authorities}"></td>
+                        <td style="padding:8px;">
+                            <a th:if="${row.link != null}" th:href="@{${row.link}}">Перейти</a>
+                            <span th:if="${row.link == null}" style="color: var(--color-text-muted);">—</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="fragments/layout :: footer"></footer>
+
+</body>
+</html>
+
