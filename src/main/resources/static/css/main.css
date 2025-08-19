@@ -113,3 +113,18 @@ body {
     color: var(--trik-green);
     filter: blur(0);
 }
+
+/* Full-page background for landing/auth pages */
+.full-page-bg .background-container {
+    position: fixed;
+    inset: 0;
+    width: auto !important;
+    height: auto !important;
+    background-color: var(--trik-blue) !important;
+    background-image: url("../img/trik_testsys_logo.svg") !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    background-size: cover !important;
+    border-bottom: none !important;
+    z-index: 0 !important;
+}

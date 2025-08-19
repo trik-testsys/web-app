@@ -81,8 +81,6 @@ class StudentGroupServiceImpl(
             }
 
             val persisted = userService.save(student)
-            token.user = persisted
-            accessTokenService.save(token)
             group.members.add(persisted)
             created.add(persisted)
         }

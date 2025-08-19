@@ -12,6 +12,7 @@
     background-size: 50%;
     background-position: center;
     flex-direction: column;
+    z-index: 1;
 }
 
 /* Окно (модальное) */
