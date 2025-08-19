@@ -2,7 +2,6 @@
 
 <head th:fragment="head">
     <link rel="stylesheet" th:href="@{/css/menu.css}">
-
     <script th:src="@{/js/menu.js}"></script>
 </head>
 
@@ -21,6 +20,7 @@
 </header>
 
 <div th:fragment="sideMenu(links, names)" class="side-menu" id="side-menu">
+    <button class="close-button" onclick="toggleMenu()">×</button>
     <ul>
         <li th:each="link, iterStat : ${links}">
             <a th:href="@{__${link}__}" th:text="${names[iterStat.index]}"></a>

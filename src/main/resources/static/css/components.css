@@ -1,0 +1,21 @@
+.card { background: var(--color-surface); border-radius: var(--radius); box-shadow: var(--shadow); }
+.card .card-body { padding: 20px; }
+.card .card-title { padding: 16px 20px 0 20px; margin: 0; font-size: 22px; font-weight: 700; }
+
+.kv { display: grid; grid-template-columns: 180px 1fr; gap: 10px 20px; }
+.kv dt { color: var(--color-text-muted); font-weight: 600; }
+.kv dd { margin: 0; }
+
+.pill-list { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; padding: 0; margin: 8px 0 0 0; }
+.pill { background: var(--color-muted); border-radius: 999px; padding: 6px 10px; font-size: 13px; }
+
+.btn { appearance: none; border: 0; background: var(--color-muted); color: var(--color-text); padding: 10px 14px; border-radius: 10px; cursor: pointer; }
+.btn:hover { background: #e9ebef; }
+.btn-primary { background: var(--color-primary); color: #fff; }
+.btn-primary:hover { filter: brightness(0.95); }
+
+.token { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; filter: blur(5px); transition: filter .25s ease; }
+.token:hover { filter: blur(0); }
+
+.alert { padding: 10px 12px; border-radius: 10px; background: #eef5ff; color: #245ea6; margin-bottom: 12px; }
+

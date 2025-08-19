@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+<head>
+    <th:block th:include="fragments/layout :: head('Экспорт результатов')"></th:block>
+</head>
+<body>
+<header th:replace="fragments/layout :: header(userName=${user.name})"></header>
+<aside th:replace="fragments/layout :: sidebar(sections=${menuSections})"></aside>
+
+<main class="app-main">
+    <section class="card">
+        <h2 class="card-title">Экспорт результатов студентов организаторов</h2>
+        <div class="card-body">
+            <p style="color: var(--color-text-muted); margin-top:0;">
+                Здесь вы можете выгрузить результаты студентов всех Организаторов, которых вы ведёте.
+            </p>
+            <form th:action="@{/rest/export/admin-students}" method="get">
+                <button type="submit" class="btn">Скачать CSV</button>
+            </form>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="fragments/layout :: footer"></footer>
+</body>
+</html>
+
+

@@ -1,24 +1,50 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
 <head>
-    <th:block th:include="fragments/main :: head('Личный кабинет')"></th:block>
+    <th:block th:include="fragments/layout :: head('Личный кабинет')"></th:block>
 </head>
 <body>
 
-<div th:replace="fragments/main :: background"></div>
+<header th:replace="fragments/layout :: header(userName=${user.name})"></header>
+<aside th:replace="fragments/layout :: sidebar(sections=${menuSections})"></aside>
 
-<div class="modal-container">
-    <div class="modal">
-        <div class="modal-header">
-            <h1>Личный кабинет</h1>
-        </div>
-        <div class="modal-body">
-            <form th:action="@{/logout}" method="post">
-                <button type="submit" class="button">Выйти</button>
+<main class="app-main">
+    <section class="card">
+        <h2 class="card-title">Личный кабинет</h2>
+        <div class="card-body">
+            <div class="alert" th:if="${message}" th:text="${message}"></div>
+            <dl class="kv">
+                <dt>ID</dt>
+                <dd th:text="${user.id}"></dd>
+                <dt>Имя</dt>
+                <dd>
+                    <div id="name-view" style="display:flex; gap:8px; align-items:center;">
+                        <span th:text="${user.name}"></span>
+                        <button type="button" class="btn" onclick="window.App.toggleEdit('name')">Изменить</button>
+                    </div>
+                    <form id="name-form" th:action="@{/user/name}" method="post" style="display:none; gap:8px; align-items:center;">
+                        <input type="text" name="name" th:value="${user.name}" placeholder="Введите имя" style="flex:1; padding:8px 10px; border-radius:8px; border:1px solid #dde3ea;">
+                        <button type="submit" class="btn btn-primary">Сохранить</button>
+                    </form>
+                </dd>
+                <dt>Код-доступа</dt>
+                <dd><span class="token" th:text="${user.accessToken.value}"></span></dd>
+            </dl>
+            <div style="margin-top: 10px;">
+                <b>Права</b>
+                <ul class="pill-list">
+                    <li class="pill" th:each="p : ${user.privileges}" th:text="${p}"></li>
+                </ul>
+            </div>
+
+            <form th:action="@{/logout}" method="post" style="margin-top: 16px;">
+                <button type="submit" class="btn">Выйти</button>
             </form>
         </div>
-    </div>
-</div>
+    </section>
+</main>
+
+<footer th:replace="fragments/layout :: footer"></footer>
 
 </body>
 </html>
