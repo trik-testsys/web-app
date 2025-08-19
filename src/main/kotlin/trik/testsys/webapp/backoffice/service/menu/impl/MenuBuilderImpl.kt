@@ -31,7 +31,6 @@ class MenuBuilderImpl(
             title = "Профиль",
             items = listOf(
                 MenuBuilder.MenuItem(name = "Обзор", link = "/user"),
-                MenuBuilder.MenuItem(name = "Группы пользователей", link = "/user/groups"),
                 MenuBuilder.MenuItem(name = "Роли", link = "/user/privileges")
             )
         )

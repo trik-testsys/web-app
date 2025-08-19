@@ -37,6 +37,7 @@ class UserController(
 
         // Build dynamic menu from privileges
         val sections = menuBuilder.buildFor(user)
+        val memberedGroups = user.memberedGroups.sortedBy { it.id }
 
         val privilegeToRu = mapOf(
             User.Privilege.ADMIN to "Организатор",
@@ -56,25 +57,24 @@ class UserController(
             addSections(sections)
             addAttribute("privilegeToRu", privilegeToRu)
             addAttribute("privilegesRu", privilegesRu)
+            addAttribute("groups", memberedGroups)
         }
         return "user"
     }
 
     @GetMapping("/groups")
     fun getUserGroupsPage(model: Model, session: HttpSession, redirectAttributes: RedirectAttributes): String {
+        // Route kept for backward compatibility; now the groups are shown on the overview page
+        // Redirect to the overview which now contains the groups subsection
         val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
         val user = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
-
         val sections = menuBuilder.buildFor(user)
-        val memberedGroups = user.memberedGroups.sortedBy { it.id }
-
         model.apply {
             addHasActiveSession(session)
             addUser(user)
             addSections(sections)
-            addAttribute("groups", memberedGroups)
         }
-        return "user/groups"
+        return "redirect:/user"
     }
 
     @GetMapping("/privileges")
@@ -167,14 +167,14 @@ class UserController(
         val group = userGroupService.findById(groupId)
         if (group == null) {
             redirectAttributes.addMessage("Группа не найдена.")
-            return "redirect:/user/groups"
+            return "redirect:/user"
         }
         if (!group.members.contains(user)) {
             redirectAttributes.addMessage("Вы не состоите в этой группе.")
-            return "redirect:/user/groups"
+            return "redirect:/user"
         }
         val ok = userGroupService.removeMember(group, user)
         if (ok) redirectAttributes.addMessage("Вы покинули группу.") else redirectAttributes.addMessage("Не удалось покинуть группу.")
-        return if (ok) "redirect:/user" else "redirect:/user/groups"
+        return "redirect:/user"
     }
 }
