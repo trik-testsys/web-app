@@ -18,6 +18,7 @@ window.App = (function () {
 
   function mount() {
     closeSidebarOnNavigate();
+    markActiveNavigation();
   }
 
   function toggleEdit(field) {
@@ -44,3 +45,27 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
+
+function markActiveNavigation() {
+  try {
+    var currentPath = window.location.pathname;
+    var links = document.querySelectorAll('.app-sidebar .menu-item a');
+    links.forEach(function (a) {
+      var hrefPath;
+      try {
+        hrefPath = new URL(a.getAttribute('href'), window.location.origin).pathname;
+      } catch (_) {
+        hrefPath = a.getAttribute('href') || '';
+      }
+      if (!hrefPath) return;
+      var isActive = (currentPath === hrefPath);
+      if (isActive) {
+        a.classList.add('active');
+        var section = a.closest('.menu-section');
+        if (section) section.classList.add('active');
+      }
+    });
+  } catch (_) {
+    // no-op
+  }
+}

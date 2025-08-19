@@ -1,8 +1,12 @@
 table {
     width: 100%;
-    background: #f5ffff;
-    border-collapse: collapse;
+    background: #ffffff;
+    border-collapse: separate;
+    border-spacing: 0;
     text-align: left;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0,0,0,.08);
 }
 
 /* top-left border-radius */
@@ -32,7 +36,8 @@ table th {
     position: sticky;
     top: 0;
     z-index: 10;
-    border: 1px solid #e3eef7;
+    border: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e2e8f0;
 }
 
 table th:after {
@@ -47,28 +52,22 @@ table th:after {
 }
 
 table tr:nth-child(odd) {
-    background: #ebf3f9;
+    background: #fafbfc;
 }
 
 table td {
-    border: 1px solid #e3eef7;
+    border: 1px solid #e2e8f0;
     padding: 10px 15px;
     position: relative;
-    transition: all 0.5s ease;
+    transition: background-color 0.2s ease;
     word-break: break-all;
 }
 
 /* Sorting affordance for legacy pages */
 th.sortable { cursor: pointer; }
 
-table tbody:hover td {
-    color: transparent;
-    text-shadow: 0 0 3px #a09f9d;
-}
-
-table tbody:hover tr:hover td {
-    color: #444444;
-    text-shadow: none;
+table tbody tr:hover td {
+    background: #f3f6fb;
 }
 
 /* Заголовок окна */

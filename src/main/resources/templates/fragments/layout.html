@@ -32,14 +32,17 @@
     <div class="header-border"></div>
 </header>
 
-<aside th:fragment="sidebar(sections)" class="app-sidebar" id="app-sidebar" aria-label="Навигация">
+<aside th:fragment="sidebar(sections)" class="app-sidebar" id="app-sidebar" aria-label="Навигация" th:with="reqUri=${#httpServletRequest != null ? #httpServletRequest.requestURI : ''}, effectiveUri=${reqUri == '/user/viewer/token' ? '/user/viewer/admins' : reqUri}">
     <nav>
         <div class="menu-sections">
-            <div class="menu-section" th:each="section : ${sections}">
+            <div class="menu-section" th:each="section : ${sections}"
+                 th:classappend="${(section.items.?[#vars.effectiveUri == #this.link or #strings.startsWith(#vars.effectiveUri, #this.link + '/')]).size() > 0} ? ' active'">
                 <div class="menu-section-title" th:text="${section.title}"></div>
                 <ul class="menu-items">
                     <li class="menu-item" th:each="item : ${section.items}">
-                        <a th:href="@{__${item.link}__}" th:text="${item.name}"></a>
+                        <a th:href="@{__${item.link}__}" th:text="${item.name}"
+                           th:classappend="${#vars.effectiveUri == item.link} ? ' active'"
+                           th:attr="aria-current=${#vars.effectiveUri == item.link} ? 'page' : null"></a>
                     </li>
                 </ul>
             </div>

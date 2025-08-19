@@ -30,11 +30,11 @@
             <div style="margin-top: 12px;">
                 <h3 style="margin: 0 0 8px 0;">Участники</h3>
                 <div th:if="${#lists.isEmpty(group.members)}" style="color: var(--color-text-muted);">В группе пока нет участников.</div>
-                <table th:if="${!#lists.isEmpty(group.members)}" class="table" style="width:100%; border-collapse: collapse;">
+                <table th:if="${!#lists.isEmpty(group.members)}" class="table">
                     <thead>
                         <tr>
                             <th style="text-align:left; padding:8px;">ID</th>
-                            <th style="text-align:left; padding:8px;">Имя</th>
+                            <th style="text-align:left; padding:8px;">Псевдоним</th>
                             <th style="text-align:left; padding:8px;">Код-доступа</th>
                             <th style="text-align:left; padding:8px;">Права</th>
                         </tr>

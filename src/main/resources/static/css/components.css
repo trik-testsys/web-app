@@ -19,15 +19,30 @@
 
 .alert { padding: 10px 12px; border-radius: 10px; background: #eef5ff; color: #245ea6; margin-bottom: 12px; }
 
+/* Small inline help note */
+.help-note { color: var(--color-text-muted); font-size: 13px; margin-top: 6px; }
+.token-box { background: #f8fafc; border: 1px dashed #cbd5e1; padding: 10px 12px; border-radius: 10px; display: inline-flex; align-items: center; gap: 10px; }
+.token-box .token-label { color: var(--color-text-muted); font-weight: 600; }
+
 /* Tables */
-table { width: 100%; border-collapse: collapse; background: #fff; }
-thead th { position: sticky; top: 0; background: var(--color-primary); color: #fff; z-index: 1; }
+table { width: 100%; border-collapse: separate; border-spacing: 0; background: #fff; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+thead th { position: sticky; top: 0; background: var(--color-primary); color: #fff; z-index: 1; border-bottom: 1px solid #e2e8f0; }
 th, td { padding: 10px 12px; border: 1px solid #e2e8f0; text-align: left; vertical-align: top; }
 tbody tr:nth-child(odd) { background: #fafbfc; }
+tbody tr:hover { background: #f3f6fb; }
+
+/* Rounded corners for first/last cells */
+thead tr:first-child th:first-child { border-top-left-radius: var(--radius); }
+thead tr:first-child th:last-child { border-top-right-radius: var(--radius); }
+tbody tr:last-child td:first-child { border-bottom-left-radius: var(--radius); }
+tbody tr:last-child td:last-child { border-bottom-right-radius: var(--radius); }
 
 /* Sort indicators */
 th.sortable { cursor: pointer; user-select: none; position: relative; }
 th.sortable::after { content: '\25B4\25BE'; opacity: .35; font-size: 10px; margin-left: 6px; }
 th.sort-asc::after { content: '\25B4'; opacity: .9; }
 th.sort-desc::after { content: '\25BE'; opacity: .9; }
+
+/* Separator */
+.separator { height: 1px; background: #e5e7eb; border: 0; margin: 16px 0; }
 

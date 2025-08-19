@@ -11,17 +11,29 @@
     <section class="card">
         <h2 class="card-title">Организаторы</h2>
         <div class="card-body">
+            <div style="margin-bottom: 12px;">
+                <div class="token-box" th:if="${user.adminRegToken != null}">
+                    <span class="token-label">Регистрационный токен</span>
+                    <span class="token" th:text="${user.adminRegToken.value}"></span>
+                </div>
+                <div th:if="${user.adminRegToken == null}">
+                    <span class="pill">Токен не выдан</span>
+                </div>
+                <div class="help-note">
+                    Этот токен нужно выдать будущему Организатору. Он сможет зарегистрироваться в системе, указав этот токен на странице регистрации.
+                </div>
+                <div class="separator" role="separator" aria-hidden="true"></div>
+            </div>
             <div th:if="${#lists.isEmpty(admins)}">
                 <p style="margin:0 0 8px 0; color: var(--color-text-muted);">У вас пока нет Организаторов.</p>
-                <p style="margin:0; color: var(--color-text-muted);">Выдайте Регистрационный токен в разделе "Рег-токен" и передайте его будущему Организатору.</p>
             </div>
 
             <div th:if="${!#lists.isEmpty(admins)}">
-                <table class="table" style="width:100%; border-collapse: collapse;">
+                <table class="table">
                     <thead>
                         <tr>
                             <th style="text-align:left; padding:8px;">ID</th>
-                            <th style="text-align:left; padding:8px;">Имя</th>
+                            <th style="text-align:left; padding:8px;">Псевдоним</th>
                             <th style="text-align:left; padding:8px;">Права</th>
                         </tr>
                     </thead>
