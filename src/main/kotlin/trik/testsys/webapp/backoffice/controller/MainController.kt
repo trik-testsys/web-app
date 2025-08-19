@@ -67,6 +67,7 @@ class MainController(
     @PostMapping("/reg")
     fun register(
         @RequestParam("regToken") regTokenValue: String,
+        @RequestParam("name") name: String,
         session: HttpSession,
         redirectAttributes: RedirectAttributes
     ): String {
@@ -81,7 +82,7 @@ class MainController(
             return "redirect:/login"
         }
 
-        val newUser = viewerService.createAdmin(token) ?: run {
+        val newUser = viewerService.createAdmin(token, name) ?: run {
             redirectAttributes.addFlashAttribute("message", "Ошибка")
             return "redirect:/login"
         }
