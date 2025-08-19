@@ -1,4 +1,4 @@
-package trik.testsys.webapp.backoffice.util.config
+package trik.testsys.webapp.backoffice.utils.config
 
 import jakarta.servlet.MultipartConfigElement
 import org.springframework.beans.factory.annotation.Value

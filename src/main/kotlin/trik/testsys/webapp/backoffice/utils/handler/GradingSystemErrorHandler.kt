@@ -1,4 +1,4 @@
-package trik.testsys.webapp.backoffice.util.handler
+package trik.testsys.webapp.backoffice.utils.handler
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
