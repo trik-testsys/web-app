@@ -39,6 +39,17 @@
                 </ul>
             </div>
 
+            <div style="margin-top: 16px;">
+                <b>Группы пользователей</b>
+                <div th:if="${#lists.isEmpty(user.memberedGroups)}" style="color: var(--color-text-muted);">Нет групп.</div>
+                <ul th:if="${!#lists.isEmpty(user.memberedGroups)}" style="margin-top:6px; display:grid; gap:6px;">
+                    <li th:each="g : ${user.memberedGroups}">
+                        <span th:text="${g.name ?: 'Без названия'}"></span>
+                        <span style="color: var(--color-text-muted);">(#<span th:text="${g.id}"></span>)</span>
+                    </li>
+                </ul>
+            </div>
+
             <form th:action="@{/logout}" method="post" style="margin-top: 16px;">
                 <button type="submit" class="button">Выйти</button>
             </form>

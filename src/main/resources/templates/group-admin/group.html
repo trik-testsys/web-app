@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+<head>
+    <th:block th:include="fragments/layout :: head('Группа пользователей')"></th:block>
+</head>
+<body>
+<header th:replace="fragments/layout :: header(userName=${user.name})"></header>
+<aside th:replace="fragments/layout :: sidebar(sections=${menuSections})"></aside>
+
+<main class="app-main">
+    <section class="card">
+        <h2 class="card-title"><a th:href="@{/user/group-admin/groups}">Группы</a> / <span th:text="${group.name ?: 'Без названия'}"></span></h2>
+        <div class="card-body">
+            <div class="alert" th:if="${message}" th:text="${message}"></div>
+            <dl class="kv">
+                <dt>ID</dt>
+                <dd th:text="${group.id}"></dd>
+                <dt>Название</dt>
+                <dd th:text="${group.name ?: 'Без названия'}"></dd>
+                <dt>Описание</dt>
+                <dd th:text="${group.info ?: '—'}"></dd>
+            </dl>
+            <div style="margin: 12px 0; display:flex; gap:8px;">
+                <form th:action="@{'/user/group-admin/groups/' + ${group.id} + '/add-member'}" method="post" style="display:flex; gap:8px; align-items:center;">
+                    <input type="number" min="1" name="userId" placeholder="ID пользователя" style="width:160px; padding:8px 10px; border:1px solid #dde3ea; border-radius:8px;">
+                    <button type="submit" class="button button--primary">Добавить участника</button>
+                </form>
+            </div>
+            <div style="margin-top: 12px;">
+                <h3 style="margin: 0 0 8px 0;">Участники</h3>
+                <div th:if="${#lists.isEmpty(group.members)}" style="color: var(--color-text-muted);">В группе пока нет участников.</div>
+                <table th:if="${!#lists.isEmpty(group.members)}" class="table">
+                    <thead>
+                        <tr>
+                            <th style="text-align:left; padding:8px;">ID</th>
+                            <th style="text-align:left; padding:8px;">Псевдоним</th>
+                            <th style="text-align:left; padding:8px;">Код-доступа</th>
+                            <th style="text-align:left; padding:8px;">Права</th>
+                            <th style="text-align:left; padding:8px;">Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="m : ${group.members}">
+                            <td style="padding:8px;" th:text="${m.id}"></td>
+                            <td style="padding:8px;" th:text="${m.name}"></td>
+                            <td style="padding:8px;"><span class="token" th:text="${m.accessToken.value}"></span></td>
+                            <td style="padding:8px;">
+                                <ul class="pill-list">
+                                    <li class="pill" th:each="p : ${m.privileges}" th:text="${p}"></li>
+                                </ul>
+                            </td>
+                            <td style="padding:8px;">
+                                <form th:action="@{'/user/group-admin/groups/' + ${group.id} + '/remove-member'}" method="post">
+                                    <input type="hidden" name="userId" th:value="${m.id}">
+                                    <button type="submit" class="button button--danger">Удалить</button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="fragments/layout :: footer"></footer>
+</body>
+</html>
+
+

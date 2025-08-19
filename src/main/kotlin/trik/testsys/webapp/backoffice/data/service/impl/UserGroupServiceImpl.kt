@@ -7,6 +7,8 @@ import trik.testsys.webapp.backoffice.data.entity.impl.UserGroup
 import trik.testsys.webapp.backoffice.data.repository.UserGroupRepository
 import trik.testsys.webapp.backoffice.data.service.UserGroupService
 import trik.testsys.webapp.core.data.service.AbstractService
+import org.springframework.transaction.annotation.Propagation
+import org.springframework.transaction.annotation.Transactional
 
 /**
  * @author Roman Shishkin
@@ -29,6 +31,24 @@ class UserGroupServiceImpl :
             save(userGroup)
             true
         }
+    }
+
+    override fun findByOwner(owner: User): Set<UserGroup> = repository.findByOwner(owner)
+
+    override fun findByMember(member: User): Set<UserGroup> = repository.findByMembersContaining(member)
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    override fun create(owner: User, name: String, info: String?): UserGroup? {
+        if (name.isBlank()) {
+            logger.warn("Could not create user group: empty name")
+            return null
+        }
+        val group = UserGroup().apply {
+            this.owner = owner
+            this.name = name
+            this.info = info
+        }
+        return save(group)
     }
 
     override fun removeMember(userGroup: UserGroup, user: User) = when (user) {

@@ -1,5 +1,6 @@
 package trik.testsys.webapp.backoffice.data.entity.impl
 
+import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
 import jakarta.persistence.JoinColumn
@@ -17,6 +18,9 @@ import trik.testsys.webapp.core.data.entity.AbstractEntity
 @Entity
 @Table(name = "user_group")
 class UserGroup : AbstractEntity() {
+
+    @Column(name = "name")
+    var name: String? = null
 
     @PrePersist
     fun prePersist() {

@@ -13,4 +13,6 @@ import trik.testsys.webapp.core.data.repository.EntityRepository
 interface UserGroupRepository: EntityRepository<UserGroup> {
 
     fun findByOwner(owner: User): Set<UserGroup>
+
+    fun findByMembersContaining(member: User): Set<UserGroup>
 }

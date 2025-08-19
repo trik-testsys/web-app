@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+<head>
+    <th:block th:include="fragments/layout :: head('Создать группу пользователей')"></th:block>
+</head>
+<body>
+<header th:replace="fragments/layout :: header(userName=${user.name})"></header>
+<aside th:replace="fragments/layout :: sidebar(sections=${menuSections})"></aside>
+
+<main class="app-main">
+    <section class="card">
+        <h2 class="card-title"><a th:href="@{/user/group-admin/groups}">Группы Пользователей</a> / Создание группы</h2>
+        <div class="card-body">
+            <form th:action="@{/user/group-admin/groups/create}" method="post" style="display:grid; gap:12px; max-width:560px;">
+                <label>
+                    <div style="margin-bottom:4px;">Название</div>
+                    <input name="name" type="text" placeholder="Введите название" required style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
+                </label>
+                <label>
+                    <div style="margin-bottom:4px;">Описание</div>
+                    <textarea name="info" placeholder="Краткое описание" rows="3" style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;"></textarea>
+                </label>
+                <div>
+                    <button type="submit" class="button button--primary">Создать</button>
+                    <a class="button" th:href="@{/user/group-admin/groups}">Отмена</a>
+                </div>
+            </form>
+        </div>
+    </section>
+    </main>
+
+<footer th:replace="fragments/layout :: footer"></footer>
+</body>
+</html>
+

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+<head>
+    <th:block th:include="fragments/layout :: head('Администратор Групп')"></th:block>
+</head>
+<body>
+<header th:replace="fragments/layout :: header(userName=${user.name})"></header>
+<aside th:replace="fragments/layout :: sidebar(sections=${menuSections})"></aside>
+
+<main class="app-main">
+    <section class="card">
+        <h2 class="card-title">Группы Пользователей</h2>
+        <div class="card-body">
+            <div class="alert" th:if="${message}" th:text="${message}"></div>
+            <div style="margin-bottom:10px;">
+                <a class="button" th:href="@{/user/group-admin/groups/create}">Создать группу</a>
+            </div>
+            <div th:if="${#lists.isEmpty(groups)}" style="color: var(--color-text-muted);">У вас пока нет групп.</div>
+            <table th:if="${!#lists.isEmpty(groups)}" class="table">
+                <thead>
+                    <tr>
+                        <th style="text-align:left; padding:8px;">ID</th>
+                        <th style="text-align:left; padding:8px;">Название</th>
+                        <th style="text-align:left; padding:8px;">Описание</th>
+                        <th style="text-align:left; padding:8px;">Участники</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="g : ${groups}">
+                        <td style="padding:8px;" th:text="${g.id}"></td>
+                        <td style="padding:8px;">
+                            <a th:href="@{'/user/group-admin/groups/' + ${g.id}}" th:text="${g.name ?: 'Без названия'}"></a>
+                        </td>
+                        <td style="padding:8px;" th:text="${g.info ?: '—'}"></td>
+                        <td style="padding:8px;" th:text="${#lists.size(g.members)}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+    </main>
+
+<footer th:replace="fragments/layout :: footer"></footer>
+</body>
+</html>
+
