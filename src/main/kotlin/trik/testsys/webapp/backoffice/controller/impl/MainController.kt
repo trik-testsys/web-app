@@ -12,8 +12,6 @@ import trik.testsys.webapp.backoffice.data.service.UserService
 import trik.testsys.webapp.backoffice.data.service.ViewerService
 import trik.testsys.webapp.backoffice.data.service.impl.AccessTokenService
 import trik.testsys.webapp.backoffice.data.service.impl.RegTokenService
-import trik.testsys.webapp.backoffice.data.service.impl.UserServiceImpl
-import java.time.Instant
 
 @Controller
 class MainController(

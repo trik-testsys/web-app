@@ -8,7 +8,6 @@ import trik.testsys.webapp.backoffice.data.repository.StudentGroupRepository
 import trik.testsys.webapp.backoffice.data.service.StudentGroupService
 import trik.testsys.webapp.core.data.service.AbstractService
 import trik.testsys.webapp.backoffice.data.service.UserService
-import trik.testsys.webapp.backoffice.data.service.impl.AccessTokenService
 
 @Service
 class StudentGroupServiceImpl(
