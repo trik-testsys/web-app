@@ -23,13 +23,6 @@ class UserController(
     private val userGroupService: UserGroupService,
 ) : AbstractUserController() {
 
-    private data class PrivRow(
-        val role: String,
-        val localized: String,
-        val authorities: String,
-        val link: String?
-    )
-
     @GetMapping
     fun getUserPage(model: Model, session: HttpSession, redirectAttributes: RedirectAttributes): String {
         val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
@@ -81,62 +74,13 @@ class UserController(
     fun getUserPrivilegesPage(model: Model, session: HttpSession, redirectAttributes: RedirectAttributes): String {
         val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
         val user = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
-
         val sections = menuBuilder.buildFor(user)
-        val privileges = user.privileges.map { privilege ->
-            when (privilege) {
-                User.Privilege.ADMIN -> PrivRow(
-                    role = "ADMIN",
-                    localized = "Организатор",
-                    authorities = "Организация соревнований, создание Групп",
-                    link = "/user/admin/groups"
-                )
-                User.Privilege.DEVELOPER -> PrivRow(
-                    role = "DEVELOPER",
-                    localized = "Разработчик Задач",
-                    authorities = "Управление Задачами и Турами",
-                    link = null
-                )
-                User.Privilege.JUDGE -> PrivRow(
-                    role = "JUDGE",
-                    localized = "Судья",
-                    authorities = "Принятие аппеляций и изменение вердиктов решений",
-                    link = null
-                )
-                User.Privilege.STUDENT -> PrivRow(
-                    role = "STUDENT",
-                    localized = "Участник",
-                    authorities = "Участие в Турах",
-                    link = null
-                )
-                User.Privilege.SUPER_USER -> PrivRow(
-                    role = "SUPER_USER",
-                    localized = "Супервайзер",
-                    authorities = "Управление Пользователями и их Ролями",
-                    link = "/user/superuser/users"
-                )
-                User.Privilege.VIEWER -> PrivRow(
-                    role = "VIEWER",
-                    localized = "Наблюдатель",
-                    authorities = "Просмотр результатов, приглашение Организаторов",
-                    link = "/user/viewer/admins"
-                )
-                User.Privilege.GROUP_ADMIN -> PrivRow(
-                    role = "GROUP_ADMIN",
-                    localized = "Администратор Групп",
-                    authorities = "Создание и управление Группами Пользователей",
-                    link = "/user/group-admin/groups"
-                )
-            }
-        }.sortedBy { it.role }
-
         model.apply {
             addHasActiveSession(session)
             addUser(user)
             addSections(sections)
-            addAttribute("privRows", privileges)
         }
-        return "user/privileges"
+        return "redirect:/user"
     }
 
     @PostMapping("/name")

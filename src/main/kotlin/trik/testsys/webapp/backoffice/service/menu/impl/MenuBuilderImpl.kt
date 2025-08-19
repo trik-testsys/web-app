@@ -30,8 +30,7 @@ class MenuBuilderImpl(
         sections += MenuBuilder.MenuSection(
             title = "Профиль",
             items = listOf(
-                MenuBuilder.MenuItem(name = "Обзор", link = "/user"),
-                MenuBuilder.MenuItem(name = "Роли", link = "/user/privileges")
+                MenuBuilder.MenuItem(name = "Обзор", link = "/user")
             )
         )
 
