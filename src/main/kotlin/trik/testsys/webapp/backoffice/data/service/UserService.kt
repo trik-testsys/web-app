@@ -1,5 +1,7 @@
 package trik.testsys.webapp.backoffice.data.service
 
+import org.springframework.transaction.annotation.Propagation
+import org.springframework.transaction.annotation.Transactional
 import trik.testsys.webapp.backoffice.data.entity.impl.User
 import trik.testsys.webapp.core.data.service.EntityService
 import java.time.Instant
@@ -10,7 +12,9 @@ import java.time.Instant
  */
 interface UserService : EntityService<User> {
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     fun updateName(user: User, newName: String): User
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     fun updateLastLoginAt(user: User, lastLoginAt: Instant? = null): User
 }

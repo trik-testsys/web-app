@@ -20,5 +20,11 @@ interface StudentGroupService : EntityService<StudentGroup> {
 
     fun findByOwner(owner: User): Set<StudentGroup>
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     fun create(owner: User, name: String, info: String?): StudentGroup?
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
+    fun generateStudents(owner: User, group: StudentGroup, count: Int): Set<User>
+
+    fun generateMembersCsv(group: StudentGroup): ByteArray
 }

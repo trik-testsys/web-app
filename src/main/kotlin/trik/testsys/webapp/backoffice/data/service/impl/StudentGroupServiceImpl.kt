@@ -7,9 +7,14 @@ import trik.testsys.webapp.backoffice.data.entity.impl.User
 import trik.testsys.webapp.backoffice.data.repository.StudentGroupRepository
 import trik.testsys.webapp.backoffice.data.service.StudentGroupService
 import trik.testsys.webapp.core.data.service.AbstractService
+import trik.testsys.webapp.backoffice.data.service.UserService
+import trik.testsys.webapp.backoffice.data.service.impl.AccessTokenService
 
 @Service
-class StudentGroupServiceImpl :
+class StudentGroupServiceImpl(
+    private val userService: UserService,
+    private val accessTokenService: AccessTokenService,
+) :
     AbstractService<StudentGroup, StudentGroupRepository>(),
     StudentGroupService {
 
@@ -61,6 +66,41 @@ class StudentGroupServiceImpl :
         }
 
         return save(newGroup)
+    }
+
+    override fun generateStudents(owner: User, group: StudentGroup, count: Int): Set<User> {
+        require(count >= 1) { "count must be >= 1" }
+        require(count <= 200) { "count must be <= 200" }
+
+        val created = mutableSetOf<User>()
+        repeat(count) { idx ->
+            val token = accessTokenService.generate(owner.id)
+            val student = User().also {
+                it.name = "st-${group.id}-${System.currentTimeMillis()}-${idx + 1}"
+                it.accessToken = token
+                it.privileges.add(User.Privilege.STUDENT)
+            }
+
+            val persisted = userService.save(student)
+            token.user = persisted
+            accessTokenService.save(token)
+            group.members.add(persisted)
+            created.add(persisted)
+        }
+
+        save(group)
+        return created
+    }
+
+    override fun generateMembersCsv(group: StudentGroup): ByteArray {
+        val header = "user_id,user_name,access_token\n"
+        val body = group.members.joinToString("\n") {
+            val id = (it.id ?: 0).toString()
+            val name = it.name ?: ""
+            val token = it.accessToken?.value ?: ""
+            "$id,$name,$token"
+        }
+        return (header + body).toByteArray()
     }
 
     companion object {
