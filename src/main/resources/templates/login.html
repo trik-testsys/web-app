@@ -14,39 +14,22 @@
 <div th:replace="fragments/popup :: popup"></div>
 
 <div class="modal-container">
-    <div th:replace="fragments/main :: main-logo"></div>
-
+    
     <div class="modal">
         <div class="modal-header">
             <h1>Вход в личный кабинет TestSys</h1>
         </div>
         <div class="modal-body">
-            <form th:action="@{/login}" method="post"
-                  class="modal-form">
+            <form th:action="@{/login}" method="post" class="modal-form">
                 <label for="accessToken">Код-доступа</label>
-                <input type="password"
-                       name="accessToken" id="accessToken"
-                       placeholder="Введите Код-доступа"
-                       required/>
-
-                <button type="submit"
-                        class="button">
-                    Войти
-                </button>
+                <input type="password" name="accessToken" id="accessToken" placeholder="Введите Код-доступа" required/>
+                <button type="submit" class="button">Войти</button>
             </form>
-            <a th:href="@{/}"
-               class="button">
-                Вернуться на главную страницу
-            </a>
-            <a th:if="${hasActiveSession}"
-               th:href="@{/redirect}"
-               class="button">
-                Вернуться в активную сессию
-            </a>
+            <a th:href="@{/}" class="button">Вернуться на главную страницу</a>
         </div>
     </div>
 
-    <div th:replace="fragments/main :: sponsor-logos"></div>
+    
 </div>
 
 </body>
