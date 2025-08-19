@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+<head>
+    <th:block th:include="fragments/main :: head('Личный кабинет')"></th:block>
+</head>
+<body>
+
+<div th:replace="fragments/main :: background"></div>
+
+<div class="modal-container">
+    <div class="modal">
+        <div class="modal-header">
+            <h1>Личный кабинет</h1>
+        </div>
+        <div class="modal-body">
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="button">Выйти</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
+
+
