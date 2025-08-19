@@ -35,14 +35,16 @@ class UserServiceImpl(
             it.viewer = viewer
             it.privileges.add(User.Privilege.ADMIN)
             it.name = name ?: "New User ${Random.nextInt()}"
-
-            viewer.managedAdmins.add(it)
         }
 
-        saveAll(listOf(admin, viewer))
+        // Persist the new admin first so that other persistent entities can safely reference it
+        val persistedAdmin = save(admin)
         // set inverse side after user is persisted to avoid transient reference during flush
-        accessToken.user = admin
-        return admin
+        accessToken.user = persistedAdmin
+        // now update viewer relationships
+        viewer.managedAdmins.add(persistedAdmin)
+        save(viewer)
+        return persistedAdmin
     }
 
     override fun createUser(superUser: User, name: String, privileges: Collection<User.Privilege>): Boolean {
@@ -57,16 +59,18 @@ class UserServiceImpl(
         val accessToken = accessTokenService.generate(superUser.id)
         val newUser = User().also {
             it.superUser = superUser
-
             it.accessToken = accessToken
-
-            addPrivileges(superUser, it, privileges)
-            superUser.createdUsers.add(it)
         }
 
-        saveAll(listOf(newUser, superUser))
+        // Persist the new user before assigning it to collections or creating tokens referencing it
+        val persistedUser = save(newUser)
         // set inverse side after user is persisted to avoid transient reference during flush
-        accessToken.user = newUser
+        accessToken.user = persistedUser
+        // assign privileges after the user is persistent (may create RegToken referencing user)
+        addPrivileges(superUser, persistedUser, privileges)
+        // link to creator after persistence
+        superUser.createdUsers.add(persistedUser)
+        save(superUser)
 
         return true
     }

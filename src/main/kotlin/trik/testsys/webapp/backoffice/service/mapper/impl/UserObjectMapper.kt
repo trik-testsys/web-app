@@ -2,7 +2,6 @@ package trik.testsys.webapp.backoffice.service.mapper.impl
 
 import org.springframework.stereotype.Service
 import trik.testsys.webapp.backoffice.data.dto.impl.UserDto
-import trik.testsys.webapp.backoffice.data.entity.impl.AccessToken
 import trik.testsys.webapp.backoffice.data.entity.impl.User
 import trik.testsys.webapp.backoffice.service.mapper.ObjectMapper
 
@@ -26,9 +25,6 @@ class UserObjectMapper : ObjectMapper<User, UserDto> {
         return User().also {
             it.id = dto.id
             it.name = dto.name
-            it.accessToken = AccessToken().also {
-                it.value = dto.accessTokenValue
-            }
             it.privileges.addAll(dto.privileges)
         }
     }
