@@ -38,10 +38,24 @@ class UserController(
         // Build dynamic menu from privileges
         val sections = menuBuilder.buildFor(user)
 
+        val privilegeToRu = mapOf(
+            User.Privilege.ADMIN to "Организатор",
+            User.Privilege.DEVELOPER to "Разработчик",
+            User.Privilege.JUDGE to "Судья",
+            User.Privilege.STUDENT to "Участник",
+            User.Privilege.SUPER_USER to "Супервайзер",
+            User.Privilege.VIEWER to "Наблюдатель",
+            User.Privilege.GROUP_ADMIN to "Администратор Групп",
+        )
+
+        val privilegesRu = user.privileges.map { privilegeToRu[it] ?: it.name }.sorted()
+
         model.apply {
             addHasActiveSession(session)
             addUser(user)
             addSections(sections)
+            addAttribute("privilegeToRu", privilegeToRu)
+            addAttribute("privilegesRu", privilegesRu)
         }
         return "user"
     }

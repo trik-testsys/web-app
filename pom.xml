@@ -100,7 +100,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>trik.testsys.sac.application.TSApp</mainClass>
+                    <mainClass>trik.testsys.webapp.backoffice.Application</mainClass>
                 </configuration>
             </plugin>
         </plugins>

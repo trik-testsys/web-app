@@ -22,6 +22,12 @@ class SuperUserController(
     private val superUserService: SuperUserService,
 ) : AbstractUserController() {
 
+    private data class UserRow(
+        val id: Long,
+        val name: String?,
+        val privilegesRu: List<String>
+    )
+
     @GetMapping("/users")
     fun usersPage(model: Model, session: HttpSession, redirectAttributes: RedirectAttributes): String {
         val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
@@ -34,12 +40,32 @@ class SuperUserController(
 
         val sections = menuBuilder.buildFor(currentUser)
 
+        val privilegeToRu = mapOf(
+            User.Privilege.ADMIN to "Организатор",
+            User.Privilege.DEVELOPER to "Разработчик",
+            User.Privilege.JUDGE to "Судья",
+            User.Privilege.STUDENT to "Участник",
+            User.Privilege.SUPER_USER to "Супервайзер",
+            User.Privilege.VIEWER to "Наблюдатель",
+            User.Privilege.GROUP_ADMIN to "Администратор Групп",
+        )
+        val privilegeOptions = User.Privilege.values().map { it.name to (privilegeToRu[it] ?: it.name) }
+
+        val allUsers = userService.findAll().sortedBy { it.id }
+        val userRows = allUsers.map { u ->
+            val privsRu = u.privileges.map { p -> privilegeToRu[p] ?: p.name }.sorted()
+            UserRow(id = u.id!!, name = u.name, privilegesRu = privsRu)
+        }
+
         model.apply {
             addHasActiveSession(session)
             addUser(currentUser)
             addSections(sections)
-            addAttribute("allUsers", userService.findAll().sortedBy { it.id })
-            addAttribute("privileges", User.Privilege.entries)
+            addAttribute("allUsers", allUsers)
+            addAttribute("userRows", userRows)
+            addAttribute("privileges", User.Privilege.values().toList())
+            addAttribute("privilegeOptions", privilegeOptions)
+            addAttribute("privilegeToRu", privilegeToRu)
         }
         return "superuser/users"
     }

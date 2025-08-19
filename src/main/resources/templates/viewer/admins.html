@@ -13,7 +13,7 @@
         <div class="card-body">
             <div style="margin-bottom: 12px;">
                 <div class="token-box" th:if="${user.adminRegToken != null}">
-                    <span class="token-label">Регистрационный токен</span>
+                    <span class="token-label">Код-регистрации</span>
                     <span class="token" th:text="${user.adminRegToken.value}"></span>
                 </div>
                 <div th:if="${user.adminRegToken == null}">

@@ -17,7 +17,6 @@
             <table th:if="${!#lists.isEmpty(privRows)}" class="table">
                 <thead>
                     <tr>
-                        <th style="text-align:left; padding:8px;">Роль</th>
                         <th style="text-align:left; padding:8px;">Название</th>
                         <th style="text-align:left; padding:8px;">Возможности</th>
                         <th style="text-align:left; padding:8px;">Страница</th>
@@ -25,7 +24,6 @@
                 </thead>
                 <tbody>
                     <tr th:each="row : ${privRows}">
-                        <td style="padding:8px;" th:text="${row.role}"></td>
                         <td style="padding:8px;" th:text="${row.localized}"></td>
                         <td style="padding:8px;" th:text="${row.authorities}"></td>
                         <td style="padding:8px;">

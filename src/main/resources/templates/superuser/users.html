@@ -24,8 +24,8 @@
                     <input type="text" name="name" placeholder="Псевдоним" required/>
                 </label>
                 <label>Роли
-                    <select name="privileges" multiple size="4">
-                        <option th:each="p : ${privileges}" th:value="${p}" th:text="${p}"></option>
+                    <select name="privileges" multiple size="7">
+                        <option th:each="opt : ${privilegeOptions}" th:value="${opt.first}" th:text="${opt.second}"></option>
                     </select>
                 </label>
                 <button type="submit" class="btn">Создать</button>
@@ -47,20 +47,22 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="u : ${allUsers}">
-                        <td th:text="${u.id}"></td>
-                        <td th:text="${u.name}"></td>
+                    <tr th:each="row : ${userRows}">
+                        <td th:text="${row.id}"></td>
+                        <td th:text="${row.name}"></td>
                         <td>
-                            <span th:each="pr : ${u.privileges}" class="badge" style="margin-right:6px;" th:text="${pr}"></span>
+                            <ul class="pill-list" style="margin:0;">
+                                <li class="pill" th:each="pr : ${row.privilegesRu}" th:text="${pr}"></li>
+                            </ul>
                         </td>
                         <td>
                             <details>
                                 <summary>Добавить роль</summary>
                                 <form class="form form-inline" th:action="@{/user/superuser/users/privilege}" method="post">
-                                    <input type="hidden" name="userId" th:value="${u.id}"/>
+                                    <input type="hidden" name="userId" th:value="${row.id}"/>
                                     <select name="privilege" required>
                                         <option value="" disabled selected>Выберите роль</option>
-                                        <option th:each="p : ${privileges}" th:value="${p}" th:text="${p}"></option>
+                                        <option th:each="opt : ${privilegeOptions}" th:value="${opt.first}" th:text="${opt.second}"></option>
                                     </select>
                                     <button type="submit" class="btn">Добавить</button>
                                 </form>
