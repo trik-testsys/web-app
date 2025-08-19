@@ -15,6 +15,7 @@ import trik.testsys.webapp.backoffice.utils.addHasActiveSession
 import trik.testsys.webapp.backoffice.utils.addMessage
 import trik.testsys.webapp.backoffice.utils.addSections
 import trik.testsys.webapp.backoffice.utils.addUser
+import trik.testsys.webapp.backoffice.utils.PrivilegeI18n
 
 @Controller
 @RequestMapping("/user/superuser")
@@ -39,21 +40,11 @@ class SuperUserController(
         }
 
         val sections = menuBuilder.buildFor(currentUser)
-
-        val privilegeToRu = mapOf(
-            User.Privilege.ADMIN to "Организатор",
-            User.Privilege.DEVELOPER to "Разработчик",
-            User.Privilege.JUDGE to "Судья",
-            User.Privilege.STUDENT to "Участник",
-            User.Privilege.SUPER_USER to "Супервайзер",
-            User.Privilege.VIEWER to "Наблюдатель",
-            User.Privilege.GROUP_ADMIN to "Администратор Групп",
-        )
-        val privilegeOptions = User.Privilege.values().map { it.name to (privilegeToRu[it] ?: it.name) }
+        val privilegeOptions = PrivilegeI18n.listOptions()
 
         val allUsers = userService.findAll().sortedBy { it.id }
         val userRows = allUsers.map { u ->
-            val privsRu = u.privileges.map { p -> privilegeToRu[p] ?: p.name }.sorted()
+            val privsRu = PrivilegeI18n.listRu(u.privileges)
             UserRow(id = u.id!!, name = u.name, privilegesRu = privsRu)
         }
 
@@ -63,9 +54,9 @@ class SuperUserController(
             addSections(sections)
             addAttribute("allUsers", allUsers)
             addAttribute("userRows", userRows)
-            addAttribute("privileges", User.Privilege.values().toList())
+            addAttribute("privileges", User.Privilege.entries)
             addAttribute("privilegeOptions", privilegeOptions)
-            addAttribute("privilegeToRu", privilegeToRu)
+            addAttribute("privilegeToRu", User.Privilege.entries.associateWith { PrivilegeI18n.toRu(it) })
         }
         return "superuser/users"
     }

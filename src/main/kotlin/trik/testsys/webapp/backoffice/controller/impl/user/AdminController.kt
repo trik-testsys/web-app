@@ -14,12 +14,14 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import trik.testsys.webapp.backoffice.controller.AbstractUserController
+import trik.testsys.webapp.backoffice.data.entity.impl.User
 import trik.testsys.webapp.backoffice.data.service.StudentGroupService
 import trik.testsys.webapp.backoffice.utils.getRedirection
 import trik.testsys.webapp.backoffice.utils.addHasActiveSession
 import trik.testsys.webapp.backoffice.utils.addMessage
 import trik.testsys.webapp.backoffice.utils.addSections
 import trik.testsys.webapp.backoffice.utils.addUser
+import trik.testsys.webapp.backoffice.utils.PrivilegeI18n
 
 @Controller
 @RequestMapping("/user/admin")
@@ -39,6 +41,7 @@ class AdminController(
             addUser(admin)
             addSections(menuBuilder.buildFor(admin))
             addAttribute("groups", groups)
+            addAttribute("privilegeToRu", User.Privilege.entries.associateWith { PrivilegeI18n.toRu(it) })
         }
 
         return "admin/groups"
@@ -63,11 +66,15 @@ class AdminController(
             return "redirect:/user/admin/groups"
         }
 
+        val memberPrivilegesRuByUserId = group.members.associate { it.id!! to PrivilegeI18n.listRu(it.privileges) }
+
         model.apply {
             addHasActiveSession(session)
             addUser(admin)
             addSections(menuBuilder.buildFor(admin))
             addAttribute("group", group)
+            addAttribute("memberPrivilegesRuByUserId", memberPrivilegesRuByUserId)
+            addAttribute("privilegeToRu", User.Privilege.entries.associateWith { PrivilegeI18n.toRu(it) })
         }
 
         return "admin/group"

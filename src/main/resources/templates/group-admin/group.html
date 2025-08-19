@@ -46,7 +46,7 @@
                             <td style="padding:8px;"><span class="token" th:text="${m.accessToken.value}"></span></td>
                             <td style="padding:8px;">
                                 <ul class="pill-list">
-                                    <li class="pill" th:each="p : ${m.privileges}" th:text="${p}"></li>
+                                    <li class="pill" th:each="p : ${memberPrivilegesRuByUserId[m.id]}" th:text="${p}"></li>
                                 </ul>
                             </td>
                             <td style="padding:8px;">

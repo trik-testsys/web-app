@@ -16,6 +16,7 @@ import trik.testsys.webapp.backoffice.utils.addHasActiveSession
 import trik.testsys.webapp.backoffice.utils.addMessage
 import trik.testsys.webapp.backoffice.utils.addSections
 import trik.testsys.webapp.backoffice.utils.addUser
+import trik.testsys.webapp.backoffice.utils.PrivilegeI18n
 
 @Controller
 @RequestMapping("/user/group-admin")
@@ -40,6 +41,7 @@ class GroupAdminController(
             addUser(current)
             addSections(menuBuilder.buildFor(current))
             addAttribute("groups", groups)
+            addAttribute("privilegeToRu", User.Privilege.entries.associateWith { PrivilegeI18n.toRu(it) })
         }
 
         return "group-admin/groups"
@@ -59,11 +61,15 @@ class GroupAdminController(
             return "redirect:/user/group-admin/groups"
         }
 
+        val memberPrivilegesRuByUserId = group.members.associate { it.id!! to PrivilegeI18n.listRu(it.privileges) }
+
         model.apply {
             addHasActiveSession(session)
             addUser(current)
             addSections(menuBuilder.buildFor(current))
             addAttribute("group", group)
+            addAttribute("memberPrivilegesRuByUserId", memberPrivilegesRuByUserId)
+            addAttribute("privilegeToRu", User.Privilege.entries.associateWith { PrivilegeI18n.toRu(it) })
         }
 
         return "group-admin/group"

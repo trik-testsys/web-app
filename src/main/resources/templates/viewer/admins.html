@@ -43,7 +43,7 @@
                             <td style="padding:8px;" th:text="${a.name}"></td>
                             <td style="padding:8px;">
                                 <ul class="pill-list">
-                                    <li class="pill" th:each="p : ${a.privileges}" th:text="${p}"></li>
+                                    <li class="pill" th:each="p : ${a.privileges}" th:text="${privilegeToRu[p]}"></li>
                                 </ul>
                             </td>
                         </tr>

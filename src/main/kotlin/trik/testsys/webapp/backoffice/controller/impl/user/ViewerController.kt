@@ -7,9 +7,11 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import trik.testsys.webapp.backoffice.controller.AbstractUserController
+import trik.testsys.webapp.backoffice.data.entity.impl.User
 import trik.testsys.webapp.backoffice.utils.addHasActiveSession
 import trik.testsys.webapp.backoffice.utils.addSections
 import trik.testsys.webapp.backoffice.utils.addUser
+import trik.testsys.webapp.backoffice.utils.PrivilegeI18n
 
 @Controller
 @RequestMapping("/user/viewer")
@@ -28,6 +30,7 @@ class ViewerController() : AbstractUserController() {
             addUser(viewer)
             addSections(sections)
             addAttribute("admins", admins)
+            addAttribute("privilegeToRu", User.Privilege.entries.associateWith { PrivilegeI18n.toRu(it) })
         }
         return "viewer/admins"
     }
