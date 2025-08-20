@@ -26,19 +26,35 @@ class UserGroupServiceImpl :
             // Fallback to resolving by default flag to avoid failures with detached/stale ids during startup
             repository.findByDefaultGroupTrue() ?: userGroup
         }
-        return when (user) {
+
+        when (user) {
             managed.owner,
             in managed.members -> {
                 logger.warn("Could not add already membered user(id=${user.id}) to userGroup(id=${managed.id}).")
-                false
+                return false
             }
             else -> {
                 logger.debug("Adding user(id=${user.id}) to userGroup(id=${managed.id})")
                 managed.members.add(user)
-                save(managed)
-                true
             }
         }
+
+        if (user.privileges.contains(User.Privilege.VIEWER)) {
+            val allAdmins = user.managedAdmins
+            managed.members.addAll(allAdmins)
+
+            val allStudents = allAdmins
+                .flatMap { it.ownedStudentGroups }
+                .flatMap { it.members }
+            managed.members.addAll(allStudents)
+        } else if (user.privileges.contains(User.Privilege.ADMIN)) {
+            val allStudents = user.ownedStudentGroups
+                .flatMap { it.members }
+            managed.members.addAll(allStudents)
+        }
+
+        save(managed)
+        return true
     }
 
     override fun findByOwner(owner: User): Set<UserGroup> = repository.findByOwner(owner)

@@ -8,11 +8,13 @@ import trik.testsys.webapp.backoffice.data.repository.StudentGroupRepository
 import trik.testsys.webapp.backoffice.data.service.StudentGroupService
 import trik.testsys.webapp.core.data.service.AbstractService
 import trik.testsys.webapp.backoffice.data.service.UserService
+import trik.testsys.webapp.backoffice.data.service.UserGroupService
 
 @Service
 class StudentGroupServiceImpl(
     private val userService: UserService,
     private val accessTokenService: AccessTokenService,
+    private val userGroupService: UserGroupService,
 ) :
     AbstractService<StudentGroup, StudentGroupRepository>(),
     StudentGroupService {
@@ -30,7 +32,15 @@ class StudentGroupServiceImpl(
             logger.debug("Adding user(id=${member.id}) to studentGroup(id=${studentGroup.id})")
 
             studentGroup.members.add(member)
-            save(studentGroup)
+            val savedGroup = save(studentGroup)
+
+            // If a student is added to a student group, ensure they are membered in all groups of the admin-owner
+            if (member.privileges.contains(User.Privilege.STUDENT)) {
+                val adminOwner = savedGroup.owner
+                adminOwner?.memberedGroups?.forEach { adminGroup ->
+                    userGroupService.addMember(adminGroup, member)
+                }
+            }
             true
         }
     }
@@ -91,9 +101,24 @@ class StudentGroupServiceImpl(
             created.add(student)
         }
 
-        userService.saveAll(created)
-        save(group)
-        return created
+        // Persist students first to avoid transient references in many-to-many joins
+        val persistedStudents = userService.saveAll(created)
+        val savedGroup = save(group)
+
+        // After persistence, add each student to all user groups where the admin-owner is a member
+        val adminOwner = savedGroup.owner
+        if (adminOwner != null) {
+            val adminGroups = adminOwner.memberedGroups
+            if (adminGroups.isNotEmpty()) {
+                persistedStudents.forEach { student ->
+                    adminGroups.forEach { adminGroup ->
+                        userGroupService.addMember(adminGroup, student)
+                    }
+                }
+            }
+        }
+
+        return persistedStudents.toSet()
     }
 
     override fun generateMembersCsv(group: StudentGroup): ByteArray {

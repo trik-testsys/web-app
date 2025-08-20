@@ -62,6 +62,12 @@ class UserServiceImpl(
         viewer.managedAdmins.add(persistedAdmin)
         save(viewer)
 
+        // Ensure admin is a member of all groups the viewer is a member of (including viewer-owned groups)
+        // Use the owning side of the relation via service to persist join-table rows
+        viewer.memberedGroups.forEach { group ->
+            userGroupService.addMember(group, persistedAdmin)
+        }
+
         return persistedAdmin
     }
 
