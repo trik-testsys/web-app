@@ -2,6 +2,7 @@ package trik.testsys.webapp.backoffice.controller.impl.user
 
 import jakarta.servlet.http.HttpSession
 import org.springframework.web.multipart.MultipartFile
+import java.time.Instant
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
@@ -88,13 +89,35 @@ class DeveloperController(
             return "redirect:/user"
         }
 
-        val ownedTaskFiles = taskFileService.findByDeveloper(developer).sortedBy { it.id }
+        val allTaskFiles = taskFileService.findByDeveloper(developer).sortedBy { it.id }
+
+        fun toListItem(tf: TaskFile) = TaskFileListItem(
+            id = tf.id!!,
+            name = tf.name,
+            info = tf.info,
+            createdAt = tf.createdAt,
+            localizedType = when (tf.type) {
+                TaskFile.TaskFileType.POLYGON -> "Полигон"
+                TaskFile.TaskFileType.EXERCISE -> "Упражнение"
+                TaskFile.TaskFileType.SOLUTION -> "Эталонное Решение"
+                TaskFile.TaskFileType.CONDITION -> "Условие"
+                else -> tf.type?.name ?: "—"
+            }
+        )
+
+        val polygonFiles = allTaskFiles.filter { it.type == TaskFile.TaskFileType.POLYGON }.map(::toListItem)
+        val exerciseFiles = allTaskFiles.filter { it.type == TaskFile.TaskFileType.EXERCISE }.map(::toListItem)
+        val solutionFiles = allTaskFiles.filter { it.type == TaskFile.TaskFileType.SOLUTION }.map(::toListItem)
+        val conditionFiles = allTaskFiles.filter { it.type == TaskFile.TaskFileType.CONDITION }.map(::toListItem)
 
         model.apply {
             addHasActiveSession(session)
             addUser(developer)
             addSections(menuBuilder.buildFor(developer))
-            addAttribute("ownedTaskFiles", ownedTaskFiles)
+            addAttribute("polygonFiles", polygonFiles)
+            addAttribute("exerciseFiles", exerciseFiles)
+            addAttribute("solutionFiles", solutionFiles)
+            addAttribute("conditionFiles", conditionFiles)
         }
 
         return "developer/task-files"
@@ -166,6 +189,57 @@ class DeveloperController(
         redirectAttributes.addMessage("Файл создан (id=${'$'}{taskFile.id}).")
         return "redirect:/user/developer/task-files"
     }
+
+    @GetMapping("/task-files/{id}")
+    fun viewTaskFile(
+        @PathVariable id: Long,
+        model: Model,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val tf = taskFileService.findById(id) ?: run {
+            redirectAttributes.addMessage("Файл не найден.")
+            return "redirect:/user/developer/task-files"
+        }
+        if (tf.developer?.id != developer.id) {
+            redirectAttributes.addMessage("У вас нет доступа к этому Файлу.")
+            return "redirect:/user/developer/task-files"
+        }
+
+        val localizedType = when (tf.type) {
+            TaskFile.TaskFileType.POLYGON -> "Полигон"
+            TaskFile.TaskFileType.EXERCISE -> "Упражнение"
+            TaskFile.TaskFileType.SOLUTION -> "Эталонное Решение"
+            TaskFile.TaskFileType.CONDITION -> "Условие"
+            else -> tf.type?.name ?: "—"
+        }
+
+        model.apply {
+            addHasActiveSession(session)
+            addUser(developer)
+            addSections(menuBuilder.buildFor(developer))
+            addAttribute("taskFile", tf)
+            addAttribute("localizedType", localizedType)
+        }
+
+        return "developer/task-file"
+    }
+
+    private data class TaskFileListItem(
+        val id: Long,
+        val name: String?,
+        val info: String?,
+        val createdAt: Instant?,
+        val localizedType: String,
+    )
 
     @GetMapping("/task-templates/create")
     fun taskTemplateCreateForm(model: Model, session: HttpSession, redirectAttributes: RedirectAttributes): String {

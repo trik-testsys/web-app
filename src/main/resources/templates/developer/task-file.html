@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+<head>
+    <th:block th:include="fragments/layout :: head('Файл')"></th:block>
+    <style>
+        .kv-wide { display: grid; grid-template-columns: 220px 1fr; gap: 10px 20px; }
+    </style>
+</head>
+<body>
+<header th:replace="fragments/layout :: header(userName=${user.name})"></header>
+<aside th:replace="fragments/layout :: sidebar(sections=${menuSections})"></aside>
+
+<main class="app-main">
+    <section class="card">
+        <h2 class="card-title"><a th:href="@{/user/developer/task-files}">Файлы</a> / [<span th:text="${localizedType}"></span>] <span th:text="${taskFile.name}"></span></h2>
+        <div class="card-body">
+            <dl class="kv-wide">
+                <dt>ID</dt>
+                <dd th:text="${taskFile.id}"></dd>
+                <dt>Название</dt>
+                <dd th:text="${taskFile.name}"></dd>
+                <dt>Описание</dt>
+                <dd th:text="${taskFile.info ?: '—'}"></dd>
+                <dt>Тип</dt>
+                <dd th:text="${localizedType}"></dd>
+                <dt>Дата создания</dt>
+                <dd th:text="${taskFile.createdAt != null ? #temporals.format(taskFile.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></dd>
+            </dl>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="fragments/layout :: footer"></footer>
+</body>
+</html>
+
+

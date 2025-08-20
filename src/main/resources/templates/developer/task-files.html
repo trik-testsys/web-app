@@ -2,7 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
 <head>
     <th:block th:include="fragments/layout :: head('Файлы')"></th:block>
-    <link rel="stylesheet" th:href="@{/css/table.css}"/>
+    <link rel="stylesheet" th:href="@{/css/components.css}"/>
+    <link rel="stylesheet" th:href="@{/css/form.css}"/>
 </head>
 <body>
 <header th:replace="fragments/layout :: header(userName=${user.name})"></header>
@@ -10,41 +11,106 @@
 
 <main class="app-main">
     <section class="card">
-        <h2 class="card-title">Мои Файлы</h2>
+        <h2 class="card-title">Файлы</h2>
         <div class="card-body">
             <div style="margin-bottom:10px;">
                 <a class="button" th:href="@{/user/developer/task-files/create}">Создать Файл</a>
             </div>
             <hr class="separator">
-            <div th:if="${#lists.isEmpty(ownedTaskFiles)}" style="color: var(--color-text-muted);">У вас пока нет файлов.</div>
-            <table th:if="${!#lists.isEmpty(ownedTaskFiles)}" class="table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Название</th>
-                        <th>Описание</th>
-                        <th>Создан</th>
-                        <th>Тип</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="f : ${ownedTaskFiles}">
-                        <td th:text="${f.id}"></td>
-                        <td th:text="${f.name}"></td>
-                        <td th:text="${f.info ?: '—'}"></td>
-                        <td th:text="${#temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm')}"></td>
-                        <td>
-                            <span th:switch="${f.type}">
-                                <span th:case="'POLYGON'">Полигон</span>
-                                <span th:case="'EXERCISE'">Упражнение</span>
-                                <span th:case="'SOLUTION'">Эталонное Решение</span>
-                                <span th:case="'CONDITION'">Условие</span>
-                                <span th:case="*" th:text="${f.type}"></span>
-                            </span>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+
+            <div th:if="${#lists.isEmpty(polygonFiles) && #lists.isEmpty(exerciseFiles) && #lists.isEmpty(solutionFiles) && #lists.isEmpty(conditionFiles)}" style="color: var(--color-text-muted);">У вас пока нет файлов.</div>
+
+            <div th:if="${!#lists.isEmpty(polygonFiles)}">
+                <h3 style="margin-top:0;">Полигоны</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Название</th>
+                            <th>Описание</th>
+                            <th>Дата создания</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="f : ${polygonFiles}">
+                            <td th:text="${f.id}"></td>
+                            <td><a th:href="@{'/user/developer/task-files/' + ${f.id}}" th:text="${f.name}"></a></td>
+                            <td th:text="${f.info ?: '—'}"></td>
+                            <td th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <hr class="separator" th:if="${!#lists.isEmpty(polygonFiles) && !#lists.isEmpty(exerciseFiles)}"/>
+            <div th:if="${!#lists.isEmpty(exerciseFiles)}" style="margin-top:24px;">
+                <h3 style="margin-top:0;">Упражнения</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Название</th>
+                            <th>Описание</th>
+                            <th>Дата создания</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="f : ${exerciseFiles}">
+                            <td th:text="${f.id}"></td>
+                            <td><a th:href="@{'/user/developer/task-files/' + ${f.id}}" th:text="${f.name}"></a></td>
+                            <td th:text="${f.info ?: '—'}"></td>
+                            <td th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <hr class="separator" th:if="${(!#lists.isEmpty(polygonFiles) || !#lists.isEmpty(exerciseFiles)) && !#lists.isEmpty(solutionFiles)}"/>
+            <div th:if="${!#lists.isEmpty(solutionFiles)}" style="margin-top:24px;">
+                <h3 style="margin-top:0;">Эталонные Решения</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Название</th>
+                            <th>Описание</th>
+                            <th>Дата создания</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="f : ${solutionFiles}">
+                            <td th:text="${f.id}"></td>
+                            <td><a th:href="@{'/user/developer/task-files/' + ${f.id}}" th:text="${f.name}"></a></td>
+                            <td th:text="${f.info ?: '—'}"></td>
+                            <td th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <hr class="separator" th:if="${(!#lists.isEmpty(polygonFiles) || !#lists.isEmpty(exerciseFiles) || !#lists.isEmpty(solutionFiles)) && !#lists.isEmpty(conditionFiles)}"/>
+            <div th:if="${!#lists.isEmpty(conditionFiles)}" style="margin-top:24px;">
+                <h3 style="margin-top:0;">Условия</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Название</th>
+                            <th>Описание</th>
+                            <th>Дата создания</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="f : ${conditionFiles}">
+                            <td th:text="${f.id}"></td>
+                            <td><a th:href="@{'/user/developer/task-files/' + ${f.id}}" th:text="${f.name}"></a></td>
+                            <td th:text="${f.info ?: '—'}"></td>
+                            <td th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
         </div>
     </section>
 </main>
