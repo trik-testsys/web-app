@@ -46,12 +46,21 @@ class DeveloperController(
             return "redirect:/user/developer/contests"
         }
 
+        val isOwner = contest.developer?.id == developer.id
+        if (!isOwner) {
+            val canView = developer.memberedGroups.any { mg -> contest.userGroups.any { ug -> ug.id == mg.id } }
+            if (!canView) {
+                redirectAttributes.addMessage("У вас нет доступа к этому Туру.")
+                return "redirect:/user/developer/contests"
+            }
+        }
+
         model.apply {
             addHasActiveSession(session)
             addUser(developer)
             addSections(menuBuilder.buildFor(developer))
             addAttribute("contest", contest)
-            addAttribute("isOwner", contest.developer?.id == developer.id)
+            addAttribute("isOwner", isOwner)
             addAttribute(
                 "availableUserGroups",
                 userGroupService.findByMember(developer)

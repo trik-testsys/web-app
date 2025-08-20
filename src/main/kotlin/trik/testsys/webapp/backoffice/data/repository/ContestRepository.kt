@@ -15,5 +15,5 @@ interface ContestRepository : EntityRepository<Contest> {
 
     fun findByDeveloper(developer: User): Set<Contest>
 
-    fun findByUserGroupsContaining(userGroups: Collection<UserGroup>): Set<Contest>
+    fun findDistinctByUserGroupsIn(userGroups: Collection<UserGroup>): Set<Contest>
 }

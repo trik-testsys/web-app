@@ -16,6 +16,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import trik.testsys.webapp.backoffice.controller.AbstractUserController
 import trik.testsys.webapp.backoffice.data.entity.impl.User
 import trik.testsys.webapp.backoffice.data.service.StudentGroupService
+import trik.testsys.webapp.backoffice.data.service.ContestService
 import trik.testsys.webapp.backoffice.utils.getRedirection
 import trik.testsys.webapp.backoffice.utils.addHasActiveSession
 import trik.testsys.webapp.backoffice.utils.addMessage
@@ -27,6 +28,7 @@ import trik.testsys.webapp.backoffice.utils.PrivilegeI18n
 @RequestMapping("/user/admin")
 class AdminController(
     private val studentGroupService: StudentGroupService,
+    private val contestService: ContestService,
 ) : AbstractUserController() {
 
     @GetMapping("/groups")
@@ -75,6 +77,13 @@ class AdminController(
             addAttribute("group", group)
             addAttribute("memberPrivilegesRuByUserId", memberPrivilegesRuByUserId)
             addAttribute("privilegeToRu", User.Privilege.entries.associateWith { PrivilegeI18n.toRu(it) })
+            addAttribute("attachedContests", group.contests.sortedBy { it.id })
+            addAttribute(
+                "availableContests",
+                contestService.findForUser(admin)
+                    .filterNot { c -> group.contests.any { it.id == c.id } }
+                    .sortedBy { it.id }
+            )
         }
 
         return "admin/group"
@@ -155,5 +164,41 @@ class AdminController(
             .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=group_${group.id}_students.csv")
             .contentType(MediaType.TEXT_PLAIN)
             .body(csv)
+    }
+
+    @PostMapping("/groups/{id}/attach-contest")
+    fun attachContest(
+        @PathVariable id: Long,
+        @RequestParam("contestId") contestId: Long,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val admin = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        val group = studentGroupService.findById(id) ?: return "redirect:/user/admin/groups"
+        if (group.owner?.id != admin.id) return "redirect:/user/admin/groups"
+
+        val contest = contestService.findById(contestId)
+        if (contest == null) {
+            redirectAttributes.addMessage("Тур не найден.")
+            return "redirect:/user/admin/groups/$id"
+        }
+
+        val available = contestService.findForUser(admin)
+        val canAttach = available.any { it.id == contest.id }
+        if (!canAttach) {
+            redirectAttributes.addMessage("Вы не имеете доступа к этому Туру.")
+            return "redirect:/user/admin/groups/$id"
+        }
+
+        val added = group.contests.add(contest)
+        studentGroupService.save(group)
+        if (added) {
+            redirectAttributes.addMessage("Тур прикреплён к группе.")
+        } else {
+            redirectAttributes.addMessage("Тур уже прикреплён к группе.")
+        }
+        return "redirect:/user/admin/groups/$id"
     }
 }

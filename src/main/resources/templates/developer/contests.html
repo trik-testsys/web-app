@@ -71,7 +71,9 @@
                 <tbody>
                     <tr th:each="c : ${sharedContests}">
                         <td th:text="${c.id}"></td>
-                        <td th:text="${c.name}"></td>
+                        <td>
+                            <a th:href="@{'/user/developer/contests/' + ${c.id}}" th:text="${c.name}"></a>
+                        </td>
                         <td th:text="${c.startsAt != null ? #temporals.format(c.startsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                         <td th:text="${c.endsAt != null ? #temporals.format(c.endsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                         <td th:text="${c.duration != null ? c.duration + ' мин' : '—'}"></td>

@@ -12,16 +12,13 @@ import trik.testsys.webapp.core.data.service.AbstractService
  * @since %CURRENT_VERSION%
  */
 @Service
-class ContestServiceImpl(
-
-) :
+class ContestServiceImpl :
     AbstractService<Contest, ContestRepository>(),
     ContestService {
 
     override fun findForUser(user: User): Set<Contest> {
-        val memberedGroups = user.memberedGroups
-        val sharedContests = memberedGroups.flatMap { it.contests }.toSet()
-        return sharedContests
-        val sharedWithGroups = if (user.memberedGroups.isEmpty()) emptySet() else repository.findByUserGroupsContaining(user.memberedGroups)
+        val ownedByUser = repository.findByDeveloper(user)
+        val viaGroups = if (user.memberedGroups.isEmpty()) emptySet() else repository.findDistinctByUserGroupsIn(user.memberedGroups)
+        return (ownedByUser + viaGroups).toSet()
     }
 }

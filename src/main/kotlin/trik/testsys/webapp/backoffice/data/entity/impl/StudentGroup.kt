@@ -26,4 +26,12 @@ class StudentGroup() : AbstractEntity() {
         inverseJoinColumns = [JoinColumn(name = "members_id")]
     )
     var members: MutableSet<User> = mutableSetOf()
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "${TABLE_PREFIX}student_group_contests",
+        joinColumns = [JoinColumn(name = "studentGroup_id")],
+        inverseJoinColumns = [JoinColumn(name = "contest_id")]
+    )
+    var contests: MutableSet<Contest> = mutableSetOf()
 }

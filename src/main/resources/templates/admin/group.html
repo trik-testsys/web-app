@@ -53,6 +53,62 @@
                     </tbody>
                 </table>
             </div>
+            <hr class="separator">
+            <div style="margin-top: 12px;">
+                <h3 style="margin: 0 0 8px 0;">Прикреплённые Туры</h3>
+                <div th:if="${#lists.isEmpty(attachedContests)}" style="color: var(--color-text-muted);">Нет прикреплённых Туров.</div>
+                <table th:if="${!#lists.isEmpty(attachedContests)}" class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Название</th>
+                            <th>Начало</th>
+                            <th>Окончание</th>
+                            <th>Длительность</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="c : ${attachedContests}">
+                            <td th:text="${c.id}"></td>
+                            <td th:text="${c.name}"></td>
+                            <td th:text="${c.startsAt != null ? #temporals.format(c.startsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                            <td th:text="${c.endsAt != null ? #temporals.format(c.endsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                            <td th:text="${c.duration != null ? c.duration + ' мин' : '—'}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div style="margin-top: 12px;">
+                <h3 style="margin: 16px 0 8px 0;">Туры, доступные для прикрепления</h3>
+                <div th:if="${#lists.isEmpty(availableContests)}" style="color: var(--color-text-muted);">Нет доступных Туров.</div>
+                <table th:if="${!#lists.isEmpty(availableContests)}" class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Название</th>
+                            <th>Начало</th>
+                            <th>Окончание</th>
+                            <th>Длительность</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="c : ${availableContests}">
+                            <td th:text="${c.id}"></td>
+                            <td th:text="${c.name}"></td>
+                            <td th:text="${c.startsAt != null ? #temporals.format(c.startsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                            <td th:text="${c.endsAt != null ? #temporals.format(c.endsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                            <td th:text="${c.duration != null ? c.duration + ' мин' : '—'}"></td>
+                            <td>
+                                <form th:action="@{'/user/admin/groups/' + ${group.id} + '/attach-contest'}" method="post" onsubmit="return confirm('Прикрепить Тур к группе?');">
+                                    <input type="hidden" name="contestId" th:value="${c.id}">
+                                    <button type="submit" class="button">Прикрепить</button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </section>
 </main>
