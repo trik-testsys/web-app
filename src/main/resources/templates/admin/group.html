@@ -27,6 +27,7 @@
                     <button type="submit" class="button button--primary">Сгенерировать</button>
                 </form>
                 <a class="button" th:href="@{'/user/admin/groups/' + ${group.id} + '/export'}">Экспорт CSV</a>
+                <a class="button" th:href="@{'/user/admin/groups/' + ${group.id} + '/export-results'}">Экспорт результатов</a>
             </div>
             <hr class="separator">
             <div style="margin-top: 12px;">

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+<head>
+    <th:block th:include="fragments/layout :: head('Шаблоны Задач')"></th:block>
+    <link rel="stylesheet" th:href="@{/css/components.css}"/>
+    <link rel="stylesheet" th:href="@{/css/form.css}"/>
+</head>
+<body>
+<header th:replace="fragments/layout :: header(userName=${user.name})"></header>
+<aside th:replace="fragments/layout :: sidebar(sections=${menuSections})"></aside>
+
+<main class="app-main">
+    <section class="card">
+        <h2 class="card-title">Мои Шаблоны</h2>
+        <div class="card-body">
+            <div style="margin-bottom:10px;">
+                <a class="button" th:href="@{/user/developer/task-templates/create}">Создать Шаблон</a>
+            </div>
+            <div th:if="${#lists.isEmpty(ownedTemplates)}" style="color: var(--color-text-muted);">У вас пока нет шаблонов.</div>
+            <table th:if="${!#lists.isEmpty(ownedTemplates)}" class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Название</th>
+                        <th>Группы пользователей</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="t : ${ownedTemplates}">
+                        <td th:text="${t.id}"></td>
+                        <td>
+                            <a th:href="@{'/user/developer/task-templates/' + ${t.id}}" th:text="${t.name}"></a>
+                        </td>
+                        <td>
+                            <ul class="pill-list" th:if="${!#lists.isEmpty(t.userGroups)}">
+                                <li class="pill" th:each="g : ${t.userGroups}" th:text="${(g.name ?: 'Без названия') + ' (#' + g.id + ')'}"></li>
+                            </ul>
+                            <span th:if="${#lists.isEmpty(t.userGroups)}" style="color: var(--color-text-muted);">—</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2 class="card-title">Доступные Шаблоны</h2>
+        <div class="card-body">
+            <div th:if="${#lists.isEmpty(availableTemplates)}" style="color: var(--color-text-muted);">Пока нет доступных шаблонов.</div>
+            <table th:if="${!#lists.isEmpty(availableTemplates)}" class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Название</th>
+                        <th>Группы Пользователей</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="t : ${availableTemplates}">
+                        <td th:text="${t.id}"></td>
+                        <td>
+                            <a th:href="@{'/user/developer/task-templates/' + ${t.id}}" th:text="${t.name}"></a>
+                        </td>
+                        <td>
+                            <ul class="pill-list" th:if="${!#lists.isEmpty(t.userGroups)}">
+                                <li class="pill" th:each="g : ${t.userGroups}" th:text="${(g.name ?: 'Без названия') + ' (#' + g.id + ')'}"></li>
+                            </ul>
+                            <span th:if="${#lists.isEmpty(t.userGroups)}" style="color: var(--color-text-muted);">—</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="fragments/layout :: footer"></footer>
+</body>
+</html>
+
+

@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import trik.testsys.webapp.backoffice.controller.AbstractUserController
 import trik.testsys.webapp.backoffice.data.entity.impl.Contest
+import trik.testsys.webapp.backoffice.data.entity.impl.TaskTemplate
 import trik.testsys.webapp.backoffice.data.entity.impl.User
+import trik.testsys.webapp.backoffice.data.service.TaskTemplateService
 import trik.testsys.webapp.backoffice.data.service.ContestService
 import trik.testsys.webapp.backoffice.data.service.UserGroupService
 import trik.testsys.webapp.backoffice.utils.addHasActiveSession
@@ -24,7 +26,229 @@ import trik.testsys.webapp.backoffice.utils.addUser
 class DeveloperController(
     private val contestService: ContestService,
     private val userGroupService: UserGroupService,
+    private val taskTemplateService: TaskTemplateService,
 ) : AbstractUserController() {
+
+    @GetMapping("/tasks")
+    fun tasksPage(model: Model, session: HttpSession, redirectAttributes: RedirectAttributes): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        model.apply {
+            addHasActiveSession(session)
+            addUser(developer)
+            addSections(menuBuilder.buildFor(developer))
+        }
+
+        return "developer/tasks"
+    }
+
+    @GetMapping("/task-templates")
+    fun taskTemplatesPage(model: Model, session: HttpSession, redirectAttributes: RedirectAttributes): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val ownedTemplates = taskTemplateService.findByDeveloper(developer).sortedBy { it.id }
+        val availableTemplates = taskTemplateService
+            .findForUserGroups(developer.memberedGroups)
+            .sortedBy { it.id }
+
+        model.apply {
+            addHasActiveSession(session)
+            addUser(developer)
+            addSections(menuBuilder.buildFor(developer))
+            addAttribute("ownedTemplates", ownedTemplates)
+            addAttribute("availableTemplates", availableTemplates)
+        }
+
+        return "developer/task-templates"
+    }
+
+    @GetMapping("/task-templates/create")
+    fun taskTemplateCreateForm(model: Model, session: HttpSession, redirectAttributes: RedirectAttributes): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        model.apply {
+            addHasActiveSession(session)
+            addUser(developer)
+            addSections(menuBuilder.buildFor(developer))
+        }
+
+        return "developer/task-template-create"
+    }
+
+    @PostMapping("/task-templates/create")
+    fun createTaskTemplate(
+        @RequestParam name: String,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val trimmedName = name.trim()
+        if (trimmedName.isEmpty()) {
+            redirectAttributes.addMessage("Название не может быть пустым.")
+            return "redirect:/user/developer/task-templates"
+        }
+
+        val template = TaskTemplate().also {
+            it.name = trimmedName
+            it.developer = developer
+        }
+        taskTemplateService.save(template)
+        redirectAttributes.addMessage("Шаблон создан (id=${template.id}).")
+        return "redirect:/user/developer/task-templates"
+    }
+
+    @GetMapping("/task-templates/{id}")
+    fun viewTaskTemplate(
+        @PathVariable id: Long,
+        model: Model,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val template = taskTemplateService.findById(id) ?: run {
+            redirectAttributes.addMessage("Шаблон не найден.")
+            return "redirect:/user/developer/task-templates"
+        }
+
+        val isOwner = template.developer?.id == developer.id
+        if (!isOwner) {
+            val canView = developer.memberedGroups.any { mg -> template.userGroups.any { ug -> ug.id == mg.id } }
+            if (!canView) {
+                redirectAttributes.addMessage("У вас нет доступа к этому Шаблону.")
+                return "redirect:/user/developer/task-templates"
+            }
+        }
+
+        model.apply {
+            addHasActiveSession(session)
+            addUser(developer)
+            addSections(menuBuilder.buildFor(developer))
+            addAttribute("template", template)
+            addAttribute(
+                "availableUserGroups",
+                userGroupService.findByMember(developer)
+                    .filterNot { g -> template.userGroups.any { it.id == g.id } }
+                    .sortedBy { it.id }
+            )
+            addAttribute("isOwner", isOwner)
+        }
+
+        return "developer/task-template"
+    }
+
+    @PostMapping("/task-templates/{id}/update")
+    fun updateTaskTemplate(
+        @PathVariable id: Long,
+        @RequestParam name: String,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val template = taskTemplateService.findById(id) ?: run {
+            redirectAttributes.addMessage("Шаблон не найден.")
+            return "redirect:/user/developer/task-templates"
+        }
+        if (template.developer?.id != developer.id) {
+            redirectAttributes.addMessage("Редактирование доступно только владельцу.")
+            return "redirect:/user/developer/task-templates/$id"
+        }
+
+        val trimmedName = name.trim()
+        if (trimmedName.isEmpty()) {
+            redirectAttributes.addMessage("Название не может быть пустым.")
+            return "redirect:/user/developer/task-templates/$id"
+        }
+
+        template.name = trimmedName
+        taskTemplateService.save(template)
+        redirectAttributes.addMessage("Данные Шаблона обновлены.")
+        return "redirect:/user/developer/task-templates/$id"
+    }
+
+    @PostMapping("/task-templates/{id}/groups/add")
+    fun addTaskTemplateGroup(
+        @PathVariable id: Long,
+        @RequestParam("groupId") groupId: Long,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val template = taskTemplateService.findById(id) ?: run {
+            redirectAttributes.addMessage("Шаблон не найден.")
+            return "redirect:/user/developer/task-templates"
+        }
+        if (template.developer?.id != developer.id) {
+            redirectAttributes.addMessage("Изменение доступов доступно только владельцу.")
+            return "redirect:/user/developer/task-templates/$id"
+        }
+
+        val group = userGroupService.findById(groupId)
+        if (group == null) {
+            redirectAttributes.addMessage("Группа не найдена.")
+            return "redirect:/user/developer/task-templates/$id"
+        }
+
+        val memberGroups = userGroupService.findByMember(developer)
+        if (memberGroups.none { it.id == group.id }) {
+            redirectAttributes.addMessage("Можно добавлять только группы, в которых вы состоите.")
+            return "redirect:/user/developer/task-templates/$id"
+        }
+
+        val added = template.userGroups.add(group)
+        taskTemplateService.save(template)
+        if (added) {
+            redirectAttributes.addMessage("Группа добавлена к Шаблону.")
+        } else {
+            redirectAttributes.addMessage("Группа уже была добавлена.")
+        }
+        return "redirect:/user/developer/task-templates/$id"
+    }
 
     @GetMapping("/contests/{id}")
     fun view(

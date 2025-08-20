@@ -132,6 +132,22 @@ class StudentGroupServiceImpl(
         return (header + body).toByteArray()
     }
 
+    override fun generateResultsCsv(group: StudentGroup): ByteArray {
+        val header = "student_id,student_name,task_id,task_name,score,status,last_login_at\n"
+        val rows = buildList {
+            val members = group.members.sortedBy { it.id }
+            // Tasks are attached via group's contests; we cannot traverse tasks directly without a relation here.
+            // Emit only student info with placeholders to keep endpoint functional until tasks/solutions are wired.
+            members.forEach { student ->
+                val id = (student.id ?: 0).toString()
+                val name = student.name ?: ""
+                val lastLogin = student.lastLoginAt?.toString() ?: ""
+                add("$id,$name,,,,$lastLogin")
+            }
+        }
+        return (header + rows.joinToString("\n")).toByteArray()
+    }
+
     companion object {
 
         private val logger = LoggerFactory.getLogger(StudentGroupServiceImpl::class.java)

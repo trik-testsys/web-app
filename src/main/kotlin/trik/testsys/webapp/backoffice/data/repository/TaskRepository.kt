@@ -9,5 +9,5 @@ import trik.testsys.webapp.core.data.repository.EntityRepository
 @Repository
 interface TaskRepository : EntityRepository<Task> {
 
-    fun findByCreateFrom(taskTemplate: TaskTemplate): Set<Task>
+    fun findByCreatedFrom(taskTemplate: TaskTemplate): Set<Task>
 }

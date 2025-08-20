@@ -17,6 +17,6 @@ class TaskServiceImpl :
     TaskService {
 
     override fun findByTaskTemplate(taskTemplate: TaskTemplate): Set<Task> {
-        return repository.findByCreateFrom(taskTemplate)
+        return repository.findByCreatedFrom(taskTemplate)
     }
 }

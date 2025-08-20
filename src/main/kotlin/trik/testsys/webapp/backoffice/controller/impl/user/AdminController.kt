@@ -166,6 +166,27 @@ class AdminController(
             .body(csv)
     }
 
+    @GetMapping("/groups/{id}/export-results")
+    fun exportResults(
+        @PathVariable id: Long,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): ResponseEntity<ByteArray> {
+        val redirection = getRedirection<ByteArray>(HttpStatus.UNAUTHORIZED, "/login")
+
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return redirection
+        val admin = getUser(accessToken, redirectAttributes) ?: return redirection
+
+        val group = studentGroupService.findById(id) ?: return ResponseEntity.badRequest().build()
+        if (group.owner?.id != admin.id) return ResponseEntity.status(403).build()
+
+        val csv = studentGroupService.generateResultsCsv(group)
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=group_${group.id}_results.csv")
+            .contentType(MediaType.TEXT_PLAIN)
+            .body(csv)
+    }
+
     @PostMapping("/groups/{id}/attach-contest")
     fun attachContest(
         @PathVariable id: Long,

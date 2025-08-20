@@ -4,6 +4,7 @@ import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import trik.testsys.webapp.backoffice.data.entity.impl.TaskTemplate
 import trik.testsys.webapp.backoffice.data.entity.impl.User
+import trik.testsys.webapp.backoffice.data.entity.impl.UserGroup
 import trik.testsys.webapp.core.data.service.EntityService
 
 /**
@@ -14,4 +15,7 @@ interface TaskTemplateService : EntityService<TaskTemplate> {
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     fun findByDeveloper(developer: User): Set<TaskTemplate>
+
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+    fun findForUserGroups(userGroups: Collection<UserGroup>): Set<TaskTemplate>
 }

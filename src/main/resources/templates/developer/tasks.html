@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+<head>
+    <th:block th:include="fragments/layout :: head('Задачи')"></th:block>
+    <style>
+        .grid-2 { display: grid; grid-template-columns: 1fr; gap: 16px; }
+    </style>
+    <link rel="stylesheet" th:href="@{/css/components.css}"/>
+    <link rel="stylesheet" th:href="@{/css/form.css}"/>
+</head>
+<body>
+<header th:replace="fragments/layout :: header(userName=${user.name})"></header>
+<aside th:replace="fragments/layout :: sidebar(sections=${menuSections})"></aside>
+
+<main class="app-main">
+    <div class="grid-2">
+        <section class="card">
+            <h2 class="card-title">Задачи</h2>
+            <div class="card-body">
+                <p style="color: var(--color-text-muted);">Список ваших заданий. Раздел в разработке.</p>
+            </div>
+        </section>
+    </div>
+    
+</main>
+
+<footer th:replace="fragments/layout :: footer"></footer>
+</body>
+</html>
+
+

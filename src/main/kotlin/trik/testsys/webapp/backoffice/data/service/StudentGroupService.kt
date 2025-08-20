@@ -30,4 +30,6 @@ interface StudentGroupService : EntityService<StudentGroup> {
     fun generateStudents(owner: User, group: StudentGroup, count: Int): Set<User>
 
     fun generateMembersCsv(group: StudentGroup): ByteArray
+
+    fun generateResultsCsv(group: StudentGroup): ByteArray
 }
