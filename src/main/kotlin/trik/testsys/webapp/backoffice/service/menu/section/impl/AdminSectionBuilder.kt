@@ -18,8 +18,7 @@ class AdminSectionBuilder : MenuSectionBuilder {
         return MenuBuilder.MenuSection(
             title = "Организатор",
             items = listOf(
-                MenuBuilder.MenuItem(name = "Группы", link = "/user/admin/groups"),
-                MenuBuilder.MenuItem(name = "Создать группу", link = "/user/admin/groups/create")
+                MenuBuilder.MenuItem(name = "Группы", link = "/user/admin/groups")
             )
         )
     }

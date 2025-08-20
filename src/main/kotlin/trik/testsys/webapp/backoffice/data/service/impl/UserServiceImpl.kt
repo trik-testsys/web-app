@@ -121,12 +121,12 @@ class UserServiceImpl(
         return true
     }
 
-    override fun findAllSuperUser() = repository.findAll({ root, q, cb ->
+    override fun findAllSuperUser() = repository.findAll { root, q, cb ->
         root.fetch<Any, Any>(User.ACCESS_TOKEN, JoinType.LEFT)
         q?.distinct(true)
         val privilegesPath = root.get<Set<User.Privilege>>(User.PRIVILEGES)
         cb.isMember(User.Privilege.SUPER_USER, privilegesPath)
-    }).toSet()
+    }.toSet()
 
     companion object {
 

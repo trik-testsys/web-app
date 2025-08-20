@@ -20,6 +20,7 @@
                 <dt>Описание</dt>
                 <dd th:text="${group.info ?: '—'}"></dd>
             </dl>
+            <hr class="separator">
             <div style="margin: 12px 0; display:flex; gap:8px;">
                 <form th:action="@{'/user/admin/groups/' + ${group.id} + '/generate'}" method="post" style="display:flex; gap:8px; align-items:center;">
                     <input type="number" min="1" max="200" name="count" placeholder="Количество" style="width:120px; padding:8px 10px; border:1px solid #dde3ea; border-radius:8px;">
@@ -27,6 +28,7 @@
                 </form>
                 <a class="button" th:href="@{'/user/admin/groups/' + ${group.id} + '/export'}">Экспорт CSV</a>
             </div>
+            <hr class="separator">
             <div style="margin-top: 12px;">
                 <h3 style="margin: 0 0 8px 0;">Участники</h3>
                 <div th:if="${#lists.isEmpty(group.members)}" style="color: var(--color-text-muted);">В группе пока нет участников.</div>
@@ -35,7 +37,6 @@
                         <tr>
                             <th style="text-align:left; padding:8px;">ID</th>
                             <th style="text-align:left; padding:8px;">Псевдоним</th>
-                            <th style="text-align:left; padding:8px;">Код-доступа</th>
                             <th style="text-align:left; padding:8px;">Роли</th>
                         </tr>
                     </thead>
@@ -43,7 +44,6 @@
                         <tr th:each="m : ${group.members}">
                             <td style="padding:8px;" th:text="${m.id}"></td>
                             <td style="padding:8px;" th:text="${m.name}"></td>
-                            <td style="padding:8px;"><span class="token" th:text="${m.accessToken.value}"></span></td>
                             <td style="padding:8px;">
                                 <ul class="pill-list">
                                     <li class="pill" th:each="p : ${memberPrivilegesRuByUserId[m.id]}" th:text="${p}"></li>

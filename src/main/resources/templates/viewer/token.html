@@ -17,6 +17,7 @@
                     <div><span class="token" th:text="${user.adminRegToken.value}"></span></div>
                 </div>
             </div>
+            <hr class="separator">
             <div th:if="${user.adminRegToken == null}">
                 <span class="pill">Токен не выдан</span>
             </div>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
 <head>
-    <th:block th:include="fragments/layout :: head('Личный кабинет')"></th:block>
+    <th:block th:include="fragments/layout :: head('Основная информация')"></th:block>
 </head>
 <body>
 
@@ -10,7 +10,7 @@
 
 <main class="app-main">
     <section class="card">
-        <h2 class="card-title">Личный кабинет</h2>
+        <h2 class="card-title">Основная информация</h2>
         <div class="card-body">
             <div class="alert" th:if="${message}" th:text="${message}"></div>
             <dl class="kv">
@@ -32,13 +32,14 @@
                 <dt>Последний вход</dt>
                 <dd th:text="${user.lastLoginAt != null ? #temporals.format(user.lastLoginAt, 'dd.MM.yyyy HH:mm:ss') : '—'}"></dd>
             </dl>
+            <hr class="separator">
             <div style="margin-top: 10px;">
                 <b>Роли</b>
                 <ul class="pill-list">
                     <li class="pill" th:each="p : ${privilegesRu}" th:text="${p}"></li>
                 </ul>
             </div>
-
+            <hr class="separator">
             <div style="margin-top: 16px;">
                 <b>Группы пользователей</b>
                 <div class="alert" th:if="${groupsMessage}" th:text="${groupsMessage}"></div>
@@ -66,7 +67,7 @@
                     </tbody>
                 </table>
             </div>
-
+            <hr class="separator">
             <form th:action="@{/logout}" method="post" style="margin-top: 16px;">
                 <button type="submit" class="button">Выйти</button>
             </form>

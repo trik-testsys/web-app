@@ -19,7 +19,6 @@ class GroupAdminSectionBuilder : MenuSectionBuilder {
             title = "Администратор Групп",
             items = listOf(
                 MenuBuilder.MenuItem(name = "Группы Пользователей", link = "/user/group-admin/groups"),
-                MenuBuilder.MenuItem(name = "Создать Группу", link = "/user/group-admin/groups/create"),
             )
         )
     }

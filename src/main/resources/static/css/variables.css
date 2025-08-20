@@ -9,5 +9,13 @@
   --color-danger: #e53935;
   --radius: 12px;
   --shadow: 0 8px 24px rgba(0,0,0,.08);
+
+  /* Table theme */
+  --table-header-bg: #ffffff;
+  --table-header-fg: var(--trik-blue);
+  --table-border: #e6ebf2;
+  --table-zebra: #fbfdff;
+  --table-hover: #f6f8fe;
+  --table-hover-accent: var(--trik-blue);
 }
 

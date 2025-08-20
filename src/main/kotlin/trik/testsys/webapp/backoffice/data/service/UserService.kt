@@ -12,7 +12,7 @@ import java.time.Instant
  */
 interface UserService : EntityService<User> {
 
-    @Transactional(propagation = Propagation.MANDATORY)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     fun updateName(user: User, newName: String): User
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)

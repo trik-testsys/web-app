@@ -15,6 +15,7 @@
             <div style="margin-bottom:10px;">
                 <a class="button" th:href="@{/user/admin/groups/create}">Создать группу</a>
             </div>
+            <hr class="separator">
             <div th:if="${#lists.isEmpty(groups)}" style="color: var(--color-text-muted);">У вас пока нет групп.</div>
             <table th:if="${!#lists.isEmpty(groups)}" class="table">
                 <thead>
@@ -36,6 +37,7 @@
                     </tr>
                 </tbody>
             </table>
+            <hr class="separator">
         </div>
     </section>
 </main>

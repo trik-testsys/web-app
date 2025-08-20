@@ -30,14 +30,14 @@ table tr:last-child td:last-child {
 }
 
 table th {
-    background: var(--trik-blue);
-    color: white;
+    background: var(--table-header-bg);
+    color: var(--table-header-fg);
     padding: 10px 15px;
     position: sticky;
     top: 0;
     z-index: 10;
-    border: 1px solid #e2e8f0;
-    border-bottom: 1px solid #e2e8f0;
+    border: 1px solid var(--table-border);
+    border-bottom: 2px solid var(--table-header-fg);
 }
 
 table th:after {
@@ -51,23 +51,38 @@ table th:after {
     width: 100%;
 }
 
-table tr:nth-child(odd) {
-    background: #fafbfc;
+table tbody tr:nth-child(odd) {
+    background: var(--table-zebra);
 }
 
 table td {
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--table-border);
     padding: 10px 15px;
     position: relative;
     transition: background-color 0.2s ease;
     word-break: break-all;
 }
 
+/* Make links inside tables more pronounced */
+table td a {
+    color: var(--trik-blue);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+table td a:hover,
+table td a:focus {
+    text-decoration-thickness: 2px;
+    outline: none;
+}
+
 /* Sorting affordance for legacy pages */
 th.sortable { cursor: pointer; }
 
 table tbody tr:hover td {
-    background: #f3f6fb;
+    background: var(--table-hover);
+    box-shadow: inset 3px 0 0 var(--table-hover-accent);
 }
 
 /* Заголовок окна */

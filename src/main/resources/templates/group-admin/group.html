@@ -9,7 +9,7 @@
 
 <main class="app-main">
     <section class="card">
-        <h2 class="card-title"><a th:href="@{/user/group-admin/groups}">Группы</a> / <span th:text="${group.name ?: 'Без названия'}"></span></h2>
+        <h2 class="card-title"><a th:href="@{/user/group-admin/groups}">Группы Пользователей</a> / <span th:text="${group.name ?: 'Без названия'}"></span></h2>
         <div class="card-body">
             <div class="alert" th:if="${message}" th:text="${message}"></div>
             <dl class="kv">
@@ -20,12 +20,14 @@
                 <dt>Описание</dt>
                 <dd th:text="${group.info ?: '—'}"></dd>
             </dl>
+            <hr class="separator">
             <div style="margin: 12px 0; display:flex; gap:8px;">
                 <form th:action="@{'/user/group-admin/groups/' + ${group.id} + '/add-member'}" method="post" style="display:flex; gap:8px; align-items:center;">
                     <input type="number" min="1" name="userId" placeholder="ID пользователя" style="width:160px; padding:8px 10px; border:1px solid #dde3ea; border-radius:8px;">
                     <button type="submit" class="button button--primary">Добавить участника</button>
                 </form>
             </div>
+            <hr class="separator">
             <div style="margin-top: 12px;">
                 <h3 style="margin: 0 0 8px 0;">Участники</h3>
                 <div th:if="${#lists.isEmpty(group.members)}" style="color: var(--color-text-muted);">В группе пока нет участников.</div>
@@ -34,7 +36,6 @@
                         <tr>
                             <th style="text-align:left; padding:8px;">ID</th>
                             <th style="text-align:left; padding:8px;">Псевдоним</th>
-                            <th style="text-align:left; padding:8px;">Код-доступа</th>
                             <th style="text-align:left; padding:8px;">Роли</th>
                             <th style="text-align:left; padding:8px;">Действия</th>
                         </tr>
@@ -43,7 +44,6 @@
                         <tr th:each="m : ${group.members}">
                             <td style="padding:8px;" th:text="${m.id}"></td>
                             <td style="padding:8px;" th:text="${m.name}"></td>
-                            <td style="padding:8px;"><span class="token" th:text="${m.accessToken.value}"></span></td>
                             <td style="padding:8px;">
                                 <ul class="pill-list">
                                     <li class="pill" th:each="p : ${memberPrivilegesRuByUserId[m.id]}" th:text="${p}"></li>

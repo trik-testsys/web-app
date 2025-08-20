@@ -19,7 +19,7 @@ class ViewerSectionBuilder : MenuSectionBuilder {
             title = "Наблюдатель",
             items = listOf(
                 MenuBuilder.MenuItem(name = "Организаторы", link = "/user/viewer/admins"),
-                MenuBuilder.MenuItem(name = "Экспорт результатов", link = "/user/viewer/export"),
+                MenuBuilder.MenuItem(name = "Участники", link = "/user/viewer/export"),
             )
         )
     }
