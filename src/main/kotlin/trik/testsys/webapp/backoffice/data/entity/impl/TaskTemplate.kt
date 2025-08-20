@@ -37,4 +37,12 @@ class TaskTemplate() :
         inverseJoinColumns = [JoinColumn(name = "userGroups_id")]
     )
     override var userGroups: MutableSet<UserGroup> = mutableSetOf()
+
+    @ManyToMany
+    @JoinTable(
+        name = "${TABLE_PREFIX}task_template_taskFiles",
+        joinColumns = [JoinColumn(name = "taskTemplate_id")],
+        inverseJoinColumns = [JoinColumn(name = "taskFiles_id")]
+    )
+    var taskFiles: MutableSet<TaskFile> = mutableSetOf()
 }
