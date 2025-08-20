@@ -12,4 +12,6 @@ import trik.testsys.webapp.core.data.repository.EntityRepository
 interface AccessTokenRepository : EntityRepository<AccessToken> {
 
     fun findByValue(value: String?): AccessToken?
+
+    fun findByValueIn(values: Collection<String>): List<AccessToken>
 }

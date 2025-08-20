@@ -35,6 +35,10 @@ class StudentGroupServiceImpl(
         }
     }
 
+    override fun addMembers(studentGroup: StudentGroup, members: User) {
+        TODO("Not yet implemented")
+    }
+
     override fun removeMember(studentGroup: StudentGroup, member: User) = when (member) {
         studentGroup.owner -> {
             logger.warn("Could not remove user(id=${member.id}) from owned studentGroup(id=${studentGroup.id}) members.")
@@ -71,20 +75,23 @@ class StudentGroupServiceImpl(
         require(count >= 1) { "count must be >= 1" }
         require(count <= 200) { "count must be <= 200" }
 
-        val created = mutableSetOf<User>()
-        repeat(count) { idx ->
-            val token = accessTokenService.generate(owner.id)
+        val startMs = System.currentTimeMillis()
+
+        // batch-generate tokens to avoid N+1
+        val tokens = accessTokenService.generateBatch(count)
+
+        val created = LinkedHashSet<User>(count)
+        for ((idx, token) in tokens.withIndex()) {
             val student = User().also {
-                it.name = "st-${group.id}-${System.currentTimeMillis()}-${idx + 1}"
+                it.name = "st-${group.id}-${startMs}-${idx + 1}"
                 it.accessToken = token
                 it.privileges.add(User.Privilege.STUDENT)
             }
-
-            val persisted = userService.save(student)
-            group.members.add(persisted)
-            created.add(persisted)
+            group.members.add(student)
+            created.add(student)
         }
 
+        userService.saveAll(created)
         save(group)
         return created
     }

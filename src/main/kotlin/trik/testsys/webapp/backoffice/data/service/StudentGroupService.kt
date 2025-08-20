@@ -15,6 +15,9 @@ interface StudentGroupService : EntityService<StudentGroup> {
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
     fun addMember(studentGroup: StudentGroup, member: User): Boolean
 
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    fun addMembers(studentGroup: StudentGroup, members: User)
+
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
     fun removeMember(studentGroup: StudentGroup, member: User): Boolean
 
