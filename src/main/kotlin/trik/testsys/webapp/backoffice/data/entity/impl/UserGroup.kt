@@ -47,4 +47,7 @@ class UserGroup : AbstractEntity() {
 
     @ManyToMany(mappedBy = "userGroups")
     var contests: MutableSet<Contest> = mutableSetOf()
+
+    @ManyToMany(mappedBy = "userGroups")
+    var taskTemplates: MutableSet<TaskTemplate> = mutableSetOf()
 }
