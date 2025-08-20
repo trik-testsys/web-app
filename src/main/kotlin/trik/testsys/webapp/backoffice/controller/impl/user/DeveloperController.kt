@@ -1,0 +1,200 @@
+package trik.testsys.webapp.backoffice.controller.impl.user
+
+import jakarta.servlet.http.HttpSession
+import org.springframework.stereotype.Controller
+import org.springframework.ui.Model
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.servlet.mvc.support.RedirectAttributes
+import trik.testsys.webapp.backoffice.controller.AbstractUserController
+import trik.testsys.webapp.backoffice.data.entity.impl.Contest
+import trik.testsys.webapp.backoffice.data.entity.impl.User
+import trik.testsys.webapp.backoffice.data.service.ContestService
+import trik.testsys.webapp.backoffice.utils.addHasActiveSession
+import trik.testsys.webapp.backoffice.utils.addMessage
+import trik.testsys.webapp.backoffice.utils.addSections
+import trik.testsys.webapp.backoffice.utils.addUser
+
+@Controller
+@RequestMapping("/user/developer")
+class DeveloperController(
+    private val contestService: ContestService,
+) : AbstractUserController() {
+
+    @GetMapping("/contests/{id}")
+    fun view(
+        @PathVariable id: Long,
+        model: Model,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val contest = contestService.findById(id) ?: run {
+            redirectAttributes.addMessage("Тур не найден.")
+            return "redirect:/user/developer/contests"
+        }
+
+        model.apply {
+            addHasActiveSession(session)
+            addUser(developer)
+            addSections(menuBuilder.buildFor(developer))
+            addAttribute("contest", contest)
+            addAttribute("isOwner", contest.developer?.id == developer.id)
+        }
+
+        return "developer/contest"
+    }
+
+    @PostMapping("/contests/{id}/rename")
+    fun rename(
+        @PathVariable id: Long,
+        @RequestParam name: String,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val contest = contestService.findById(id) ?: run {
+            redirectAttributes.addMessage("Тур не найден.")
+            return "redirect:/user/developer/contests"
+        }
+        if (contest.developer?.id != developer.id) {
+            redirectAttributes.addMessage("Редактирование доступно только владельцу.")
+            return "redirect:/user/developer/contests/$id"
+        }
+
+        val trimmed = name.trim()
+        if (trimmed.isEmpty()) {
+            redirectAttributes.addMessage("Название не может быть пустым.")
+            return "redirect:/user/developer/contests/$id"
+        }
+
+        contest.name = trimmed
+        contestService.save(contest)
+        redirectAttributes.addMessage("Название Тура обновлено.")
+        return "redirect:/user/developer/contests/$id"
+    }
+
+    @GetMapping("/contests/create")
+    fun createForm(model: Model, session: HttpSession, redirectAttributes: RedirectAttributes): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        model.apply {
+            addHasActiveSession(session)
+            addUser(developer)
+            addSections(menuBuilder.buildFor(developer))
+        }
+        return "developer/contest-create"
+    }
+
+    @GetMapping("/contests")
+    fun contestsPage(model: Model, session: HttpSession, redirectAttributes: RedirectAttributes): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val createdContests = contestService.findAll().filter { it.developer?.id == developer.id }.sortedBy { it.id }
+        val sharedContests = contestService.findForUser(developer).sortedBy { it.id }
+
+        model.apply {
+            addHasActiveSession(session)
+            addUser(developer)
+            addSections(menuBuilder.buildFor(developer))
+            addAttribute("createdContests", createdContests)
+            addAttribute("sharedContests", sharedContests)
+        }
+
+        return "developer/contests"
+    }
+
+    @PostMapping("/contests/create")
+    fun createContest(
+        @RequestParam name: String,
+        @RequestParam(required = false) info: String?,
+        @RequestParam startsAt: String,
+        @RequestParam(required = false) endsAt: String?,
+        @RequestParam(required = false) duration: Long?,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val trimmedName = name.trim()
+        if (trimmedName.isEmpty()) {
+            redirectAttributes.addMessage("Название не может быть пустым.")
+            return "redirect:/user/developer/contests"
+        }
+
+        if (duration != null && duration <= 0) {
+            redirectAttributes.addMessage("Длительность должна быть положительной.")
+            return "redirect:/user/developer/contests"
+        }
+
+        val startsInstant = try {
+            val ldt = java.time.LocalDateTime.parse(startsAt)
+            ldt.atZone(java.time.ZoneId.systemDefault()).toInstant()
+        } catch (e: Exception) {
+            redirectAttributes.addMessage("Некорректная дата начала. Формат: yyyy-MM-dd'T'HH:mm")
+            return "redirect:/user/developer/contests"
+        }
+
+        val endsInstant = if (!endsAt.isNullOrBlank()) {
+            try {
+                val ldt = java.time.LocalDateTime.parse(endsAt)
+                ldt.atZone(java.time.ZoneId.systemDefault()).toInstant()
+            } catch (e: Exception) {
+                redirectAttributes.addMessage("Некорректная дата окончания. Формат: yyyy-MM-dd'T'HH:mm")
+                return "redirect:/user/developer/contests"
+            }
+        } else null
+
+        if (endsInstant != null && endsInstant.isBefore(startsInstant)) {
+            redirectAttributes.addMessage("Окончание не может быть раньше начала.")
+            return "redirect:/user/developer/contests"
+        }
+
+        val contest = Contest().also {
+            it.name = trimmedName
+            it.info = info?.takeIf { s -> s.isNotBlank() }
+            it.startsAt = startsInstant
+            it.endsAt = endsInstant
+            it.duration = duration
+            it.developer = developer
+        }
+        contestService.save(contest)
+        redirectAttributes.addMessage("Тур создан (id=${contest.id}).")
+        return "redirect:/user/developer/contests"
+    }
+}

@@ -25,7 +25,7 @@ class Contest() :
     @Column(name = "ends_at")
     var endsAt: Instant? = null
 
-    @Column(name = "duration")
+    @Column(name = "duration", nullable = true)
     var duration: Long? = null
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)

@@ -1,169 +1,93 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
 <head>
-    <th:block th:include="fragments/main :: head('Кабинет Разработчика')"></th:block>
-
-    <link rel="stylesheet" th:href="@{/css/block.css}">
-    <link rel="stylesheet" th:href="@{/css/table.css}">
-
-    <th:block th:include="fragments/popup :: head"></th:block>
-    <th:block th:include="fragments/form :: head"></th:block>
-    <th:block th:include="fragments/menu :: head"></th:block>
+    <th:block th:include="fragments/layout :: head('Туры разработчика')"></th:block>
+    <style>
+        .form-row { display: grid; grid-template-columns: 1fr; gap: 12px; }
+        @media (min-width: 768px) { .form-row { grid-template-columns: 1fr 1fr; } }
+        .field-note { color: var(--color-text-muted); font-size: 13px; margin-top: 6px; }
+    </style>
 </head>
-
-<div th:replace="fragments/table :: table-sort"></div>
-
 <body>
+<header th:replace="fragments/layout :: header(userName=${user.name})"></header>
+<aside th:replace="fragments/layout :: sidebar(sections=${menuSections})"></aside>
 
-<div th:replace="fragments/main :: background"></div>
-
-<div th:replace="fragments/popup :: popup"></div>
-
-<div th:replace="fragments/popup :: emergencyPopup"></div>
-
-<div th:replace="fragments/entity/developer
-    :: developerHeader(breadCrumbNames=${ { 'Туры' } },
-                       breadCrumbLinks=${ { '/developer/contests' } })"></div>
-
-<div th:replace="fragments/entity/developer :: developerMenu"></div>
-
-<div class="container">
-    <!-- Первый блок -->
-    <div class="block">
-        <div class="block-title">Туры</div>
-
-        <div class="form-container">
-            <div class="form-header">
-                <h1>Создание Тура</h1>
+<main class="app-main">
+    <section class="card">
+        <h2 class="card-title">Мои Туры</h2>
+        <div class="card-body">
+            <div style="margin-bottom:10px;">
+                <a class="button" th:href="@{/user/developer/contests/create}">Создать Тур</a>
             </div>
-
-            <!--/*@thymesVar id="webUser" type="trik.testsys.webclient.view.impl.ContestCreationView"*/-->
-            <form id="contest-creation" action="#" th:action="@{/developer/contests/contest/create}" th:object="${contest}" method="post">
-                <div th:replace="fragments/form.html
-                    :: formField(id='contest.name', type='text',
-                                 labelName='Название', labelSize='20',
-                                 fieldName='name', fieldSize='80',
-                                 size='100',
-                                 isReadonly='false', isRequired='true', isAccessToken='false')">
-                </div>
-                <div class="form-field" style="flex-basis: 35%">
-                    <div class="form-label" style="flex-basis: 57%">
-                        <label for="contest.startDate">Дата и время начала</label>
-                    </div>
-                    <div class="form-input" style="flex-basis: 43%">
-                        <input name="startDate"
-                               th:value="${contest.startDate}"
-                               type="datetime-local" id="contest.startDate" readonly required/>
-                    </div>
-                </div>
-                <div class="form-field" style="flex-basis: 35%">
-                    <div class="form-label" style="flex-basis: 57%">
-                        <label for="contest.endDate">Дата и время окончания</label>
-                    </div>
-                    <div class="form-input" style="flex-basis: 43%">
-                        <input name="endDate" th:value="${contest.endDate}"
-                               type="datetime-local" id="contest.endDate" readonly required/>
-                    </div>
-                </div>
-
-                <div class="form-field" style="flex-basis: 10%">
-                    <div class="form-label" style="flex-basis: 90%">
-                        <label for="contest.isOpenEnded">Бессрочный</label>
-                    </div>
-                    <div class="form-input" style="flex-basis: 10%">
-                        <input name="isOpenEnded" th:field="*{isOpenEnded}" th:checked="${contest.isOpenEnded}"
-                               onclick="toggleVisibility(this.id, 'contest.duration-label', 'contest.duration')"
-                               type="checkbox" id="contest.isOpenEnded" readonly/>
-                    </div>
-                </div>
-                <div class="form-field" style="flex-basis: 20%">
-                    <div class="form-label" style="flex-basis: 50%">
-                        <label for="contest.duration" id="contest.duration-label"
-                               th:hidden="${contest.isOpenEnded}">Время на прохождение</label>
-                    </div>
-                    <div class="form-input" style="flex-basis: 50%">
-                        <input name="duration" th:value="${contest.duration}"
-                               placeholder="01:00"
-                               th:hidden="${contest.isOpenEnded}" th:required="${!contest.isOpenEnded}"
-                               type="text" id="contest.duration" readonly/>
-                    </div>
-                </div>
-                <div th:replace="fragments/form.html
-                    :: formField(id='contest.additionalInfo', type='text',
-                                 labelName='Дополнительная информация', labelSize='20',
-                                 fieldName='additionalInfo', fieldSize='80',
-                                 size='100',
-                                 isReadonly='false', isRequired='false', isAccessToken='false')">
-                </div>
-                <div th:replace="fragments/form.html
-                    :: formField(id='contest.note', type='text',
-                                 labelName='Заметка (видна только вам)', labelSize='20',
-                                 fieldName='note', fieldSize='80',
-                                 size='100',
-                                 isReadonly='false', isRequired='false', isAccessToken='false')">
-                </div>
-                <!-- Кнопки редактирования, отправки и отмены -->
-                <div class="form-buttons">
-                    <button type="button" class="edit-button" id="contest-creation-edit" onclick="enableForm('contest-creation')">Создать Тур</button>
-                    <button type="submit" class="save-button" id="contest-creation-save">Создать</button>
-                    <button type="button" class="cancel-button" id="contest-creation-cancel" onclick="disableForm('contest-creation')">Отменить</button>
-                </div>
-            </form>
-        </div>
-
-        <div class="table contests-table">
-            <div class="form-header">
-                <h1>Список Туров</h1>
-            </div>
-            <div class="table-container">
-                <table>
-                    <thead>
+            <hr class="separator">
+            <div th:if="${#lists.isEmpty(createdContests)}" style="color: var(--color-text-muted);">У вас пока нет Туров.</div>
+            <table th:if="${!#lists.isEmpty(createdContests)}" class="table">
+                <thead>
                     <tr>
-                        <th style="width: 10%">
-                            ID
-                        </th>
-                        <th style="width: 20%">
-                            Название
-                        </th>
-                        <th>Дополнительная информация</th>
-                        <th>Заметка</th>
-                        <th style="width: 10%">
-                            Видимость
-                        </th>
-                        <th style="width: 15%">
-                        </th>
+                        <th>ID</th>
+                        <th>Название</th>
+                        <th>Начало</th>
+                        <th>Окончание</th>
+                        <th>Длительность</th>
+                        <th>Группы Пользователей</th>
                     </tr>
-                    </thead>
-                    <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.ContestView"*/-->
-                    <tr th:each="contest : ${webUser.contests}">
-                        <td th:text="${contest.id}"></td>
-                        <td th:text="${contest.name}"></td>
-                        <td th:text="${contest.additionalInfo}"></td>
-                        <td th:text="${contest.note}"></td>
-                        <td th:switch="${contest.visibility.getDbkey()}">
-                            <span th:case="'PLC'">Публичный</span>
-                            <span th:case="'PRV'">Закрытый</span>
+                </thead>
+                <tbody>
+                    <tr th:each="c : ${createdContests}">
+                        <td th:text="${c.id}"></td>
+                        <td>
+                            <a th:href="@{'/user/developer/contests/' + ${c.id}}" th:text="${c.name}"></a>
                         </td>
-                        <td class="buttons">
-                            <form th:action="@{/developer/contests/contest/switchVisibility/{id}(id=${contest.id})}" method="post">
-                                <button type="submit" title="Изменить видимость"
-                                        class="button">
-                                    <i th:class="${contest.visibility.getDbkey()} == 'PLC' ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
-                                </button>
-                            </form>
-                            <form th:action="@{/developer/contests/contest/{id}(id=${contest.id})}" method="get">
-                                <button type="submit" title="Войти"
-                                        class="button">
-                                    <i class="fa-solid fa-right-to-bracket"></i>
-                                </button>
-                            </form>
+                        <td th:text="${c.startsAt != null ? #temporals.format(c.startsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                        <td th:text="${c.endsAt != null ? #temporals.format(c.endsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                        <td th:text="${c.duration != null ? c.duration + ' мин' : '—'}"></td>
+                        <td>
+                            <ul class="pill-list" th:if="${!#lists.isEmpty(c.userGroups)}">
+                                <li class="pill" th:each="g : ${c.userGroups}" th:text="${(g.name ?: 'Без названия') + ' (#' + g.id + ')'}"></li>
+                            </ul>
+                            <span th:if="${#lists.isEmpty(c.userGroups)}" style="color: var(--color-text-muted);">—</span>
                         </td>
                     </tr>
-                </table>
-            </div>
+                </tbody>
+            </table>
         </div>
-    </div>
-</div>
+    </section>
 
+    <section class="card">
+        <h2 class="card-title">Доступные Туры (по группам)</h2>
+        <div class="card-body">
+            <div th:if="${#lists.isEmpty(sharedContests)}" style="color: var(--color-text-muted);">Пока нет доступных Туров.</div>
+            <table th:if="${!#lists.isEmpty(sharedContests)}" class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Название</th>
+                        <th>Начало</th>
+                        <th>Окончание</th>
+                        <th>Длительность</th>
+                        <th>Группы Пользователей</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="c : ${sharedContests}">
+                        <td th:text="${c.id}"></td>
+                        <td th:text="${c.name}"></td>
+                        <td th:text="${c.startsAt != null ? #temporals.format(c.startsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                        <td th:text="${c.endsAt != null ? #temporals.format(c.endsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                        <td th:text="${c.duration != null ? c.duration + ' мин' : '—'}"></td>
+                        <td>
+                            <ul class="pill-list" th:if="${!#lists.isEmpty(c.userGroups)}">
+                                <li class="pill" th:each="g : ${c.userGroups}" th:text="${(g.name ?: 'Без названия') + ' (#' + g.id + ')'}"></li>
+                            </ul>
+                            <span th:if="${#lists.isEmpty(c.userGroups)}" style="color: var(--color-text-muted);">—</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="fragments/layout :: footer"></footer>
 </body>
 </html>
