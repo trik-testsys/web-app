@@ -26,6 +26,39 @@
                 <dt>Дата создания</dt>
                 <dd th:text="${taskFile.createdAt != null ? #temporals.format(taskFile.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></dd>
             </dl>
+            <hr class="separator">
+            <h3 style="margin-top:0;">Загрузить новую версию</h3>
+            <form th:action="@{'/user/developer/task-files/' + ${taskFile.id} + '/upload'}" method="post" enctype="multipart/form-data" class="form" style="gap:12px; max-width: 720px;">
+                <label>
+                    <input name="file" type="file" required style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px; background:white;">
+                </label>
+                <div class="form-buttons">
+                    <button type="submit" class="button button--primary">Загрузить</button>
+                </div>
+            </form>
+            <hr class="separator">
+            <h3 style="margin-top:0;">История изменений</h3>
+            <div th:if="${#lists.isEmpty(versions)}" style="color: var(--color-text-muted);">История пуста.</div>
+            <table th:if="${!#lists.isEmpty(versions)}" class="table">
+                <thead>
+                    <tr>
+                        <th>Версия</th>
+                        <th>Имя файла</th>
+                        <th>Дата изменения</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="v : ${versions}">
+                        <td th:text="${v.version}"></td>
+                        <td th:text="${v.fileName}"></td>
+                        <td th:text="${#temporals.format(v.lastModifiedAt, 'dd.MM.yyyy HH:mm')}"></td>
+                        <td>
+                            <a class="button" th:href="@{'/user/developer/task-files/' + ${taskFile.id} + '/download/' + ${v.version}}">Скачать</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </section>
 </main>

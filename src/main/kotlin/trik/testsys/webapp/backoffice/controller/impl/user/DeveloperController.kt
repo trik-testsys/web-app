@@ -222,15 +222,93 @@ class DeveloperController(
             else -> tf.type?.name ?: "—"
         }
 
+        val versions = fileManager.listTaskFileVersions(tf)
+
         model.apply {
             addHasActiveSession(session)
             addUser(developer)
             addSections(menuBuilder.buildFor(developer))
             addAttribute("taskFile", tf)
             addAttribute("localizedType", localizedType)
+            addAttribute("versions", versions)
         }
 
         return "developer/task-file"
+    }
+
+    @PostMapping("/task-files/{id}/upload")
+    fun updateTaskFile(
+        @PathVariable id: Long,
+        @RequestParam("file") file: MultipartFile,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val tf = taskFileService.findById(id) ?: run {
+            redirectAttributes.addMessage("Файл не найден.")
+            return "redirect:/user/developer/task-files"
+        }
+        if (tf.developer?.id != developer.id) {
+            redirectAttributes.addMessage("Редактирование доступно только владельцу.")
+            return "redirect:/user/developer/task-files/$id"
+        }
+
+        tf.fileVersion = (tf.fileVersion + 1)
+        val saved = fileManager.saveTaskFile(tf, file)
+        if (!saved) {
+            tf.fileVersion = (tf.fileVersion - 1)
+            redirectAttributes.addMessage("Не удалось сохранить файл.")
+            return "redirect:/user/developer/task-files/$id"
+        }
+
+        taskFileService.save(tf)
+        redirectAttributes.addMessage("Файл обновлён.")
+        return "redirect:/user/developer/task-files/$id"
+    }
+
+    @GetMapping("/task-files/{id}/download/{version}")
+    fun downloadTaskFileVersion(
+        @PathVariable id: Long,
+        @PathVariable version: Long,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): Any {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val tf = taskFileService.findById(id) ?: run {
+            redirectAttributes.addMessage("Файл не найден.")
+            return "redirect:/user/developer/task-files"
+        }
+        if (tf.developer?.id != developer.id) {
+            redirectAttributes.addMessage("У вас нет доступа к этому Файлу.")
+            return "redirect:/user/developer/task-files"
+        }
+
+        val file = fileManager.getTaskFileVersion(tf, version) ?: run {
+            redirectAttributes.addMessage("Версия не найдена.")
+            return "redirect:/user/developer/task-files/$id"
+        }
+
+        val bytes = file.readBytes()
+        val disposition = "attachment; filename=\"${file.name}\""
+        return org.springframework.http.ResponseEntity.ok()
+            .header("Content-Disposition", disposition)
+            .header("Content-Type", org.springframework.http.MediaType.APPLICATION_OCTET_STREAM_VALUE)
+            .header("Content-Length", bytes.size.toString())
+            .body(bytes)
     }
 
     private data class TaskFileListItem(

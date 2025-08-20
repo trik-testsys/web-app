@@ -8,7 +8,9 @@ import trik.testsys.webapp.backoffice.data.entity.impl.TaskFile
 import trik.testsys.webapp.backoffice.data.entity.impl.TaskFile.TaskFileType.Companion.extension
 import trik.testsys.webapp.backoffice.data.service.TaskFileService
 import trik.testsys.webapp.backoffice.service.FileManager
+import trik.testsys.webapp.backoffice.service.TaskFileVersionInfo
 import java.io.File
+import java.time.Instant
 import javax.annotation.PostConstruct
 
 @Service
@@ -61,6 +63,25 @@ class FileManagerImpl(
         val dir = dirByTaskFileType[taskFile.type] ?: error("UNDEFINED")
         val file = File(dir, taskFile.fileName)
 
+        return if (file.exists()) file else null
+    }
+
+    override fun listTaskFileVersions(taskFile: TaskFile): List<TaskFileVersionInfo> {
+        val dir = dirByTaskFileType[taskFile.type] ?: return emptyList()
+        val prefix = "${taskFile.id}-"
+        val files = dir.listFiles { _, name -> name.startsWith(prefix) } ?: emptyArray()
+        return files.mapNotNull { f ->
+            val ver = f.name.removePrefix(prefix).substringBeforeLast('.')
+            ver.toLongOrNull()?.let { v ->
+                TaskFileVersionInfo(version = v, fileName = f.name, lastModifiedAt = Instant.ofEpochMilli(f.lastModified()))
+            }
+        }.sortedByDescending { it.version }
+    }
+
+    override fun getTaskFileVersion(taskFile: TaskFile, version: Long): File? {
+        val dir = dirByTaskFileType[taskFile.type] ?: return null
+        val ext = taskFile.type?.extension() ?: return null
+        val file = File(dir, "${taskFile.id}-${version}$ext")
         return if (file.exists()) file else null
     }
 
