@@ -5,6 +5,7 @@
     <style>
         .grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
         .form-inline { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+        .token-cell { min-width: 380px; white-space: nowrap; }
     </style>
     <script>
         function toggle(elId){ var el = document.getElementById(elId); if(el){ el.hidden = !el.hidden; } }
@@ -42,6 +43,7 @@
                     <tr>
                         <th>ID</th>
                         <th>Имя</th>
+                        <th class="token-cell">Код-доступа</th>
                         <th>Роли</th>
                         <th>Действия</th>
                     </tr>
@@ -50,6 +52,9 @@
                     <tr th:each="row : ${userRows}">
                         <td th:text="${row.id}"></td>
                         <td th:text="${row.name}"></td>
+                        <td class="token-cell">
+                            <span class="token" th:text="${row.accessToken}"></span>
+                        </td>
                         <td>
                             <ul class="pill-list" style="margin:0;">
                                 <li class="pill" th:each="pr : ${row.privilegesRu}" th:text="${pr}"></li>

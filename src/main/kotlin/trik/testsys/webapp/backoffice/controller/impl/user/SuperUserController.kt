@@ -26,6 +26,7 @@ class SuperUserController(
     private data class UserRow(
         val id: Long,
         val name: String?,
+        val accessToken: String?,
         val privilegesRu: List<String>
     )
 
@@ -45,7 +46,7 @@ class SuperUserController(
         val allUsers = userService.findAll().sortedBy { it.id }
         val userRows = allUsers.map { u ->
             val privsRu = PrivilegeI18n.listRu(u.privileges)
-            UserRow(id = u.id!!, name = u.name, privilegesRu = privsRu)
+            UserRow(id = u.id!!, name = u.name, accessToken = u.accessToken?.value, privilegesRu = privsRu)
         }
 
         model.apply {
