@@ -55,9 +55,6 @@ server:
     include-message: always
 
 path:
-  l10n: "${PWD}/src/main/resources/static/l10n"
-  startup:
-    entities: "${PWD}/data/entities/"
   taskFiles:
     solutions: "${PWD}/data/taskFiles/solutions/"
     polygons: "${PWD}/data/taskFiles/polygons/"
@@ -68,15 +65,10 @@ path:
     verdicts: "${PWD}/data/files/verdicts/"
     recordings: "${PWD}/data/files/recordings/"
     results: "${PWD}/data/files/results/"
-  logos:
-    sponsor: "${PWD}/data/logos/sponsor/"
     main: "${PWD}/data/logos/main.png"
 
 trik-studio-version: "${TRIK_STUDIO_VERSION:latest}"
 grading-node-addresses: "${GRADING_NODE_ADDRESSES:}"
-
-create-lektorium-users: ${CREATE_LEKTORIUM_USERS:false}
-lektorium-group-reg-token: "${LEKTORIUM_GROUP_REG_TOKEN:}"
 
 trik:
   testsys:

@@ -24,10 +24,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 @EnableScheduling
 @EnableAspectJAutoProxy
 @EnableWebMvc
-class Configuration(
-    @Value("\${path.logos.sponsor}") private val sponsorLogosPath: String,
-    @Value("\${path.logos.main}") private val mainLogoFilePath: String
-) : WebMvcConfigurer {
+class Configuration : WebMvcConfigurer {
 
     override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
         registry.addResourceHandler(
@@ -40,8 +37,6 @@ class Configuration(
             "classpath:/static/css/",
             "classpath:/static/js/",
             "classpath:/static/assets/",
-            "file:$sponsorLogosPath/",
-            "file:$mainLogoFilePath"
         )
     }
 
