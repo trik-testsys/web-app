@@ -96,6 +96,7 @@ class DeveloperController(
     @PostMapping("/task-templates/create")
     fun createTaskTemplate(
         @RequestParam name: String,
+        @RequestParam(required = false) info: String?,
         session: HttpSession,
         redirectAttributes: RedirectAttributes
     ): String {
@@ -116,6 +117,7 @@ class DeveloperController(
         val template = TaskTemplate().also {
             it.name = trimmedName
             it.developer = developer
+            it.info = info?.takeIf { s -> s.isNotBlank() }
         }
         taskTemplateService.save(template)
         redirectAttributes.addMessage("Шаблон создан (id=${template.id}).")
@@ -172,6 +174,7 @@ class DeveloperController(
     fun updateTaskTemplate(
         @PathVariable id: Long,
         @RequestParam name: String,
+        @RequestParam(required = false) info: String?,
         session: HttpSession,
         redirectAttributes: RedirectAttributes
     ): String {
@@ -199,6 +202,7 @@ class DeveloperController(
         }
 
         template.name = trimmedName
+        template.info = info?.takeIf { it.isNotBlank() }
         taskTemplateService.save(template)
         redirectAttributes.addMessage("Данные Шаблона обновлены.")
         return "redirect:/user/developer/task-templates/$id"

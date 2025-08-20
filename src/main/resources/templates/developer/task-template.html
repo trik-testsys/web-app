@@ -22,6 +22,10 @@
                         <div style="margin-bottom:4px;">Название<span class="req">*</span></div>
                         <input id="template-name" name="name" type="text" th:value="${template.name}" required disabled style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
                     </label>
+                    <label>
+                        <div style="margin-bottom:4px;">Описание</div>
+                        <textarea id="template-info" name="info" rows="3" th:text="${template.info}" disabled style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;"></textarea>
+                    </label>
                     <div class="form-buttons">
                         <button type="button" class="button edit-button" onclick="window.App.enableForm('template-form')">Редактировать</button>
                         <button type="submit" class="button button--primary save-button" style="display:none;">Сохранить</button>

@@ -22,6 +22,7 @@
                     <tr>
                         <th>ID</th>
                         <th>Название</th>
+                        <th>Описание</th>
                         <th>Группы пользователей</th>
                     </tr>
                 </thead>
@@ -31,6 +32,7 @@
                         <td>
                             <a th:href="@{'/user/developer/task-templates/' + ${t.id}}" th:text="${t.name}"></a>
                         </td>
+                        <td th:text="${t.info ?: '—'}"></td>
                         <td>
                             <ul class="pill-list" th:if="${!#lists.isEmpty(t.userGroups)}">
                                 <li class="pill" th:each="g : ${t.userGroups}" th:text="${(g.name ?: 'Без названия') + ' (#' + g.id + ')'}"></li>
@@ -52,6 +54,7 @@
                     <tr>
                         <th>ID</th>
                         <th>Название</th>
+                        <th>Описание</th>
                         <th>Группы Пользователей</th>
                     </tr>
                 </thead>
@@ -61,6 +64,7 @@
                         <td>
                             <a th:href="@{'/user/developer/task-templates/' + ${t.id}}" th:text="${t.name}"></a>
                         </td>
+                        <td th:text="${t.info ?: '—'}"></td>
                         <td>
                             <ul class="pill-list" th:if="${!#lists.isEmpty(t.userGroups)}">
                                 <li class="pill" th:each="g : ${t.userGroups}" th:text="${(g.name ?: 'Без названия') + ' (#' + g.id + ')'}"></li>
