@@ -10,5 +10,41 @@ tbody {
   display: block;
   overflow-y: auto;
   table-layout: fixed;
-  max-height: 200px;
+  max-height: 350px;
 }
+
+/* Filter row */
+tr.table-filter-row th {
+  background: var(--color-muted, #f4f5f7);
+  top: 42px; /* offset below sticky header row */
+}
+.table-filter-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 5px;
+  font-size: 1rem;
+  border: 1px solid var(--table-border, #e2e8f0);
+  border-radius: 4px;
+  background: #fff;
+}
+
+.table-filter-input:focus {
+  outline: 0;
+  border-color: var(--color-primary, #2f80ed);
+  box-shadow: 0 0 0 3px rgba(47, 128, 237, .12);
+}
+
+table.filter-empty tbody::after {
+  content: 'Нет совпадений по фильтру';
+  display: block;
+  padding: 12px;
+  color: var(--color-text-muted, #888);
+}
+
+/* Tools above table */
+.table-tools { display: flex; justify-content: flex-end; margin-bottom: 8px; }
+.table-tools .table-filter-toggle { background: var(--color-muted); color: var(--color-text); }
+.table-tools .table-filter-toggle:hover { background: #e9ebef; }
+
+/* Hide filter row when toggled */
+table.filters-hidden thead tr.table-filter-row { display: none; }

@@ -11,8 +11,8 @@
   --shadow: 0 8px 24px rgba(0,0,0,.08);
 
   /* Table theme */
-  --table-header-bg: #ffffff;
-  --table-header-fg: var(--trik-blue);
+  --table-header-bg: var(--color-primary);
+  --table-header-fg: #ffffff;
   --table-border: #e6ebf2;
   --table-zebra: #fbfdff;
   --table-hover: #f6f8fe;
