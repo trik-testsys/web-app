@@ -2,6 +2,7 @@ package trik.testsys.webapp.backoffice.controller
 
 import jakarta.servlet.http.HttpSession
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.ui.Model
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import trik.testsys.webapp.backoffice.data.entity.impl.AccessToken
 import trik.testsys.webapp.backoffice.data.entity.impl.User
@@ -9,6 +10,9 @@ import trik.testsys.webapp.backoffice.data.service.UserService
 import trik.testsys.webapp.backoffice.data.service.impl.AccessTokenService
 import trik.testsys.webapp.backoffice.service.menu.MenuBuilder
 import trik.testsys.webapp.backoffice.utils.addMessage
+import trik.testsys.webapp.backoffice.utils.addHasActiveSession
+import trik.testsys.webapp.backoffice.utils.addSections
+import trik.testsys.webapp.backoffice.utils.addUser
 
 /**
  * @author Roman Shishkin
@@ -43,6 +47,17 @@ abstract class AbstractUserController {
         }
 
         return accessToken.user
+    }
+
+    /**
+     * Populates common model attributes for authenticated pages.
+     */
+    protected fun setupModel(model: Model, session: HttpSession, user: User) {
+        model.apply {
+            addHasActiveSession(session)
+            addUser(user)
+            addSections(menuBuilder.buildFor(user))
+        }
     }
 
     companion object {

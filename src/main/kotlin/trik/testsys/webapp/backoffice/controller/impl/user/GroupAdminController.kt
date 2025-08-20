@@ -36,13 +36,9 @@ class GroupAdminController(
 
         val groups = userGroupService.findByOwner(current).sortedBy { it.id }
 
-        model.apply {
-            addHasActiveSession(session)
-            addUser(current)
-            addSections(menuBuilder.buildFor(current))
-            addAttribute("groups", groups)
-            addAttribute("privilegeToRu", User.Privilege.entries.associateWith { PrivilegeI18n.toRu(it) })
-        }
+        setupModel(model, session, current)
+        model.addAttribute("groups", groups)
+        model.addAttribute("privilegeToRu", PrivilegeI18n.asMap())
 
         return "group-admin/groups"
     }
@@ -68,15 +64,11 @@ class GroupAdminController(
             .filter { user -> user.id != group.owner?.id && !group.members.contains(user) }
             .sortedBy { it.name?.lowercase() ?: "" }
 
-        model.apply {
-            addHasActiveSession(session)
-            addUser(current)
-            addSections(menuBuilder.buildFor(current))
-            addAttribute("group", group)
-            addAttribute("memberPrivilegesRuByUserId", memberPrivilegesRuByUserId)
-            addAttribute("privilegeToRu", User.Privilege.entries.associateWith { PrivilegeI18n.toRu(it) })
-            addAttribute("candidateUsers", candidateUsers)
-        }
+        setupModel(model, session, current)
+        model.addAttribute("group", group)
+        model.addAttribute("memberPrivilegesRuByUserId", memberPrivilegesRuByUserId)
+        model.addAttribute("privilegeToRu", PrivilegeI18n.asMap())
+        model.addAttribute("candidateUsers", candidateUsers)
 
         return "group-admin/group"
     }
@@ -86,11 +78,7 @@ class GroupAdminController(
         val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
         val current = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
 
-        model.apply {
-            addHasActiveSession(session)
-            addUser(current)
-            addSections(menuBuilder.buildFor(current))
-        }
+        setupModel(model, session, current)
 
         return "group-admin/group-create"
     }

@@ -30,19 +30,13 @@ class UserController(
         val user = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
 
         // Build dynamic menu from privileges
-        val sections = menuBuilder.buildFor(user)
         val memberedGroups = user.memberedGroups.sortedBy { it.id }
-
         val privilegesRu = PrivilegeI18n.listRu(user.privileges)
 
-        model.apply {
-            addHasActiveSession(session)
-            addUser(user)
-            addSections(sections)
-            addAttribute("privilegeToRu", User.Privilege.entries.associateWith { PrivilegeI18n.toRu(it) })
-            addAttribute("privilegesRu", privilegesRu)
-            addAttribute("groups", memberedGroups)
-        }
+        setupModel(model, session, user)
+        model.addAttribute("privilegeToRu", PrivilegeI18n.asMap())
+        model.addAttribute("privilegesRu", privilegesRu)
+        model.addAttribute("groups", memberedGroups)
         return "user"
     }
 
@@ -52,12 +46,7 @@ class UserController(
         // Redirect to the overview which now contains the groups subsection
         val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
         val user = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
-        val sections = menuBuilder.buildFor(user)
-        model.apply {
-            addHasActiveSession(session)
-            addUser(user)
-            addSections(sections)
-        }
+        setupModel(model, session, user)
         return "redirect:/user"
     }
 
@@ -65,12 +54,7 @@ class UserController(
     fun getUserPrivilegesPage(model: Model, session: HttpSession, redirectAttributes: RedirectAttributes): String {
         val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
         val user = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
-        val sections = menuBuilder.buildFor(user)
-        model.apply {
-            addHasActiveSession(session)
-            addUser(user)
-            addSections(sections)
-        }
+        setupModel(model, session, user)
         return "redirect:/user"
     }
 

@@ -40,25 +40,19 @@ class SuperUserController(
             return "redirect:/user"
         }
 
-        val sections = menuBuilder.buildFor(currentUser)
         val privilegeOptions = PrivilegeI18n.listOptions()
-
         val allUsers = userService.findAll().sortedBy { it.id }
         val userRows = allUsers.map { u ->
             val privsRu = PrivilegeI18n.listRu(u.privileges)
             UserRow(id = u.id!!, name = u.name, accessToken = u.accessToken?.value, privilegesRu = privsRu)
         }
 
-        model.apply {
-            addHasActiveSession(session)
-            addUser(currentUser)
-            addSections(sections)
-            addAttribute("allUsers", allUsers)
-            addAttribute("userRows", userRows)
-            addAttribute("privileges", User.Privilege.entries)
-            addAttribute("privilegeOptions", privilegeOptions)
-            addAttribute("privilegeToRu", User.Privilege.entries.associateWith { PrivilegeI18n.toRu(it) })
-        }
+        setupModel(model, session, currentUser)
+        model.addAttribute("allUsers", allUsers)
+        model.addAttribute("userRows", userRows)
+        model.addAttribute("privileges", User.Privilege.entries)
+        model.addAttribute("privilegeOptions", privilegeOptions)
+        model.addAttribute("privilegeToRu", PrivilegeI18n.asMap())
         return "superuser/users"
     }
 
@@ -72,15 +66,9 @@ class SuperUserController(
             return "redirect:/user"
         }
 
-        val sections = menuBuilder.buildFor(currentUser)
         val privilegeOptions = PrivilegeI18n.listOptions()
-
-        model.apply {
-            addHasActiveSession(session)
-            addUser(currentUser)
-            addSections(sections)
-            addAttribute("privilegeOptions", privilegeOptions)
-        }
+        setupModel(model, session, currentUser)
+        model.addAttribute("privilegeOptions", privilegeOptions)
         return "superuser/user-create"
     }
 

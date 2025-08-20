@@ -45,10 +45,6 @@ class StudentGroupServiceImpl(
         }
     }
 
-    override fun addMembers(studentGroup: StudentGroup, members: User) {
-        TODO("Not yet implemented")
-    }
-
     override fun removeMember(studentGroup: StudentGroup, member: User) = when (member) {
         studentGroup.owner -> {
             logger.warn("Could not remove user(id=${member.id}) from owned studentGroup(id=${studentGroup.id}) members.")

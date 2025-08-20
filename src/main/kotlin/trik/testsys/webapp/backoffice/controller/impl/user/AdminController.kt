@@ -17,11 +17,7 @@ import trik.testsys.webapp.backoffice.controller.AbstractUserController
 import trik.testsys.webapp.backoffice.data.entity.impl.User
 import trik.testsys.webapp.backoffice.data.service.StudentGroupService
 import trik.testsys.webapp.backoffice.data.service.ContestService
-import trik.testsys.webapp.backoffice.utils.getRedirection
-import trik.testsys.webapp.backoffice.utils.addHasActiveSession
 import trik.testsys.webapp.backoffice.utils.addMessage
-import trik.testsys.webapp.backoffice.utils.addSections
-import trik.testsys.webapp.backoffice.utils.addUser
 import trik.testsys.webapp.backoffice.utils.PrivilegeI18n
 
 @Controller
@@ -38,13 +34,9 @@ class AdminController(
 
         val groups = studentGroupService.findByOwner(admin).sortedBy { it.id }
 
-        model.apply {
-            addHasActiveSession(session)
-            addUser(admin)
-            addSections(menuBuilder.buildFor(admin))
-            addAttribute("groups", groups)
-            addAttribute("privilegeToRu", User.Privilege.entries.associateWith { PrivilegeI18n.toRu(it) })
-        }
+        setupModel(model, session, admin)
+        model.addAttribute("groups", groups)
+        model.addAttribute("privilegeToRu", PrivilegeI18n.asMap())
 
         return "admin/groups"
     }
@@ -70,21 +62,17 @@ class AdminController(
 
         val memberPrivilegesRuByUserId = group.members.associate { it.id!! to PrivilegeI18n.listRu(it.privileges) }
 
-        model.apply {
-            addHasActiveSession(session)
-            addUser(admin)
-            addSections(menuBuilder.buildFor(admin))
-            addAttribute("group", group)
-            addAttribute("memberPrivilegesRuByUserId", memberPrivilegesRuByUserId)
-            addAttribute("privilegeToRu", User.Privilege.entries.associateWith { PrivilegeI18n.toRu(it) })
-            addAttribute("attachedContests", group.contests.sortedBy { it.id })
-            addAttribute(
-                "availableContests",
-                contestService.findForUser(admin)
-                    .filterNot { c -> group.contests.any { it.id == c.id } }
-                    .sortedBy { it.id }
-            )
-        }
+        setupModel(model, session, admin)
+        model.addAttribute("group", group)
+        model.addAttribute("memberPrivilegesRuByUserId", memberPrivilegesRuByUserId)
+        model.addAttribute("privilegeToRu", PrivilegeI18n.asMap())
+        model.addAttribute("attachedContests", group.contests.sortedBy { it.id })
+        model.addAttribute(
+            "availableContests",
+            contestService.findForUser(admin)
+                .filterNot { c -> group.contests.any { it.id == c.id } }
+                .sortedBy { it.id }
+        )
 
         return "admin/group"
     }
@@ -94,11 +82,7 @@ class AdminController(
         val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
         val admin = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
 
-        model.apply {
-            addHasActiveSession(session)
-            addUser(admin)
-            addSections(menuBuilder.buildFor(admin))
-        }
+        setupModel(model, session, admin)
 
         return "admin/group-create"
     }
@@ -151,7 +135,9 @@ class AdminController(
         session: HttpSession,
         redirectAttributes: RedirectAttributes
     ): ResponseEntity<ByteArray> {
-        val redirection = getRedirection<ByteArray>(HttpStatus.UNAUTHORIZED, "/login")
+        val redirection: ResponseEntity<ByteArray> = ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .header(HttpHeaders.LOCATION, "/login")
+            .build()
 
         val accessToken = getAccessToken(session, redirectAttributes) ?: return redirection
         val admin = getUser(accessToken, redirectAttributes) ?: return redirection
@@ -172,7 +158,9 @@ class AdminController(
         session: HttpSession,
         redirectAttributes: RedirectAttributes
     ): ResponseEntity<ByteArray> {
-        val redirection = getRedirection<ByteArray>(HttpStatus.UNAUTHORIZED, "/login")
+        val redirection: ResponseEntity<ByteArray> = ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .header(HttpHeaders.LOCATION, "/login")
+            .build()
 
         val accessToken = getAccessToken(session, redirectAttributes) ?: return redirection
         val admin = getUser(accessToken, redirectAttributes) ?: return redirection

@@ -23,15 +23,9 @@ class ViewerController() : AbstractUserController() {
         val viewer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
 
         val admins = viewer.managedAdmins.sortedBy { it.id }
-        val sections = menuBuilder.buildFor(viewer)
-
-        model.apply {
-            addHasActiveSession(session)
-            addUser(viewer)
-            addSections(sections)
-            addAttribute("admins", admins)
-            addAttribute("privilegeToRu", User.Privilege.entries.associateWith { PrivilegeI18n.toRu(it) })
-        }
+        setupModel(model, session, viewer)
+        model.addAttribute("admins", admins)
+        model.addAttribute("privilegeToRu", PrivilegeI18n.asMap())
         return "viewer/admins"
     }
 
@@ -43,12 +37,7 @@ class ViewerController() : AbstractUserController() {
         val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
         val viewer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
 
-        val sections = menuBuilder.buildFor(viewer)
-        model.apply {
-            addHasActiveSession(session)
-            addUser(viewer)
-            addSections(sections)
-        }
+        setupModel(model, session, viewer)
         return "viewer/export"
     }
 }

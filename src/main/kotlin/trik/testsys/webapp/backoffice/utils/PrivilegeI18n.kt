@@ -27,6 +27,9 @@ object PrivilegeI18n {
     @JvmStatic
     fun listOptions(): List<Pair<String, String>> =
         User.Privilege.entries.map { it.name to toRu(it) }
+
+    @JvmStatic
+    fun asMap(): Map<User.Privilege, String> = privilegeToRu
 }
 
 

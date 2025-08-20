@@ -50,12 +50,8 @@ class DeveloperController(
 
         val createdTasks = taskService.findAll().filter { it.developer?.id == developer.id }.sortedBy { it.id }
 
-        model.apply {
-            addHasActiveSession(session)
-            addUser(developer)
-            addSections(menuBuilder.buildFor(developer))
-            addAttribute("tasks", createdTasks)
-        }
+        setupModel(model, session, developer)
+        model.addAttribute("tasks", createdTasks)
 
         return "developer/tasks"
     }
@@ -70,11 +66,7 @@ class DeveloperController(
             return "redirect:/user"
         }
 
-        model.apply {
-            addHasActiveSession(session)
-            addUser(developer)
-            addSections(menuBuilder.buildFor(developer))
-        }
+        setupModel(model, session, developer)
 
         return "developer/task-create"
     }
@@ -166,20 +158,16 @@ class DeveloperController(
             Task.TestingStatus.FAILED -> "Не пройдено"
         }
 
-        model.apply {
-            addHasActiveSession(session)
-            addUser(developer)
-            addSections(menuBuilder.buildFor(developer))
-            addAttribute("task", task)
-            addAttribute("attachedTaskFiles", attachedItems)
-            addAttribute("availableTaskFiles", availableItems)
-            addAttribute("isTesting", task.testingStatus == Task.TestingStatus.TESTING)
-            addAttribute("testReady", hasPolygon && hasSolution)
-            addAttribute("numPolygons", task.taskFiles.count { it.type == TaskFile.TaskFileType.POLYGON })
-            addAttribute("numSolutions", task.taskFiles.count { it.type == TaskFile.TaskFileType.SOLUTION })
-            addAttribute("testStatus", lastTestStatus)
-            addAttribute("isUsedInAnyContest", isUsedInAnyContest)
-        }
+        setupModel(model, session, developer)
+        model.addAttribute("task", task)
+        model.addAttribute("attachedTaskFiles", attachedItems)
+        model.addAttribute("availableTaskFiles", availableItems)
+        model.addAttribute("isTesting", task.testingStatus == Task.TestingStatus.TESTING)
+        model.addAttribute("testReady", hasPolygon && hasSolution)
+        model.addAttribute("numPolygons", task.taskFiles.count { it.type == TaskFile.TaskFileType.POLYGON })
+        model.addAttribute("numSolutions", task.taskFiles.count { it.type == TaskFile.TaskFileType.SOLUTION })
+        model.addAttribute("testStatus", lastTestStatus)
+        model.addAttribute("isUsedInAnyContest", isUsedInAnyContest)
 
         return "developer/task"
     }
@@ -391,13 +379,9 @@ class DeveloperController(
 //            .findForUserGroups(developer.memberedGroups)
 //            .sortedBy { it.id }
 
-        model.apply {
-            addHasActiveSession(session)
-            addUser(developer)
-            addSections(menuBuilder.buildFor(developer))
-//            addAttribute("ownedTemplates", ownedTemplates)
-//            addAttribute("availableTemplates", availableTemplates)
-        }
+        setupModel(model, session, developer)
+        // model.addAttribute("ownedTemplates", ownedTemplates)
+        // model.addAttribute("availableTemplates", availableTemplates)
 
         return "developer/task-templates"
     }
@@ -433,15 +417,11 @@ class DeveloperController(
         val solutionFiles = allTaskFiles.filter { it.type == TaskFile.TaskFileType.SOLUTION }.map(::toListItem)
         val conditionFiles = allTaskFiles.filter { it.type == TaskFile.TaskFileType.CONDITION }.map(::toListItem)
 
-        model.apply {
-            addHasActiveSession(session)
-            addUser(developer)
-            addSections(menuBuilder.buildFor(developer))
-            addAttribute("polygonFiles", polygonFiles)
-            addAttribute("exerciseFiles", exerciseFiles)
-            addAttribute("solutionFiles", solutionFiles)
-            addAttribute("conditionFiles", conditionFiles)
-        }
+        setupModel(model, session, developer)
+        model.addAttribute("polygonFiles", polygonFiles)
+        model.addAttribute("exerciseFiles", exerciseFiles)
+        model.addAttribute("solutionFiles", solutionFiles)
+        model.addAttribute("conditionFiles", conditionFiles)
 
         return "developer/task-files"
     }
@@ -456,11 +436,7 @@ class DeveloperController(
             return "redirect:/user"
         }
 
-        model.apply {
-            addHasActiveSession(session)
-            addUser(developer)
-            addSections(menuBuilder.buildFor(developer))
-        }
+        setupModel(model, session, developer)
 
         return "developer/task-file-create"
     }
@@ -547,14 +523,10 @@ class DeveloperController(
 
         val versions = fileManager.listTaskFileVersions(tf)
 
-        model.apply {
-            addHasActiveSession(session)
-            addUser(developer)
-            addSections(menuBuilder.buildFor(developer))
-            addAttribute("taskFile", tf)
-            addAttribute("localizedType", localizedType)
-            addAttribute("versions", versions)
-        }
+        setupModel(model, session, developer)
+        model.addAttribute("taskFile", tf)
+        model.addAttribute("localizedType", localizedType)
+        model.addAttribute("versions", versions)
 
         return "developer/task-file"
     }
@@ -652,11 +624,7 @@ class DeveloperController(
             return "redirect:/user"
         }
 
-        model.apply {
-            addHasActiveSession(session)
-            addUser(developer)
-            addSections(menuBuilder.buildFor(developer))
-        }
+        setupModel(model, session, developer)
 
         return "developer/task-template-create"
     }
@@ -851,26 +819,22 @@ class DeveloperController(
             }
         }
 
-        model.apply {
-            addHasActiveSession(session)
-            addUser(developer)
-            addSections(menuBuilder.buildFor(developer))
-            addAttribute("contest", contest)
-            addAttribute("isOwner", isOwner)
-            addAttribute(
-                "availableUserGroups",
-                userGroupService.findByMember(developer)
-                    .filterNot { g -> contest.userGroups.any { it.id == g.id } }
-                    .sortedBy { it.id }
-            )
-            addAttribute("attachedTasks", contest.tasks.sortedBy { it.id })
-            addAttribute(
-                "availableTasks",
-                taskService.findAll().filter { it.developer?.id == developer.id }
-                    .filterNot { t -> contest.tasks.any { it.id == t.id } }
-                    .sortedBy { it.id }
-            )
-        }
+        setupModel(model, session, developer)
+        model.addAttribute("contest", contest)
+        model.addAttribute("isOwner", isOwner)
+        model.addAttribute(
+            "availableUserGroups",
+            userGroupService.findByMember(developer)
+                .filterNot { g -> contest.userGroups.any { it.id == g.id } }
+                .sortedBy { it.id }
+        )
+        model.addAttribute("attachedTasks", contest.tasks.sortedBy { it.id })
+        model.addAttribute(
+            "availableTasks",
+            taskService.findAll().filter { it.developer?.id == developer.id }
+                .filterNot { t -> contest.tasks.any { it.id == t.id } }
+                .sortedBy { it.id }
+        )
 
         return "developer/contest"
     }
@@ -1064,11 +1028,7 @@ class DeveloperController(
             return "redirect:/user"
         }
 
-        model.apply {
-            addHasActiveSession(session)
-            addUser(developer)
-            addSections(menuBuilder.buildFor(developer))
-        }
+        setupModel(model, session, developer)
         return "developer/contest-create"
     }
 
@@ -1085,13 +1045,9 @@ class DeveloperController(
         val createdContests = contestService.findAll().filter { it.developer?.id == developer.id }.sortedBy { it.id }
         val sharedContests = contestService.findForUser(developer).sortedBy { it.id }
 
-        model.apply {
-            addHasActiveSession(session)
-            addUser(developer)
-            addSections(menuBuilder.buildFor(developer))
-            addAttribute("createdContests", createdContests)
-            addAttribute("sharedContests", sharedContests)
-        }
+        setupModel(model, session, developer)
+        model.addAttribute("createdContests", createdContests)
+        model.addAttribute("sharedContests", sharedContests)
 
         return "developer/contests"
     }
