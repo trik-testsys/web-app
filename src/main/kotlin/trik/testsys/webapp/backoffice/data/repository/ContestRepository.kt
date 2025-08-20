@@ -1,16 +1,19 @@
-//package trik.testsys.webapp.backoffice.data.repository
-//
-//import org.springframework.stereotype.Repository
-//import trik.testsys.core.repository.named.NamedEntityRepository
-//import trik.testsys.backoffice.entity.impl.Contest
-//import trik.testsys.backoffice.entity.user.impl.Developer
-//
-///**
-// * @author Roman Shishkin
-// * @since 2.0.0
-// **/
-//@Repository
-//interface ContestRepository : NamedEntityRepository<Contest> {
-//
-//    fun findByDeveloper(developer: Developer): List<Contest>
-//}
+package trik.testsys.webapp.backoffice.data.repository
+
+import org.springframework.stereotype.Repository
+import trik.testsys.webapp.backoffice.data.entity.impl.Contest
+import trik.testsys.webapp.backoffice.data.entity.impl.User
+import trik.testsys.webapp.backoffice.data.entity.impl.UserGroup
+import trik.testsys.webapp.core.data.repository.EntityRepository
+
+/**
+ * @author Roman Shishkin
+ * @since %CURRENT_VERSION%
+ **/
+@Repository
+interface ContestRepository : EntityRepository<Contest> {
+
+    fun findByDeveloper(developer: User): Set<Contest>
+
+    fun findByUserGroupsContaining(userGroups: Collection<UserGroup>): Set<Contest>
+}
