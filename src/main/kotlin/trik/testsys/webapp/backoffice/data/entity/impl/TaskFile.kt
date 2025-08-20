@@ -7,9 +7,9 @@ import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.FetchType
 import jakarta.persistence.JoinColumn
-import jakarta.persistence.ManyToMany
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
+import jakarta.persistence.Transient
 import trik.testsys.webapp.backoffice.data.entity.impl.TaskFile.TaskFileType.Companion.extension
 import trik.testsys.webapp.core.data.entity.AbstractEntity
 import trik.testsys.webapp.core.data.entity.AbstractEntity.Companion.TABLE_PREFIX
@@ -37,8 +37,8 @@ class TaskFile() : AbstractEntity() {
     @Transient
     val fileName: String = "$id-$fileVersion${type?.extension()}"
 
-    @ManyToMany(mappedBy = "taskFiles")
-    var taskTemplates: MutableSet<TaskTemplate> = mutableSetOf()
+//    @ManyToMany(mappedBy = "taskFiles")
+//    var taskTemplates: MutableSet<TaskTemplate> = mutableSetOf()
 
     enum class TaskFileType(override val dbKey: String) : PersistableEnum {
 
@@ -58,7 +58,7 @@ class TaskFile() : AbstractEntity() {
             fun TaskFileType.localized() = when(this) {
                 POLYGON -> "Полигон"
                 EXERCISE -> "Упражнение"
-                SOLUTION -> "Решение"
+                SOLUTION -> "Эталонное Решение"
                 CONDITION -> "Условие"
             }
 

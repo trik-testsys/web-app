@@ -15,8 +15,9 @@ class DeveloperSectionBuilder : MenuSectionBuilder {
             title = "Разработчик",
             items = listOf(
                 MenuBuilder.MenuItem(name = "Туры", link = "/user/developer/contests"),
+                MenuBuilder.MenuItem(name = "Файлы", link = "/user/developer/task-files"),
+//                MenuBuilder.MenuItem(name = "Шаблоны Задач", link = "/user/developer/task-templates"),
                 MenuBuilder.MenuItem(name = "Задачи", link = "/user/developer/tasks"),
-                MenuBuilder.MenuItem(name = "Шаблоны Задач", link = "/user/developer/task-templates")
             )
         )
     }

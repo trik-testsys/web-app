@@ -21,7 +21,7 @@ class Task() : AbstractEntity() {
     @JoinColumn(name = "developer_id", nullable = false)
     var developer: User? = null
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "created_from_id", nullable = false)
-    var createdFrom: TaskTemplate? = null
+//    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+//    @JoinColumn(name = "created_from_id", nullable = false)
+//    var createdFrom: TaskTemplate? = null
 }
