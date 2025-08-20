@@ -28,7 +28,7 @@ class User() : AbstractEntity() {
     @Column(name = "name", nullable = false)
     var name: String? = null
 
-    @OneToOne(fetch = FetchType.LAZY, optional = false, orphanRemoval = true)
+    @OneToOne(fetch = FetchType.EAGER, optional = false, orphanRemoval = true)
     @JoinColumn(name = "access_token_id", nullable = false, unique = true)
     var accessToken: AccessToken? = null
 
@@ -38,7 +38,7 @@ class User() : AbstractEntity() {
     @Transient
     var hasLoggedIn = lastLoginAt != null
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "${TABLE_PREFIX}privilege", joinColumns = [JoinColumn(name = "user_id")])
     @Column(name = "${TABLE_PREFIX}privilege")
     @Enumerated(EnumType.STRING)
@@ -63,7 +63,7 @@ class User() : AbstractEntity() {
     @JoinColumn(name = "viewer_id")
     var viewer: User? = null
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "admin_reg_token_id", unique = true)
     var adminRegToken: RegToken? = null
 
@@ -73,6 +73,9 @@ class User() : AbstractEntity() {
 
     @OneToMany(mappedBy = "superUser")
     var createdUsers: MutableSet<User> = mutableSetOf()
+
+    @OneToMany(mappedBy = "developer", orphanRemoval = true)
+    var contests: MutableSet<Contest> = mutableSetOf()
 
     @Suppress("unused")
     enum class Privilege(override val dbKey: String) : PersistableEnum {

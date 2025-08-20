@@ -24,4 +24,10 @@ interface UserGroupService : EntityService<UserGroup> {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     fun create(owner: User, name: String, info: String?): UserGroup?
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
+    fun getOrCreateDefaultGroup(owner: User): UserGroup
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    fun getDefaultGroup(): UserGroup?
 }

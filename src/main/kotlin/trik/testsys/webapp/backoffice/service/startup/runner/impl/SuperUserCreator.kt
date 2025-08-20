@@ -5,7 +5,6 @@ import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Service
 import trik.testsys.webapp.backoffice.data.entity.impl.AccessToken
 import trik.testsys.webapp.backoffice.data.entity.impl.User
-import trik.testsys.webapp.backoffice.data.repository.UserRepository
 import trik.testsys.webapp.backoffice.data.service.UserGroupService
 import trik.testsys.webapp.backoffice.data.service.UserService
 import trik.testsys.webapp.backoffice.data.service.impl.AccessTokenService
@@ -23,8 +22,7 @@ class SuperUserCreator(
     @Value("\${trik.testsys.superuser.accessToken}")
     private val accessToken: String,
 
-    private val userRepository: UserRepository,
-//    private val userService: UserService,
+    private val userService: UserService,
     private val accessTokenService: AccessTokenService,
     private val userGroupService: UserGroupService
 ) : AbstractStartupRunner() {
@@ -32,7 +30,7 @@ class SuperUserCreator(
     override suspend fun execute() = createSuperUser()
 
     private fun createSuperUser() {
-        val superUsers = userRepository.findAll().sortedBy { it.id }
+        val superUsers = userService.findAllSuperUser().sortedBy { it.id }
         if (superUsers.isNotEmpty()) {
             logger.info("Super User already exists. Skipping runner.\n\n Access token: ${superUsers.first().accessToken?.value}\n")
             return
@@ -48,7 +46,7 @@ class SuperUserCreator(
             it.accessToken = token
             it.privileges.addAll(setOf(User.Privilege.SUPER_USER, User.Privilege.GROUP_ADMIN))
         }
-        val persisted = userRepository.save(user)
+        val persisted = userService.save(user)
 
         // Ensure default PUBLIC group exists owned by Super User
         userGroupService.getOrCreateDefaultGroup(persisted)

@@ -18,7 +18,10 @@
                 <dt>Название</dt>
                 <dd th:text="${group.name ?: 'Без названия'}"></dd>
                 <dt>Описание</dt>
-                <dd th:text="${group.info ?: '—'}"></dd>
+                <dd>
+                    <span th:if="${group.defaultGroup}" class="pill" style="background:#eef6ff; color:#1e66f5;">Системная группа (PUBLIC)</span>
+                    <span th:text="${group.info ?: '—'}" th:if="${!group.defaultGroup}"></span>
+                </dd>
             </dl>
             <hr class="separator">
             <div style="margin: 12px 0; display:flex; gap:8px;">
@@ -56,11 +59,12 @@
                                 </ul>
                             </td>
                             <td style="padding:8px;">
-                                <form th:if="${m.id != group.owner?.id}" th:action="@{'/user/group-admin/groups/' + ${group.id} + '/remove-member'}" method="post" onsubmit="return confirm('Удалить пользователя из группы?');">
+                                <form th:if="${m.id != group.owner?.id and !group.defaultGroup}" th:action="@{'/user/group-admin/groups/' + ${group.id} + '/remove-member'}" method="post" onsubmit="return confirm('Удалить пользователя из группы?');">
                                     <input type="hidden" name="userId" th:value="${m.id}">
                                     <button type="submit" class="button button--danger">Удалить</button>
                                 </form>
                                 <span th:if="${m.id == group.owner?.id}" style="color: var(--color-text-muted);">Владелец</span>
+                                <span th:if="${group.defaultGroup}" style="color: var(--color-text-muted);">Нельзя удалить из PUBLIC</span>
                             </td>
                         </tr>
                     </tbody>

@@ -28,11 +28,11 @@ class Contest() :
     @Column(name = "duration")
     var duration: Long? = null
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "developer_id", nullable = false)
     var developer: User? = null
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "ts_contest_userGroups",
         joinColumns = [JoinColumn(name = "contest_id")],

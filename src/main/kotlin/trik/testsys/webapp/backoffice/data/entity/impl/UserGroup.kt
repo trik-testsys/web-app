@@ -22,15 +22,18 @@ class UserGroup : AbstractEntity() {
     @Column(name = "name")
     var name: String? = null
 
+    /**
+     * Flag for default group for each user. Better be only one default group in system.
+     */
+    @Column(name = "is_default", nullable = false)
+    var defaultGroup: Boolean = false
+
     @PrePersist
     fun prePersist() {
         owner?.let { members.add(it) } ?: error("'owner' field must be initialized")
     }
 
-    @ManyToOne(
-        fetch = FetchType.LAZY,
-        optional = false
-    )
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "owner_id", nullable = false)
     var owner: User? = null
 
@@ -41,4 +44,7 @@ class UserGroup : AbstractEntity() {
         inverseJoinColumns = [JoinColumn(name = "member_id")]
     )
     var members: MutableSet<User> = mutableSetOf()
+
+    @ManyToMany(mappedBy = "userGroups")
+    var contests: MutableSet<Contest> = mutableSetOf()
 }

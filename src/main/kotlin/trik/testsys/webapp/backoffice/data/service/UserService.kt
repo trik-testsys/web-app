@@ -20,4 +20,7 @@ interface UserService : EntityService<User> {
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     fun findAllSuperUser(): Set<User>
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    fun findAllGroupAdmin(): Set<User>
 }

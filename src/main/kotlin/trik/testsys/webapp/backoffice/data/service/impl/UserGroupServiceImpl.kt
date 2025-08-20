@@ -19,17 +19,25 @@ class UserGroupServiceImpl :
     AbstractService<UserGroup, UserGroupRepository>(),
     UserGroupService {
 
-    override fun addMember(userGroup: UserGroup, user: User) = when (user) {
-        userGroup.owner,
-        in userGroup.members -> {
-            logger.warn("Could not add already membered user(id=${user.id}) to userGroup(id=${userGroup.id}).")
-            false
+    override fun addMember(userGroup: UserGroup, user: User): Boolean {
+        val managed = try {
+            if (userGroup.isNew()) userGroup else getById(userGroup.id!!)
+        } catch (_: NoSuchElementException) {
+            // Fallback to resolving by default flag to avoid failures with detached/stale ids during startup
+            repository.findByDefaultGroupTrue() ?: userGroup
         }
-        else -> {
-            logger.debug("Adding user(id=${user.id}) to userGroup(id=${userGroup.id})")
-            userGroup.members.add(user)
-            save(userGroup)
-            true
+        return when (user) {
+            managed.owner,
+            in managed.members -> {
+                logger.warn("Could not add already membered user(id=${user.id}) to userGroup(id=${managed.id}).")
+                false
+            }
+            else -> {
+                logger.debug("Adding user(id=${user.id}) to userGroup(id=${managed.id})")
+                managed.members.add(user)
+                save(managed)
+                true
+            }
         }
     }
 
@@ -51,23 +59,47 @@ class UserGroupServiceImpl :
         return save(group)
     }
 
-    override fun removeMember(userGroup: UserGroup, user: User) = when (user) {
-        userGroup.owner -> {
-            logger.warn("Could not remove owner(id=${user.id}) from userGroup(id=${userGroup.id}) members.")
-            false
+    override fun removeMember(userGroup: UserGroup, user: User): Boolean {
+        val managed = try {
+            if (userGroup.isNew()) userGroup else getById(userGroup.id!!)
+        } catch (_: NoSuchElementException) {
+            repository.findByDefaultGroupTrue() ?: userGroup
         }
-        !in userGroup.members -> {
-            logger.warn("Could not remove user(id=${user.id}) from not membered userGroup(id=${userGroup.id}).")
-            false
-        }
-        else -> {
-            logger.debug("Removing member(id=${user.id}) from userGroup(id=${userGroup.id}).")
-
-            userGroup.members.remove(user)
-            save(userGroup)
-            true
+        return when (user) {
+            managed.owner -> {
+                logger.warn("Could not remove owner(id=${user.id}) from userGroup(id=${managed.id}) members.")
+                false
+            }
+            in managed.members.takeIf { managed.defaultGroup } ?: emptySet() -> {
+                logger.warn("Could not remove user(id=${user.id}) from default userGroup(id=${managed.id}).")
+                false
+            }
+            !in managed.members -> {
+                logger.warn("Could not remove user(id=${user.id}) from not membered userGroup(id=${managed.id}).")
+                false
+            }
+            else -> {
+                logger.debug("Removing member(id=${user.id}) from userGroup(id=${managed.id}).")
+                managed.members.remove(user)
+                save(managed)
+                true
+            }
         }
     }
+
+    override fun getOrCreateDefaultGroup(owner: User): UserGroup {
+        val existing = repository.findByDefaultGroupTrue()
+        if (existing != null) return existing
+        val group = UserGroup().apply {
+            this.owner = owner
+            this.name = "Публичная"
+            this.info = "Группа каждого пользователя по умолчанию."
+            this.defaultGroup = true
+        }
+        return save(group)
+    }
+
+    override fun getDefaultGroup(): UserGroup? = repository.findByDefaultGroupTrue()
 
     companion object {
 

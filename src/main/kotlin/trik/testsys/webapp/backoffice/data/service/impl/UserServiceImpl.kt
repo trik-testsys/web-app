@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service
 import trik.testsys.webapp.backoffice.data.entity.impl.User
 import trik.testsys.webapp.backoffice.data.repository.UserRepository
 import trik.testsys.webapp.backoffice.data.service.UserService
+import trik.testsys.webapp.backoffice.data.service.UserGroupService
 import trik.testsys.webapp.backoffice.data.service.SuperUserService
 import trik.testsys.webapp.backoffice.data.service.ViewerService
 import trik.testsys.webapp.core.data.service.AbstractService
@@ -19,7 +20,8 @@ import kotlin.random.Random
 @Service
 class UserServiceImpl(
     private val accessTokenService: AccessTokenService,
-    private val regTokenService: RegTokenService
+    private val regTokenService: RegTokenService,
+    private val userGroupService: UserGroupService
 ) :
     AbstractService<User, UserRepository>(),
     UserService, ViewerService, SuperUserService {
@@ -59,6 +61,7 @@ class UserServiceImpl(
         // now update viewer relationships
         viewer.managedAdmins.add(persistedAdmin)
         save(viewer)
+
         return persistedAdmin
     }
 
@@ -127,6 +130,28 @@ class UserServiceImpl(
         val privilegesPath = root.get<Set<User.Privilege>>(User.PRIVILEGES)
         cb.isMember(User.Privilege.SUPER_USER, privilegesPath)
     }.toSet()
+
+    override fun findAllGroupAdmin() = repository.findAll { root, q, cb ->
+        root.fetch<Any, Any>(User.ACCESS_TOKEN, JoinType.LEFT)
+        q?.distinct(true)
+        val privilegesPath = root.get<Set<User.Privilege>>(User.PRIVILEGES)
+        cb.isMember(User.Privilege.GROUP_ADMIN, privilegesPath)
+    }.toSet()
+
+    override fun save(entity: User): User {
+        val isNewEntity = entity.isNew
+        val persisted = super.save(entity)
+
+        if (isNewEntity) {
+            // Avoid creating the default group during arbitrary user creation to prevent FK/order issues.
+            // If the default group already exists, just add the member; otherwise startup runner will create it.
+            userGroupService.getDefaultGroup()?.let { defaultGroup ->
+                userGroupService.addMember(defaultGroup, persisted)
+            }
+        }
+
+        return persisted
+    }
 
     companion object {
 

@@ -15,4 +15,6 @@ interface UserGroupRepository: EntityRepository<UserGroup> {
     fun findByOwner(owner: User): Set<UserGroup>
 
     fun findByMembersContaining(member: User): Set<UserGroup>
+
+    fun findByDefaultGroupTrue(): UserGroup?
 }

@@ -15,11 +15,11 @@ class StudentGroup() : AbstractEntity() {
     @Column(name = "name")
     var name: String? = null
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "owner_id", nullable = false)
     var owner: User? = null
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "${TABLE_PREFIX}student_group_users",
         joinColumns = [JoinColumn(name = "studentGroup_id")],
