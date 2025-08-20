@@ -154,9 +154,7 @@ class DeveloperController(
             it.developer = developer
             it.info = info?.takeIf { s -> s.isNotBlank() }
             it.type = tfType
-            it.fileVersion = 1
         }
-        taskFileService.save(taskFile)
 
         val saved = fileManager.saveTaskFile(taskFile, file)
         if (!saved) {

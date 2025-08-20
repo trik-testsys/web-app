@@ -1,3 +1,19 @@
+package trik.testsys.webapp.backoffice.service
+
+import org.springframework.web.multipart.MultipartFile
+import trik.testsys.webapp.backoffice.data.entity.impl.TaskFile
+import java.io.File
+
+/**
+ * File manager for handling TaskFile persistence on disk.
+ */
+interface FileManager {
+
+    fun saveTaskFile(taskFile: TaskFile, fileData: MultipartFile): Boolean
+
+    fun getTaskFile(taskFile: TaskFile): File?
+}
+
 //package trik.testsys.webapp.backoffice.service
 //
 //import org.springframework.web.multipart.MultipartFile

@@ -34,8 +34,9 @@ class TaskFile() : AbstractEntity() {
     @Column(name = "file_version", nullable = false)
     var fileVersion: Long = 0
 
-    @Transient
-    val fileName: String = "$id-$fileVersion${type?.extension()}"
+    @get:Transient
+    val fileName: String
+        get() = "$id-$fileVersion${type?.extension()}"
 
 //    @ManyToMany(mappedBy = "taskFiles")
 //    var taskTemplates: MutableSet<TaskTemplate> = mutableSetOf()
