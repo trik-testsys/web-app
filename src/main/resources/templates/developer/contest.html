@@ -86,6 +86,75 @@
             </div>
         </div>
     </section>
+    <section class="card">
+        <h2 class="card-title">Прикреплённые Задачи</h2>
+        <div class="card-body">
+            <div th:if="${#lists.isEmpty(attachedTasks)}" style="color: var(--color-text-muted);">Пока нет прикреплённых Задач.</div>
+            <table th:if="${!#lists.isEmpty(attachedTasks)}" class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Название</th>
+                        <th>Статус тестирования</th>
+                        <th>Дата создания</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="t : ${attachedTasks}">
+                        <td th:text="${t.id}"></td>
+                        <td><a th:href="@{'/user/developer/tasks/' + ${t.id}}" th:text="${t.name}"></a></td>
+                        <td th:text="${
+                            t.testingStatus == T(trik.testsys.webapp.backoffice.data.entity.impl.Task.TestingStatus).PASSED ? 'Пройдено' : (
+                            t.testingStatus == T(trik.testsys.webapp.backoffice.data.entity.impl.Task.TestingStatus).FAILED ? 'Не пройдено' : (
+                            t.testingStatus == T(trik.testsys.webapp.backoffice.data.entity.impl.Task.TestingStatus).TESTING ? 'В процессе' : 'Не запускалось')
+                        )}"></td>
+                        <td th:text="${t.createdAt != null ? #temporals.format(t.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                        <td>
+                            <form th:action="@{'/user/developer/contests/' + ${contest.id} + '/tasks/' + ${t.id} + '/detach'}" method="post" onsubmit="return confirm('Открепить Задачу?');">
+                                <button class="button" type="submit">Открепить</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+    <section class="card">
+        <h2 class="card-title">Доступные Задачи</h2>
+        <div class="card-body">
+            <div th:if="${#lists.isEmpty(availableTasks)}" style="color: var(--color-text-muted);">Нет Задач для прикрепления.</div>
+            <table th:if="${!#lists.isEmpty(availableTasks)}" class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Название</th>
+                        <th>Статус тестирования</th>
+                        <th>Дата создания</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="t : ${availableTasks}">
+                        <td th:text="${t.id}"></td>
+                        <td><a th:href="@{'/user/developer/tasks/' + ${t.id}}" th:text="${t.name}"></a></td>
+                        <td th:text="${
+                            t.testingStatus == T(trik.testsys.webapp.backoffice.data.entity.impl.Task.TestingStatus).PASSED ? 'Пройдено' : (
+                            t.testingStatus == T(trik.testsys.webapp.backoffice.data.entity.impl.Task.TestingStatus).FAILED ? 'Не пройдено' : (
+                            t.testingStatus == T(trik.testsys.webapp.backoffice.data.entity.impl.Task.TestingStatus).TESTING ? 'В процессе' : 'Не запускалось')
+                        )}"></td>
+                        <td th:text="${t.createdAt != null ? #temporals.format(t.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                        <td>
+                            <form th:action="@{'/user/developer/contests/' + ${contest.id} + '/tasks/attach'}" method="post">
+                                <input type="hidden" name="taskId" th:value="${t.id}">
+                                <button class="button" type="submit" th:disabled="${t.testingStatus != T(trik.testsys.webapp.backoffice.data.entity.impl.Task.TestingStatus).PASSED}">Прикрепить</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
     </div>
 </main>
 

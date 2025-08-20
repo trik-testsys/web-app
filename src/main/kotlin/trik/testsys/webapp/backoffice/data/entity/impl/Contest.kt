@@ -42,4 +42,12 @@ class Contest() :
 
     @OneToMany(mappedBy = "contest", orphanRemoval = true)
     var solutions: MutableSet<Solution> = mutableSetOf()
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "ts_contest_tasks",
+        joinColumns = [JoinColumn(name = "contest_id")],
+        inverseJoinColumns = [JoinColumn(name = "tasks_id")]
+    )
+    var tasks: MutableSet<Task> = mutableSetOf()
 }

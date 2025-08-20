@@ -1,7 +1,10 @@
 package trik.testsys.webapp.backoffice.data.entity.impl
 
 import jakarta.persistence.Column
+import jakarta.persistence.Converter
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.FetchType
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.JoinTable
@@ -12,6 +15,8 @@ import jakarta.persistence.Table
 import jakarta.persistence.Transient
 import trik.testsys.webapp.core.data.entity.AbstractEntity
 import trik.testsys.webapp.core.data.entity.AbstractEntity.Companion.TABLE_PREFIX
+import trik.testsys.webapp.core.utils.enums.PersistableEnum
+import trik.testsys.webapp.core.utils.enums.converter.AbstractPersistableEnumConverter
 
 
 @Entity
@@ -44,6 +49,21 @@ class Task() : AbstractEntity() {
     val tests: Set<Solution>
         get() = solutions.filter { it.isTest }.toSet()
 
-    @Column(name = "has_passed_test", nullable = false)
-    var hasPassedTest: Boolean = false
+    @Enumerated(EnumType.STRING)
+    @Column(name = "testing_status", nullable = false)
+    var testingStatus: TestingStatus = TestingStatus.NOT_TESTED
+
+    enum class TestingStatus(override val dbKey: String) : PersistableEnum {
+
+        NOT_TESTED("NTR"),
+        TESTING("TST"),
+        PASSED("PSD"),
+        FAILED("FLD");
+
+        companion object {
+
+            @Converter(autoApply = true)
+            class EnumConverter : AbstractPersistableEnumConverter<TestingStatus>()
+        }
+    }
 }

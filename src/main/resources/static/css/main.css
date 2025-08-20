@@ -91,14 +91,15 @@ body {
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
-.button:hover {
+.button:hover:not(:disabled) {
     background-color: #e9ebef;
 }
 
 .button:disabled {
     background-color: var(--trik-grey);
-    color: var(--trik-blue);
+    color: #9aa3af;
     cursor: not-allowed;
+    box-shadow: none;
 }
 
 .accessToken {

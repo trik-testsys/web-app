@@ -10,9 +10,10 @@
 .pill { background: var(--color-muted); border-radius: 999px; padding: 6px 10px; font-size: 13px; }
 
 .btn, .button { appearance: none; border: 0; background: var(--color-muted); color: var(--color-text); padding: 10px 14px; border-radius: 10px; cursor: pointer; display: inline-block; text-decoration: none; }
-.btn:hover, .button:hover { background: #e9ebef; }
+.btn:hover:not(:disabled), .button:hover:not(:disabled) { background: #e9ebef; }
 .btn-primary, .button--primary { background: var(--color-primary); color: #fff; }
-.btn-primary:hover, .button--primary:hover { filter: brightness(0.95); }
+.btn-primary:hover:not(:disabled), .button--primary:hover:not(:disabled) { filter: brightness(0.95); }
+.btn:disabled, .button:disabled { background: #d1d5db; color: #9aa3af; cursor: not-allowed; filter: none; }
 
 .token { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; filter: blur(5px); transition: filter .25s ease; }
 .token:hover { filter: blur(0); }

@@ -15,6 +15,7 @@ import trik.testsys.webapp.backoffice.controller.AbstractUserController
 import trik.testsys.webapp.backoffice.data.entity.impl.Contest
 import trik.testsys.webapp.backoffice.data.entity.impl.Task
 import trik.testsys.webapp.backoffice.data.entity.impl.TaskFile
+import trik.testsys.webapp.backoffice.data.entity.impl.Solution
 import trik.testsys.webapp.backoffice.data.entity.impl.User
 import trik.testsys.webapp.backoffice.data.service.TaskService
 import trik.testsys.webapp.backoffice.data.service.TaskFileService
@@ -154,6 +155,17 @@ class DeveloperController(
         val attachedItems = attachedTaskFiles.map(::toTaskFileListItem)
         val availableItems = availableTaskFiles.map(::toTaskFileListItem)
 
+        val hasPolygon = task.taskFiles.any { it.type == TaskFile.TaskFileType.POLYGON }
+        val hasSolution = task.taskFiles.any { it.type == TaskFile.TaskFileType.SOLUTION }
+        val isUsedInAnyContest = contestService.findAll().any { c -> c.tasks.any { it.id == task.id } }
+
+        val lastTestStatus = when (task.testingStatus) {
+            Task.TestingStatus.NOT_TESTED -> "Не запускалось"
+            Task.TestingStatus.TESTING -> "В процессе"
+            Task.TestingStatus.PASSED -> "Пройдено"
+            Task.TestingStatus.FAILED -> "Не пройдено"
+        }
+
         model.apply {
             addHasActiveSession(session)
             addUser(developer)
@@ -161,6 +173,12 @@ class DeveloperController(
             addAttribute("task", task)
             addAttribute("attachedTaskFiles", attachedItems)
             addAttribute("availableTaskFiles", availableItems)
+            addAttribute("isTesting", task.testingStatus == Task.TestingStatus.TESTING)
+            addAttribute("testReady", hasPolygon && hasSolution)
+            addAttribute("numPolygons", task.taskFiles.count { it.type == TaskFile.TaskFileType.POLYGON })
+            addAttribute("numSolutions", task.taskFiles.count { it.type == TaskFile.TaskFileType.SOLUTION })
+            addAttribute("testStatus", lastTestStatus)
+            addAttribute("isUsedInAnyContest", isUsedInAnyContest)
         }
 
         return "developer/task"
@@ -238,7 +256,21 @@ class DeveloperController(
             return "redirect:/user/developer/tasks/$id"
         }
 
+        if (task.testingStatus == Task.TestingStatus.TESTING) {
+            redirectAttributes.addMessage("Нельзя изменять файлы во время тестирования.")
+            return "redirect:/user/developer/tasks/$id"
+        }
+
+        val usedInContest = contestService.findAll().any { c -> c.tasks.any { it.id == task.id } }
+        if (usedInContest) {
+            redirectAttributes.addMessage("Нельзя изменять файлы Задачи, прикреплённой к Туру.")
+            return "redirect:/user/developer/tasks/$id"
+        }
+
         val added = task.taskFiles.add(tf)
+        if (added && task.testingStatus == Task.TestingStatus.PASSED) {
+            task.testingStatus = Task.TestingStatus.NOT_TESTED
+        }
         taskService.save(task)
         if (added) {
             redirectAttributes.addMessage("Файл прикреплён к Задаче.")
@@ -272,7 +304,21 @@ class DeveloperController(
             return "redirect:/user/developer/tasks/$taskId"
         }
 
+        if (task.testingStatus == Task.TestingStatus.TESTING) {
+            redirectAttributes.addMessage("Нельзя изменять файлы во время тестирования.")
+            return "redirect:/user/developer/tasks/$taskId"
+        }
+
+        val usedInContest = contestService.findAll().any { c -> c.tasks.any { it.id == task.id } }
+        if (usedInContest) {
+            redirectAttributes.addMessage("Нельзя изменять файлы Задачи, прикреплённой к Туру.")
+            return "redirect:/user/developer/tasks/$taskId"
+        }
+
         val removed = task.taskFiles.removeIf { it.id == fileId }
+        if (removed && task.testingStatus == Task.TestingStatus.PASSED) {
+            task.testingStatus = Task.TestingStatus.NOT_TESTED
+        }
         taskService.save(task)
         if (removed) {
             redirectAttributes.addMessage("Файл откреплён от Задачи.")
@@ -305,6 +351,17 @@ class DeveloperController(
             return "redirect:/user/developer/tasks/$id"
         }
 
+        val usedInContest = contestService.findAll().any { c -> c.tasks.any { it.id == task.id } }
+        if (usedInContest) {
+            redirectAttributes.addMessage("Нельзя запускать тестирование для Задачи, прикреплённой к Туру.")
+            return "redirect:/user/developer/tasks/$id"
+        }
+
+        if (task.testingStatus == Task.TestingStatus.TESTING) {
+            redirectAttributes.addMessage("Задача уже тестируется.")
+            return "redirect:/user/developer/tasks/$id"
+        }
+
         val hasPolygon = task.taskFiles.any { it.type == TaskFile.TaskFileType.POLYGON }
         val hasSolution = task.taskFiles.any { it.type == TaskFile.TaskFileType.SOLUTION }
         if (!hasPolygon || !hasSolution) {
@@ -312,8 +369,10 @@ class DeveloperController(
             return "redirect:/user/developer/tasks/$id"
         }
 
-        // Placeholder: implement grader invocation here when Grader is available
-        redirectAttributes.addMessage("Тестирование запущено (эмуляция).")
+        // Placeholder: real integration with Grader should go here
+        task.testingStatus = Task.TestingStatus.TESTING
+        taskService.save(task)
+        redirectAttributes.addMessage("Тестирование запущено.")
         return "redirect:/user/developer/tasks/$id"
     }
 
@@ -804,9 +863,87 @@ class DeveloperController(
                     .filterNot { g -> contest.userGroups.any { it.id == g.id } }
                     .sortedBy { it.id }
             )
+            addAttribute("attachedTasks", contest.tasks.sortedBy { it.id })
+            addAttribute(
+                "availableTasks",
+                taskService.findAll().filter { it.developer?.id == developer.id }
+                    .filterNot { t -> contest.tasks.any { it.id == t.id } }
+                    .sortedBy { it.id }
+            )
         }
 
         return "developer/contest"
+    }
+
+    @PostMapping("/contests/{id}/tasks/attach")
+    fun attachTaskToContest(
+        @PathVariable id: Long,
+        @RequestParam("taskId") taskId: Long,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val contest = contestService.findById(id) ?: run {
+            redirectAttributes.addMessage("Тур не найден.")
+            return "redirect:/user/developer/contests"
+        }
+        if (contest.developer?.id != developer.id) {
+            redirectAttributes.addMessage("Доступно только владельцу.")
+            return "redirect:/user/developer/contests/$id"
+        }
+
+        val task = taskService.findById(taskId)
+        if (task == null || task.developer?.id != developer.id) {
+            redirectAttributes.addMessage("Задача не найдена или недоступна.")
+            return "redirect:/user/developer/contests/$id"
+        }
+
+        if (task.testingStatus != Task.TestingStatus.PASSED) {
+            redirectAttributes.addMessage("Можно прикреплять только Задачи со статусом тестирования Пройдено.")
+            return "redirect:/user/developer/contests/$id"
+        }
+
+        val added = contest.tasks.add(task)
+        contestService.save(contest)
+        if (added) redirectAttributes.addMessage("Задача прикреплена к Туру.") else redirectAttributes.addMessage("Задача уже была прикреплена.")
+        return "redirect:/user/developer/contests/$id"
+    }
+
+    @PostMapping("/contests/{contestId}/tasks/{taskId}/detach")
+    fun detachTaskFromContest(
+        @PathVariable contestId: Long,
+        @PathVariable taskId: Long,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val contest = contestService.findById(contestId) ?: run {
+            redirectAttributes.addMessage("Тур не найден.")
+            return "redirect:/user/developer/contests"
+        }
+        if (contest.developer?.id != developer.id) {
+            redirectAttributes.addMessage("Доступно только владельцу.")
+            return "redirect:/user/developer/contests/$contestId"
+        }
+
+        val removed = contest.tasks.removeIf { it.id == taskId }
+        contestService.save(contest)
+        if (removed) redirectAttributes.addMessage("Задача откреплена от Тура.") else redirectAttributes.addMessage("Задача не была прикреплена.")
+        return "redirect:/user/developer/contests/$contestId"
     }
 
     @PostMapping("/contests/{id}/rename")

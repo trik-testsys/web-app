@@ -22,6 +22,7 @@
                         <th>ID</th>
                         <th>Название</th>
                         <th>Описание</th>
+                        <th>Статус тестирования</th>
                         <th>Дата создания</th>
                     </tr>
                 </thead>
@@ -32,6 +33,11 @@
                             <a th:href="@{'/user/developer/tasks/' + ${t.id}}" th:text="${t.name}"></a>
                         </td>
                         <td th:text="${t.info ?: '—'}"></td>
+                        <td th:text="${
+                            t.testingStatus == T(trik.testsys.webapp.backoffice.data.entity.impl.Task.TestingStatus).PASSED ? 'Пройден' : (
+                            t.testingStatus == T(trik.testsys.webapp.backoffice.data.entity.impl.Task.TestingStatus).FAILED ? 'Не пройден' : (
+                            t.testingStatus == T(trik.testsys.webapp.backoffice.data.entity.impl.Task.TestingStatus).TESTING ? 'В процессе' : 'Не запускался')
+                        )}"></td>
                         <td th:text="${t.createdAt != null ? #temporals.format(t.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                     </tr>
                 </tbody>
