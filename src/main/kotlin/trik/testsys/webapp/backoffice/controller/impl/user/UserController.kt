@@ -108,6 +108,10 @@ class UserController(
             redirectAttributes.addMessage("Вы не состоите в этой группе.")
             return "redirect:/user"
         }
+        if (group.owner?.id == user.id) {
+            redirectAttributes.addMessage("Владелец не может покинуть свою группу.")
+            return "redirect:/user"
+        }
         val ok = userGroupService.removeMember(group, user)
         if (ok) redirectAttributes.addMessage("Вы покинули группу.") else redirectAttributes.addMessage("Не удалось покинуть группу.")
         return "redirect:/user"

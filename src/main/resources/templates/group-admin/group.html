@@ -23,8 +23,14 @@
             <hr class="separator">
             <div style="margin: 12px 0; display:flex; gap:8px;">
                 <form th:action="@{'/user/group-admin/groups/' + ${group.id} + '/add-member'}" method="post" style="display:flex; gap:8px; align-items:center;">
-                    <input type="number" min="1" name="userId" placeholder="ID пользователя" style="width:160px; padding:8px 10px; border:1px solid #dde3ea; border-radius:8px;">
-                    <button type="submit" class="button button--primary">Добавить участника</button>
+                    <select name="userId" required style="min-width:260px; padding:8px 10px; border:1px solid #dde3ea; border-radius:8px;">
+                        <option value="" disabled selected>Выберите пользователя…</option>
+                        <option th:each="u : ${candidateUsers}"
+                                th:value="${u.id}"
+                                th:text="${#strings.isEmpty(u.name) ? ('User #' + u.id) : (u.id + ' — ' + u.name)}">
+                        </option>
+                    </select>
+                    <button type="submit" class="button button--primary" th:disabled="${#lists.isEmpty(candidateUsers)}">Добавить участника</button>
                 </form>
             </div>
             <hr class="separator">
@@ -50,10 +56,11 @@
                                 </ul>
                             </td>
                             <td style="padding:8px;">
-                                <form th:action="@{'/user/group-admin/groups/' + ${group.id} + '/remove-member'}" method="post">
+                                <form th:if="${m.id != group.owner?.id}" th:action="@{'/user/group-admin/groups/' + ${group.id} + '/remove-member'}" method="post" onsubmit="return confirm('Удалить пользователя из группы?');">
                                     <input type="hidden" name="userId" th:value="${m.id}">
                                     <button type="submit" class="button button--danger">Удалить</button>
                                 </form>
+                                <span th:if="${m.id == group.owner?.id}" style="color: var(--color-text-muted);">Владелец</span>
                             </td>
                         </tr>
                     </tbody>

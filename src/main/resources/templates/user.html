@@ -59,9 +59,10 @@
                             <td style="padding:8px;" th:text="${g.name ?: 'Без названия'}"></td>
                             <td style="padding:8px;" th:text="${g.info ?: '—'}"></td>
                             <td style="padding:8px;">
-                                <form th:action="@{'/user/groups/' + ${g.id} + '/leave'}" method="post" onsubmit="return confirm('Вы уверены, что хотите покинуть эту группу?');">
+                                <form th:if="${g.owner?.id != user.id}" th:action="@{'/user/groups/' + ${g.id} + '/leave'}" method="post" onsubmit="return confirm('Вы уверены, что хотите покинуть эту группу?');">
                                     <button type="submit" class="button button--danger">Покинуть</button>
                                 </form>
+                                <span th:if="${g.owner?.id == user.id}" style="color: var(--color-text-muted);">Владелец</span>
                             </td>
                         </tr>
                     </tbody>
