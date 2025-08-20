@@ -54,24 +54,23 @@ server:
       enabled: false
     include-message: always
 
-path:
-  taskFiles:
-    solutions: "${PWD}/data/taskFiles/solutions/"
-    polygons: "${PWD}/data/taskFiles/polygons/"
-    exercises: "${PWD}/data/taskFiles/exercises/"
-    conditions: "${PWD}/data/taskFiles/conditions/"
-  files:
-    solutions: "${PWD}/data/files/solutions/"
-    verdicts: "${PWD}/data/files/verdicts/"
-    recordings: "${PWD}/data/files/recordings/"
-    results: "${PWD}/data/files/results/"
-    main: "${PWD}/data/logos/main.png"
-
-trik-studio-version: "${TRIK_STUDIO_VERSION:latest}"
-grading-node-addresses: "${GRADING_NODE_ADDRESSES:}"
-
 trik:
   testsys:
     superuser:
       name: "${SUPER_USER_NAME:Default Super User}"
       accessToken: "${SUPER_USER_AT:}"
+    grading-node:
+      container-name: "${GN_CONTAINER_NAME:testsystrik/trik-studio}"
+      version: "${GN_VERSION:latest}"
+      addresses: "${GN_ADDRESSES:}"
+    paths:
+      taskFiles:
+        solutions: "${PWD}/data/taskFiles/solutions/"
+        polygons: "${PWD}/data/taskFiles/polygons/"
+        exercises: "${PWD}/data/taskFiles/exercises/"
+        conditions: "${PWD}/data/taskFiles/conditions/"
+      files:
+        solutions: "${PWD}/data/files/solutions/"
+        verdicts: "${PWD}/data/files/verdicts/"
+        recordings: "${PWD}/data/files/recordings/"
+        results: "${PWD}/data/files/results/"
