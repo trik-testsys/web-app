@@ -13,6 +13,7 @@ import trik.testsys.webapp.backoffice.controller.AbstractUserController
 import trik.testsys.webapp.backoffice.data.entity.impl.Contest
 import trik.testsys.webapp.backoffice.data.entity.impl.User
 import trik.testsys.webapp.backoffice.data.service.ContestService
+import trik.testsys.webapp.backoffice.data.service.UserGroupService
 import trik.testsys.webapp.backoffice.utils.addHasActiveSession
 import trik.testsys.webapp.backoffice.utils.addMessage
 import trik.testsys.webapp.backoffice.utils.addSections
@@ -22,6 +23,7 @@ import trik.testsys.webapp.backoffice.utils.addUser
 @RequestMapping("/user/developer")
 class DeveloperController(
     private val contestService: ContestService,
+    private val userGroupService: UserGroupService,
 ) : AbstractUserController() {
 
     @GetMapping("/contests/{id}")
@@ -50,6 +52,12 @@ class DeveloperController(
             addSections(menuBuilder.buildFor(developer))
             addAttribute("contest", contest)
             addAttribute("isOwner", contest.developer?.id == developer.id)
+            addAttribute(
+                "availableUserGroups",
+                userGroupService.findByMember(developer)
+                    .filterNot { g -> contest.userGroups.any { it.id == g.id } }
+                    .sortedBy { it.id }
+            )
         }
 
         return "developer/contest"
@@ -268,5 +276,51 @@ class DeveloperController(
         contestService.save(contest)
         redirectAttributes.addMessage("Тур создан (id=${contest.id}).")
         return "redirect:/user/developer/contests"
+    }
+
+    @PostMapping("/contests/{id}/groups/add")
+    fun addContestGroup(
+        @PathVariable id: Long,
+        @RequestParam("groupId") groupId: Long,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val contest = contestService.findById(id) ?: run {
+            redirectAttributes.addMessage("Тур не найден.")
+            return "redirect:/user/developer/contests"
+        }
+        if (contest.developer?.id != developer.id) {
+            redirectAttributes.addMessage("Изменение доступов доступно только владельцу.")
+            return "redirect:/user/developer/contests/$id"
+        }
+
+        val group = userGroupService.findById(groupId)
+        if (group == null) {
+            redirectAttributes.addMessage("Группа не найдена.")
+            return "redirect:/user/developer/contests/$id"
+        }
+
+        val memberGroups = userGroupService.findByMember(developer)
+        if (memberGroups.none { it.id == group.id }) {
+            redirectAttributes.addMessage("Можно добавлять только группы, в которых вы состоите.")
+            return "redirect:/user/developer/contests/$id"
+        }
+
+        val added = contest.userGroups.add(group)
+        contestService.save(contest)
+        if (added) {
+            redirectAttributes.addMessage("Группа добавлена к Турy.")
+        } else {
+            redirectAttributes.addMessage("Группа уже была добавлена.")
+        }
+        return "redirect:/user/developer/contests/$id"
     }
 }

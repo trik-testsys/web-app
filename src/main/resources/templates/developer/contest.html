@@ -67,12 +67,23 @@
         </div>
     </section>
     <section class="card">
-        <h2 class="card-title">Доступ для групп</h2>
+        <h2 class="card-title">Доступ для Групп Пользователей</h2>
         <div class="card-body">
             <div th:if="${#lists.isEmpty(contest.userGroups)}" style="color: var(--color-text-muted);">Доступно только Вам</div>
             <ul th:if="${!#lists.isEmpty(contest.userGroups)}" class="pill-list">
-                <li class="pill" th:each="g : ${contest.userGroups}" th:text="${(g.name ?: 'Без названия') + ' (#' + g.id + ')'}"></li>
+                <li class="pill" th:each="g : ${contest.userGroups}">
+                    <span th:text="${(g.name ?: 'Без названия') + ' (#' + g.id + ')'}"></span>
+                </li>
             </ul>
+
+            <div th:if="${isOwner}" style="margin-top:12px; display:flex; gap:8px; align-items:center;">
+                <form th:action="@{'/user/developer/contests/' + ${contest.id} + '/groups/add'}" method="post" style="display:flex; gap:8px; align-items:center;" onsubmit="return confirm('Данное изменение нельзя будет отменить в будущем');">
+                    <select name="groupId" required style="min-width:240px; padding:6px; border:1px solid #dde3ea; border-radius:8px;">
+                        <option th:each="g : ${availableUserGroups}" th:value="${g.id}" th:text="${(g.name ?: 'Без названия') + ' (#' + g.id + ')'}"></option>
+                    </select>
+                    <button class="button" type="submit">Добавить группу</button>
+                </form>
+            </div>
         </div>
     </section>
     </div>

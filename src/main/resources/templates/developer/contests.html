@@ -54,7 +54,7 @@
     </section>
 
     <section class="card">
-        <h2 class="card-title">Доступные Туры (по группам)</h2>
+        <h2 class="card-title">Доступные Туры</h2>
         <div class="card-body">
             <div th:if="${#lists.isEmpty(sharedContests)}" style="color: var(--color-text-muted);">Пока нет доступных Туров.</div>
             <table th:if="${!#lists.isEmpty(sharedContests)}" class="table">
