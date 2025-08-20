@@ -37,17 +37,17 @@
                         <tr>
                             <th style="text-align:left; padding:8px;">ID</th>
                             <th style="text-align:left; padding:8px;">Псевдоним</th>
-                            <th style="text-align:left; padding:8px;">Роли</th>
+                            <th style="text-align:left; padding:8px;">Последний вход</th>
+                            <th style="text-align:left; padding:8px;">Токен доступа</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr th:each="m : ${group.members}">
                             <td style="padding:8px;" th:text="${m.id}"></td>
                             <td style="padding:8px;" th:text="${m.name}"></td>
+                            <td style="padding:8px;" th:text="${m.lastLoginAt != null ? #temporals.format(m.lastLoginAt, 'dd.MM.yyyy HH:mm:ss') : '—'}"></td>
                             <td style="padding:8px;">
-                                <ul class="pill-list">
-                                    <li class="pill" th:each="p : ${memberPrivilegesRuByUserId[m.id]}" th:text="${p}"></li>
-                                </ul>
+                                <span class="token" th:text="${m.accessToken != null ? m.accessToken.value : '—'}"></span>
                             </td>
                         </tr>
                     </tbody>
@@ -64,7 +64,7 @@
                             <th>Название</th>
                             <th>Начало</th>
                             <th>Окончание</th>
-                            <th>Длительность</th>
+                            <th>Время на прохождение</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -88,7 +88,7 @@
                             <th>Название</th>
                             <th>Начало</th>
                             <th>Окончание</th>
-                            <th>Длительность</th>
+                            <th>Время на прохождение</th>
                             <th>Действия</th>
                         </tr>
                     </thead>

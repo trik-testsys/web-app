@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
 <head>
-    <th:block th:include="fragments/layout :: head('Участники')"></th:block>
+    <th:block th:include="fragments/layout :: head('Результаты')"></th:block>
 </head>
 <body>
 <header th:replace="fragments/layout :: header(userName=${user.name})"></header>
@@ -9,7 +9,7 @@
 
 <main class="app-main">
     <section class="card">
-        <h2 class="card-title">Участники</h2>
+        <h2 class="card-title">Результаты</h2>
         <div class="card-body">
             <p style="color: var(--color-text-muted); margin-top:0;">
                 Здесь вы можете выгрузить сводную таблицу результатов Участников всех Организаторов, за которыми вы наблюдаете.

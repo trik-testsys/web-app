@@ -38,7 +38,7 @@
                         <input id="contest-ends" name="endsAt" type="datetime-local" th:value="${contest.endsAt != null ? #temporals.format(contest.endsAt, 'yyyy-MM-dd''T''HH:mm') : ''}" disabled style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
                     </label>
                     <label>
-                        <div style="margin-bottom:4px;">Длительность (мин)</div>
+                        <div style="margin-bottom:4px;">Время на прохождение (мин)</div>
                         <input id="contest-duration" name="duration" type="number" min="1" step="1" th:value="${contest.duration}" disabled style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
                         <div class="field-note">Необязательно. Если не указано, используется безлимитное время в рамках дат.</div>
                     </label>
@@ -61,7 +61,7 @@
                 <dd th:text="${contest.startsAt != null ? #temporals.format(contest.startsAt, 'dd.MM.yyyy HH:mm') : '—'}"></dd>
                 <dt>Окончание</dt>
                 <dd th:text="${contest.endsAt != null ? #temporals.format(contest.endsAt, 'dd.MM.yyyy HH:mm') : '—'}"></dd>
-                <dt>Длительность</dt>
+                <dt>Время на прохождение</dt>
                 <dd th:text="${contest.duration != null ? contest.duration + ' мин' : '—'}"></dd>
             </dl>
         </div>
@@ -77,7 +77,7 @@
             </ul>
 
             <div th:if="${isOwner}" style="margin-top:12px; display:flex; gap:8px; align-items:center;">
-                <form th:action="@{'/user/developer/contests/' + ${contest.id} + '/groups/add'}" method="post" style="display:flex; gap:8px; align-items:center;" onsubmit="return confirm('Данное изменение нельзя будет отменить в будущем');">
+                <form th:action="@{'/user/developer/contests/' + ${contest.id} + '/groups/add'}" method="post" style="display:flex; gap:8px; align-items:center;" onsubmit="return confirm('Данное действие нельзя будет отменить в будущем');">
                     <select name="groupId" required style="min-width:240px; padding:6px; border:1px solid #dde3ea; border-radius:8px;">
                         <option th:each="g : ${availableUserGroups}" th:value="${g.id}" th:text="${(g.name ?: 'Без названия') + ' (#' + g.id + ')'}"></option>
                     </select>

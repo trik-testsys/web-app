@@ -143,7 +143,7 @@ class DeveloperController(
         }
 
         if (duration != null && duration <= 0) {
-            redirectAttributes.addMessage("Длительность должна быть положительной.")
+            redirectAttributes.addMessage("Время на прохождение должно быть положительной.")
             return "redirect:/user/developer/contests/$id"
         }
 
@@ -247,7 +247,7 @@ class DeveloperController(
         }
 
         if (duration != null && duration <= 0) {
-            redirectAttributes.addMessage("Длительность должна быть положительной.")
+            redirectAttributes.addMessage("Время на прохождение должно быть положительной.")
             return "redirect:/user/developer/contests"
         }
 
