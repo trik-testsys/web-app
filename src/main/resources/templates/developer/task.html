@@ -31,6 +31,26 @@
     </section>
 
     <section class="card">
+        <h2 class="card-title">Тестирование</h2>
+        <div class="card-body">
+            <div style="margin-bottom:10px;">
+                <strong>Готовность к тестированию:</strong>
+                <span th:text="${testReady ? 'Готова' : 'Не готова'}"></span>
+                <span class="field-note">(Полигоны: <span th:text="${numPolygons}"></span>; Решения: <span th:text="${numSolutions}"></span>)</span>
+            </div>
+            <div style="margin-bottom:10px;">
+                <strong>Статус тестирования:</strong>
+                <span th:text="${testStatus}"></span>
+            </div>
+            <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/test'}" method="post" onsubmit="return confirm('Отправить Задачу на тестирование?');">
+                <button class="button button--primary" type="submit" th:disabled="${!testReady || isTesting || isUsedInAnyContest}">Запустить тестирование</button>
+            </form>
+            <div class="field-note" style="margin-top:8px;">Для тестирования требуется минимум один Полигон и одно Эталонное Решение.</div>
+            <div class="field-note" style="margin-top:8px;">Для прикрепления к Туру требуется минимум один Полигон, одно Эталонное Решение и одно Упражнение.</div>
+        </div>
+    </section>
+
+    <section class="card">
         <h2 class="card-title">Прикрепленные Файлы</h2>
         <div class="card-body">
             <div th:if="${#lists.isEmpty(attachedTaskFiles)}" style="color: var(--color-text-muted);">Пока нет прикреплённых файлов.</div>
@@ -90,25 +110,6 @@
                     </tr>
                 </tbody>
             </table>
-        </div>
-    </section>
-
-    <section class="card">
-        <h2 class="card-title">Тестирование</h2>
-        <div class="card-body">
-            <div style="margin-bottom:10px;">
-                <strong>Готовность к тестированию:</strong>
-                <span th:text="${testReady ? 'Готова' : 'Не готова'}"></span>
-                <span class="field-note">(Полигоны: <span th:text="${numPolygons}"></span>; Решения: <span th:text="${numSolutions}"></span>)</span>
-            </div>
-            <div style="margin-bottom:10px;">
-                <strong>Статус тестирования:</strong>
-                <span th:text="${testStatus}"></span>
-            </div>
-            <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/test'}" method="post" onsubmit="return confirm('Отправить Задачу на тест?');">
-                <button class="button button--primary" type="submit" th:disabled="${!testReady || isTesting || isUsedInAnyContest}">Запустить тестирование</button>
-            </form>
-            <div class="field-note" style="margin-top:8px;">Для тестирования требуется минимум один Полигон и одно Эталонное Решение.</div>
         </div>
     </section>
 </main>
