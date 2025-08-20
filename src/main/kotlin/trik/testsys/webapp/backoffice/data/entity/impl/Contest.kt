@@ -39,4 +39,7 @@ class Contest() :
         inverseJoinColumns = [JoinColumn(name = "userGroups_id")]
     )
     override var userGroups: MutableSet<UserGroup> = mutableSetOf()
+
+    @OneToMany(mappedBy = "contest", orphanRemoval = true)
+    var solutions: MutableSet<Solution> = mutableSetOf()
 }

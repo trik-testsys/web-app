@@ -13,8 +13,10 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import trik.testsys.webapp.backoffice.controller.AbstractUserController
 import trik.testsys.webapp.backoffice.data.entity.impl.Contest
+import trik.testsys.webapp.backoffice.data.entity.impl.Task
 import trik.testsys.webapp.backoffice.data.entity.impl.TaskFile
 import trik.testsys.webapp.backoffice.data.entity.impl.User
+import trik.testsys.webapp.backoffice.data.service.TaskService
 import trik.testsys.webapp.backoffice.data.service.TaskFileService
 import trik.testsys.webapp.backoffice.service.FileManager
 import trik.testsys.webapp.backoffice.data.service.ContestService
@@ -30,6 +32,7 @@ class DeveloperController(
     private val contestService: ContestService,
     private val userGroupService: UserGroupService,
 //    private val taskTemplateService: TaskTemplateService,
+    private val taskService: TaskService,
     private val taskFileService: TaskFileService,
     private val fileManager: FileManager,
 ) : AbstractUserController() {
@@ -44,13 +47,274 @@ class DeveloperController(
             return "redirect:/user"
         }
 
+        val createdTasks = taskService.findAll().filter { it.developer?.id == developer.id }.sortedBy { it.id }
+
+        model.apply {
+            addHasActiveSession(session)
+            addUser(developer)
+            addSections(menuBuilder.buildFor(developer))
+            addAttribute("tasks", createdTasks)
+        }
+
+        return "developer/tasks"
+    }
+
+    @GetMapping("/tasks/create")
+    fun taskCreateForm(model: Model, session: HttpSession, redirectAttributes: RedirectAttributes): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
         model.apply {
             addHasActiveSession(session)
             addUser(developer)
             addSections(menuBuilder.buildFor(developer))
         }
 
-        return "developer/tasks"
+        return "developer/task-create"
+    }
+
+    @PostMapping("/tasks/create")
+    fun createTask(
+        @RequestParam name: String,
+        @RequestParam(required = false) info: String?,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val trimmedName = name.trim()
+        if (trimmedName.isEmpty()) {
+            redirectAttributes.addMessage("Название не может быть пустым.")
+            return "redirect:/user/developer/tasks"
+        }
+
+        val task = Task().also {
+            it.name = trimmedName
+            it.developer = developer
+            it.info = info?.takeIf { s -> s.isNotBlank() }
+        }
+        taskService.save(task)
+        redirectAttributes.addMessage("Задача создана (id=${'$'}{task.id}).")
+        return "redirect:/user/developer/tasks"
+    }
+
+    @GetMapping("/tasks/{id}")
+    fun viewTask(
+        @PathVariable id: Long,
+        model: Model,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val task = taskService.findById(id) ?: run {
+            redirectAttributes.addMessage("Задача не найдена.")
+            return "redirect:/user/developer/tasks"
+        }
+        if (task.developer?.id != developer.id) {
+            redirectAttributes.addMessage("У вас нет доступа к этой Задаче.")
+            return "redirect:/user/developer/tasks"
+        }
+
+        val attachedTaskFiles = task.taskFiles.sortedBy { it.id }
+        val ownedTaskFiles = taskFileService.findByDeveloper(developer).sortedBy { it.id }
+        val availableTaskFiles = ownedTaskFiles.filterNot { otf -> attachedTaskFiles.any { it.id == otf.id } }
+
+        fun toTaskFileListItem(tf: TaskFile) = TaskFileListItem(
+            id = tf.id!!,
+            name = tf.name,
+            info = tf.info,
+            createdAt = tf.createdAt,
+            localizedType = when (tf.type) {
+                TaskFile.TaskFileType.POLYGON -> "Полигон"
+                TaskFile.TaskFileType.EXERCISE -> "Упражнение"
+                TaskFile.TaskFileType.SOLUTION -> "Эталонное Решение"
+                TaskFile.TaskFileType.CONDITION -> "Условие"
+                else -> tf.type?.name ?: "—"
+            }
+        )
+
+        val attachedItems = attachedTaskFiles.map(::toTaskFileListItem)
+        val availableItems = availableTaskFiles.map(::toTaskFileListItem)
+
+        model.apply {
+            addHasActiveSession(session)
+            addUser(developer)
+            addSections(menuBuilder.buildFor(developer))
+            addAttribute("task", task)
+            addAttribute("attachedTaskFiles", attachedItems)
+            addAttribute("availableTaskFiles", availableItems)
+        }
+
+        return "developer/task"
+    }
+
+    @PostMapping("/tasks/{id}/update")
+    fun updateTask(
+        @PathVariable id: Long,
+        @RequestParam name: String,
+        @RequestParam(required = false) info: String?,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val task = taskService.findById(id) ?: run {
+            redirectAttributes.addMessage("Задача не найдена.")
+            return "redirect:/user/developer/tasks"
+        }
+        if (task.developer?.id != developer.id) {
+            redirectAttributes.addMessage("Редактирование доступно только владельцу.")
+            return "redirect:/user/developer/tasks/$id"
+        }
+
+        val trimmedName = name.trim()
+        if (trimmedName.isEmpty()) {
+            redirectAttributes.addMessage("Название не может быть пустым.")
+            return "redirect:/user/developer/tasks/$id"
+        }
+
+        task.name = trimmedName
+        task.info = info?.takeIf { it.isNotBlank() }
+        taskService.save(task)
+        redirectAttributes.addMessage("Данные Задачи обновлены.")
+        return "redirect:/user/developer/tasks/$id"
+    }
+
+    @PostMapping("/tasks/{id}/files/attach")
+    fun attachTaskFile(
+        @PathVariable id: Long,
+        @RequestParam("taskFileId") taskFileId: Long,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val task = taskService.findById(id) ?: run {
+            redirectAttributes.addMessage("Задача не найдена.")
+            return "redirect:/user/developer/tasks"
+        }
+        if (task.developer?.id != developer.id) {
+            redirectAttributes.addMessage("Изменение доступов доступно только владельцу.")
+            return "redirect:/user/developer/tasks/$id"
+        }
+
+        val tf = taskFileService.findById(taskFileId)
+        if (tf == null) {
+            redirectAttributes.addMessage("Файл не найден.")
+            return "redirect:/user/developer/tasks/$id"
+        }
+        if (tf.developer?.id != developer.id) {
+            redirectAttributes.addMessage("Можно прикреплять только свои файлы.")
+            return "redirect:/user/developer/tasks/$id"
+        }
+
+        val added = task.taskFiles.add(tf)
+        taskService.save(task)
+        if (added) {
+            redirectAttributes.addMessage("Файл прикреплён к Задаче.")
+        } else {
+            redirectAttributes.addMessage("Файл уже был прикреплён.")
+        }
+        return "redirect:/user/developer/tasks/$id"
+    }
+
+    @PostMapping("/tasks/{taskId}/files/{fileId}/detach")
+    fun detachTaskFile(
+        @PathVariable taskId: Long,
+        @PathVariable fileId: Long,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val task = taskService.findById(taskId) ?: run {
+            redirectAttributes.addMessage("Задача не найдена.")
+            return "redirect:/user/developer/tasks"
+        }
+        if (task.developer?.id != developer.id) {
+            redirectAttributes.addMessage("Изменение доступов доступно только владельцу.")
+            return "redirect:/user/developer/tasks/$taskId"
+        }
+
+        val removed = task.taskFiles.removeIf { it.id == fileId }
+        taskService.save(task)
+        if (removed) {
+            redirectAttributes.addMessage("Файл откреплён от Задачи.")
+        } else {
+            redirectAttributes.addMessage("Файл не был прикреплён.")
+        }
+        return "redirect:/user/developer/tasks/$taskId"
+    }
+
+    @PostMapping("/tasks/{id}/test")
+    fun testTask(
+        @PathVariable id: Long,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val task = taskService.findById(id) ?: run {
+            redirectAttributes.addMessage("Задача не найдена.")
+            return "redirect:/user/developer/tasks"
+        }
+        if (task.developer?.id != developer.id) {
+            redirectAttributes.addMessage("Доступно только владельцу.")
+            return "redirect:/user/developer/tasks/$id"
+        }
+
+        val hasPolygon = task.taskFiles.any { it.type == TaskFile.TaskFileType.POLYGON }
+        val hasSolution = task.taskFiles.any { it.type == TaskFile.TaskFileType.SOLUTION }
+        if (!hasPolygon || !hasSolution) {
+            redirectAttributes.addMessage("Для тестирования требуется минимум один Файл типа Полигон и один Файл типа Эталонное Решение.")
+            return "redirect:/user/developer/tasks/$id"
+        }
+
+        // Placeholder: implement grader invocation here when Grader is available
+        redirectAttributes.addMessage("Тестирование запущено (эмуляция).")
+        return "redirect:/user/developer/tasks/$id"
     }
 
     @GetMapping("/task-templates")

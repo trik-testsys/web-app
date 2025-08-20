@@ -83,6 +83,9 @@ class User() : AbstractEntity() {
     @OneToMany(mappedBy = "developer", orphanRemoval = true)
     var taskFiles: MutableSet<TaskFile> = mutableSetOf()
 
+    @OneToMany(mappedBy = "createdBy", orphanRemoval = true)
+    var solutions: MutableSet<Solution> = mutableSetOf()
+
     @Suppress("unused")
     enum class Privilege(override val dbKey: String) : PersistableEnum {
 

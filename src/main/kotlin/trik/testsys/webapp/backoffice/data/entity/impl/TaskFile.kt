@@ -7,6 +7,7 @@ import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.FetchType
 import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToMany
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import jakarta.persistence.Transient
@@ -37,6 +38,9 @@ class TaskFile() : AbstractEntity() {
     @get:Transient
     val fileName: String
         get() = "$id-$fileVersion${type?.extension()}"
+
+    @ManyToMany(mappedBy = "taskFiles")
+    var tasks: MutableSet<Task> = mutableSetOf()
 
 //    @ManyToMany(mappedBy = "taskFiles")
 //    var taskTemplates: MutableSet<TaskTemplate> = mutableSetOf()
