@@ -18,25 +18,12 @@
 
 <main class="app-main">
     <section class="card">
-        <h2 class="card-title">Создать пользователя</h2>
+        <h2 class="card-title">Пользователи</h2>
         <div class="card-body">
-            <form class="form form-inline" th:action="@{/user/superuser/users/create}" method="post">
-                <label>Имя
-                    <input type="text" name="name" placeholder="Псевдоним" required/>
-                </label>
-                <label>Роли
-                    <select name="privileges" multiple size="7">
-                        <option th:each="opt : ${privilegeOptions}" th:value="${opt.first}" th:text="${opt.second}"></option>
-                    </select>
-                </label>
-                <button type="submit" class="btn">Создать</button>
-            </form>
-        </div>
-    </section>
-
-    <section class="card">
-        <h2 class="card-title">Все пользователи</h2>
-        <div class="card-body">
+            <div style="margin-bottom:10px;">
+                <a class="button" th:href="@{/user/superuser/users/create}">Создать пользователя</a>
+            </div>
+            <hr class="separator">
             <div class="alert" th:if="${message}" th:text="${message}"></div>
             <table class="table">
                 <thead>

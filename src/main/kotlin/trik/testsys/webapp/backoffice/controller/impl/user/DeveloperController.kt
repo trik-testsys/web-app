@@ -91,6 +91,78 @@ class DeveloperController(
         return "redirect:/user/developer/contests/$id"
     }
 
+    @PostMapping("/contests/{id}/update")
+    fun update(
+        @PathVariable id: Long,
+        @RequestParam name: String,
+        @RequestParam(required = false) info: String?,
+        @RequestParam startsAt: String,
+        @RequestParam(required = false) endsAt: String?,
+        @RequestParam(required = false) duration: Long?,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val contest = contestService.findById(id) ?: run {
+            redirectAttributes.addMessage("Тур не найден.")
+            return "redirect:/user/developer/contests"
+        }
+        if (contest.developer?.id != developer.id) {
+            redirectAttributes.addMessage("Редактирование доступно только владельцу.")
+            return "redirect:/user/developer/contests/$id"
+        }
+
+        val trimmedName = name.trim()
+        if (trimmedName.isEmpty()) {
+            redirectAttributes.addMessage("Название не может быть пустым.")
+            return "redirect:/user/developer/contests/$id"
+        }
+
+        if (duration != null && duration <= 0) {
+            redirectAttributes.addMessage("Длительность должна быть положительной.")
+            return "redirect:/user/developer/contests/$id"
+        }
+
+        val startsInstant = try {
+            val ldt = java.time.LocalDateTime.parse(startsAt)
+            ldt.atZone(java.time.ZoneId.systemDefault()).toInstant()
+        } catch (e: Exception) {
+            redirectAttributes.addMessage("Некорректная дата начала. Формат: yyyy-MM-dd'T'HH:mm")
+            return "redirect:/user/developer/contests/$id"
+        }
+
+        val endsInstant = if (!endsAt.isNullOrBlank()) {
+            try {
+                val ldt = java.time.LocalDateTime.parse(endsAt)
+                ldt.atZone(java.time.ZoneId.systemDefault()).toInstant()
+            } catch (e: Exception) {
+                redirectAttributes.addMessage("Некорректная дата окончания. Формат: yyyy-MM-dd'T'HH:mm")
+                return "redirect:/user/developer/contests/$id"
+            }
+        } else null
+
+        if (endsInstant != null && endsInstant.isBefore(startsInstant)) {
+            redirectAttributes.addMessage("Окончание не может быть раньше начала.")
+            return "redirect:/user/developer/contests/$id"
+        }
+
+        contest.name = trimmedName
+        contest.info = info?.takeIf { it.isNotBlank() }
+        contest.startsAt = startsInstant
+        contest.endsAt = endsInstant
+        contest.duration = duration
+        contestService.save(contest)
+        redirectAttributes.addMessage("Данные Тура обновлены.")
+        return "redirect:/user/developer/contests/$id"
+    }
+
     @GetMapping("/contests/create")
     fun createForm(model: Model, session: HttpSession, redirectAttributes: RedirectAttributes): String {
         val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"

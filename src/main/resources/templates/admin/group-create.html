@@ -13,7 +13,7 @@
         <div class="card-body">
             <form th:action="@{/user/admin/groups/create}" method="post" style="display:grid; gap:12px; max-width:560px;">
                 <label>
-                    <div style="margin-bottom:4px;">Название</div>
+                    <div style="margin-bottom:4px;">Название<span style="color: var(--trik-red); margin-left: 4px;">*</span></div>
                     <input name="name" type="text" placeholder="Введите название" required style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
                 </label>
                 <label>

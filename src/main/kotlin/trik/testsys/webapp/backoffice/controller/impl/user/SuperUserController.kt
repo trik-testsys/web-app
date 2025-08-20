@@ -62,6 +62,28 @@ class SuperUserController(
         return "superuser/users"
     }
 
+    @GetMapping("/users/create")
+    fun createUserForm(model: Model, session: HttpSession, redirectAttributes: RedirectAttributes): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val currentUser = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!currentUser.privileges.contains(User.Privilege.SUPER_USER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val sections = menuBuilder.buildFor(currentUser)
+        val privilegeOptions = PrivilegeI18n.listOptions()
+
+        model.apply {
+            addHasActiveSession(session)
+            addUser(currentUser)
+            addSections(sections)
+            addAttribute("privilegeOptions", privilegeOptions)
+        }
+        return "superuser/user-create"
+    }
+
     @PostMapping("/users/create")
     fun createUser(
         @RequestParam name: String?,

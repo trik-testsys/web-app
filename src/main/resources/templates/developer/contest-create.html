@@ -6,6 +6,7 @@
         .form-row { display: grid; grid-template-columns: 1fr; gap: 12px; }
         @media (min-width: 768px) { .form-row { grid-template-columns: 1fr 1fr; } }
         .field-note { color: var(--color-text-muted); font-size: 13px; margin-top: 6px; }
+        .req { color: var(--trik-red); margin-left: 4px; }
     </style>
 </head>
 <body>
@@ -18,7 +19,7 @@
         <div class="card-body">
             <form th:action="@{/user/developer/contests/create}" method="post" class="form" style="gap:12px; max-width: 720px;">
                 <label>
-                    <div style="margin-bottom:4px;">Название</div>
+                    <div style="margin-bottom:4px;">Название<span class="req">*</span></div>
                     <input name="name" type="text" placeholder="Введите название" required style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
                 </label>
                 <label>
@@ -27,7 +28,7 @@
                 </label>
                 <div class="form-row">
                     <label>
-                        <div style="margin-bottom:4px;">Дата и время начала</div>
+                        <div style="margin-bottom:4px;">Дата и время начала<span class="req">*</span></div>
                         <input name="startsAt" type="datetime-local" required style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
                     </label>
                     <label>

@@ -2,27 +2,64 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
 <head>
     <th:block th:include="fragments/layout :: head('Тур')"></th:block>
-</head>
+    <style>
+        .kv-wide { display: grid; grid-template-columns: 220px 1fr; gap: 10px 20px; }
+        .req { color: var(--trik-red); margin-left: 4px; }
+        .field-note { color: var(--color-text-muted); font-size: 13px; }
+    </style>
+    </head>
 <body>
 <header th:replace="fragments/layout :: header(userName=${user.name})"></header>
 <aside th:replace="fragments/layout :: sidebar(sections=${menuSections})"></aside>
 
 <main class="app-main">
     <section class="card">
-        <h2 class="card-title">Тур</h2>
+        <h2 class="card-title"><a th:href="@{/user/developer/contests}">Туры</a> / Тур</h2>
         <div class="card-body">
             <div class="alert" th:if="${message}" th:text="${message}"></div>
-            <dl class="kv">
+            <form th:if="${isOwner}" th:action="@{'/user/developer/contests/' + ${contest.id} + '/update'}" method="post" class="form" style="gap:12px; max-width: 720px;">
+                <label>
+                    <div style="margin-bottom:4px;">Название<span class="req">*</span></div>
+                    <input name="name" type="text" th:value="${contest.name}" required style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
+                </label>
+                <label>
+                    <div style="margin-bottom:4px;">Описание</div>
+                    <textarea name="info" th:text="${contest.info}" rows="3" style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;"></textarea>
+                </label>
+                <div class="form-row" style="display:grid; grid-template-columns:1fr; gap:12px;">
+                    <label>
+                        <div style="margin-bottom:4px;">Дата и время начала<span class="req">*</span></div>
+                        <input name="startsAt" type="datetime-local" th:value="${contest.startsAt != null ? #temporals.format(contest.startsAt, 'yyyy-MM-dd''T''HH:mm') : ''}" required style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
+                    </label>
+                    <label>
+                        <div style="margin-bottom:4px;">Дата и время окончания</div>
+                        <input name="endsAt" type="datetime-local" th:value="${contest.endsAt != null ? #temporals.format(contest.endsAt, 'yyyy-MM-dd''T''HH:mm') : ''}" style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
+                    </label>
+                </div>
+                <label>
+                    <div style="margin-bottom:4px;">Длительность (мин)</div>
+                    <input name="duration" type="number" min="1" step="1" th:value="${contest.duration}" placeholder="Например, 90" style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
+                    <div class="field-note">Необязательно. Если не указано, используется безлимитное время в рамках дат.</div>
+                </label>
+                <div>
+                    <button type="submit" class="button button--primary">Сохранить</button>
+                    <a class="button" th:href="@{/user/developer/contests}">Отмена</a>
+                </div>
+            </form>
+
+            <dl th:if="${!isOwner}" class="kv-wide">
                 <dt>ID</dt>
                 <dd th:text="${contest.id}"></dd>
                 <dt>Название</dt>
-                <dd>
-                    <form th:if="${isOwner}" th:action="@{'/user/developer/contests/' + ${contest.id} + '/rename'}" method="post" class="form form-inline">
-                        <input type="text" name="name" th:value="${contest.name}" required/>
-                        <button type="submit" class="button">Сохранить</button>
-                    </form>
-                    <span th:if="${!isOwner}" th:text="${contest.name}"></span>
-                </dd>
+                <dd th:text="${contest.name}"></dd>
+                <dt>Описание</dt>
+                <dd th:text="${contest.info ?: '—'}"></dd>
+                <dt>Начало</dt>
+                <dd th:text="${contest.startsAt != null ? #temporals.format(contest.startsAt, 'dd.MM.yyyy HH:mm') : '—'}"></dd>
+                <dt>Окончание</dt>
+                <dd th:text="${contest.endsAt != null ? #temporals.format(contest.endsAt, 'dd.MM.yyyy HH:mm') : '—'}"></dd>
+                <dt>Длительность</dt>
+                <dd th:text="${contest.duration != null ? contest.duration + ' мин' : '—'}"></dd>
             </dl>
         </div>
     </section>
