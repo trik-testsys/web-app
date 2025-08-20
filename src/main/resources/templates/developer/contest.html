@@ -6,6 +6,8 @@
         .kv-wide { display: grid; grid-template-columns: 220px 1fr; gap: 10px 20px; }
         .req { color: var(--trik-red); margin-left: 4px; }
         .field-note { color: var(--color-text-muted); font-size: 13px; }
+        .form-row { display: grid; grid-template-columns: 1fr; gap: 12px; }
+        @media (min-width: 768px) { .form-row { grid-template-columns: 1fr 1fr; } }
     </style>
     </head>
 <body>
@@ -17,35 +19,36 @@
         <h2 class="card-title"><a th:href="@{/user/developer/contests}">Туры</a> / Тур</h2>
         <div class="card-body">
             <div class="alert" th:if="${message}" th:text="${message}"></div>
-            <form th:if="${isOwner}" th:action="@{'/user/developer/contests/' + ${contest.id} + '/update'}" method="post" class="form" style="gap:12px; max-width: 720px;">
-                <label>
-                    <div style="margin-bottom:4px;">Название<span class="req">*</span></div>
-                    <input name="name" type="text" th:value="${contest.name}" required style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
-                </label>
-                <label>
-                    <div style="margin-bottom:4px;">Описание</div>
-                    <textarea name="info" th:text="${contest.info}" rows="3" style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;"></textarea>
-                </label>
-                <div class="form-row" style="display:grid; grid-template-columns:1fr; gap:12px;">
+            <div th:if="${isOwner}">
+                <form id="contest-form" data-readonly-toggle th:action="@{'/user/developer/contests/' + ${contest.id} + '/update'}" method="post" class="form" style="display:grid; gap:12px; max-width:720px;">
+                    <label>
+                        <div style="margin-bottom:4px;">Название<span class="req">*</span></div>
+                        <input id="contest-name" name="name" type="text" th:value="${contest.name}" required disabled style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
+                    </label>
+                    <label>
+                        <div style="margin-bottom:4px;">Описание</div>
+                        <textarea id="contest-info" name="info" rows="3" th:text="${contest.info}" disabled style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;"></textarea>
+                    </label>
                     <label>
                         <div style="margin-bottom:4px;">Дата и время начала<span class="req">*</span></div>
-                        <input name="startsAt" type="datetime-local" th:value="${contest.startsAt != null ? #temporals.format(contest.startsAt, 'yyyy-MM-dd''T''HH:mm') : ''}" required style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
+                        <input id="contest-starts" name="startsAt" type="datetime-local" th:value="${contest.startsAt != null ? #temporals.format(contest.startsAt, 'yyyy-MM-dd''T''HH:mm') : ''}" required disabled style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
                     </label>
                     <label>
                         <div style="margin-bottom:4px;">Дата и время окончания</div>
-                        <input name="endsAt" type="datetime-local" th:value="${contest.endsAt != null ? #temporals.format(contest.endsAt, 'yyyy-MM-dd''T''HH:mm') : ''}" style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
+                        <input id="contest-ends" name="endsAt" type="datetime-local" th:value="${contest.endsAt != null ? #temporals.format(contest.endsAt, 'yyyy-MM-dd''T''HH:mm') : ''}" disabled style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
                     </label>
-                </div>
-                <label>
-                    <div style="margin-bottom:4px;">Длительность (мин)</div>
-                    <input name="duration" type="number" min="1" step="1" th:value="${contest.duration}" placeholder="Например, 90" style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
-                    <div class="field-note">Необязательно. Если не указано, используется безлимитное время в рамках дат.</div>
-                </label>
-                <div>
-                    <button type="submit" class="button button--primary">Сохранить</button>
-                    <a class="button" th:href="@{/user/developer/contests}">Отмена</a>
-                </div>
-            </form>
+                    <label>
+                        <div style="margin-bottom:4px;">Длительность (мин)</div>
+                        <input id="contest-duration" name="duration" type="number" min="1" step="1" th:value="${contest.duration}" disabled style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
+                        <div class="field-note">Необязательно. Если не указано, используется безлимитное время в рамках дат.</div>
+                    </label>
+                    <div class="form-buttons">
+                        <button type="button" class="button edit-button" onclick="window.App.enableForm('contest-form')">Редактировать</button>
+                        <button type="submit" class="button button--primary save-button" style="display:none;">Сохранить</button>
+                        <button type="button" class="button cancel-button" style="display:none;" onclick="window.App.disableForm('contest-form')">Отмена</button>
+                    </div>
+                </form>
+            </div>
 
             <dl th:if="${!isOwner}" class="kv-wide">
                 <dt>ID</dt>
@@ -63,6 +66,16 @@
             </dl>
         </div>
     </section>
+    <section class="card">
+        <h2 class="card-title">Доступ для групп</h2>
+        <div class="card-body">
+            <div th:if="${#lists.isEmpty(contest.userGroups)}" style="color: var(--color-text-muted);">Доступно только Вам</div>
+            <ul th:if="${!#lists.isEmpty(contest.userGroups)}" class="pill-list">
+                <li class="pill" th:each="g : ${contest.userGroups}" th:text="${(g.name ?: 'Без названия') + ' (#' + g.id + ')'}"></li>
+            </ul>
+        </div>
+    </section>
+    </div>
 </main>
 
 <footer th:replace="fragments/layout :: footer"></footer>

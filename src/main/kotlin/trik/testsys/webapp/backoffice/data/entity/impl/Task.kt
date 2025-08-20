@@ -1,14 +1,18 @@
 //package trik.testsys.webapp.backoffice.data.entity.impl
 //
-//import trik.testsys.core.entity.Entity.Companion.TABLE_PREFIX
-//import trik.testsys.backoffice.entity.AbstractNotedEntity
-//import javax.persistence.*
+//import jakarta.persistence.Column
+//import jakarta.persistence.Entity
+//import jakarta.persistence.Table
+//import trik.testsys.webapp.core.data.entity.AbstractEntity
+//import trik.testsys.webapp.core.data.entity.AbstractEntity.Companion.TABLE_PREFIX
+//
 //
 //@Entity
-//@Table(name = "${TABLE_PREFIX}_TASK")
-//class Task(
-//    name: String
-//) : AbstractNotedEntity(name) {
+//@Table(name = "${TABLE_PREFIX}task")
+//class Task() : AbstractEntity() {
+//
+//    @Column(name = "name")
+//    var name: String? = null
 //
 //    /**
 //     * @author Roman Shishkin

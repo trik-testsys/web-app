@@ -34,7 +34,7 @@
            th:required="${isRequired}"
            th:placeholder="${labelName} + ${isRequired ? ' (обязательно)' : ''} + '...'"
            th:title="${labelName}"
-           readonly/>
+           th:attr="readonly=${isReadonly} ? 'readonly' : null"/>
 </div>
 
 <!--Hidden, but necessary input field fragment-->

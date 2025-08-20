@@ -60,11 +60,10 @@
                                  size='100',
                                  isReadonly='false', isRequired='false', isAccessToken='false')">
                 </div>
-                <!-- Кнопки редактирования, отправки и отмены -->
+                <!-- Кнопки отправки и отмены -->
                 <div class="form-buttons">
-                    <button type="button" class="edit-button" id="task-creation-edit" onclick="enableForm('task-creation')">Создать Задание</button>
-                    <button type="submit" class="save-button" id="task-creation-save">Создать</button>
-                    <button type="button" class="cancel-button" id="task-creation-cancel" onclick="disableForm('task-creation')">Отменить</button>
+                    <button type="submit" class="button button--primary">Создать</button>
+                    <a class="button" th:href="@{/developer/tasks}">Отмена</a>
                 </div>
             </form>
         </div>

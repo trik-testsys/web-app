@@ -1,4 +1,4 @@
-.card { background: var(--color-surface); border-radius: var(--radius); box-shadow: var(--shadow); }
+.card { background: var(--color-surface); border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 16px; }
 .card .card-body { padding: 20px; }
 .card .card-title { padding: 16px 20px 0 20px; margin: 0; font-size: 22px; font-weight: 700; }
 

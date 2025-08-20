@@ -17,7 +17,7 @@
     <section class="card">
         <h2 class="card-title"><a th:href="@{/user/developer/contests}">Туры</a> / Создание Тура</h2>
         <div class="card-body">
-            <form th:action="@{/user/developer/contests/create}" method="post" class="form" style="gap:12px; max-width: 720px;">
+            <form id="contest-creation" th:action="@{/user/developer/contests/create}" method="post" class="form" style="gap:12px; max-width: 720px;">
                 <label>
                     <div style="margin-bottom:4px;">Название<span class="req">*</span></div>
                     <input name="name" type="text" placeholder="Введите название" required style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
@@ -38,11 +38,11 @@
                 </div>
                 <label>
                     <div style="margin-bottom:4px;">Длительность (мин)</div>
-                    <input name="duration" type="number" min="1" step="1" placeholder="Например, 90" style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
+                    <input name="duration" type="number" min="1" step="1" style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
                     <div class="field-note">Необязательно. Если не указано, используется безлимитное время в рамках дат.</div>
                 </label>
                 <hr class="separator">
-                <div>
+                <div class="form-buttons">
                     <button type="submit" class="button button--primary">Создать</button>
                     <a class="button" th:href="@{/user/developer/contests}">Отмена</a>
                 </div>

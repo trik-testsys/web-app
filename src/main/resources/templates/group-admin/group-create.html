@@ -11,7 +11,7 @@
     <section class="card">
         <h2 class="card-title"><a th:href="@{/user/group-admin/groups}">Группы Пользователей</a> / Создание группы</h2>
         <div class="card-body">
-            <form th:action="@{/user/group-admin/groups/create}" method="post" style="display:grid; gap:12px; max-width:560px;">
+            <form id="group-admin-group-creation" th:action="@{/user/group-admin/groups/create}" method="post" style="display:grid; gap:12px; max-width:560px;">
                 <label>
                     <div style="margin-bottom:4px;">Название<span style="color: var(--trik-red); margin-left: 4px;">*</span></div>
                     <input name="name" type="text" placeholder="Введите название" required style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
@@ -21,7 +21,7 @@
                     <textarea name="info" placeholder="Краткое описание" rows="3" style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;"></textarea>
                 </label>
                 <hr class="separator">
-                <div>
+                <div class="form-buttons">
                     <button type="submit" class="button button--primary">Создать</button>
                     <a class="button" th:href="@{/user/group-admin/groups}">Отмена</a>
                 </div>

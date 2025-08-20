@@ -54,11 +54,10 @@
                                  size='100',
                                  isReadonly='false', isRequired='false', isAccessToken='false')">
                 </div>
-                <!-- Кнопки редактирования, отправки и отмены -->
+                <!-- Кнопки отправки и отмены -->
                 <div class="form-buttons">
-                    <button type="button" class="edit-button" id="emergency-message-creation-edit" onclick="enableForm('emergency-message-creation')">Создать Сообщение</button>
-                    <button type="submit" class="save-button" id="emergency-message-creation-save">Создать</button>
-                    <button type="button" class="cancel-button" id="emergency-message-creation-cancel" onclick="disableForm('emergency-message-creation')">Отменить</button>
+                    <button type="submit" class="button button--primary">Создать</button>
+                    <a class="button" th:href="@{/superuser/emergency-messages}">Отмена</a>
                 </div>
             </form>
         </div>

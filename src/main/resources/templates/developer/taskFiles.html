@@ -65,11 +65,10 @@
                 </div>
                 <label for="polygon-file" class="form-label">Файл</label>
                 <input id="polygon-file" name="file" type="file" required>
-                <!-- Кнопки редактирования, отправки и отмены -->
+                <!-- Кнопки отправки и отмены -->
                 <div class="form-buttons">
-                    <button type="button" class="edit-button" id="polygon-creation-edit" onclick="enableForm('polygon-creation')">Создать Полигон</button>
-                    <button type="submit" class="save-button" id="polygon-creation-save">Создать</button>
-                    <button type="button" class="cancel-button" id="polygon-creation-cancel" onclick="disableForm('polygon-creation')">Отменить</button>
+                    <button type="submit" class="button button--primary">Создать</button>
+                    <a class="button" th:href="@{/developer/taskFiles}">Отмена</a>
                 </div>
             </form>
         </div>
@@ -154,11 +153,10 @@
                 </div>
                 <label for="exercise-file" class="form-label">Файл</label>
                 <input id="exercise-file" name="file" type="file" required>
-                <!-- Кнопки редактирования, отправки и отмены -->
+                <!-- Кнопки отправки и отмены -->
                 <div class="form-buttons">
-                    <button type="button" class="edit-button" id="exercise-creation-edit" onclick="enableForm('exercise-creation')">Создать Упражнение</button>
-                    <button type="submit" class="save-button" id="exercise-creation-save">Создать</button>
-                    <button type="button" class="cancel-button" id="exercise-creation-cancel" onclick="disableForm('exercise-creation')">Отменить</button>
+                    <button type="submit" class="button button--primary">Создать</button>
+                    <a class="button" href="#exercises">Отмена</a>
                 </div>
             </form>
         </div>
@@ -244,11 +242,10 @@
 
                 <label for="solution-file" class="form-label">Файл</label>
                 <input id="solution-file" name="file" type="file" required>
-                <!-- Кнопки редактирования, отправки и отмены -->
+                <!-- Кнопки отправки и отмены -->
                 <div class="form-buttons">
-                    <button type="button" class="edit-button" id="solution-creation-edit" onclick="enableForm('solution-creation')">Создать Эталонное решения</button>
-                    <button type="submit" class="save-button" id="solution-creation-save">Создать</button>
-                    <button type="button" class="cancel-button" id="solution-creation-cancel" onclick="disableForm('solution-creation')">Отменить</button>
+                    <button type="submit" class="button button--primary">Создать</button>
+                    <a class="button" th:href="@{/developer/taskFiles#solutions}">Отмена</a>
                 </div>
             </form>
         </div>
@@ -334,11 +331,10 @@
 
                 <label for="condition-file" class="form-label">Файл</label>
                 <input id="condition-file" name="file" type="file" required>
-                <!-- Кнопки редактирования, отправки и отмены -->
+                <!-- Кнопки отправки и отмены -->
                 <div class="form-buttons">
-                    <button type="button" class="edit-button" id="condition-creation-edit" onclick="enableForm('condition-creation')">Создать Условия</button>
-                    <button type="submit" class="save-button" id="condition-creation-save">Создать</button>
-                    <button type="button" class="cancel-button" id="condition-creation-cancel" onclick="disableForm('condition-creation')">Отменить</button>
+                    <button type="submit" class="button button--primary">Создать</button>
+                    <a class="button" th:href="@{/developer/taskFiles#conditions}">Отмена</a>
                 </div>
             </form>
         </div>

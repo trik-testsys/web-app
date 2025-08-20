@@ -19,6 +19,7 @@ window.App = (function () {
   function mount() {
     closeSidebarOnNavigate();
     markActiveNavigation();
+    initReadonlyForms();
   }
 
   function toggleEdit(field) {
@@ -37,7 +38,46 @@ window.App = (function () {
     }
   }
 
-  return { toggleSidebar, toggleEdit, mount };
+  function setFormEnabled(formId, enabled) {
+    const form = document.getElementById(formId);
+    if (!form) return;
+    const inputs = form.querySelectorAll('input, textarea, select');
+    inputs.forEach(el => { el.disabled = !enabled; });
+    const editBtn = form.querySelector('.edit-button');
+    const saveBtn = form.querySelector('.save-button');
+    const cancelBtn = form.querySelector('.cancel-button');
+    if (editBtn) editBtn.style.display = enabled ? 'none' : 'inline-block';
+    if (saveBtn) saveBtn.style.display = enabled ? 'inline-block' : 'none';
+    if (cancelBtn) cancelBtn.style.display = enabled ? 'inline-block' : 'none';
+  }
+
+  function enableForm(formId) { setFormEnabled(formId, true); }
+
+  function disableForm(formId) {
+    const form = document.getElementById(formId);
+    if (form) { try { form.reset(); } catch (_) {} }
+    setFormEnabled(formId, false);
+    setDisabledVisualState(form);
+  }
+
+  function setDisabledVisualState(form) {
+    if (!form) return;
+    const fields = form.querySelectorAll('input, textarea');
+    fields.forEach((el) => {
+      el.classList.remove('has-value', 'is-empty');
+      if (el.disabled) {
+        const hasValue = (el.value || '').trim().length > 0;
+        el.classList.add(hasValue ? 'has-value' : 'is-empty');
+      }
+    });
+  }
+
+  function initReadonlyForms() {
+    const forms = document.querySelectorAll('form[data-readonly-toggle]');
+    forms.forEach((form) => setDisabledVisualState(form));
+  }
+
+  return { toggleSidebar, toggleEdit, enableForm, disableForm, mount, initReadonlyForms };
 })();
 
 document.addEventListener('DOMContentLoaded', () => {

@@ -9,7 +9,7 @@ object PrivilegeI18n {
 
     private val privilegeToRu: Map<User.Privilege, String> = mapOf(
         User.Privilege.ADMIN to "Организатор",
-        User.Privilege.DEVELOPER to "Разработчик",
+        User.Privilege.DEVELOPER to "Разработчик Задач",
         User.Privilege.JUDGE to "Судья",
         User.Privilege.STUDENT to "Участник",
         User.Privilege.SUPER_USER to "Супервайзер",
