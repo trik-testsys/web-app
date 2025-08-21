@@ -24,9 +24,8 @@ class VerdictServiceImpl(
         }
 
         val persisted = repository.save(newVerdict)
-
-        solution.relevantVerdictId = newVerdict.id
-        solutionRepository.save(solution)
+        // Let caller persist the Solution update to avoid double-merge/version conflict
+        solution.relevantVerdictId = persisted.id
 
         return persisted
     }

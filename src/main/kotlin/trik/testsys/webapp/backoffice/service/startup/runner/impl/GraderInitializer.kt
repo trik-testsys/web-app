@@ -153,9 +153,10 @@ class GraderInitializer(
             totalScore += score
         }
 
-        solution.status = if (allFailed) Solution.Status.FAILED else Solution.Status.PASSED
-        verdictService.createNewForSolution(solution, totalScore)
-        solutionService.save(solution)
+        val managed = solutionService.getById(requireNotNull(solution.id))
+        managed.status = if (allFailed) Solution.Status.FAILED else Solution.Status.PASSED
+        verdictService.createNewForSolution(managed, totalScore)
+        solutionService.save(managed)
 
 //        if (managed.isLastTaskTest()) changeTaskTestingResult(managed)
 

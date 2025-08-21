@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import trik.testsys.webapp.backoffice.controller.AbstractUserController
 import trik.testsys.webapp.backoffice.data.entity.impl.Solution
 import trik.testsys.webapp.backoffice.data.entity.impl.User
@@ -78,6 +80,12 @@ class StudentTaskController(
 
         model.addAttribute("solutions", solutions)
         model.addAttribute("verdicts", verdictsBySolutionId)
+        val resultsAvailability = solutions.associate { s ->
+            val hasVerdicts = fileManager.getVerdictFiles(s).isNotEmpty()
+            val hasRecordings = fileManager.getRecordingFiles(s).isNotEmpty()
+            (s.id!!) to (hasVerdicts || hasRecordings)
+        }
+        model.addAttribute("resultsAvailable", resultsAvailability)
         return "student/task"
     }
 
@@ -125,6 +133,60 @@ class StudentTaskController(
         grader.sendToGrade(saved, Grader.GradingOptions(shouldRecordRun = true, trikStudioVersion = trikStudioContainerName))
         redirectAttributes.addMessage("Решение загружено и отправлено на проверку.")
         return "redirect:/user/student/contests/$contestId/tasks/$taskId"
+    }
+
+    @GetMapping("/results/{solutionId}/download")
+    fun downloadResults(
+        @PathVariable("contestId") contestId: Long,
+        @PathVariable("taskId") taskId: Long,
+        @PathVariable("solutionId") solutionId: Long,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes,
+    ): Any {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val user = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!user.privileges.contains(User.Privilege.STUDENT)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val contest = contestService.findById(contestId) ?: run {
+            redirectAttributes.addMessage("Тур не найден.")
+            return "redirect:/user/student/contests"
+        }
+        val task = taskService.findById(taskId) ?: run {
+            redirectAttributes.addMessage("Задача не найдена.")
+            return "redirect:/user/student/contests/$contestId"
+        }
+        if (contest.tasks.none { it.id == task.id }) {
+            redirectAttributes.addMessage("Задача не принадлежит данному Туру.")
+            return "redirect:/user/student/contests/$contestId"
+        }
+
+        val solution = contest.solutions.firstOrNull { it.id == solutionId } ?: run {
+            redirectAttributes.addMessage("Решение не найдено.")
+            return "redirect:/user/student/contests/$contestId/tasks/$taskId"
+        }
+        if (solution.createdBy.id != user.id) {
+            redirectAttributes.addMessage("У вас нет доступа к данному Решению.")
+            return "redirect:/user/student/contests/$contestId/tasks/$taskId"
+        }
+
+        val hasAnyResults = fileManager.getVerdictFiles(solution).isNotEmpty() || fileManager.getRecordingFiles(solution).isNotEmpty()
+        if (!hasAnyResults) {
+            redirectAttributes.addMessage("Результаты для данного Решения отсутствуют.")
+            return "redirect:/user/student/contests/$contestId/tasks/$taskId"
+        }
+
+        val results = fileManager.getSolutionResultFilesCompressed(solution)
+        val bytes = results.readBytes()
+        return ResponseEntity.ok()
+            .header("Content-Disposition", "attachment; filename=\"${results.name}\"")
+            .header("Content-Type", MediaType.APPLICATION_OCTET_STREAM_VALUE)
+            .header("Content-Transfer-Encoding", "binary")
+            .header("Content-Length", bytes.size.toString())
+            .body(bytes)
     }
 }
 
