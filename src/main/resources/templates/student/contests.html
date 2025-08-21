@@ -21,15 +21,18 @@
                     <th>Начало</th>
                     <th>Окончание</th>
                     <th>Время на прохождение</th>
-                    <th>Осталось</th>
+                    <th>Осталось времени</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="c : ${availableContests}">
                     <td th:text="${c.id}"></td>
                     <td>
-                        <a th:href="@{'/user/student/contests/' + ${c.id}}"
-                           th:attr="onclick='return confirm(\'Начать Тур \'\' + [[${c.name}]] + \'\'? Время начнёт отсчитываться.\')'"
+                        <a th:if="${startedByContestId[c.id]}" th:href="@{'/user/student/contests/' + ${c.id}}" th:text="${c.name}"></a>
+                        <a th:if="${!startedByContestId[c.id]}"
+                           th:href="@{'/user/student/contests/' + ${c.id} + '?start=true'}"
+                           th:attr="data-cname=${c.name}"
+                           onclick="return confirm('Начать Тур ' + '\'' + this.dataset.cname + '\'' + '? Время начнёт отсчитываться.')"
                            th:text="${c.name}"></a>
                     </td>
                     <td th:text="${c.startsAt != null ? #temporals.format(c.startsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>

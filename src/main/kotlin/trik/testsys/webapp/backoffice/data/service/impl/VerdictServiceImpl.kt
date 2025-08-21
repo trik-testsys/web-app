@@ -11,4 +11,5 @@ class VerdictServiceImpl :
     AbstractService<Verdict, VerdictRepository>(),
     VerdictService {
 
+    override fun save(verdict: Verdict): Verdict = super.save(verdict)
 }

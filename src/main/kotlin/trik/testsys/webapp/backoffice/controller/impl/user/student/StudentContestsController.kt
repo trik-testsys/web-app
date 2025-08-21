@@ -30,25 +30,39 @@ class StudentContestsController(
             return "redirect:/user"
         }
 
-        // Available contests: any where a student's memberedStudentGroups contests contain it and it's ongoing or upcoming
+        // Available/Ended split with personal duration respected
         val now = Instant.now()
         val studentGroupContests = user.memberedStudentGroups.flatMap { it.contests }.toSet()
+
         val available = studentGroupContests
             .filter { c ->
                 val starts = c.startsAt
                 val ends = c.endsAt
-                when {
+                val windowOpen = when {
                     starts == null -> true
                     ends == null -> now.isAfter(starts)
                     else -> now.isAfter(starts) && now.isBefore(ends)
                 }
+                if (!windowOpen) return@filter false
+
+                val started = getContestStartTime(session, c.id!!) != null
+                if (!started) return@filter true
+
+                val rd = remainingDuration(session, now, c)
+                rd == null || rd.seconds > 0
             }
             .sortedBy { it.id }
 
-        // Participated and ended: contests where user has any solution linked to that contest and contest ended (endsAt before now)
-        val ended = contestService.findAll()
-            .filter { it.endsAt != null && now.isAfter(it.endsAt) }
-            .filter { participated(user, it) }
+        val ended = studentGroupContests
+            .filter { c ->
+                val started = getContestStartTime(session, c.id!!) != null
+                if (!started) return@filter false
+                val ends = c.endsAt
+                val endedByDate = ends != null && now.isAfter(ends)
+                val rd = remainingDuration(session, now, c)
+                val endedByDuration = rd != null && (rd.isZero || rd.isNegative)
+                endedByDate || endedByDuration
+            }
             .sortedBy { it.id }
 
         setupModel(model, session, user)
@@ -57,11 +71,9 @@ class StudentContestsController(
         // Remaining time per contest using session-based start moment
         val remainingByContestId = (available + ended).associate { it.id!! to remainingTimeString(session, now, it) }
         model.addAttribute("remainingByContestId", remainingByContestId)
+        val startedByContestId = (available + ended).associate { it.id!! to (getContestStartTime(session, it.id!!) != null) }
+        model.addAttribute("startedByContestId", startedByContestId)
         return "student/contests"
-    }
-
-    private fun participated(user: User, contest: Contest): Boolean {
-        return contest.solutions.any { it.createdBy.id == user.id }
     }
 
     private fun remainingTimeString(session: HttpSession, now: Instant, contest: Contest): String {
@@ -97,6 +109,26 @@ class StudentContestsController(
         val minutes = (totalSeconds % 3600) / 60
         val seconds = totalSeconds % 60
         return String.format("%02d:%02d:%02d", hours, minutes, seconds)
+    }
+
+    private fun remainingDuration(session: HttpSession, now: Instant, contest: Contest): Duration? {
+        val durationMinutes = contest.duration
+        val endsAt = contest.endsAt
+        if (endsAt == null && durationMinutes == null) return null
+        val startInstant = getContestStartTime(session, contest.id!!)
+        var timeByEnds: Duration? = null
+        if (endsAt != null) timeByEnds = Duration.between(now, endsAt)
+        var timeByDuration: Duration? = null
+        if (durationMinutes != null && startInstant != null) {
+            val elapsed = Duration.between(startInstant, now)
+            val total = Duration.ofMinutes(durationMinutes)
+            timeByDuration = total.minus(elapsed)
+        }
+        return when {
+            endsAt == null -> timeByDuration
+            durationMinutes == null -> timeByEnds
+            else -> listOfNotNull(timeByEnds, timeByDuration).minByOrNull { it }
+        }
     }
 
     private fun getContestStartTime(session: HttpSession, contestId: Long): Instant? {

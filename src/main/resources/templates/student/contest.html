@@ -9,7 +9,7 @@
 
 <main class="app-main">
     <section class="card">
-        <h2 class="card-title" th:text="${contest.name}">Тур</h2>
+        <h2 class="card-title"><a th:href="@{/user/student/contests}">Туры</a> / <span th:text="${contest.name}">Тур</span></h2>
         <div class="card-body">
 
             <h3 style="margin: 16px 0 8px 0;">Основная информация</h3>
@@ -21,25 +21,27 @@
                 </div>
                 <div>
                     <div><b>Время на прохождение:</b> <span th:text="${contest.duration != null ? contest.duration + ' мин' : '—'}"></span></div>
-                    <div><b>Осталось:</b> <span th:text="${remainingTime}"></span></div>
+                    <div><b>Осталось времени:</b> <span th:text="${remainingTime}"></span></div>
                 </div>
             </div>
 
             <hr class="separator">
 
             <h3 style="margin: 16px 0 8px 0;">Задачи</h3>
-            <div th:if="${#lists.isEmpty(tasks)}" style="color: var(--color-text-muted);">Пока нет заданий.</div>
+            <div th:if="${#lists.isEmpty(tasks)}" style="color: var(--color-text-muted);">Пока нет Задач.</div>
             <table th:if="${!#lists.isEmpty(tasks)}" class="table">
                 <thead>
                 <tr>
                     <th>ID</th>
                     <th>Название</th>
+                    <th>Инфо</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="t : ${tasks}">
                     <td th:text="${t.id}"></td>
-                    <td th:text="${t.name}"></td>
+                    <td><a th:href="@{'/user/student/contests/' + ${contest.id} + '/tasks/' + ${t.id}}" th:text="${t.name}"></a></td>
+                    <td th:text="${t.info ?: '—'}"></td>
                 </tr>
                 </tbody>
             </table>

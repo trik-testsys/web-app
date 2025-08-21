@@ -17,6 +17,8 @@ interface FileManager {
     fun listTaskFileVersions(taskFile: TaskFile): List<TaskFileVersionInfo>
 
     fun getTaskFileVersion(taskFile: TaskFile, version: Long): File?
+
+    fun saveSolutionFile(solution: trik.testsys.webapp.backoffice.data.entity.impl.Solution, fileData: MultipartFile): Boolean
 }
 
 data class TaskFileVersionInfo(

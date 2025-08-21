@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import trik.testsys.webapp.backoffice.data.entity.impl.TaskFile
+import trik.testsys.webapp.backoffice.data.entity.impl.Solution
 import trik.testsys.webapp.backoffice.data.entity.impl.TaskFile.TaskFileType.Companion.extension
 import trik.testsys.webapp.backoffice.data.service.TaskFileService
 import trik.testsys.webapp.backoffice.service.FileManager
@@ -83,6 +84,18 @@ class FileManagerImpl(
         val ext = taskFile.type?.extension() ?: return null
         val file = File(dir, "${taskFile.id}-${version}$ext")
         return if (file.exists()) file else null
+    }
+
+    override fun saveSolutionFile(solution: Solution, fileData: MultipartFile): Boolean {
+        // Persist original uploaded solution alongside task files under solutionsDir
+        val file = File(solutionsDir, "solution-${solution.id}.qrs")
+        return try {
+            fileData.transferTo(file)
+            true
+        } catch (e: Exception) {
+            logger.error("Failed to save solution file(id=${solution.id})", e)
+            false
+        }
     }
 
     companion object {

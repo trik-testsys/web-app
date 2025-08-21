@@ -1,0 +1,127 @@
+package trik.testsys.webapp.backoffice.controller.impl.user.student
+
+import jakarta.servlet.http.HttpSession
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.stereotype.Controller
+import org.springframework.ui.Model
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.servlet.mvc.support.RedirectAttributes
+import trik.testsys.webapp.backoffice.controller.AbstractUserController
+import trik.testsys.webapp.backoffice.data.entity.impl.Solution
+import trik.testsys.webapp.backoffice.data.entity.impl.User
+import trik.testsys.webapp.backoffice.data.service.ContestService
+import trik.testsys.webapp.backoffice.data.service.SolutionService
+import trik.testsys.webapp.backoffice.data.service.TaskService
+import trik.testsys.webapp.backoffice.service.FileManager
+import trik.testsys.webapp.backoffice.service.Grader
+import trik.testsys.webapp.backoffice.utils.addMessage
+import org.springframework.web.multipart.MultipartFile
+
+@Controller
+@RequestMapping("/user/student/contests/{contestId}/tasks/{taskId}")
+class StudentTaskController(
+    private val contestService: ContestService,
+    private val taskService: TaskService,
+    private val solutionService: SolutionService,
+    private val fileManager: FileManager,
+    private val grader: Grader,
+
+    @Value("\${trik.testsys.grading-node.container-name}") containerName: String,
+    @Value("\${trik.testsys.grading-node.version}") trikStudioVersion: String
+) : AbstractUserController() {
+
+    private val fullContainerName = "$containerName:$trikStudioVersion"
+
+    @GetMapping
+    fun view(
+        @PathVariable("contestId") contestId: Long,
+        @PathVariable("taskId") taskId: Long,
+        model: Model,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes,
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val user = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!user.privileges.contains(User.Privilege.STUDENT)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val contest = contestService.findById(contestId) ?: run {
+            redirectAttributes.addMessage("Тур не найден.")
+            return "redirect:/user/student/contests"
+        }
+        val task = taskService.findById(taskId) ?: run {
+            redirectAttributes.addMessage("Задача не найдена.")
+            return "redirect:/user/student/contests/$contestId"
+        }
+
+        // Ensure task belongs to contest
+        if (contest.tasks.none { it.id == task.id }) {
+            redirectAttributes.addMessage("Задача не принадлежит данному Туру.")
+            return "redirect:/user/student/contests/$contestId"
+        }
+
+        setupModel(model, session, user)
+        model.addAttribute("contest", contest)
+        model.addAttribute("task", task)
+        val solutions = contest.solutions.filter { it.task.id == task.id }
+            .filter { it.createdBy.id == user.id }
+            .sortedByDescending { it.id }
+        model.addAttribute("solutions", solutions)
+        return "student/task"
+    }
+
+    @PostMapping
+    fun upload(
+        @PathVariable("contestId") contestId: Long,
+        @PathVariable("taskId") taskId: Long,
+        @RequestParam("file") file: MultipartFile,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes,
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val user = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!user.privileges.contains(User.Privilege.STUDENT)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val contest = contestService.findById(contestId) ?: run {
+            redirectAttributes.addMessage("Тур не найден.")
+            return "redirect:/user/student/contests"
+        }
+        val task = taskService.findById(taskId) ?: run {
+            redirectAttributes.addMessage("Задача не найдена.")
+            return "redirect:/user/student/contests/$contestId"
+        }
+        if (contest.tasks.none { it.id == task.id }) {
+            redirectAttributes.addMessage("Задача не принадлежит данному Туру.")
+            return "redirect:/user/student/contests/$contestId"
+        }
+
+        val solution = Solution().also {
+            it.createdBy = user
+            it.contest = contest
+            it.task = task
+        }
+        val saved = solutionService.save(solution)
+        val ok = fileManager.saveSolutionFile(saved, file)
+        if (!ok) {
+            redirectAttributes.addMessage("Не удалось сохранить файл решения.")
+            return "redirect:/user/student/contests/$contestId/tasks/$taskId"
+        }
+
+        grader.sendToGrade(saved, Grader.GradingOptions(shouldRecordRun = true, trikStudioVersion = fullContainerName))
+        redirectAttributes.addMessage("Решение загружено и отправлено на проверку.")
+        return "redirect:/user/student/contests/$contestId/tasks/$taskId"
+    }
+}
+
+

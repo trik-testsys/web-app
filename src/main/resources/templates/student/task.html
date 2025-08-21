@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+<head>
+    <th:block th:include="fragments/layout :: head('Задача')"></th:block>
+</head>
+<body>
+<header th:replace="fragments/layout :: header(userName=${user.name})"></header>
+<aside th:replace="fragments/layout :: sidebar(sections=${menuSections})"></aside>
+
+<main class="app-main">
+    <section class="card">
+        <h2 class="card-title"><a th:href="@{/user/student/contests}">Туры</a> / <a th:href="@{'/user/student/contests/' + ${contest.id}}" th:text="${contest.name}">Тур</a> / <span th:text="${task.name}">Задача</span></h2>
+        <div class="card-body">
+            <dl class="kv-wide">
+                <dt>ID</dt>
+                <dd th:text="${task.id}"></dd>
+                <dt>Название</dt>
+                <dd th:text="${task.name}"></dd>
+                <dt>Инфо</dt>
+                <dd th:text="${task.info ?: '—'}"></dd>
+            </dl>
+
+            <hr class="separator">
+
+            <h3 style="margin: 16px 0 8px 0;">Загрузить решение для тестирования</h3>
+            <form th:action="@{'/user/student/contests/' + ${contest.id} + '/tasks/' + ${task.id}}" method="post" enctype="multipart/form-data" style="display:flex; gap:8px; align-items:center;">
+                <input type="file" name="file" accept=".qrs" required>
+                <button class="button button--primary" type="submit">Отправить</button>
+            </form>
+
+            <h3 style="margin: 16px 0 8px 0;">Мои решения</h3>
+            <div th:if="${#lists.isEmpty(solutions)}" style="color: var(--color-text-muted);">Пока нет загруженных решений.</div>
+            <table th:if="${!#lists.isEmpty(solutions)}" class="table">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Статус</th>
+                    <th>Вердикт</th>
+                    <th>Создано</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="s : ${solutions}">
+                    <td th:text="${s.id}"></td>
+                    <td th:text="${@solutionI18n.toRu(s.status)}"></td>
+                    <td th:text="${s.relevantVerdict != null ? s.relevantVerdict.value : '—'}"></td>
+                    <td th:text="${#temporals.format(s.createdAt, 'dd.MM.yyyy HH:mm')}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="fragments/layout :: footer"></footer>
+</body>
+</html>
+
+

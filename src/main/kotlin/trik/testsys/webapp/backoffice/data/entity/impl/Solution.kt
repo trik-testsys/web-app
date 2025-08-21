@@ -37,8 +37,8 @@ class Solution() : AbstractEntity() {
     @OneToMany(mappedBy = "solution", orphanRemoval = true)
     var verdicts: MutableSet<Verdict> = mutableSetOf()
 
-    @OneToOne(fetch = FetchType.EAGER, optional = false, orphanRemoval = true)
-    @JoinColumn(name = "relevant_verdict_id", nullable = false, unique = true)
+    @OneToOne(fetch = FetchType.EAGER, optional = true, orphanRemoval = true)
+    @JoinColumn(name = "relevant_verdict_id", nullable = true, unique = true)
     var relevantVerdict: Verdict? = null
 
     enum class Status(override val dbKey: String) : PersistableEnum {
