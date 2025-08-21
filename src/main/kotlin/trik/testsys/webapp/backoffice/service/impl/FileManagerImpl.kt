@@ -4,11 +4,13 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
+import org.zeroturnaround.zip.ZipUtil
 import trik.testsys.webapp.backoffice.data.entity.impl.TaskFile
 import trik.testsys.webapp.backoffice.data.entity.impl.Solution
 import trik.testsys.webapp.backoffice.data.entity.impl.TaskFile.TaskFileType.Companion.extension
 import trik.testsys.webapp.backoffice.data.service.TaskFileService
 import trik.testsys.webapp.backoffice.service.FileManager
+import trik.testsys.webapp.backoffice.service.Grader
 import trik.testsys.webapp.backoffice.service.TaskFileVersionInfo
 import java.io.File
 import java.time.Instant
@@ -21,6 +23,11 @@ class FileManagerImpl(
     @Value("\${trik.testsys.paths.taskFiles.polygons}") private val polygonsDirPath: String,
     @Value("\${trik.testsys.paths.taskFiles.conditions}") private val conditionsDirPath: String,
 
+    @Value("\${trik.testsys.paths.files.solutions}") private val solutionFilesPath: String,
+    @Value("\${trik.testsys.paths.files.verdicts}") private val verdictFilesPath: String,
+    @Value("\${trik.testsys.paths.files.recordings}") private val recordingFilesPath: String,
+    @Value("\${trik.testsys.paths.files.results}") private val resultFilesPath: String,
+
     private val taskFileService: TaskFileService
 ) : FileManager {
 
@@ -28,6 +35,11 @@ class FileManagerImpl(
     private val exercisesDir = File(exercisesDirPath)
     private val polygonsDir = File(polygonsDirPath)
     private val conditionsDir = File(conditionsDirPath)
+
+    private val solutionFilesDir = File(solutionFilesPath)
+    private val verdictFilesDir = File(verdictFilesPath)
+    private val recordingFilesDir = File(recordingFilesPath)
+    private val resultFilesDir = File(resultFilesPath)
 
     private val dirByTaskFileType: Map<TaskFile.TaskFileType, File> by lazy {
         mapOf(
@@ -40,7 +52,10 @@ class FileManagerImpl(
 
     @PostConstruct
     fun init() {
-        listOf(solutionsDir, exercisesDir, polygonsDir, conditionsDir).forEach { dir ->
+        listOf(
+            solutionsDir, exercisesDir, polygonsDir, conditionsDir,
+            solutionFilesDir, verdictFilesDir, recordingFilesDir, resultFilesDir
+        ).forEach { dir ->
             if (!dir.exists()) dir.mkdirs()
         }
     }
@@ -96,6 +111,72 @@ class FileManagerImpl(
             logger.error("Failed to save solution file(id=${solution.id})", e)
             false
         }
+    }
+
+    override fun getSolutionFile(solution: Solution): File? {
+        val file = File(solutionsDir, "solution-${solution.id}.qrs")
+
+        return if (file.exists()) file else null
+    }
+
+    override fun saveSuccessfulGradingInfo(fieldResult: Grader.GradingInfo.Ok) {
+        logger.info("Saving ok grading info")
+
+        val (solutionId, fieldResults) = fieldResult
+        fieldResults.forEach { (fieldName, verdict, recording) ->
+            logger.info("Field $fieldName: verdict ${verdict.name}, recording ${recording?.name}")
+
+            verdict.content.let { verdictContent ->
+                val verdictFile = File(verdictFilesDir, "${solutionId}_$fieldName.txt")
+                verdictFile.writeBytes(verdictContent)
+
+                logger.info("Verdict saved to ${verdictFile.absolutePath}")
+            }
+
+            recording?.content?.let { recordingContent ->
+                val recordingFile = File(recordingFilesDir, "${solutionId}_$fieldName.mp4")
+                recordingFile.writeBytes(recordingContent)
+
+                logger.info("Recording saved to ${recordingFile.absolutePath}")
+            }
+
+        }
+    }
+
+    override fun getVerdictFiles(solution: Solution): List<File> {
+        logger.info("Getting verdict files for solution with id ${solution.id}")
+
+        val verdictFiles = verdictFilesDir.listFiles { _, name -> name.startsWith("${solution.id}_") } ?: emptyArray()
+
+        return verdictFiles.toList()
+    }
+
+    override fun getRecordingFiles(solution: Solution): List<File> {
+        logger.info("Getting recording files for solution with id ${solution.id}")
+
+        val recordingFiles = recordingFilesDir.listFiles { _, name -> name.startsWith("${solution.id}_") } ?: emptyArray()
+
+        return recordingFiles.toList()
+    }
+
+    override fun getSolutionResultFilesCompressed(solution: Solution): File {
+        logger.info("Getting compressed solution result files for solution with id ${solution.id}")
+
+        val resultsFile = File(resultFilesDir, "${solution.id}_results.zip")
+
+        if (resultsFile.exists()) {
+            logger.info("Compressed solution result files for solution with id ${solution.id} already exist")
+
+            return resultsFile
+        }
+
+        val verdicts = getVerdictFiles(solution)
+        val recordings = getRecordingFiles(solution)
+        val results = verdicts + recordings
+
+        ZipUtil.packEntries(results.toTypedArray(), resultsFile)
+
+        return resultsFile
     }
 
     companion object {

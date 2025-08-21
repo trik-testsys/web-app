@@ -1,5 +1,6 @@
 package trik.testsys.webapp.backoffice.data.service
 
+import trik.testsys.webapp.backoffice.data.entity.impl.Solution
 import trik.testsys.webapp.backoffice.data.entity.impl.Verdict
 
 /**
@@ -9,4 +10,6 @@ import trik.testsys.webapp.backoffice.data.entity.impl.Verdict
 interface VerdictService {
 
     fun save(verdict: Verdict): Verdict
+
+    fun createNewForSolution(solution: Solution, score: Long): Verdict
 }

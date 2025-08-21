@@ -97,6 +97,11 @@
             <artifactId>javax.mail</artifactId>
             <version>1.5.5</version>
         </dependency>
+        <dependency>
+            <groupId>org.zeroturnaround</groupId>
+            <artifactId>zt-zip</artifactId>
+            <version>1.17</version>
+        </dependency>
     </dependencies>
 
     <build>

@@ -1,6 +1,7 @@
 package trik.testsys.webapp.backoffice.service
 
 import org.springframework.web.multipart.MultipartFile
+import trik.testsys.webapp.backoffice.data.entity.impl.Solution
 import trik.testsys.webapp.backoffice.data.entity.impl.TaskFile
 import java.io.File
 import java.time.Instant
@@ -18,7 +19,17 @@ interface FileManager {
 
     fun getTaskFileVersion(taskFile: TaskFile, version: Long): File?
 
-    fun saveSolutionFile(solution: trik.testsys.webapp.backoffice.data.entity.impl.Solution, fileData: MultipartFile): Boolean
+    fun saveSolutionFile(solution: Solution, fileData: MultipartFile): Boolean
+
+    fun getSolutionFile(solution: Solution): File?
+
+    fun saveSuccessfulGradingInfo(fieldResult: Grader.GradingInfo.Ok)
+
+    fun getVerdictFiles(solution: Solution): List<File>
+
+    fun getRecordingFiles(solution: Solution): List<File>
+
+    fun getSolutionResultFilesCompressed(solution: Solution): File
 }
 
 data class TaskFileVersionInfo(

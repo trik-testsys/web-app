@@ -1,57 +1,64 @@
-package trik.testsys.webclient.service.startup.runner.impl
+package trik.testsys.webapp.backoffice.service.startup.runner.impl
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
+import jakarta.persistence.PostLoad
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
-import trik.testsys.webclient.entity.impl.Solution
-import trik.testsys.webclient.service.FileManager
-import trik.testsys.webclient.service.Grader
-import trik.testsys.webclient.service.entity.impl.ContestService
-import trik.testsys.webclient.service.entity.impl.SolutionService
-import trik.testsys.webclient.service.entity.impl.TaskService
-import trik.testsys.webclient.service.startup.runner.StartupRunner
+import trik.testsys.webapp.backoffice.data.entity.impl.Solution
+import trik.testsys.webapp.backoffice.data.service.ContestService
+import trik.testsys.webapp.backoffice.data.service.SolutionService
+import trik.testsys.webapp.backoffice.data.service.TaskService
+import trik.testsys.webapp.backoffice.data.service.VerdictService
+import trik.testsys.webapp.backoffice.service.FileManager
+import trik.testsys.webapp.backoffice.service.Grader
+import trik.testsys.webapp.core.service.startup.AbstractStartupRunner
 import java.io.File
 import java.util.regex.Pattern
-import javax.xml.bind.annotation.XmlRootElement
 
 @Service
-class GradingInfoParserRunner(
+class GraderInitializer(
     private val grader: Grader,
     private val fileManager: FileManager,
     private val solutionService: SolutionService,
     private val taskService: TaskService,
     private val contestService: ContestService,
+    private val verdictService: VerdictService,
 
-    @Value("\${trik-studio-version}") private val trikStudioVersion: String,
+
+    @Value("\${trik.testsys.trik-studio.container.name}") private val trikStudioContainerName: String,
     @Value("\${grading-node-addresses}") private val gradingNodeAddresses: String
-) : StartupRunner {
-
-    override suspend fun run() {
-        TODO("Not yet implemented")
+) : AbstractStartupRunner() {
+    
+    @PostLoad
+    fun init() {
+        if (trikStudioContainerName.trim().isEmpty()) {
+            throw IllegalStateException("TRIK Studio container name must be defined.")
+        }
     }
 
-    override fun runBlocking() {
+    override suspend fun execute() {
         addGraderNodes()
         addGraderSubscription()
         sendToGradeUngradedSolutions()
     }
-
+    
     private fun sendToGradeUngradedSolutions() {
         logger.info("Sending ungraded solutions to grade...")
 
         val ungradedSolutions = solutionService.findAll()
-            .filter { it.status == Solution.SolutionStatus.NOT_STARTED || it.status == Solution.SolutionStatus.IN_PROGRESS }
+            .filter { it.status == Solution.Status.NOT_STARTED || it.status == Solution.Status.IN_PROGRESS }
             .filter {
                 val file = fileManager.getSolutionFile(it)
                 if (file == null) {
                     logger.error("Solution file for solution ${it.id} is missing.")
 
-                    it.status = Solution.SolutionStatus.ERROR
-                    it.score = 0
-                    if (it.isLastTaskTest()) changeTaskTestingResult(it)
+                    it.status = Solution.Status.ERROR
+                    verdictService.createNewForSolution(it, 0)
+
+//                    if (it.isLastTaskTest()) changeTaskTestingResult(it)
                     solutionService.save(it)
 
                     false
@@ -63,7 +70,7 @@ class GradingInfoParserRunner(
         logger.info("Found ${ungradedSolutions.size} ungraded solutions.")
 
         ungradedSolutions.forEach {
-            grader.sendToGrade(it, Grader.GradingOptions(true, trikStudioVersion))
+            grader.sendToGrade(it, Grader.GradingOptions(true, trikStudioContainerName))
         }
     }
 
@@ -96,10 +103,11 @@ class GradingInfoParserRunner(
     private fun afterCatchException(gradingInfo: Grader.GradingInfo) {
         try {
             val solutionId = gradingInfo.submissionId
-            val solution = solutionService.find(solutionId.toLong()) ?: return
+            val solution = solutionService.findById(solutionId.toLong()) ?: return
 
-            solution.status = Solution.SolutionStatus.ERROR
-            solution.score = 0
+            solution.status = Solution.Status.ERROR
+
+            verdictService.createNewForSolution(solution, 0)
 
             solutionService.save(solution)
         } catch (e: Exception) {
@@ -111,7 +119,7 @@ class GradingInfoParserRunner(
         logger.info("Solution $solutionId was graded without errors.")
         fileManager.saveSuccessfulGradingInfo(this)
 
-        val solution = solutionService.find(solutionId.toLong()) ?: return@let
+        val solution = solutionService.findById(solutionId.toLong()) ?: return@let
         val verdicts = fileManager.getVerdictFiles(solution)
 
         val objectMapper = createMapper()
@@ -140,32 +148,30 @@ class GradingInfoParserRunner(
             totalScore += score
         }
 
-        solution.status = if (allFailed) Solution.SolutionStatus.FAILED else Solution.SolutionStatus.PASSED
-        solution.score = totalScore
+        solution.status = if (allFailed) Solution.Status.FAILED else Solution.Status.PASSED
+        verdictService.createNewForSolution(solution, totalScore)
 
-        if (solution.isLastTaskTest()) changeTaskTestingResult(solution)
+//        if (solution.isLastTaskTest()) changeTaskTestingResult(solution)
 
         solutionService.save(solution)
     }
 
-    fun Solution.isLastTaskTest() = student == null && taskService.getLastTest(task)?.id == this.id
-
-    private fun changeTaskTestingResult(solution: Solution) {
-        if (solution.status == Solution.SolutionStatus.FAILED || !solution.task.hasExercise || !solution.task.hasSolution || solution.task.polygonsCount == 0L) {
-            solution.task.fail()
-
-            solution.task.contests.forEach {
-                it.tasks.remove(solution.task)
-                contestService.save(it)
-            }
-            solution.task.contests.clear()
-        }
-
-        if (solution.status == Solution.SolutionStatus.PASSED && solution.task.hasExercise && solution.task.hasSolution && solution.task.polygonsCount > 0L) {
-            solution.task.pass()
-        }
-        taskService.save(solution.task)
-    }
+//    private fun changeTaskTestingResult(solution: Solution) {
+//        if (solution.status == Solution.Status.FAILED || !solution.task.hasExercise || !solution.task.hasSolution || solution.task.polygonsCount == 0L) {
+//            solution.task.fail()
+//
+//            solution.task.contests.forEach {
+//                it.tasks.remove(solution.task)
+//                contestService.save(it)
+//            }
+//            solution.task.contests.clear()
+//        }
+//
+//        if (solution.status == Solution.Status.PASSED && solution.task.hasExercise && solution.task.hasSolution && solution.task.polygonsCount > 0L) {
+//            solution.task.pass()
+//        }
+//        taskService.save(solution.task)
+//    }
 
     private fun ObjectMapper.readVerdictElements(verdict: File): List<VerdictElement>? = try {
         readValue(verdict, object : TypeReference<List<VerdictElement>>() {}) ?: run {
@@ -183,7 +189,7 @@ class GradingInfoParserRunner(
         return objectMapper
     }
 
-    @XmlRootElement
+//    @XmlRootElement
     private data class VerdictElement(
         val level: String = "",
         val message: String = ""
@@ -207,19 +213,19 @@ class GradingInfoParserRunner(
 
     private fun Grader.GradingInfo.Error.parse() = let { (solutionId, kind) ->
         logger.info("Solution $solutionId was graded with error: $kind.")
-        val solution = solutionService.find(solutionId.toLong()) ?: return@let
+        val solution = solutionService.findById(solutionId.toLong()) ?: return@let
 
         solution.status = when (kind) {
-            is Grader.ErrorKind.InnerTimeoutExceed -> Solution.SolutionStatus.FAILED
-            else -> Solution.SolutionStatus.ERROR
+            is Grader.ErrorKind.InnerTimeoutExceed -> Solution.Status.FAILED
+            else -> Solution.Status.ERROR
         }
-        solution.score = 0
 
+        verdictService.createNewForSolution(solution, 0)
         solutionService.save(solution)
     }
-
+    
     companion object {
 
-        private val logger = LoggerFactory.getLogger(GradingInfoParserRunner::class.java)
+        private val logger = LoggerFactory.getLogger(GraderInitializer::class.java)
     }
 }

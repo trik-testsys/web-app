@@ -1,6 +1,7 @@
 package trik.testsys.webapp.backoffice.data.service.impl
 
 import org.springframework.stereotype.Service
+import trik.testsys.webapp.backoffice.data.entity.impl.Solution
 import trik.testsys.webapp.backoffice.data.entity.impl.Verdict
 import trik.testsys.webapp.backoffice.data.repository.VerdictRepository
 import trik.testsys.webapp.backoffice.data.service.VerdictService
@@ -12,4 +13,16 @@ class VerdictServiceImpl :
     VerdictService {
 
     override fun save(verdict: Verdict): Verdict = super.save(verdict)
+
+    override fun createNewForSolution(solution: Solution, score: Long): Verdict {
+        val newVerdict = Verdict().also {
+            it.solution = solution
+            it.value = score
+        }
+
+        solution.verdicts.add(newVerdict)
+        solution.relevantVerdict = newVerdict
+
+        return save(newVerdict)
+    }
 }

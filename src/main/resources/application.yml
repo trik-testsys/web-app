@@ -59,9 +59,10 @@ trik:
     superuser:
       name: "${SUPER_USER_NAME:Default Super User}"
       accessToken: "${SUPER_USER_AT:}"
+    trik-studio:
+      container:
+        name: "${TS_CONTAINER_NAME:}"
     grading-node:
-      container-name: "${GN_CONTAINER_NAME:testsystrik/trik-studio}"
-      version: "${GN_VERSION:latest}"
       addresses: "${GN_ADDRESSES:}"
     paths:
       taskFiles:
