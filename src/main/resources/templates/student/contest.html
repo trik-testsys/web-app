@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+<head>
+    <th:block th:include="fragments/layout :: head('Тур')"></th:block>
+</head>
+<body>
+<header th:replace="fragments/layout :: header(userName=${user.name})"></header>
+<aside th:replace="fragments/layout :: sidebar(sections=${menuSections})"></aside>
+
+<main class="app-main">
+    <section class="card">
+        <h2 class="card-title" th:text="${contest.name}">Тур</h2>
+        <div class="card-body">
+
+            <h3 style="margin: 16px 0 8px 0;">Основная информация</h3>
+
+            <div class="grid grid-2">
+                <div>
+                    <div><b>Начало:</b> <span th:text="${contest.startsAt != null ? #temporals.format(contest.startsAt, 'dd.MM.yyyy HH:mm') : '—'}"></span></div>
+                    <div><b>Окончание:</b> <span th:text="${contest.endsAt != null ? #temporals.format(contest.endsAt, 'dd.MM.yyyy HH:mm') : '—'}"></span></div>
+                </div>
+                <div>
+                    <div><b>Время на прохождение:</b> <span th:text="${contest.duration != null ? contest.duration + ' мин' : '—'}"></span></div>
+                    <div><b>Осталось:</b> <span th:text="${remainingTime}"></span></div>
+                </div>
+            </div>
+
+            <hr class="separator">
+
+            <h3 style="margin: 16px 0 8px 0;">Задачи</h3>
+            <div th:if="${#lists.isEmpty(tasks)}" style="color: var(--color-text-muted);">Пока нет заданий.</div>
+            <table th:if="${!#lists.isEmpty(tasks)}" class="table">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Название</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="t : ${tasks}">
+                    <td th:text="${t.id}"></td>
+                    <td th:text="${t.name}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="fragments/layout :: footer"></footer>
+</body>
+</html>
+
+

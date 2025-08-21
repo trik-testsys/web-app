@@ -99,18 +99,18 @@ class DeveloperContestController(
         }
         if (contest.developer?.id != developer.id) {
             redirectAttributes.addMessage("Доступно только владельцу.")
-            return "redirect:/user/developer/contests/${'$'}id"
+            return "redirect:/user/developer/contests/$id"
         }
 
         val task = taskService.findById(taskId)
         if (task == null || task.developer?.id != developer.id) {
             redirectAttributes.addMessage("Задача не найдена или недоступна.")
-            return "redirect:/user/developer/contests/${'$'}id"
+            return "redirect:/user/developer/contests/$id"
         }
 
         if (task.testingStatus != Task.TestingStatus.PASSED) {
             redirectAttributes.addMessage("Можно прикреплять только Задачи со статусом тестирования Пройдено.")
-            return "redirect:/user/developer/contests/${'$'}id"
+            return "redirect:/user/developer/contests/$id"
         }
 
         val hasPolygon = task.taskFiles.any { it.type == TaskFile.TaskFileType.POLYGON }
@@ -118,13 +118,49 @@ class DeveloperContestController(
         val hasExercise = task.taskFiles.any { it.type == TaskFile.TaskFileType.EXERCISE }
         if (!hasPolygon || !hasSolution || !hasExercise) {
             redirectAttributes.addMessage("Для прикрепления к Туру требуется минимум один Полигон, одно Эталонное Решение и одно Упражнение.")
-            return "redirect:/user/developer/contests/${'$'}id"
+            return "redirect:/user/developer/contests/$id"
         }
 
         val added = contest.tasks.add(task)
         contestService.save(contest)
         if (added) redirectAttributes.addMessage("Задача прикреплена к Туру.") else redirectAttributes.addMessage("Задача уже была прикреплена.")
-        return "redirect:/user/developer/contests/${'$'}id"
+        return "redirect:/user/developer/contests/$id"
+    }
+
+    @PostMapping("/contests/{id}/groups/add")
+    fun addUserGroup(
+        @PathVariable id: Long,
+        @RequestParam("groupId") groupId: Long,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val contest = contestService.findById(id) ?: run {
+            redirectAttributes.addMessage("Тур не найден.")
+            return "redirect:/user/developer/contests"
+        }
+        if (contest.developer?.id != developer.id) {
+            redirectAttributes.addMessage("Доступно только владельцу.")
+            return "redirect:/user/developer/contests/$id"
+        }
+
+        val group = userGroupService.findById(groupId)
+        if (group == null) {
+            redirectAttributes.addMessage("Группа не найдена.")
+            return "redirect:/user/developer/contests/$id"
+        }
+
+        val added = contest.userGroups.add(group)
+        contestService.save(contest)
+        if (added) redirectAttributes.addMessage("Группа добавлена к доступу.") else redirectAttributes.addMessage("Группа уже имеет доступ.")
+        return "redirect:/user/developer/contests/$id"
     }
 
     @PostMapping("/contests/{contestId}/tasks/{taskId}/detach")
@@ -148,13 +184,13 @@ class DeveloperContestController(
         }
         if (contest.developer?.id != developer.id) {
             redirectAttributes.addMessage("Доступно только владельцу.")
-            return "redirect:/user/developer/contests/${'$'}contestId"
+            return "redirect:/user/developer/contests/$contestId"
         }
 
         val removed = contest.tasks.removeIf { it.id == taskId }
         contestService.save(contest)
         if (removed) redirectAttributes.addMessage("Задача откреплена от Тура.") else redirectAttributes.addMessage("Задача не была прикреплена.")
-        return "redirect:/user/developer/contests/${'$'}contestId"
+        return "redirect:/user/developer/contests/$contestId"
     }
 
     @PostMapping("/contests/{id}/rename")
@@ -178,19 +214,19 @@ class DeveloperContestController(
         }
         if (contest.developer?.id != developer.id) {
             redirectAttributes.addMessage("Редактирование доступно только владельцу.")
-            return "redirect:/user/developer/contests/${'$'}id"
+            return "redirect:/user/developer/contests/$id"
         }
 
         val trimmed = name.trim()
         if (trimmed.isEmpty()) {
             redirectAttributes.addMessage("Название не может быть пустым.")
-            return "redirect:/user/developer/contests/${'$'}id"
+            return "redirect:/user/developer/contests/$id"
         }
 
         contest.name = trimmed
         contestService.save(contest)
         redirectAttributes.addMessage("Название Тура обновлено.")
-        return "redirect:/user/developer/contests/${'$'}id"
+        return "redirect:/user/developer/contests/$id"
     }
 
     @PostMapping("/contests/{id}/update")
@@ -218,18 +254,18 @@ class DeveloperContestController(
         }
         if (contest.developer?.id != developer.id) {
             redirectAttributes.addMessage("Редактирование доступно только владельцу.")
-            return "redirect:/user/developer/contests/${'$'}id"
+            return "redirect:/user/developer/contests/$id"
         }
 
         val trimmedName = name.trim()
         if (trimmedName.isEmpty()) {
             redirectAttributes.addMessage("Название не может быть пустым.")
-            return "redirect:/user/developer/contests/${'$'}id"
+            return "redirect:/user/developer/contests/$id"
         }
 
         if (duration != null && duration <= 0) {
             redirectAttributes.addMessage("Время на прохождение должно быть положительной.")
-            return "redirect:/user/developer/contests/${'$'}id"
+            return "redirect:/user/developer/contests/$id"
         }
 
         val startsInstant = try {
@@ -237,7 +273,7 @@ class DeveloperContestController(
             ldt.atZone(ZoneId.systemDefault()).toInstant()
         } catch (e: Exception) {
             redirectAttributes.addMessage("Некорректная дата начала. Формат: yyyy-MM-dd'T'HH:mm")
-            return "redirect:/user/developer/contests/${'$'}id"
+            return "redirect:/user/developer/contests/$id"
         }
 
         val endsInstant = if (!endsAt.isNullOrBlank()) {
@@ -246,13 +282,13 @@ class DeveloperContestController(
                 ldt.atZone(ZoneId.systemDefault()).toInstant()
             } catch (e: Exception) {
                 redirectAttributes.addMessage("Некорректная дата окончания. Формат: yyyy-MM-dd'T'HH:mm")
-                return "redirect:/user/developer/contests/${'$'}id"
+                return "redirect:/user/developer/contests/$id"
             }
         } else null
 
         if (endsInstant != null && endsInstant.isBefore(startsInstant)) {
             redirectAttributes.addMessage("Окончание не может быть раньше начала.")
-            return "redirect:/user/developer/contests/${'$'}id"
+            return "redirect:/user/developer/contests/$id"
         }
 
         contest.name = trimmedName
@@ -262,7 +298,7 @@ class DeveloperContestController(
         contest.duration = duration
         contestService.save(contest)
         redirectAttributes.addMessage("Данные Тура обновлены.")
-        return "redirect:/user/developer/contests/${'$'}id"
+        return "redirect:/user/developer/contests/$id"
     }
 
     @GetMapping("/contests/create")
@@ -360,7 +396,7 @@ class DeveloperContestController(
             it.developer = developer
         }
         contestService.save(contest)
-        redirectAttributes.addMessage("Тур создан (id=${'$'}{contest.id}).")
+        redirectAttributes.addMessage("Тур создан (id=${contest.id}).")
         return "redirect:/user/developer/contests"
     }
 }

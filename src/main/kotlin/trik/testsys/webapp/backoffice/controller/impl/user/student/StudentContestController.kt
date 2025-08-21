@@ -1,3 +1,123 @@
+package trik.testsys.webapp.backoffice.controller.impl.user.student
+
+import jakarta.servlet.http.HttpSession
+import org.springframework.stereotype.Controller
+import org.springframework.ui.Model
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.servlet.mvc.support.RedirectAttributes
+import trik.testsys.webapp.backoffice.controller.AbstractUserController
+import trik.testsys.webapp.backoffice.data.entity.impl.Contest
+import trik.testsys.webapp.backoffice.data.entity.impl.User
+import trik.testsys.webapp.backoffice.data.service.ContestService
+import trik.testsys.webapp.backoffice.utils.addMessage
+import java.time.Duration
+import java.time.Instant
+
+@Controller
+@RequestMapping("/user/student/contests/{id}")
+class StudentContestController(
+    private val contestService: ContestService,
+) : AbstractUserController() {
+
+    @GetMapping
+    fun view(
+        @PathVariable("id") id: Long,
+        @RequestParam(name = "start", required = false, defaultValue = "false") start: Boolean,
+        model: Model,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val user = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!user.privileges.contains(User.Privilege.STUDENT)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val contest = contestService.findById(id) ?: run {
+            redirectAttributes.addMessage("Тур не найден.")
+            return "redirect:/user/student/contests"
+        }
+
+        // Verify accessibility via student's groups
+        val inStudentGroups = user.memberedStudentGroups.any { g -> g.contests.any { it.id == contest.id } }
+        if (!inStudentGroups) {
+            redirectAttributes.addMessage("Тур недоступен.")
+            return "redirect:/user/student/contests"
+        }
+
+        // Start on demand (after user confirmation on UI)
+        if (start) {
+            startContestIfNeeded(session, contest)
+        }
+
+        setupModel(model, session, user)
+        model.addAttribute("contest", contest)
+        model.addAttribute("tasks", contest.tasks.sortedBy { it.id })
+        model.addAttribute("remainingTime", remainingTimeString(session, Instant.now(), contest))
+        return "student/contest"
+    }
+
+    private fun startContestIfNeeded(session: HttpSession, contest: Contest) {
+        @Suppress("UNCHECKED_CAST")
+        var map = session.getAttribute(SESSION_START_TIMES) as? MutableMap<Long, Instant>
+        if (map == null) {
+            map = LinkedHashMap()
+            session.setAttribute(SESSION_START_TIMES, map)
+        }
+        map.putIfAbsent(contest.id!!, Instant.now())
+    }
+
+    private fun remainingTimeString(session: HttpSession, now: Instant, contest: Contest): String {
+        val durationMinutes = contest.duration
+        val endsAt = contest.endsAt
+
+        if (endsAt == null && durationMinutes == null) return "—"
+
+        val startInstant = getContestStartTime(session, contest.id!!)
+
+        var timeByEnds: Duration? = null
+        if (endsAt != null) {
+            timeByEnds = Duration.between(now, endsAt)
+        }
+
+        var timeByDuration: Duration? = null
+        if (durationMinutes != null && startInstant != null) {
+            val elapsed = Duration.between(startInstant, now)
+            val total = Duration.ofMinutes(durationMinutes)
+            timeByDuration = total.minus(elapsed)
+        }
+
+        val effective = when {
+            endsAt == null -> timeByDuration
+            durationMinutes == null -> timeByEnds
+            else -> listOfNotNull(timeByEnds, timeByDuration).minByOrNull { it }
+        }
+
+        if (effective == null) return "—"
+        if (effective.isNegative || effective.isZero) return "00:00:00"
+        val totalSeconds = effective.seconds
+        val hours = totalSeconds / 3600
+        val minutes = (totalSeconds % 3600) / 60
+        val seconds = totalSeconds % 60
+        return String.format("%02d:%02d:%02d", hours, minutes, seconds)
+    }
+
+    private fun getContestStartTime(session: HttpSession, contestId: Long): Instant? {
+        @Suppress("UNCHECKED_CAST")
+        val map = session.getAttribute(SESSION_START_TIMES) as? MutableMap<Long, Instant>
+        return map?.get(contestId)
+    }
+
+    companion object {
+        private const val SESSION_START_TIMES = "studentContestStartTimes"
+    }
+}
+
 //package trik.testsys.webapp.backoffice.controller.impl.user.student
 //
 //import org.springframework.beans.factory.annotation.Value

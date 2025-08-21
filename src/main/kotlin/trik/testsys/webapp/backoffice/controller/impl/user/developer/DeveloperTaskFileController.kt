@@ -126,7 +126,7 @@ class DeveloperTaskFileController(
             return "redirect:/user/developer/task-files"
         }
 
-        redirectAttributes.addMessage("Файл создан (id=${'$'}{taskFile.id}).")
+        redirectAttributes.addMessage("Файл создан (id=${taskFile.id}).")
         return "redirect:/user/developer/task-files"
     }
 
@@ -193,7 +193,7 @@ class DeveloperTaskFileController(
         }
         if (tf.developer?.id != developer.id) {
             redirectAttributes.addMessage("Редактирование доступно только владельцу.")
-            return "redirect:/user/developer/task-files/${'$'}id"
+            return "redirect:/user/developer/task-files/$id"
         }
 
         tf.fileVersion = (tf.fileVersion + 1)
@@ -201,12 +201,12 @@ class DeveloperTaskFileController(
         if (!saved) {
             tf.fileVersion = (tf.fileVersion - 1)
             redirectAttributes.addMessage("Не удалось сохранить файл.")
-            return "redirect:/user/developer/task-files/${'$'}id"
+            return "redirect:/user/developer/task-files/$id"
         }
 
         taskFileService.save(tf)
         redirectAttributes.addMessage("Файл обновлён.")
-        return "redirect:/user/developer/task-files/${'$'}id"
+        return "redirect:/user/developer/task-files/$id"
     }
 
     @GetMapping("/task-files/{id}/download/{version}")
@@ -235,11 +235,11 @@ class DeveloperTaskFileController(
 
         val file = fileManager.getTaskFileVersion(tf, version) ?: run {
             redirectAttributes.addMessage("Версия не найдена.")
-            return "redirect:/user/developer/task-files/${'$'}id"
+            return "redirect:/user/developer/task-files/$id"
         }
 
         val bytes = file.readBytes()
-        val disposition = "attachment; filename=\"${'$'}{file.name}\""
+        val disposition = "attachment; filename=\"${file.name}\""
         return ResponseEntity.ok()
             .header("Content-Disposition", disposition)
             .header("Content-Type", MediaType.APPLICATION_OCTET_STREAM_VALUE)

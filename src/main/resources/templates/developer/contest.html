@@ -89,10 +89,12 @@
                         <td th:text="${t.id}"></td>
                         <td><a th:href="@{'/user/developer/tasks/' + ${t.id}}" th:text="${t.name}"></a></td>
                         <td th:text="${
-                            t.testingStatus == T(trik.testsys.webapp.backoffice.data.entity.impl.Task.TestingStatus).PASSED ? 'Пройдено' : (
-                            t.testingStatus == T(trik.testsys.webapp.backoffice.data.entity.impl.Task.TestingStatus).FAILED ? 'Не пройдено' : (
-                            t.testingStatus == T(trik.testsys.webapp.backoffice.data.entity.impl.Task.TestingStatus).TESTING ? 'В процессе' : 'Не запускалось')
-                        )}"></td>
+                            t.testingStatus != null ? (
+                                t.testingStatus.name() == 'PASSED' ? 'Пройдено' : (
+                                t.testingStatus.name() == 'FAILED' ? 'Не пройдено' : (
+                                t.testingStatus.name() == 'TESTING' ? 'В процессе' : 'Не запускалось')
+                            )) : 'Не запускалось'
+                        }"></td>
                         <td th:text="${t.createdAt != null ? #temporals.format(t.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                         <td>
                             <form th:action="@{'/user/developer/contests/' + ${contest.id} + '/tasks/' + ${t.id} + '/detach'}" method="post" onsubmit="return confirm('Открепить Задачу?');">
@@ -122,19 +124,21 @@
                     <td th:text="${t.id}"></td>
                     <td><a th:href="@{'/user/developer/tasks/' + ${t.id}}" th:text="${t.name}"></a></td>
                     <td th:text="${
-                            t.testingStatus == T(trik.testsys.webapp.backoffice.data.entity.impl.Task.TestingStatus).PASSED ? 'Пройдено' : (
-                            t.testingStatus == T(trik.testsys.webapp.backoffice.data.entity.impl.Task.TestingStatus).FAILED ? 'Не пройдено' : (
-                            t.testingStatus == T(trik.testsys.webapp.backoffice.data.entity.impl.Task.TestingStatus).TESTING ? 'В процессе' : 'Не запускалось')
-                        )}"></td>
+                            t.testingStatus != null ? (
+                                t.testingStatus.name() == 'PASSED' ? 'Пройдено' : (
+                                t.testingStatus.name() == 'FAILED' ? 'Не пройдено' : (
+                                t.testingStatus.name() == 'TESTING' ? 'В процессе' : 'Не запускалось')
+                            )) : 'Не запускалось'
+                        }"></td>
                     <td th:text="${t.createdAt != null ? #temporals.format(t.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                     <td>
                         <form th:action="@{'/user/developer/contests/' + ${contest.id} + '/tasks/attach'}" method="post">
                             <input type="hidden" name="taskId" th:value="${t.id}">
                             <button class="button" type="submit" th:disabled="${
-                                t.testingStatus != T(trik.testsys.webapp.backoffice.data.entity.impl.Task.TestingStatus).PASSED || !isOwner ||
-                                #lists.isEmpty(t.taskFiles.?[type == T(trik.testsys.webapp.backoffice.data.entity.impl.TaskFile.TaskFileType).POLYGON]) ||
-                                #lists.isEmpty(t.taskFiles.?[type == T(trik.testsys.webapp.backoffice.data.entity.impl.TaskFile.TaskFileType).SOLUTION]) ||
-                                #lists.isEmpty(t.taskFiles.?[type == T(trik.testsys.webapp.backoffice.data.entity.impl.TaskFile.TaskFileType).EXERCISE])
+                                (t.testingStatus == null || t.testingStatus.name() != 'PASSED') || !isOwner ||
+                                #lists.isEmpty(t.taskFiles.?[type?.name() == 'POLYGON']) ||
+                                #lists.isEmpty(t.taskFiles.?[type?.name() == 'SOLUTION']) ||
+                                #lists.isEmpty(t.taskFiles.?[type?.name() == 'EXERCISE'])
                             }">Прикрепить</button>
                         </form>
                     </td>

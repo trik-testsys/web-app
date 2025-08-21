@@ -94,7 +94,7 @@ class DeveloperTaskController(
             it.info = info?.takeIf { s -> s.isNotBlank() }
         }
         taskService.save(task)
-        redirectAttributes.addMessage("Задача создана (id=${'$'}{task.id}).")
+        redirectAttributes.addMessage("Задача создана (id=${task.id}).")
         return "redirect:/user/developer/tasks"
     }
 
@@ -231,20 +231,20 @@ class DeveloperTaskController(
         }
         if (task.developer?.id != developer.id) {
             redirectAttributes.addMessage("Редактирование доступно только владельцу.")
-            return "redirect:/user/developer/tasks/${'$'}id"
+            return "redirect:/user/developer/tasks/$id"
         }
 
         val trimmedName = name.trim()
         if (trimmedName.isEmpty()) {
             redirectAttributes.addMessage("Название не может быть пустым.")
-            return "redirect:/user/developer/tasks/${'$'}id"
+            return "redirect:/user/developer/tasks/$id"
         }
 
         task.name = trimmedName
         task.info = info?.takeIf { it.isNotBlank() }
         taskService.save(task)
         redirectAttributes.addMessage("Данные Задачи обновлены.")
-        return "redirect:/user/developer/tasks/${'$'}id"
+        return "redirect:/user/developer/tasks/$id"
     }
 
     @PostMapping("/tasks/{id}/files/attach")
@@ -268,28 +268,28 @@ class DeveloperTaskController(
         }
         if (task.developer?.id != developer.id) {
             redirectAttributes.addMessage("Изменение доступов доступно только владельцу.")
-            return "redirect:/user/developer/tasks/${'$'}id"
+            return "redirect:/user/developer/tasks/$id"
         }
 
         val tf = taskFileService.findById(taskFileId)
         if (tf == null) {
             redirectAttributes.addMessage("Файл не найден.")
-            return "redirect:/user/developer/tasks/${'$'}id"
+            return "redirect:/user/developer/tasks/$id"
         }
         if (tf.developer?.id != developer.id) {
             redirectAttributes.addMessage("Можно прикреплять только свои файлы.")
-            return "redirect:/user/developer/tasks/${'$'}id"
+            return "redirect:/user/developer/tasks/$id"
         }
 
         if (task.testingStatus == Task.TestingStatus.TESTING) {
             redirectAttributes.addMessage("Нельзя изменять файлы во время тестирования.")
-            return "redirect:/user/developer/tasks/${'$'}id"
+            return "redirect:/user/developer/tasks/$id"
         }
 
         val usedInContest = contestService.findAll().any { c -> c.tasks.any { it.id == task.id } }
         if (usedInContest) {
             redirectAttributes.addMessage("Нельзя изменять файлы Задачи, прикреплённой к Туру.")
-            return "redirect:/user/developer/tasks/${'$'}id"
+            return "redirect:/user/developer/tasks/$id"
         }
 
         val added = task.taskFiles.add(tf)
@@ -302,7 +302,7 @@ class DeveloperTaskController(
         } else {
             redirectAttributes.addMessage("Файл уже был прикреплён.")
         }
-        return "redirect:/user/developer/tasks/${'$'}id"
+        return "redirect:/user/developer/tasks/$id"
     }
 
     @PostMapping("/tasks/{taskId}/files/{fileId}/detach")
@@ -326,18 +326,18 @@ class DeveloperTaskController(
         }
         if (task.developer?.id != developer.id) {
             redirectAttributes.addMessage("Изменение доступов доступно только владельцу.")
-            return "redirect:/user/developer/tasks/${'$'}taskId"
+            return "redirect:/user/developer/tasks/$taskId"
         }
 
         if (task.testingStatus == Task.TestingStatus.TESTING) {
             redirectAttributes.addMessage("Нельзя изменять файлы во время тестирования.")
-            return "redirect:/user/developer/tasks/${'$'}taskId"
+            return "redirect:/user/developer/tasks/$taskId"
         }
 
         val usedInContest = contestService.findAll().any { c -> c.tasks.any { it.id == task.id } }
         if (usedInContest) {
             redirectAttributes.addMessage("Нельзя изменять файлы Задачи, прикреплённой к Туру.")
-            return "redirect:/user/developer/tasks/${'$'}taskId"
+            return "redirect:/user/developer/tasks/$taskId"
         }
 
         val removed = task.taskFiles.removeIf { it.id == fileId }
@@ -350,7 +350,7 @@ class DeveloperTaskController(
         } else {
             redirectAttributes.addMessage("Файл не был прикреплён.")
         }
-        return "redirect:/user/developer/tasks/${'$'}taskId"
+        return "redirect:/user/developer/tasks/$taskId"
     }
 
     @PostMapping("/tasks/{id}/test")
@@ -373,32 +373,32 @@ class DeveloperTaskController(
         }
         if (task.developer?.id != developer.id) {
             redirectAttributes.addMessage("Доступно только владельцу.")
-            return "redirect:/user/developer/tasks/${'$'}id"
+            return "redirect:/user/developer/tasks/$id"
         }
 
         val usedInContest = contestService.findAll().any { c -> c.tasks.any { it.id == task.id } }
         if (usedInContest) {
             redirectAttributes.addMessage("Нельзя запускать тестирование для Задачи, прикреплённой к Туру.")
-            return "redirect:/user/developer/tasks/${'$'}id"
+            return "redirect:/user/developer/tasks/$id"
         }
 
         if (task.testingStatus == Task.TestingStatus.TESTING) {
             redirectAttributes.addMessage("Задача уже тестируется.")
-            return "redirect:/user/developer/tasks/${'$'}id"
+            return "redirect:/user/developer/tasks/$id"
         }
 
         val hasPolygon = task.taskFiles.any { it.type == TaskFile.TaskFileType.POLYGON }
         val hasSolution = task.taskFiles.any { it.type == TaskFile.TaskFileType.SOLUTION }
         if (!hasPolygon || !hasSolution) {
             redirectAttributes.addMessage("Для тестирования требуется минимум один Файл типа Полигон и один Файл типа Эталонное Решение.")
-            return "redirect:/user/developer/tasks/${'$'}id"
+            return "redirect:/user/developer/tasks/$id"
         }
 
         // Placeholder: real integration with Grader should go here
         task.testingStatus = Task.TestingStatus.TESTING
         taskService.save(task)
         redirectAttributes.addMessage("Тестирование запущено.")
-        return "redirect:/user/developer/tasks/${'$'}id"
+        return "redirect:/user/developer/tasks/$id"
     }
 
     // Task templates (kept here until a dedicated controller is introduced)
