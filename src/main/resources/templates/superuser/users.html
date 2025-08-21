@@ -20,11 +20,12 @@
     <section class="card">
         <h2 class="card-title">Пользователи</h2>
         <div class="card-body">
+            <div class="alert" th:if="${message}" th:text="${message}"></div>
             <div style="margin-bottom:10px;">
                 <a class="button" th:href="@{/user/superuser/users/create}">Создать пользователя</a>
             </div>
             <hr class="separator">
-            <div class="alert" th:if="${message}" th:text="${message}"></div>
+            <h3 style="margin: 0 0 8px 0;">Список созданных Пользователей</h3>
             <table class="table">
                 <thead>
                     <tr>

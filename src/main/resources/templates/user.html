@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
 <head>
-    <th:block th:include="fragments/layout :: head('Основная информация')"></th:block>
+    <th:block th:include="fragments/layout :: head('Обзор')"></th:block>
 </head>
 <body>
 
@@ -10,9 +10,10 @@
 
 <main class="app-main">
     <section class="card">
-        <h2 class="card-title">Основная информация</h2>
+        <h2 class="card-title">Обзор</h2>
         <div class="card-body">
             <div class="alert" th:if="${message}" th:text="${message}"></div>
+            <h3 style="margin: 0 0 8px 0;">Основная информация</h3>
             <dl class="kv">
                 <dt>ID</dt>
                 <dd th:text="${user.id}"></dd>

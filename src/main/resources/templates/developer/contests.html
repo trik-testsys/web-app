@@ -14,13 +14,14 @@
 
 <main class="app-main">
     <section class="card">
-        <h2 class="card-title">Мои Туры</h2>
+        <h2 class="card-title">Туры</h2>
         <div class="card-body">
             <div style="margin-bottom:10px;">
                 <a class="button" th:href="@{/user/developer/contests/create}">Создать Тур</a>
             </div>
             <hr class="separator">
-            <div th:if="${#lists.isEmpty(createdContests)}" style="color: var(--color-text-muted);">У вас пока нет Туров.</div>
+            <h3 style="margin: 16px 0 8px 0;">Созданные Туры</h3>
+            <div th:if="${#lists.isEmpty(createdContests)}" style="color: var(--color-text-muted);">Вы пока не создали ни одного Тура.</div>
             <table th:if="${!#lists.isEmpty(createdContests)}" class="table">
                 <thead>
                     <tr>
@@ -50,42 +51,41 @@
                     </tr>
                 </tbody>
             </table>
-        </div>
-    </section>
 
-    <section class="card">
-        <h2 class="card-title">Доступные Туры</h2>
-        <div class="card-body">
+            <hr class="separator">
+
+            <h3 style="margin: 16px 0 8px 0;">Доступные Туры</h3>
             <div th:if="${#lists.isEmpty(sharedContests)}" style="color: var(--color-text-muted);">Пока нет доступных Туров.</div>
             <table th:if="${!#lists.isEmpty(sharedContests)}" class="table">
                 <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Название</th>
-                        <th>Начало</th>
-                        <th>Окончание</th>
-                        <th>Время на прохождение</th>
-                        <th>Группы Пользователей</th>
-                    </tr>
+                <tr>
+                    <th>ID</th>
+                    <th>Название</th>
+                    <th>Начало</th>
+                    <th>Окончание</th>
+                    <th>Время на прохождение</th>
+                    <th>Группы Пользователей</th>
+                </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="c : ${sharedContests}">
-                        <td th:text="${c.id}"></td>
-                        <td>
-                            <a th:href="@{'/user/developer/contests/' + ${c.id}}" th:text="${c.name}"></a>
-                        </td>
-                        <td th:text="${c.startsAt != null ? #temporals.format(c.startsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
-                        <td th:text="${c.endsAt != null ? #temporals.format(c.endsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
-                        <td th:text="${c.duration != null ? c.duration + ' мин' : '—'}"></td>
-                        <td>
-                            <ul class="pill-list" th:if="${!#lists.isEmpty(c.userGroups)}">
-                                <li class="pill" th:each="g : ${c.userGroups}" th:text="${(g.name ?: 'Без названия') + ' (#' + g.id + ')'}"></li>
-                            </ul>
-                            <span th:if="${#lists.isEmpty(c.userGroups)}" style="color: var(--color-text-muted);">—</span>
-                        </td>
-                    </tr>
+                <tr th:each="c : ${sharedContests}">
+                    <td th:text="${c.id}"></td>
+                    <td>
+                        <a th:href="@{'/user/developer/contests/' + ${c.id}}" th:text="${c.name}"></a>
+                    </td>
+                    <td th:text="${c.startsAt != null ? #temporals.format(c.startsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td th:text="${c.endsAt != null ? #temporals.format(c.endsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td th:text="${c.duration != null ? c.duration + ' мин' : '—'}"></td>
+                    <td>
+                        <ul class="pill-list" th:if="${!#lists.isEmpty(c.userGroups)}">
+                            <li class="pill" th:each="g : ${c.userGroups}" th:text="${(g.name ?: 'Без названия') + ' (#' + g.id + ')'}"></li>
+                        </ul>
+                        <span th:if="${#lists.isEmpty(c.userGroups)}" style="color: var(--color-text-muted);">—</span>
+                    </td>
+                </tr>
                 </tbody>
             </table>
+
         </div>
     </section>
 </main>

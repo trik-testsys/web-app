@@ -19,6 +19,9 @@
         <h2 class="card-title"><a th:href="@{/user/developer/contests}">Туры</a> / Тур</h2>
         <div class="card-body">
             <div class="alert" th:if="${message}" th:text="${message}"></div>
+
+            <h3 style="margin: 16px 0 8px 0;">Основная информация</h3>
+
             <div th:if="${isOwner}">
                 <form id="contest-form" data-readonly-toggle th:action="@{'/user/developer/contests/' + ${contest.id} + '/update'}" method="post" class="form" style="display:grid; gap:12px; max-width:720px;">
                     <label>
@@ -67,28 +70,9 @@
         </div>
     </section>
     <section class="card">
-        <h2 class="card-title">Доступ для Групп Пользователей</h2>
+        <h2 class="card-title">Задачи</h2>
         <div class="card-body">
-            <div th:if="${#lists.isEmpty(contest.userGroups)}" style="color: var(--color-text-muted);">Доступно только Вам</div>
-            <ul th:if="${!#lists.isEmpty(contest.userGroups)}" class="pill-list">
-                <li class="pill" th:each="g : ${contest.userGroups}">
-                    <span th:text="${(g.name ?: 'Без названия') + ' (#' + g.id + ')'}"></span>
-                </li>
-            </ul>
-
-            <div th:if="${isOwner}" style="margin-top:12px; display:flex; gap:8px; align-items:center;">
-                <form th:action="@{'/user/developer/contests/' + ${contest.id} + '/groups/add'}" method="post" style="display:flex; gap:8px; align-items:center;" onsubmit="return confirm('Данное действие нельзя будет отменить в будущем');">
-                    <select name="groupId" required style="min-width:240px; padding:6px; border:1px solid #dde3ea; border-radius:8px;">
-                        <option th:each="g : ${availableUserGroups}" th:value="${g.id}" th:text="${(g.name ?: 'Без названия') + ' (#' + g.id + ')'}"></option>
-                    </select>
-                    <button class="button" type="submit">Добавить группу</button>
-                </form>
-            </div>
-        </div>
-    </section>
-    <section class="card">
-        <h2 class="card-title">Прикреплённые Задачи</h2>
-        <div class="card-body">
+            <h3 style="margin: 16px 0 8px 0;">Прикрепленные Задачи</h3>
             <div th:if="${#lists.isEmpty(attachedTasks)}" style="color: var(--color-text-muted);">Пока нет прикреплённых Задач.</div>
             <table th:if="${!#lists.isEmpty(attachedTasks)}" class="table">
                 <thead>
@@ -118,44 +102,62 @@
                     </tr>
                 </tbody>
             </table>
-        </div>
-    </section>
-    <section class="card">
-        <h2 class="card-title">Доступные Задачи</h2>
-        <div class="card-body">
+
+            <hr class="separator">
+
+            <h3 style="margin: 16px 0 8px 0;">Доступные к прикреплению</h3>
             <div th:if="${#lists.isEmpty(availableTasks)}" style="color: var(--color-text-muted);">Нет Задач для прикрепления.</div>
             <table th:if="${!#lists.isEmpty(availableTasks)}" class="table">
                 <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Название</th>
-                        <th>Статус тестирования</th>
-                        <th>Дата создания</th>
-                        <th></th>
-                    </tr>
+                <tr>
+                    <th>ID</th>
+                    <th>Название</th>
+                    <th>Статус тестирования</th>
+                    <th>Дата создания</th>
+                    <th></th>
+                </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="t : ${availableTasks}">
-                        <td th:text="${t.id}"></td>
-                        <td><a th:href="@{'/user/developer/tasks/' + ${t.id}}" th:text="${t.name}"></a></td>
-                        <td th:text="${
+                <tr th:each="t : ${availableTasks}">
+                    <td th:text="${t.id}"></td>
+                    <td><a th:href="@{'/user/developer/tasks/' + ${t.id}}" th:text="${t.name}"></a></td>
+                    <td th:text="${
                             t.testingStatus == T(trik.testsys.webapp.backoffice.data.entity.impl.Task.TestingStatus).PASSED ? 'Пройдено' : (
                             t.testingStatus == T(trik.testsys.webapp.backoffice.data.entity.impl.Task.TestingStatus).FAILED ? 'Не пройдено' : (
                             t.testingStatus == T(trik.testsys.webapp.backoffice.data.entity.impl.Task.TestingStatus).TESTING ? 'В процессе' : 'Не запускалось')
                         )}"></td>
-                        <td th:text="${t.createdAt != null ? #temporals.format(t.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
-                        <td>
-                            <form th:action="@{'/user/developer/contests/' + ${contest.id} + '/tasks/attach'}" method="post">
-                                <input type="hidden" name="taskId" th:value="${t.id}">
-                                <button class="button" type="submit" th:disabled="${t.testingStatus != T(trik.testsys.webapp.backoffice.data.entity.impl.Task.TestingStatus).PASSED}">Прикрепить</button>
-                            </form>
-                        </td>
-                    </tr>
+                    <td th:text="${t.createdAt != null ? #temporals.format(t.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td>
+                        <form th:action="@{'/user/developer/contests/' + ${contest.id} + '/tasks/attach'}" method="post">
+                            <input type="hidden" name="taskId" th:value="${t.id}">
+                            <button class="button" type="submit" th:disabled="${t.testingStatus != T(trik.testsys.webapp.backoffice.data.entity.impl.Task.TestingStatus).PASSED}">Прикрепить</button>
+                        </form>
+                    </td>
+                </tr>
                 </tbody>
             </table>
         </div>
     </section>
-    </div>
+    <section class="card">
+        <h2 class="card-title">Доступ для Групп Пользователей</h2>
+        <div class="card-body">
+            <div th:if="${#lists.isEmpty(contest.userGroups)}" style="color: var(--color-text-muted);">Доступно только Вам</div>
+            <ul th:if="${!#lists.isEmpty(contest.userGroups)}" class="pill-list">
+                <li class="pill" th:each="g : ${contest.userGroups}">
+                    <span th:text="${(g.name ?: 'Без названия') + ' (#' + g.id + ')'}"></span>
+                </li>
+            </ul>
+
+            <div th:if="${isOwner}" style="margin-top:12px; display:flex; gap:8px; align-items:center;">
+                <form th:action="@{'/user/developer/contests/' + ${contest.id} + '/groups/add'}" method="post" style="display:flex; gap:8px; align-items:center;" onsubmit="return confirm('Данное действие нельзя будет отменить в будущем');">
+                    <select name="groupId" required style="min-width:240px; padding:6px; border:1px solid #dde3ea; border-radius:8px;">
+                        <option th:each="g : ${availableUserGroups}" th:value="${g.id}" th:text="${(g.name ?: 'Без названия') + ' (#' + g.id + ')'}"></option>
+                    </select>
+                    <button class="button" type="submit">Добавить группу</button>
+                </form>
+            </div>
+        </div>
+    </section>
 </main>
 
 <footer th:replace="fragments/layout :: footer"></footer>

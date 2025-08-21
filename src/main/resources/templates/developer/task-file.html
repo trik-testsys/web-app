@@ -14,6 +14,8 @@
     <section class="card">
         <h2 class="card-title"><a th:href="@{/user/developer/task-files}">Файлы</a> / [<span th:text="${localizedType}"></span>] <span th:text="${taskFile.name}"></span></h2>
         <div class="card-body">
+            <h3 style="margin-top:0;">Основная информация</h3>
+
             <dl class="kv-wide">
                 <dt>ID</dt>
                 <dd th:text="${taskFile.id}"></dd>
@@ -26,7 +28,13 @@
                 <dt>Дата создания</dt>
                 <dd th:text="${taskFile.createdAt != null ? #temporals.format(taskFile.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></dd>
             </dl>
-            <hr class="separator">
+        </div>
+    </section>
+
+    <section class="card">
+        <h2 class="card-title">История изменений</h2>
+
+        <div class="card-body">
             <h3 style="margin-top:0;">Загрузить новую версию</h3>
             <form th:action="@{'/user/developer/task-files/' + ${taskFile.id} + '/upload'}" method="post" enctype="multipart/form-data" class="form" style="gap:12px; max-width: 720px;">
                 <label>
@@ -36,27 +44,27 @@
                     <button type="submit" class="button button--primary">Загрузить</button>
                 </div>
             </form>
-            <hr class="separator">
-            <h3 style="margin-top:0;">История изменений</h3>
+
+            <h3 style="margin-top:0;">Список версий</h3>
             <div th:if="${#lists.isEmpty(versions)}" style="color: var(--color-text-muted);">История пуста.</div>
             <table th:if="${!#lists.isEmpty(versions)}" class="table">
                 <thead>
-                    <tr>
-                        <th>Версия</th>
-                        <th>Имя файла</th>
-                        <th>Дата изменения</th>
-                        <th>Действия</th>
-                    </tr>
+                <tr>
+                    <th>Версия</th>
+                    <th>Имя файла</th>
+                    <th>Дата изменения</th>
+                    <th>Действия</th>
+                </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="v : ${versions}">
-                        <td th:text="${v.version}"></td>
-                        <td th:text="${v.fileName}"></td>
-                        <td th:text="${#temporals.format(v.lastModifiedAt, 'dd.MM.yyyy HH:mm')}"></td>
-                        <td>
-                            <a class="button" th:href="@{'/user/developer/task-files/' + ${taskFile.id} + '/download/' + ${v.version}}">Скачать</a>
-                        </td>
-                    </tr>
+                <tr th:each="v : ${versions}">
+                    <td th:text="${v.version}"></td>
+                    <td th:text="${v.fileName}"></td>
+                    <td th:text="${#temporals.format(v.lastModifiedAt, 'dd.MM.yyyy HH:mm')}"></td>
+                    <td>
+                        <a class="button" th:href="@{'/user/developer/task-files/' + ${taskFile.id} + '/download/' + ${v.version}}">Скачать</a>
+                    </td>
+                </tr>
                 </tbody>
             </table>
         </div>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html" lang="ru" th:charset="utf-8">
 <head>
     <th:block th:include="fragments/layout :: head('Группа')"></th:block>
 </head>
@@ -12,6 +12,7 @@
         <h2 class="card-title"><a th:href="@{/user/admin/groups}">Группы</a> / <span th:text="${group.name ?: 'Без названия'}"></span></h2>
         <div class="card-body">
             <div class="alert" th:if="${message}" th:text="${message}"></div>
+            <h3 style="margin: 0 0 8px 0;">Основная информация</h3>
             <dl class="kv">
                 <dt>ID</dt>
                 <dd th:text="${group.id}"></dd>
@@ -20,7 +21,13 @@
                 <dt>Описание</dt>
                 <dd th:text="${group.info ?: '—'}"></dd>
             </dl>
-            <hr class="separator">
+        </div>
+    </section>
+
+    <section class="card">
+        <h2 class="card-title">Участники</h2>
+        <div class="card-body">
+            <h3 style="margin: 0 0 8px 0;">Операции с Участниками</h3>
             <div style="margin: 12px 0; display:flex; gap:8px;">
                 <form th:action="@{'/user/admin/groups/' + ${group.id} + '/generate'}" method="post" style="display:flex; gap:8px; align-items:center;">
                     <input type="number" min="1" max="200" name="count" placeholder="Количество" style="width:120px; padding:8px 10px; border:1px solid #dde3ea; border-radius:8px;">
@@ -31,30 +38,35 @@
             </div>
             <hr class="separator">
             <div style="margin-top: 12px;">
-                <h3 style="margin: 0 0 8px 0;">Участники</h3>
+                <h3 style="margin: 0 0 8px 0;">Список Участников</h3>
                 <div th:if="${#lists.isEmpty(group.members)}" style="color: var(--color-text-muted);">В группе пока нет участников.</div>
                 <table th:if="${!#lists.isEmpty(group.members)}" class="table">
                     <thead>
-                        <tr>
-                            <th style="text-align:left; padding:8px;">ID</th>
-                            <th style="text-align:left; padding:8px;">Псевдоним</th>
-                            <th style="text-align:left; padding:8px;">Последний вход</th>
-                            <th style="text-align:left; padding:8px;">Код-доступа</th>
-                        </tr>
+                    <tr>
+                        <th style="text-align:left; padding:8px;">ID</th>
+                        <th style="text-align:left; padding:8px;">Псевдоним</th>
+                        <th style="text-align:left; padding:8px;">Последний вход</th>
+                        <th style="text-align:left; padding:8px;">Код-доступа</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        <tr th:each="m : ${group.members}">
-                            <td style="padding:8px;" th:text="${m.id}"></td>
-                            <td style="padding:8px;" th:text="${m.name}"></td>
-                            <td style="padding:8px;" th:text="${m.lastLoginAt != null ? #temporals.format(m.lastLoginAt, 'dd.MM.yyyy HH:mm:ss') : '—'}"></td>
-                            <td style="padding:8px;">
-                                <span class="token" th:text="${m.accessToken != null ? m.accessToken.value : '—'}"></span>
-                            </td>
-                        </tr>
+                    <tr th:each="m : ${group.members}">
+                        <td style="padding:8px;" th:text="${m.id}"></td>
+                        <td style="padding:8px;" th:text="${m.name}"></td>
+                        <td style="padding:8px;" th:text="${m.lastLoginAt != null ? #temporals.format(m.lastLoginAt, 'dd.MM.yyyy HH:mm:ss') : '—'}"></td>
+                        <td style="padding:8px;">
+                            <span class="token" th:text="${m.accessToken != null ? m.accessToken.value : '—'}"></span>
+                        </td>
+                    </tr>
                     </tbody>
                 </table>
             </div>
-            <hr class="separator">
+        </div>
+    </section>
+
+    <section class="card">
+        <h2 class="card-title">Туры</h2>
+        <div class="card-body">
             <div style="margin-top: 12px;">
                 <h3 style="margin: 0 0 8px 0;">Прикреплённые Туры</h3>
                 <div th:if="${#lists.isEmpty(attachedContests)}" style="color: var(--color-text-muted);">Нет прикреплённых Туров.</div>
@@ -79,6 +91,7 @@
                     </tbody>
                 </table>
             </div>
+            <hr class="separator">
             <div style="margin-top: 12px;">
                 <h3 style="margin: 16px 0 8px 0;">Туры, доступные для прикрепления</h3>
                 <div th:if="${#lists.isEmpty(availableContests)}" style="color: var(--color-text-muted);">Нет доступных Туров.</div>
