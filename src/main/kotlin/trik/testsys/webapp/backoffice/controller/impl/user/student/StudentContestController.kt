@@ -12,6 +12,7 @@ import trik.testsys.webapp.backoffice.controller.AbstractUserController
 import trik.testsys.webapp.backoffice.data.entity.impl.Contest
 import trik.testsys.webapp.backoffice.data.entity.impl.User
 import trik.testsys.webapp.backoffice.data.service.ContestService
+import trik.testsys.webapp.backoffice.data.service.VerdictService
 import trik.testsys.webapp.backoffice.utils.addMessage
 import java.time.Duration
 import java.time.Instant
@@ -20,6 +21,7 @@ import java.time.Instant
 @RequestMapping("/user/student/contests/{id}")
 class StudentContestController(
     private val contestService: ContestService,
+    private val verdictService: VerdictService,
 ) : AbstractUserController() {
 
     @GetMapping
@@ -57,8 +59,26 @@ class StudentContestController(
 
         setupModel(model, session, user)
         model.addAttribute("contest", contest)
-        model.addAttribute("tasks", contest.tasks.sortedBy { it.id })
+        val tasks = contest.tasks.sortedBy { it.id }
+        model.addAttribute("tasks", tasks)
         model.addAttribute("remainingTime", remainingTimeString(session, Instant.now(), contest))
+
+        val userSolutions = contest.solutions.filter { it.createdBy.id == user.id }
+        val verdicts = verdictService.findAllBySolutions(userSolutions)
+
+        val taskScores = mutableMapOf<Long, Long>()
+        userSolutions.forEach { sol ->
+            val solVerdicts = verdicts.filter { it.solutionId == sol.id }
+            val maxScore = solVerdicts.maxOfOrNull { it.value }
+            if (maxScore != null) {
+                val taskId = sol.task.id!!
+                val current = taskScores[taskId]
+                if (current == null || maxScore > current) {
+                    taskScores[taskId] = maxScore
+                }
+            }
+        }
+        model.addAttribute("taskScores", taskScores)
         return "student/contest"
     }
 

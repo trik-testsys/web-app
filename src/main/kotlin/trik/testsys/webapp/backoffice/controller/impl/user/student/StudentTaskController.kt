@@ -86,6 +86,8 @@ class StudentTaskController(
             (s.id!!) to (hasVerdicts || hasRecordings)
         }
         model.addAttribute("resultsAvailable", resultsAvailability)
+        val maxScore = verdicts.maxOfOrNull { it.value } ?: 0
+        model.addAttribute("maxScore", maxScore)
         val hasExercise = task.taskFiles.any { it.type == trik.testsys.webapp.backoffice.data.entity.impl.TaskFile.TaskFileType.EXERCISE }
         val hasCondition = task.taskFiles.any { it.type == trik.testsys.webapp.backoffice.data.entity.impl.TaskFile.TaskFileType.CONDITION }
         model.addAttribute("hasExercise", hasExercise)
