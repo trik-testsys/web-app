@@ -22,8 +22,8 @@ class Solution() : AbstractEntity() {
     @Column(name = "status", nullable = false)
     var status: Status = Status.NOT_STARTED
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "contest_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "contest_id", nullable = true)
     var contest: Contest? = null
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

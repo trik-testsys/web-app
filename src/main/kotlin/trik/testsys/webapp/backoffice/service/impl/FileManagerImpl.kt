@@ -113,6 +113,17 @@ class FileManagerImpl(
         }
     }
 
+    override fun saveSolutionFile(solution: Solution, sourceFile: File): Boolean {
+        val target = File(solutionsDir, "solution-${solution.id}.qrs")
+        return try {
+            sourceFile.copyTo(target, overwrite = true)
+            true
+        } catch (e: Exception) {
+            logger.error("Failed to copy solution file(id=${solution.id}) from ${sourceFile.absolutePath}", e)
+            false
+        }
+    }
+
     override fun getSolutionFile(solution: Solution): File? {
         val file = File(solutionsDir, "solution-${solution.id}.qrs")
 

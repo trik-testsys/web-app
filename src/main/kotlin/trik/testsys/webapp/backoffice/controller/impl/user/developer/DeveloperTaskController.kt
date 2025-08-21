@@ -2,6 +2,7 @@ package trik.testsys.webapp.backoffice.controller.impl.user.developer
 
 import jakarta.servlet.http.HttpSession
 import java.time.Instant
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import trik.testsys.webapp.backoffice.controller.AbstractUserController
+import trik.testsys.webapp.backoffice.data.entity.impl.Solution
 import trik.testsys.webapp.backoffice.data.entity.impl.Task
 import trik.testsys.webapp.backoffice.data.entity.impl.TaskFile
 import trik.testsys.webapp.backoffice.data.entity.impl.User
@@ -18,6 +20,9 @@ import trik.testsys.webapp.backoffice.data.service.ContestService
 import trik.testsys.webapp.backoffice.data.service.SolutionService
 import trik.testsys.webapp.backoffice.data.service.TaskFileService
 import trik.testsys.webapp.backoffice.data.service.TaskService
+import trik.testsys.webapp.backoffice.data.service.VerdictService
+import trik.testsys.webapp.backoffice.service.FileManager
+import trik.testsys.webapp.backoffice.service.Grader
 import trik.testsys.webapp.backoffice.utils.addMessage
 
 @Controller
@@ -27,6 +32,11 @@ class DeveloperTaskController(
     private val taskService: TaskService,
     private val taskFileService: TaskFileService,
     private val solutionService: SolutionService,
+    private val fileManager: FileManager,
+    private val grader: Grader,
+    @Value("\${trik.testsys.trik-studio.container.name}")
+    private val trikStudioContainerName: String,
+    private val verdictService: VerdictService,
 ) : AbstractUserController() {
 
     @GetMapping("/tasks")
@@ -200,11 +210,15 @@ class DeveloperTaskController(
 
         val testSolutions = solutionService.findAll()
             .filter { it.task.id == task.id && it.contest == null }
-            .sortedBy { it.id }
+            .sortedByDescending { it.id }
+
+        val verdicts = verdictService.findAllBySolutions(testSolutions)
+        val verdictsBySolutionIds = verdicts.associateBy { it.solutionId }
 
         setupModel(model, session, developer)
         model.addAttribute("task", task)
         model.addAttribute("solutions", testSolutions)
+        model.addAttribute("verdicts", verdictsBySolutionIds)
 
         return "developer/task-tests"
     }
@@ -394,10 +408,44 @@ class DeveloperTaskController(
             return "redirect:/user/developer/tasks/$id"
         }
 
-        // Placeholder: real integration with Grader should go here
+        // Prepare and send grading for each SOLUTION TaskFile using all POLYGONs
+        val solutionTaskFiles = task.taskFiles.filter { it.type == TaskFile.TaskFileType.SOLUTION }
+        val polygonTaskFiles = task.taskFiles.filter { it.type == TaskFile.TaskFileType.POLYGON }
+
+        if (solutionTaskFiles.isEmpty() || polygonTaskFiles.isEmpty()) {
+            redirectAttributes.addMessage("Для тестирования требуется минимум один Полигон и один Эталонное Решение.")
+            return "redirect:/user/developer/tasks/$id"
+        }
+
+        // Mark testing in progress
         task.testingStatus = Task.TestingStatus.TESTING
         taskService.save(task)
-        redirectAttributes.addMessage("Тестирование запущено.")
+
+        // For each solution file, create a synthetic Solution and grade it
+        solutionTaskFiles.forEach { solutionTf ->
+            val solution = Solution().also {
+                it.createdBy = developer
+                it.contest = null
+                it.task = task
+            }
+            val saved = solutionService.save(solution)
+
+            val solutionSource = fileManager.getTaskFile(solutionTf)
+                ?: run {
+                    redirectAttributes.addMessage("Файл эталонного решения недоступен на сервере.")
+                    return "redirect:/user/developer/tasks/$id"
+                }
+
+            val ok = fileManager.saveSolutionFile(saved, solutionSource)
+            if (!ok) {
+                redirectAttributes.addMessage("Не удалось подготовить файл решения для тестирования.")
+                return "redirect:/user/developer/tasks/$id"
+            }
+
+            grader.sendToGrade(saved, Grader.GradingOptions(shouldRecordRun = true, trikStudioVersion = trikStudioContainerName))
+        }
+
+        redirectAttributes.addMessage("Задача отправлена на тестирование.")
         return "redirect:/user/developer/tasks/$id"
     }
 

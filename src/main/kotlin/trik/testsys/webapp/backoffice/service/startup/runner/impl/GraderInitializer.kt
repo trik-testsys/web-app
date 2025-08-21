@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.persistence.PostLoad
+import org.springframework.transaction.support.TransactionTemplate
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
@@ -26,6 +27,7 @@ class GraderInitializer(
     private val taskService: TaskService,
     private val contestService: ContestService,
     private val verdictService: VerdictService,
+    private val transactionTemplate: TransactionTemplate,
 
 
     @Value("\${trik.testsys.trik-studio.container.name}") private val trikStudioContainerName: String,
@@ -92,15 +94,17 @@ class GraderInitializer(
     private fun addGraderSubscription() = grader.subscribeOnGraded { gradingInfo ->
         logger.info("Grading info was received for solutionId: ${gradingInfo.submissionId}")
 
-        try {
-            when (gradingInfo) {
-                is Grader.GradingInfo.Ok -> gradingInfo.parse()
-                is Grader.GradingInfo.Error -> gradingInfo.parse()
-            }
-        } catch (e: Exception) {
-            logger.error("Failed to parse grading info.", e)
+        transactionTemplate.execute {
+            try {
+                when (gradingInfo) {
+                    is Grader.GradingInfo.Ok -> gradingInfo.parse()
+                    is Grader.GradingInfo.Error -> gradingInfo.parse()
+                }
+            } catch (e: Exception) {
+                logger.error("Failed to parse grading info.", e)
 
-            afterCatchException(gradingInfo)
+                afterCatchException(gradingInfo)
+            }
         }
     }
 
@@ -158,7 +162,17 @@ class GraderInitializer(
         verdictService.createNewForSolution(managed, totalScore)
         solutionService.save(managed)
 
-//        if (managed.isLastTaskTest()) changeTaskTestingResult(managed)
+        // When solution belongs to developer task testing (contest == null), update task.testingStatus
+        if (managed.contest == null) {
+            val task = managed.task
+            // Determine if all test solutions for this task have finished
+            val allSolutions = solutionService.findAll().filter { it.task.id == task.id && it.contest == null }
+            val anyInProgress = allSolutions.any { it.status == Solution.Status.NOT_STARTED || it.status == Solution.Status.IN_PROGRESS }
+            if (!anyInProgress) {
+                task.testingStatus = if (allFailed) trik.testsys.webapp.backoffice.data.entity.impl.Task.TestingStatus.FAILED else trik.testsys.webapp.backoffice.data.entity.impl.Task.TestingStatus.PASSED
+                taskService.save(task)
+            }
+        }
 
     }
 

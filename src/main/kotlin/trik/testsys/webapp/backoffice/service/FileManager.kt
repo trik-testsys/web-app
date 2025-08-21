@@ -21,6 +21,8 @@ interface FileManager {
 
     fun saveSolutionFile(solution: Solution, fileData: MultipartFile): Boolean
 
+    fun saveSolutionFile(solution: Solution, sourceFile: File): Boolean
+
     fun getSolutionFile(solution: Solution): File?
 
     fun saveSuccessfulGradingInfo(fieldResult: Grader.GradingInfo.Ok)

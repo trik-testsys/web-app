@@ -17,7 +17,7 @@
                 <tr>
                     <th>ID</th>
                     <th>Статус</th>
-                    <th>Актуальный вердикт</th>
+                    <th>Результат</th>
                     <th>Дата создания</th>
                 </tr>
                 </thead>
@@ -28,9 +28,9 @@
                         s.status == T(trik.testsys.webapp.backoffice.data.entity.impl.Solution.Status).PASSED ? 'Пройдено' : (
                         s.status == T(trik.testsys.webapp.backoffice.data.entity.impl.Solution.Status).FAILED ? 'Не пройдено' : (
                         s.status == T(trik.testsys.webapp.backoffice.data.entity.impl.Solution.Status).IN_PROGRESS ? 'В процессе' : (
-                        s.status == T(trik.testsys.webapp.backoffice.data.entity.impl.Solution.Status).ERROR ? 'Ошибка' : 'Не запускалось') )
+                        s.status == T(trik.testsys.webapp.backoffice.data.entity.impl.Solution.Status).ERROR ? 'Ошибка' : 'Не запускалось') ) )
                     }"></td>
-                    <td th:text="${verdicts[s.id] != null ? verdicts[s.id].value : '—'}"></td>
+                    <td th:text="${verdicts != null and #maps.containsKey(verdicts, s.id) ? verdicts[s.id].value : '—'}"></td>
                     <td th:text="${s.createdAt != null ? #temporals.format(s.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                 </tr>
                 </tbody>
