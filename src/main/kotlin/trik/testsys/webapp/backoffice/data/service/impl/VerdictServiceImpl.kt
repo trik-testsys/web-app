@@ -8,7 +8,6 @@ import trik.testsys.webapp.backoffice.data.entity.impl.Verdict
 import trik.testsys.webapp.backoffice.data.repository.SolutionRepository
 import trik.testsys.webapp.backoffice.data.repository.VerdictRepository
 import trik.testsys.webapp.backoffice.data.service.VerdictService
-import trik.testsys.webapp.backoffice.data.service.SolutionService
 import trik.testsys.webapp.core.data.service.AbstractService
 
 @Service

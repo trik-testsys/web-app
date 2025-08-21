@@ -11,16 +11,24 @@
     <section class="card">
         <h2 class="card-title"><a th:href="@{/user/student/contests}">Туры</a> / <a th:href="@{'/user/student/contests/' + ${contest.id}}" th:text="${contest.name}">Тур</a> / <span th:text="${task.name}">Задача</span></h2>
         <div class="card-body">
-            <dl class="kv-wide">
-                <dt>ID</dt>
-                <dd th:text="${task.id}"></dd>
-                <dt>Название</dt>
-                <dd th:text="${task.name}"></dd>
-                <dt>Инфо</dt>
-                <dd th:text="${task.info ?: '—'}"></dd>
-                <dt>Максимальный балл</dt>
-                <dd th:text="${maxScore}"></dd>
-            </dl>
+            <h3 style="margin: 16px 0 8px 0;">Основная информация</h3>
+            <div class="grid grid-2">
+                <div>
+                    <div><b>ID:</b> <span th:text="${task.id}"></span></div>
+                    <div><b>Название:</b> <span th:text="${task.name}"></span></div>
+                    <div><b>Инфо:</b> <span th:text="${task.info ?: '—'}"></span></div>
+                    <div><b>Максимальный балл:</b> <span th:text="${maxScore}"></span></div>
+                </div>
+            </div>
+
+            <hr class="separator">
+
+            <h3 style="margin: 16px 0 8px 0;">Файлы Задачи</h3>
+            <div style="display:flex; gap:8px; align-items:center; margin-top:4px;">
+                <a th:if="${hasExercise}" class="button" th:href="@{'/user/student/contests/' + ${contest.id} + '/tasks/' + ${task.id} + '/download/exercise'}">Скачать упражнение</a>
+                <a th:if="${hasCondition}" class="button" th:href="@{'/user/student/contests/' + ${contest.id} + '/tasks/' + ${task.id} + '/download/condition'}">Скачать условие</a>
+                <span th:if="${!hasExercise && !hasCondition}" style="color: var(--color-text-muted);">—</span>
+            </div>
 
             <hr class="separator">
 
@@ -32,18 +40,14 @@
 
             <h3 style="margin: 16px 0 8px 0;">Мои решения</h3>
             <div th:if="${#lists.isEmpty(solutions)}" style="color: var(--color-text-muted);">Пока нет загруженных решений.</div>
-            <div style="display:flex; gap:8px; align-items:center; margin: 8px 0;">
-                <a th:if="${hasExercise}" class="button" th:href="@{'/user/student/contests/' + ${contest.id} + '/tasks/' + ${task.id} + '/download/exercise'}">Скачать упражнение</a>
-                <a th:if="${hasCondition}" class="button" th:href="@{'/user/student/contests/' + ${contest.id} + '/tasks/' + ${task.id} + '/download/condition'}">Скачать условие</a>
-            </div>
             <table th:if="${!#lists.isEmpty(solutions)}" class="table">
                 <thead>
                 <tr>
                     <th>ID</th>
                     <th>Статус</th>
-                    <th>Вердикт</th>
+                    <th>Результат</th>
                     <th>Создано</th>
-                    <th>Результаты</th>
+<!--                    <th>Результаты</th>-->
                 </tr>
                 </thead>
                 <tbody>
@@ -52,12 +56,12 @@
                     <td th:text="${@solutionI18n.toRu(s.status)}"></td>
                     <td th:text="${verdicts[s.id] != null ? verdicts[s.id].value : '—'}"></td>
                     <td th:text="${#temporals.format(s.createdAt, 'dd.MM.yyyy HH:mm')}"></td>
-                    <td>
-                        <a th:if="${resultsAvailable[s.id]}"
-                           th:href="@{'/user/student/contests/' + ${contest.id} + '/tasks/' + ${task.id} + '/results/' + ${s.id} + '/download'}"
-                           class="button button--small">Скачать</a>
-                        <span th:if="${!resultsAvailable[s.id]}" style="color: var(--color-text-muted);">—</span>
-                    </td>
+<!--                    <td>-->
+<!--                        <a th:if="${resultsAvailable[s.id]}"-->
+<!--                           th:href="@{'/user/student/contests/' + ${contest.id} + '/tasks/' + ${task.id} + '/results/' + ${s.id} + '/download'}"-->
+<!--                           class="button button&#45;&#45;small">Скачать</a>-->
+<!--                        <span th:if="${!resultsAvailable[s.id]}" style="color: var(&#45;&#45;color-text-muted);">—</span>-->
+<!--                    </td>-->
                 </tr>
                 </tbody>
             </table>

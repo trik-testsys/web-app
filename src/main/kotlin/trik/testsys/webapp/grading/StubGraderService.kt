@@ -1,10 +1,8 @@
 package trik.testsys.webapp.grading
 
 import org.slf4j.LoggerFactory
-import org.springframework.context.annotation.Primary
 import org.springframework.stereotype.Service
 import trik.testsys.webapp.backoffice.data.entity.impl.Solution
-import trik.testsys.webapp.backoffice.data.entity.impl.Verdict
 import trik.testsys.webapp.backoffice.data.service.VerdictService
 import trik.testsys.webapp.backoffice.data.service.SolutionService
 import trik.testsys.webapp.backoffice.service.Grader
