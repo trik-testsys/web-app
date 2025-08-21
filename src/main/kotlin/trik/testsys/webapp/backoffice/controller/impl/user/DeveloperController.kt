@@ -880,6 +880,14 @@ class DeveloperController(
             return "redirect:/user/developer/contests/$id"
         }
 
+        val hasPolygon = task.taskFiles.any { it.type == TaskFile.TaskFileType.POLYGON }
+        val hasSolution = task.taskFiles.any { it.type == TaskFile.TaskFileType.SOLUTION }
+        val hasExercise = task.taskFiles.any { it.type == TaskFile.TaskFileType.EXERCISE }
+        if (!hasPolygon || !hasSolution || !hasExercise) {
+            redirectAttributes.addMessage("Для прикрепления к Туру требуется минимум один Полигон, одно Эталонное Решение и одно Упражнение.")
+            return "redirect:/user/developer/contests/$id"
+        }
+
         val added = contest.tasks.add(task)
         contestService.save(contest)
         if (added) redirectAttributes.addMessage("Задача прикреплена к Туру.") else redirectAttributes.addMessage("Задача уже была прикреплена.")
