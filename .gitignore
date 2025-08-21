@@ -193,3 +193,4 @@ target/
 data/**
 
 amplicode.xml
+.env
