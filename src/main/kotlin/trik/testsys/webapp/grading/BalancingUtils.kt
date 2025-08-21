@@ -1,17 +1,16 @@
-package trik.testsys.grading
+package trik.testsys.webapp.grading
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import trik.testsys.grading.communication.GraderClient
-import trik.testsys.webclient.service.Grader.NodeStatus
-import kotlin.collections.mapNotNull
+import trik.testsys.webapp.grading.communication.GraderClient
+import trik.testsys.webapp.backoffice.service.Grader
 
 object BalancingUtils {
     private val log = LoggerFactory.getLogger(BalancingUtils::class.java)
 
-    fun findOptimalNode(nodes: Map<GraderClient, NodeStatus>) =
+    fun findOptimalNode(nodes: Map<GraderClient, Grader.NodeStatus>) =
         nodes.mapNotNull { (client, status) ->
-            val aliveStatus = (status as? NodeStatus.Alive) ?: return@mapNotNull null
+            val aliveStatus = (status as? Grader.NodeStatus.Alive) ?: return@mapNotNull null
             log.gotAliveStatus(aliveStatus.id, aliveStatus.queued, aliveStatus.capacity)
             if (client.sentSubmissionsCount < aliveStatus.capacity)
                 client to aliveStatus

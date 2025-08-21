@@ -1,15 +1,13 @@
-package trik.testsys.grading.communication
+package trik.testsys.webapp.grading.communication
 
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import trik.testsys.grading.GraderConfiguration
-import trik.testsys.grading.SubmissionInfo
-import trik.testsys.webclient.service.Grader
+import trik.testsys.webapp.backoffice.service.Grader
+import trik.testsys.webapp.grading.GraderConfiguration
+import trik.testsys.webapp.grading.SubmissionInfo
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.collections.component1
-import kotlin.collections.component2
 import kotlin.collections.mapKeys
 
 class GradingNodeManager(

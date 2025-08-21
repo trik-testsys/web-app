@@ -1,4 +1,4 @@
-package trik.testsys.grading.communication
+package trik.testsys.webapp.grading.communication
 
 import com.google.protobuf.Empty
 import io.grpc.Channel
@@ -12,15 +12,15 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withTimeout
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import trik.testsys.grading.GraderConfiguration
+import trik.testsys.webapp.grading.GraderConfiguration
 import trik.testsys.grading.GradingNodeGrpc
 import trik.testsys.grading.GradingNodeOuterClass
-import trik.testsys.grading.SubmissionInfo
-import trik.testsys.grading.converter.FieldResultConverter
-import trik.testsys.grading.converter.FileConverter
-import trik.testsys.grading.converter.ResultConverter
-import trik.testsys.webclient.service.Grader
-import trik.testsys.webclient.service.Grader.NodeStatus
+import trik.testsys.webapp.backoffice.service.Grader
+import trik.testsys.webapp.grading.SubmissionInfo
+import trik.testsys.webapp.grading.converter.FieldResultConverter
+import trik.testsys.webapp.grading.converter.FileConverter
+import trik.testsys.webapp.grading.converter.ResultConverter
+import java.time.Duration
 import java.time.LocalDateTime
 import java.util.concurrent.LinkedBlockingQueue
 
@@ -56,20 +56,20 @@ class GraderClient(
         log.sentToGrade(submission, address)
     }
 
-    suspend fun getStatus(): NodeStatus = coroutineScope {
+    suspend fun getStatus(): Grader.NodeStatus = coroutineScope {
         try {
             withTimeout(configuration.statusResponseTimeout.inWholeMilliseconds) {
                 val status = statusStub.getStatus(Empty.getDefaultInstance())
-                NodeStatus.Alive(status.id, status.queued, status.capacity)
+                Grader.NodeStatus.Alive(status.id, status.queued, status.capacity)
             }
         } catch (se: StatusException) {
-            NodeStatus.Unreachable("The request end up with status error (code ${se.status.code})")
+            Grader.NodeStatus.Unreachable("The request end up with status error (code ${se.status.code})")
         } catch (se: StatusRuntimeException) {
-            NodeStatus.Unreachable("The request end up with status error (code ${se.status.code})")
+            Grader.NodeStatus.Unreachable("The request end up with status error (code ${se.status.code})")
         } catch (_: TimeoutCancellationException) {
-            NodeStatus.Unreachable("Status request timeout reached")
+            Grader.NodeStatus.Unreachable("Status request timeout reached")
         } catch (_: Exception) {
-            NodeStatus.Unreachable("Unknown reason")
+            Grader.NodeStatus.Unreachable("Unknown reason")
         }
     }
 
@@ -79,7 +79,7 @@ class GraderClient(
         val currentTime = LocalDateTime.now()
         val hangingSubmissions = mutableListOf<SubmissionInfo>()
         sentSubmissions.filterTo(hangingSubmissions) {
-            java.time.Duration.between(currentTime, it.sentTime) > java.time.Duration.ofMillis(configuration.hangTimeout.inWholeMilliseconds)
+            Duration.between(currentTime, it.sentTime) > Duration.ofMillis(configuration.hangTimeout.inWholeMilliseconds)
         }
         to += hangingSubmissions
         sentSubmissions.removeAll(hangingSubmissions)

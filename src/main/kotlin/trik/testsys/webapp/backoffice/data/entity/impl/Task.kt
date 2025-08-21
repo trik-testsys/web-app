@@ -62,6 +62,11 @@ class Task() : AbstractEntity(), Sharable {
     @Column(name = "testing_status", nullable = false)
     var testingStatus: TestingStatus = TestingStatus.NOT_TESTED
 
+
+    @get:Transient
+    val polygons: Set<TaskFile>
+        get() = taskFiles.filter { it.type == TaskFile.TaskFileType.POLYGON }.toSet()
+
     enum class TestingStatus(override val dbKey: String) : PersistableEnum {
 
         NOT_TESTED("NTR"),

@@ -1,14 +1,16 @@
-package trik.testsys.grading
+package trik.testsys.webapp.grading
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import trik.testsys.grading.communication.GradingNodeManager
+import trik.testsys.webapp.grading.communication.GradingNodeManager
 import java.util.concurrent.LinkedBlockingQueue
+import kotlin.collections.iterator
 
 @Suppress("UNUSED")
 class GradingManager(

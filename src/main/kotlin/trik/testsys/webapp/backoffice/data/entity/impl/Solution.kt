@@ -41,6 +41,10 @@ class Solution() : AbstractEntity() {
     @JoinColumn(name = "relevant_verdict_id", nullable = true, unique = true)
     var relevantVerdict: Verdict? = null
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    var type: SolutionType = SolutionType.QRS
+
     enum class Status(override val dbKey: String) : PersistableEnum {
 
         NOT_STARTED("NST"),
@@ -53,6 +57,19 @@ class Solution() : AbstractEntity() {
 
             @Converter(autoApply = true)
             class StatusConverter : AbstractPersistableEnumConverter<Status>()
+        }
+    }
+
+    enum class SolutionType(override val dbKey: String) : PersistableEnum {
+
+        QRS("QRS"),
+        PYTHON("PY"),
+        JAVA_SCRIPT("JS");
+
+        companion object {
+
+            @Converter(autoApply = true)
+            class SolutionTypeConverter : AbstractPersistableEnumConverter<SolutionType>()
         }
     }
 }

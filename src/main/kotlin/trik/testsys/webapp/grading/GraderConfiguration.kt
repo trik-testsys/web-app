@@ -1,4 +1,4 @@
-package trik.testsys.grading
+package trik.testsys.webapp.grading
 
 import org.springframework.stereotype.Component
 import kotlin.time.Duration
