@@ -30,6 +30,10 @@
 
             <h3 style="margin: 16px 0 8px 0;">Мои решения</h3>
             <div th:if="${#lists.isEmpty(solutions)}" style="color: var(--color-text-muted);">Пока нет загруженных решений.</div>
+            <div style="display:flex; gap:8px; align-items:center; margin: 8px 0;">
+                <a th:if="${hasExercise}" class="button" th:href="@{'/user/student/contests/' + ${contest.id} + '/tasks/' + ${task.id} + '/download/exercise'}">Скачать упражнение</a>
+                <a th:if="${hasCondition}" class="button" th:href="@{'/user/student/contests/' + ${contest.id} + '/tasks/' + ${task.id} + '/download/condition'}">Скачать условие</a>
+            </div>
             <table th:if="${!#lists.isEmpty(solutions)}" class="table">
                 <thead>
                 <tr>

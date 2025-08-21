@@ -86,6 +86,10 @@ class StudentTaskController(
             (s.id!!) to (hasVerdicts || hasRecordings)
         }
         model.addAttribute("resultsAvailable", resultsAvailability)
+        val hasExercise = task.taskFiles.any { it.type == trik.testsys.webapp.backoffice.data.entity.impl.TaskFile.TaskFileType.EXERCISE }
+        val hasCondition = task.taskFiles.any { it.type == trik.testsys.webapp.backoffice.data.entity.impl.TaskFile.TaskFileType.CONDITION }
+        model.addAttribute("hasExercise", hasExercise)
+        model.addAttribute("hasCondition", hasCondition)
         return "student/task"
     }
 
@@ -185,6 +189,96 @@ class StudentTaskController(
             .header("Content-Disposition", "attachment; filename=\"${results.name}\"")
             .header("Content-Type", MediaType.APPLICATION_OCTET_STREAM_VALUE)
             .header("Content-Transfer-Encoding", "binary")
+            .header("Content-Length", bytes.size.toString())
+            .body(bytes)
+    }
+
+    @GetMapping("/download/exercise")
+    fun downloadExercise(
+        @PathVariable("contestId") contestId: Long,
+        @PathVariable("taskId") taskId: Long,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes,
+    ): Any {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val user = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!user.privileges.contains(User.Privilege.STUDENT)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val contest = contestService.findById(contestId) ?: run {
+            redirectAttributes.addMessage("Тур не найден.")
+            return "redirect:/user/student/contests"
+        }
+        val task = taskService.findById(taskId) ?: run {
+            redirectAttributes.addMessage("Задача не найдена.")
+            return "redirect:/user/student/contests/$contestId"
+        }
+        if (contest.tasks.none { it.id == task.id }) {
+            redirectAttributes.addMessage("Задача не принадлежит данному Туру.")
+            return "redirect:/user/student/contests/$contestId"
+        }
+
+        val exerciseTf = task.taskFiles.firstOrNull { it.type == trik.testsys.webapp.backoffice.data.entity.impl.TaskFile.TaskFileType.EXERCISE } ?: run {
+            redirectAttributes.addMessage("Упражнение не найдено.")
+            return "redirect:/user/student/contests/$contestId/tasks/$taskId"
+        }
+        val file = fileManager.getTaskFile(exerciseTf) ?: run {
+            redirectAttributes.addMessage("Файл упражнения отсутствует на сервере.")
+            return "redirect:/user/student/contests/$contestId/tasks/$taskId"
+        }
+
+        val bytes = file.readBytes()
+        return ResponseEntity.ok()
+            .header("Content-Disposition", "attachment; filename=\"${task.id}.qrs\"")
+            .header("Content-Type", MediaType.APPLICATION_OCTET_STREAM_VALUE)
+            .header("Content-Length", bytes.size.toString())
+            .body(bytes)
+    }
+
+    @GetMapping("/download/condition")
+    fun downloadCondition(
+        @PathVariable("contestId") contestId: Long,
+        @PathVariable("taskId") taskId: Long,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes,
+    ): Any {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val user = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!user.privileges.contains(User.Privilege.STUDENT)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val contest = contestService.findById(contestId) ?: run {
+            redirectAttributes.addMessage("Тур не найден.")
+            return "redirect:/user/student/contests"
+        }
+        val task = taskService.findById(taskId) ?: run {
+            redirectAttributes.addMessage("Задача не найдена.")
+            return "redirect:/user/student/contests/$contestId"
+        }
+        if (contest.tasks.none { it.id == task.id }) {
+            redirectAttributes.addMessage("Задача не принадлежит данному Туру.")
+            return "redirect:/user/student/contests/$contestId"
+        }
+
+        val conditionTf = task.taskFiles.firstOrNull { it.type == trik.testsys.webapp.backoffice.data.entity.impl.TaskFile.TaskFileType.CONDITION } ?: run {
+            redirectAttributes.addMessage("У задания нет Условия.")
+            return "redirect:/user/student/contests/$contestId/tasks/$taskId"
+        }
+        val file = fileManager.getTaskFile(conditionTf) ?: run {
+            redirectAttributes.addMessage("Файл условия отсутствует на сервере.")
+            return "redirect:/user/student/contests/$contestId/tasks/$taskId"
+        }
+
+        val bytes = file.readBytes()
+        return ResponseEntity.ok()
+            .header("Content-Disposition", "attachment; filename=\"${task.id}.pdf\"")
+            .header("Content-Type", MediaType.APPLICATION_OCTET_STREAM_VALUE)
             .header("Content-Length", bytes.size.toString())
             .body(bytes)
     }
