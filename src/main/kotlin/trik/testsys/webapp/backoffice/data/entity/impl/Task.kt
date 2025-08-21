@@ -17,11 +17,12 @@ import trik.testsys.webapp.core.data.entity.AbstractEntity
 import trik.testsys.webapp.core.data.entity.AbstractEntity.Companion.TABLE_PREFIX
 import trik.testsys.webapp.core.utils.enums.PersistableEnum
 import trik.testsys.webapp.core.utils.enums.converter.AbstractPersistableEnumConverter
+import trik.testsys.webapp.backoffice.data.entity.Sharable
 
 
 @Entity
 @Table(name = "${TABLE_PREFIX}task")
-class Task() : AbstractEntity() {
+class Task() : AbstractEntity(), Sharable {
 
     @Column(name = "name")
     var name: String? = null
@@ -48,6 +49,14 @@ class Task() : AbstractEntity() {
     @get:Transient
     val tests: Set<Solution>
         get() = solutions.filter { it.isTest }.toSet()
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "${TABLE_PREFIX}task_userGroups",
+        joinColumns = [JoinColumn(name = "task_id")],
+        inverseJoinColumns = [JoinColumn(name = "userGroups_id")]
+    )
+    override var userGroups: MutableSet<UserGroup> = mutableSetOf()
 
     @Enumerated(EnumType.STRING)
     @Column(name = "testing_status", nullable = false)

@@ -15,7 +15,8 @@
                 <a class="button" th:href="@{/user/developer/tasks/create}">Создать Задачу</a>
             </div>
             <hr class="separator">
-            <div th:if="${#lists.isEmpty(tasks)}" style="color: var(--color-text-muted);">У вас пока нет Задач.</div>
+            <h3 style="margin: 16px 0 8px 0;">Созданные Задачи</h3>
+            <div th:if="${#lists.isEmpty(tasks)}" style="color: var(--color-text-muted);">Вы пока не создали ни одной Задачи.</div>
             <table th:if="${!#lists.isEmpty(tasks)}" class="table">
                 <thead>
                     <tr>
@@ -40,6 +41,37 @@
                         )}"></td>
                         <td th:text="${t.createdAt != null ? #temporals.format(t.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                     </tr>
+                </tbody>
+            </table>
+
+            <hr class="separator">
+
+            <h3 style="margin: 16px 0 8px 0;">Доступные Задачи</h3>
+            <div th:if="${#lists.isEmpty(sharedTasks)}" style="color: var(--color-text-muted);">Пока нет доступных Задач.</div>
+            <table th:if="${!#lists.isEmpty(sharedTasks)}" class="table">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Название</th>
+                    <th>Описание</th>
+                    <th>Статус тестирования</th>
+                    <th>Дата создания</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="t : ${sharedTasks}">
+                    <td th:text="${t.id}"></td>
+                    <td>
+                        <a th:href="@{'/user/developer/tasks/' + ${t.id}}" th:text="${t.name}"></a>
+                    </td>
+                    <td th:text="${t.info ?: '—'}"></td>
+                    <td th:text="${
+                            t.testingStatus == T(trik.testsys.webapp.backoffice.data.entity.impl.Task.TestingStatus).PASSED ? 'Пройдено' : (
+                            t.testingStatus == T(trik.testsys.webapp.backoffice.data.entity.impl.Task.TestingStatus).FAILED ? 'Не пройдено' : (
+                            t.testingStatus == T(trik.testsys.webapp.backoffice.data.entity.impl.Task.TestingStatus).TESTING ? 'В процессе' : 'Не запускалось')
+                        )}"></td>
+                    <td th:text="${t.createdAt != null ? #temporals.format(t.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                </tr>
                 </tbody>
             </table>
         </div>

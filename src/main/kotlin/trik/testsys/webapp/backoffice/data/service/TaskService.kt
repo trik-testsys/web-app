@@ -1,6 +1,7 @@
 package trik.testsys.webapp.backoffice.data.service
 
 import trik.testsys.webapp.backoffice.data.entity.impl.Task
+import trik.testsys.webapp.backoffice.data.entity.impl.User
 import trik.testsys.webapp.core.data.service.EntityService
 
 /**
@@ -10,4 +11,8 @@ import trik.testsys.webapp.core.data.service.EntityService
 interface TaskService : EntityService<Task> {
 
 //    fun findByTaskTemplate(taskTemplate: TaskTemplate): Set<Task>
+
+    fun findByDeveloper(developer: User): Set<Task>
+
+    fun findForUser(user: User): Set<Task>
 }

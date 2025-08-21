@@ -130,7 +130,7 @@
                     <td>
                         <form th:action="@{'/user/developer/contests/' + ${contest.id} + '/tasks/attach'}" method="post">
                             <input type="hidden" name="taskId" th:value="${t.id}">
-                            <button class="button" type="submit" th:disabled="${t.testingStatus != T(trik.testsys.webapp.backoffice.data.entity.impl.Task.TestingStatus).PASSED}">Прикрепить</button>
+                            <button class="button" type="submit" th:disabled="${t.testingStatus != T(trik.testsys.webapp.backoffice.data.entity.impl.Task.TestingStatus).PASSED || !isOwner}">Прикрепить</button>
                         </form>
                     </td>
                 </tr>

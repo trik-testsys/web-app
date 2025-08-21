@@ -2,6 +2,7 @@ package trik.testsys.webapp.backoffice.data.service.impl
 
 import org.springframework.stereotype.Service
 import trik.testsys.webapp.backoffice.data.entity.impl.Task
+import trik.testsys.webapp.backoffice.data.entity.impl.User
 import trik.testsys.webapp.backoffice.data.repository.TaskRepository
 import trik.testsys.webapp.backoffice.data.service.TaskService
 import trik.testsys.webapp.core.data.service.AbstractService
@@ -18,4 +19,14 @@ class TaskServiceImpl :
 //    override fun findByTaskTemplate(taskTemplate: TaskTemplate): Set<Task> {
 //        return repository.findByCreatedFrom(taskTemplate)
 //    }
+
+    override fun findByDeveloper(developer: User): Set<Task> {
+        return repository.findByDeveloper(developer)
+    }
+
+    override fun findForUser(user: User): Set<Task> {
+        val ownedByUser = repository.findByDeveloper(user)
+        val viaGroups = if (user.memberedGroups.isEmpty()) emptySet() else repository.findDistinctByUserGroupsIn(user.memberedGroups)
+        return (ownedByUser + viaGroups).toSet()
+    }
 }
