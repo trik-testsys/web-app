@@ -8,9 +8,9 @@ import trik.testsys.webapp.backoffice.data.entity.impl.Verdict
 import trik.testsys.webapp.backoffice.data.service.VerdictService
 import trik.testsys.webapp.backoffice.data.service.SolutionService
 import trik.testsys.webapp.backoffice.service.Grader
+import kotlin.random.Random
 
 @Service
-@Primary
 class StubGraderService(
     private val verdictService: VerdictService,
     private val solutionService: SolutionService,
@@ -22,16 +22,7 @@ class StubGraderService(
     override fun sendToGrade(solution: Solution, gradingOptions: Grader.GradingOptions) {
         log.info("Stub grading started for solution id=${solution.id} with ${gradingOptions.trikStudioVersion}")
 
-        // Synchronously assign a stub verdict and status for testing
-        // Persist a verdict tied to this solution and update solution fields in the DB
-        val verdict = Verdict().also {
-            it.value = 100
-            it.solution = solution
-        }
-        val persistedVerdict = verdictService.save(verdict)
-        solution.relevantVerdict = persistedVerdict
-        solution.status = Solution.Status.PASSED
-        solutionService.save(solution)
+        verdictService.createNewForSolution(solution, Random.nextLong())
 
         // Notify subscribers with a fake OK event (use a simple numeric id wrapper)
         subscribers.forEach { it.invoke(Grader.GradingInfo.Ok(solution.id?.toInt() ?: -1, emptyList())) }

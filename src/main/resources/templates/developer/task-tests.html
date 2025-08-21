@@ -30,7 +30,7 @@
                         s.status == T(trik.testsys.webapp.backoffice.data.entity.impl.Solution.Status).IN_PROGRESS ? 'В процессе' : (
                         s.status == T(trik.testsys.webapp.backoffice.data.entity.impl.Solution.Status).ERROR ? 'Ошибка' : 'Не запускалось') )
                     }"></td>
-                    <td th:text="${s.relevantVerdict != null ? s.relevantVerdict.result : '—'}"></td>
+                    <td th:text="${verdicts[s.id] != null ? verdicts[s.id].value : '—'}"></td>
                     <td th:text="${s.createdAt != null ? #temporals.format(s.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                 </tr>
                 </tbody>

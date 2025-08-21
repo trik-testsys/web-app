@@ -34,15 +34,11 @@ class Solution() : AbstractEntity() {
     val isTest: Boolean
         get() = contest == null
 
-    @OneToMany(mappedBy = "solution", orphanRemoval = true)
-    var verdicts: MutableSet<Verdict> = mutableSetOf()
-
-    @OneToOne(fetch = FetchType.EAGER, optional = true, orphanRemoval = true)
-    @JoinColumn(name = "relevant_verdict_id", nullable = true, unique = true)
-    var relevantVerdict: Verdict? = null
+    @Column(name = "relevant_verdict_id", nullable = true)
+    var relevantVerdictId: Long? = null
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
+    @Column(name = "type", nullable = false)
     var type: SolutionType = SolutionType.QRS
 
     enum class Status(override val dbKey: String) : PersistableEnum {

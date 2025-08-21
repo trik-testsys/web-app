@@ -51,15 +51,15 @@ abstract class AbstractService<E, R> : EntityService<E>
 
     override fun count(): Long = repository.count()
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     override fun save(entity: E): E = repository.save(entity)
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     override fun saveAll(entities: Iterable<E>): List<E> = repository.saveAll(entities)
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     override fun deleteById(id: Long) = repository.deleteById(id)
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     override fun delete(entity: E) = repository.delete(entity)
 }

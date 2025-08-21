@@ -20,6 +20,7 @@ import trik.testsys.webapp.backoffice.service.FileManager
 import trik.testsys.webapp.backoffice.service.Grader
 import trik.testsys.webapp.backoffice.utils.addMessage
 import org.springframework.web.multipart.MultipartFile
+import trik.testsys.webapp.backoffice.data.service.VerdictService
 
 @Controller
 @RequestMapping("/user/student/contests/{contestId}/tasks/{taskId}")
@@ -29,12 +30,11 @@ class StudentTaskController(
     private val solutionService: SolutionService,
     private val fileManager: FileManager,
     private val grader: Grader,
+    private val verdictService: VerdictService,
 
-    @Value("\${trik.testsys.grading-node.container-name}") containerName: String,
-    @Value("\${trik.testsys.grading-node.version}") trikStudioVersion: String
+    @Value("\${trik.testsys.trik-studio.container.name}")
+    private val trikStudioContainerName: String,
 ) : AbstractUserController() {
-
-    private val fullContainerName = "$containerName:$trikStudioVersion"
 
     @GetMapping
     fun view(
@@ -73,7 +73,11 @@ class StudentTaskController(
         val solutions = contest.solutions.filter { it.task.id == task.id }
             .filter { it.createdBy.id == user.id }
             .sortedByDescending { it.id }
+        val verdicts = verdictService.findAllBySolutions(solutions)
+        val verdictsBySolutionId = verdicts.associateBy { it.solutionId }
+
         model.addAttribute("solutions", solutions)
+        model.addAttribute("verdicts", verdictsBySolutionId)
         return "student/task"
     }
 
@@ -118,7 +122,7 @@ class StudentTaskController(
             return "redirect:/user/student/contests/$contestId/tasks/$taskId"
         }
 
-        grader.sendToGrade(saved, Grader.GradingOptions(shouldRecordRun = true, trikStudioVersion = fullContainerName))
+        grader.sendToGrade(saved, Grader.GradingOptions(shouldRecordRun = true, trikStudioVersion = trikStudioContainerName))
         redirectAttributes.addMessage("Решение загружено и отправлено на проверку.")
         return "redirect:/user/student/contests/$contestId/tasks/$taskId"
     }

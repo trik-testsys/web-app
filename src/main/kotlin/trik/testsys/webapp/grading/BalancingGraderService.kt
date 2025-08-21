@@ -4,6 +4,7 @@ import io.grpc.StatusException
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Primary
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import trik.testsys.grading.GradingNodeOuterClass.Submission
 import trik.testsys.webapp.grading.communication.GradingNodeManager
 import trik.testsys.webapp.backoffice.data.entity.impl.Solution
@@ -39,19 +40,24 @@ class BalancingGraderService(
     )
     private val log = LoggerFactory.getLogger(this.javaClass)
 
+    @Transactional(readOnly = true)
     override fun sendToGrade(solution: Solution, gradingOptions: Grader.GradingOptions) {
-        val taskFiles = solution.task.polygons.mapNotNull { fileManager.getTaskFile(it) }
-        val solutionFile = fileManager.getSolutionFile(solution) ?: throw IllegalArgumentException("Cannot find solution file")
+        val managedSolution = solutionService.getById(requireNotNull(solution.id) { "Solution ID must not be null" })
+        val managedTask = managedSolution.task
+
+        val taskFiles = managedTask.polygons.mapNotNull { fileManager.getTaskFile(it) }
+        val solutionFile = fileManager.getSolutionFile(managedSolution)
+            ?: throw IllegalArgumentException("Cannot find solution file")
 
         val submission = SubmissionBuilder.build {
-            this.solution = solution
+            this.solution = managedSolution
             this.solutionFile = solutionFile
-            this.task = solution.task
+            this.task = managedTask
             this.taskFiles = taskFiles
             this.gradingOptions = gradingOptions
         }
 
-        gradingManager.enqueueSubmission(SubmissionInfo(solution, submission, LocalDateTime.now()))
+        gradingManager.enqueueSubmission(SubmissionInfo(managedSolution, submission, LocalDateTime.now()))
     }
 
     override fun subscribeOnGraded(onGraded: (Grader.GradingInfo) -> Unit) {

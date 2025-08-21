@@ -29,13 +29,16 @@ class GraderInitializer(
 
 
     @Value("\${trik.testsys.trik-studio.container.name}") private val trikStudioContainerName: String,
-    @Value("\${grading-node-addresses}") private val gradingNodeAddresses: String
+    @Value("\${trik.testsys.grading-node.addresses}") private val gradingNodeAddresses: String
 ) : AbstractStartupRunner() {
     
     @PostLoad
     fun init() {
         if (trikStudioContainerName.trim().isEmpty()) {
             throw IllegalStateException("TRIK Studio container name must be defined.")
+        }
+        if (gradingNodeAddresses.trim().isEmpty()) {
+            throw IllegalStateException("Grading node addresses must be defined.")
         }
     }
 
@@ -55,11 +58,12 @@ class GraderInitializer(
                 if (file == null) {
                     logger.error("Solution file for solution ${it.id} is missing.")
 
-                    it.status = Solution.Status.ERROR
-                    verdictService.createNewForSolution(it, 0)
+                    val managed = solutionService.getById(requireNotNull(it.id))
+                    managed.status = Solution.Status.ERROR
+                    verdictService.createNewForSolution(managed, 0)
 
-//                    if (it.isLastTaskTest()) changeTaskTestingResult(it)
-                    solutionService.save(it)
+//                    if (managed.isLastTaskTest()) changeTaskTestingResult(managed)
+                    solutionService.save(managed)
 
                     false
                 } else {
@@ -104,12 +108,13 @@ class GraderInitializer(
         try {
             val solutionId = gradingInfo.submissionId
             val solution = solutionService.findById(solutionId.toLong()) ?: return
+            val managed = solutionService.getById(requireNotNull(solution.id))
 
-            solution.status = Solution.Status.ERROR
+            managed.status = Solution.Status.ERROR
 
-            verdictService.createNewForSolution(solution, 0)
+            verdictService.createNewForSolution(managed, 0)
 
-            solutionService.save(solution)
+            solutionService.save(managed)
         } catch (e: Exception) {
             logger.error("Failed to handle exception.", e)
         }
@@ -150,10 +155,10 @@ class GraderInitializer(
 
         solution.status = if (allFailed) Solution.Status.FAILED else Solution.Status.PASSED
         verdictService.createNewForSolution(solution, totalScore)
-
-//        if (solution.isLastTaskTest()) changeTaskTestingResult(solution)
-
         solutionService.save(solution)
+
+//        if (managed.isLastTaskTest()) changeTaskTestingResult(managed)
+
     }
 
 //    private fun changeTaskTestingResult(solution: Solution) {
@@ -214,14 +219,15 @@ class GraderInitializer(
     private fun Grader.GradingInfo.Error.parse() = let { (solutionId, kind) ->
         logger.info("Solution $solutionId was graded with error: $kind.")
         val solution = solutionService.findById(solutionId.toLong()) ?: return@let
+        val managed = solutionService.getById(requireNotNull(solution.id))
 
-        solution.status = when (kind) {
+        managed.status = when (kind) {
             is Grader.ErrorKind.InnerTimeoutExceed -> Solution.Status.FAILED
             else -> Solution.Status.ERROR
         }
 
-        verdictService.createNewForSolution(solution, 0)
-        solutionService.save(solution)
+        verdictService.createNewForSolution(managed, 0)
+        solutionService.save(managed)
     }
     
     companion object {

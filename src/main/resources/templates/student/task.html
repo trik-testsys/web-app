@@ -43,7 +43,7 @@
                 <tr th:each="s : ${solutions}">
                     <td th:text="${s.id}"></td>
                     <td th:text="${@solutionI18n.toRu(s.status)}"></td>
-                    <td th:text="${s.relevantVerdict != null ? s.relevantVerdict.value : '—'}"></td>
+                    <td th:text="${verdicts[s.id] != null ? verdicts[s.id].value : '—'}"></td>
                     <td th:text="${#temporals.format(s.createdAt, 'dd.MM.yyyy HH:mm')}"></td>
                 </tr>
                 </tbody>
