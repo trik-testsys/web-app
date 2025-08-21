@@ -16,9 +16,25 @@ interface Grader {
 
     fun getAllNodeStatuses(): Map<String, NodeStatus>
 
+    sealed interface ErrorKind {
+        val description: String
+
+        data class UnexpectedException(override val description: String) : ErrorKind
+
+        data class NonZeroExitCode(val code: Int, override val description: String) : ErrorKind
+
+        data class MismatchedFiles(override val description: String) : ErrorKind
+
+        data class InnerTimeoutExceed(override val description: String) : ErrorKind
+
+        data class UnsupportedImageVersion(override val description: String) : ErrorKind
+
+        data class Unknown(override val description: String) : ErrorKind
+    }
+
     sealed class GradingInfo(open val submissionId: Int) {
 
-        data class Error(override val submissionId: Int, val kind: Int, val description: String): GradingInfo(submissionId) // kind == 4 - timeout error (score 0)
+        data class Error(override val submissionId: Int, val kind: ErrorKind): GradingInfo(submissionId) // kind == 4 - timeout error (score 0)
 
         data class File(val name: String, val content: ByteArray)
 
