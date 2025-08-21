@@ -34,14 +34,14 @@
             </dl>
             <hr class="separator">
             <div style="margin-top: 10px;">
-                <b>Роли</b>
+                <h3 style="margin: 0 0 8px 0;">Роли</h3>
                 <ul class="pill-list">
                     <li class="pill" th:each="p : ${privilegesRu}" th:text="${p}"></li>
                 </ul>
             </div>
             <hr class="separator">
             <div style="margin-top: 16px;">
-                <b>Группы пользователей</b>
+                <h3 style="margin: 0 0 8px 0;">Группы пользователей</h3>
                 <div class="alert" th:if="${groupsMessage}" th:text="${groupsMessage}"></div>
                 <div th:if="${#lists.isEmpty(groups)}" style="color: var(--color-text-muted);">Нет групп.</div>
                 <ul th:if="${!#lists.isEmpty(groups)}" class="pill-list" style="margin-top: 8px;">

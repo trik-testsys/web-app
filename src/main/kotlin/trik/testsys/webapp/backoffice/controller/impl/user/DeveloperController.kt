@@ -151,6 +151,11 @@ class DeveloperController(
         val hasSolution = task.taskFiles.any { it.type == TaskFile.TaskFileType.SOLUTION }
         val isUsedInAnyContest = contestService.findAll().any { c -> c.tasks.any { it.id == task.id } }
 
+        val attachedContests = contestService
+            .findAll()
+            .filter { c -> c.tasks.any { it.id == task.id } }
+            .sortedBy { it.id }
+
         val lastTestStatus = when (task.testingStatus) {
             Task.TestingStatus.NOT_TESTED -> "Не запускалось"
             Task.TestingStatus.TESTING -> "В процессе"
@@ -168,6 +173,7 @@ class DeveloperController(
         model.addAttribute("numSolutions", task.taskFiles.count { it.type == TaskFile.TaskFileType.SOLUTION })
         model.addAttribute("testStatus", lastTestStatus)
         model.addAttribute("isUsedInAnyContest", isUsedInAnyContest)
+        model.addAttribute("attachedContests", attachedContests)
 
         return "developer/task"
     }

@@ -51,8 +51,10 @@
     </section>
 
     <section class="card">
-        <h2 class="card-title">Прикрепленные Файлы</h2>
+        <h2 class="card-title">Файлы</h2>
         <div class="card-body">
+
+            <h3 style="margin: 0 0 8px 0;">Прикрепленные</h3>
             <div th:if="${#lists.isEmpty(attachedTaskFiles)}" style="color: var(--color-text-muted);">Пока нет прикреплённых файлов.</div>
             <table th:if="${!#lists.isEmpty(attachedTaskFiles)}" class="table">
                 <thead>
@@ -78,36 +80,59 @@
                     </tr>
                 </tbody>
             </table>
+
+            <hr class="separator">
+
+            <h3 style="margin: 0 0 8px 0;">Доступные к прикреплению</h3>
+            <div th:if="${#lists.isEmpty(availableTaskFiles)}" style="color: var(--color-text-muted);">Нет доступных файлов для прикрепления.</div>
+            <table th:if="${!#lists.isEmpty(availableTaskFiles)}" class="table">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Название</th>
+                    <th>Тип</th>
+                    <th>Дата создания</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="f : ${availableTaskFiles}">
+                    <td th:text="${f.id}"></td>
+                    <td><a th:href="@{'/user/developer/task-files/' + ${f.id}}" th:text="${f.name}"></a></td>
+                    <td th:text="${f.localizedType}"></td>
+                    <td th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td>
+                        <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/files/attach'}" method="post">
+                            <input type="hidden" name="taskFileId" th:value="${f.id}">
+                            <button class="button" type="submit" th:disabled="${isTesting || isUsedInAnyContest}">Прикрепить</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
         </div>
     </section>
 
     <section class="card">
-        <h2 class="card-title">Доступные к прикреплению Файлы</h2>
+        <h2 class="card-title">Туры, к которым прикреплена</h2>
         <div class="card-body">
-            <div th:if="${#lists.isEmpty(availableTaskFiles)}" style="color: var(--color-text-muted);">Нет доступных файлов для прикрепления.</div>
-            <table th:if="${!#lists.isEmpty(availableTaskFiles)}" class="table">
+            <div th:if="${#lists.isEmpty(attachedContests)}" style="color: var(--color-text-muted);">Пока нет прикреплённых Туров.</div>
+            <table th:if="${!#lists.isEmpty(attachedContests)}" class="table">
                 <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Название</th>
-                        <th>Тип</th>
-                        <th>Дата создания</th>
-                        <th></th>
-                    </tr>
+                <tr>
+                    <th>ID</th>
+                    <th>Название</th>
+                    <th>Начало</th>
+                    <th>Окончание</th>
+                </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="f : ${availableTaskFiles}">
-                        <td th:text="${f.id}"></td>
-                        <td><a th:href="@{'/user/developer/task-files/' + ${f.id}}" th:text="${f.name}"></a></td>
-                        <td th:text="${f.localizedType}"></td>
-                        <td th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
-                        <td>
-                            <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/files/attach'}" method="post">
-                                <input type="hidden" name="taskFileId" th:value="${f.id}">
-                                <button class="button" type="submit" th:disabled="${isTesting || isUsedInAnyContest}">Прикрепить</button>
-                            </form>
-                        </td>
-                    </tr>
+                <tr th:each="c : ${attachedContests}">
+                    <td th:text="${c.id}"></td>
+                    <td><a th:href="@{'/user/developer/contests/' + ${c.id}}" th:text="${c.name}"></a></td>
+                    <td th:text="${c.startsAt != null ? #temporals.format(c.startsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td th:text="${c.endsAt != null ? #temporals.format(c.endsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                </tr>
                 </tbody>
             </table>
         </div>
