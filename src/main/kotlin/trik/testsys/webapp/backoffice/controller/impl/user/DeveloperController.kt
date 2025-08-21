@@ -15,17 +15,14 @@ import trik.testsys.webapp.backoffice.controller.AbstractUserController
 import trik.testsys.webapp.backoffice.data.entity.impl.Contest
 import trik.testsys.webapp.backoffice.data.entity.impl.Task
 import trik.testsys.webapp.backoffice.data.entity.impl.TaskFile
-import trik.testsys.webapp.backoffice.data.entity.impl.Solution
 import trik.testsys.webapp.backoffice.data.entity.impl.User
+import trik.testsys.webapp.backoffice.data.service.SolutionService
 import trik.testsys.webapp.backoffice.data.service.TaskService
 import trik.testsys.webapp.backoffice.data.service.TaskFileService
 import trik.testsys.webapp.backoffice.service.FileManager
 import trik.testsys.webapp.backoffice.data.service.ContestService
 import trik.testsys.webapp.backoffice.data.service.UserGroupService
-import trik.testsys.webapp.backoffice.utils.addHasActiveSession
 import trik.testsys.webapp.backoffice.utils.addMessage
-import trik.testsys.webapp.backoffice.utils.addSections
-import trik.testsys.webapp.backoffice.utils.addUser
 
 @Controller
 @RequestMapping("/user/developer")
@@ -35,6 +32,7 @@ class DeveloperController(
 //    private val taskTemplateService: TaskTemplateService,
     private val taskService: TaskService,
     private val taskFileService: TaskFileService,
+    private val solutionService: SolutionService,
     private val fileManager: FileManager,
 ) : AbstractUserController() {
 
@@ -48,10 +46,15 @@ class DeveloperController(
             return "redirect:/user"
         }
 
-        val createdTasks = taskService.findAll().filter { it.developer?.id == developer.id }.sortedBy { it.id }
+        val createdTasks = taskService.findByDeveloper(developer).sortedBy { it.id }
+        val sharedTasks = taskService
+            .findForUser(developer)
+            .filter { it.developer?.id != developer.id }
+            .sortedBy { it.id }
 
         setupModel(model, session, developer)
         model.addAttribute("tasks", createdTasks)
+        model.addAttribute("sharedTasks", sharedTasks)
 
         return "developer/tasks"
     }
@@ -176,6 +179,41 @@ class DeveloperController(
         model.addAttribute("attachedContests", attachedContests)
 
         return "developer/task"
+    }
+
+    @GetMapping("/tasks/{id}/tests")
+    fun taskTests(
+        @PathVariable id: Long,
+        model: Model,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val task = taskService.findById(id) ?: run {
+            redirectAttributes.addMessage("Задача не найдена.")
+            return "redirect:/user/developer/tasks"
+        }
+        if (task.developer?.id != developer.id) {
+            redirectAttributes.addMessage("У вас нет доступа к этой Задаче.")
+            return "redirect:/user/developer/tasks"
+        }
+
+        val testSolutions = solutionService.findAll()
+            .filter { it.task.id == task.id && it.contest == null }
+            .sortedBy { it.id }
+
+        setupModel(model, session, developer)
+        model.addAttribute("task", task)
+        model.addAttribute("solutions", testSolutions)
+
+        return "developer/task-tests"
     }
 
     @PostMapping("/tasks/{id}/update")

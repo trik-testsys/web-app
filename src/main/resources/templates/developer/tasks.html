@@ -35,10 +35,12 @@
                         </td>
                         <td th:text="${t.info ?: '—'}"></td>
                         <td th:text="${
-                            t.testingStatus == T(trik.testsys.webapp.backoffice.data.entity.impl.Task.TestingStatus).PASSED ? 'Пройдено' : (
-                            t.testingStatus == T(trik.testsys.webapp.backoffice.data.entity.impl.Task.TestingStatus).FAILED ? 'Не пройдено' : (
-                            t.testingStatus == T(trik.testsys.webapp.backoffice.data.entity.impl.Task.TestingStatus).TESTING ? 'В процессе' : 'Не запускалось')
-                        )}"></td>
+                            t.testingStatus != null ? (
+                                t.testingStatus.name() == 'PASSED' ? 'Пройдено' : (
+                                t.testingStatus.name() == 'FAILED' ? 'Не пройдено' : (
+                                t.testingStatus.name() == 'TESTING' ? 'В процессе' : 'Не запускалось')
+                            )) : 'Не запускалось'
+                        }"></td>
                         <td th:text="${t.createdAt != null ? #temporals.format(t.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                     </tr>
                 </tbody>
@@ -66,10 +68,12 @@
                     </td>
                     <td th:text="${t.info ?: '—'}"></td>
                     <td th:text="${
-                            t.testingStatus == T(trik.testsys.webapp.backoffice.data.entity.impl.Task.TestingStatus).PASSED ? 'Пройдено' : (
-                            t.testingStatus == T(trik.testsys.webapp.backoffice.data.entity.impl.Task.TestingStatus).FAILED ? 'Не пройдено' : (
-                            t.testingStatus == T(trik.testsys.webapp.backoffice.data.entity.impl.Task.TestingStatus).TESTING ? 'В процессе' : 'Не запускалось')
-                        )}"></td>
+                            t.testingStatus != null ? (
+                                t.testingStatus.name() == 'PASSED' ? 'Пройдено' : (
+                                t.testingStatus.name() == 'FAILED' ? 'Не пройдено' : (
+                                t.testingStatus.name() == 'TESTING' ? 'В процессе' : 'Не запускалось')
+                            )) : 'Не запускалось'
+                        }"></td>
                     <td th:text="${t.createdAt != null ? #temporals.format(t.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                 </tr>
                 </tbody>

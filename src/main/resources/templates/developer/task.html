@@ -9,7 +9,7 @@
 
 <main class="app-main">
     <section class="card">
-        <h2 class="card-title"><a th:href="@{/user/developer/tasks}">Задачи</a> / Задача</h2>
+        <h2 class="card-title"><a th:href="@{/user/developer/tasks}">Задачи</a> / <span th:text="${task.name}"></span></h2>
         <div class="card-body">
             <div class="alert" th:if="${message}" th:text="${message}"></div>
             <form id="task-form" data-readonly-toggle th:action="@{'/user/developer/tasks/' + ${task.id} + '/update'}" method="post" class="form" style="display:grid; gap:12px; max-width:720px;">
@@ -42,9 +42,12 @@
                 <strong>Статус тестирования:</strong>
                 <span th:text="${testStatus}"></span>
             </div>
-            <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/test'}" method="post" onsubmit="return confirm('Отправить Задачу на тестирование?');">
-                <button class="button button--primary" type="submit" th:disabled="${!testReady || isTesting || isUsedInAnyContest}">Запустить тестирование</button>
-            </form>
+            <div style="display:flex; gap:8px; align-items:center; margin:8px 0;">
+                <a class="button" th:href="@{'/user/developer/tasks/' + ${task.id} + '/tests'}">Результаты тестирования</a>
+                <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/test'}" method="post" onsubmit="return confirm('Отправить Задачу на тестирование?');">
+                    <button class="button button--primary" type="submit" th:disabled="${!testReady || isTesting || isUsedInAnyContest}">Запустить тестирование</button>
+                </form>
+            </div>
             <div class="field-note" style="margin-top:8px;">Для тестирования требуется минимум один Полигон и одно Эталонное Решение.</div>
             <div class="field-note" style="margin-top:8px;">Для прикрепления к Туру требуется минимум один Полигон, одно Эталонное Решение и одно Упражнение.</div>
         </div>
