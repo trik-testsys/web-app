@@ -3,7 +3,6 @@ package trik.testsys.webapp.backoffice.service.startup.runner.impl
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
-import jakarta.persistence.PostLoad
 import org.springframework.transaction.support.TransactionTemplate
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -16,8 +15,10 @@ import trik.testsys.webapp.backoffice.data.service.VerdictService
 import trik.testsys.webapp.backoffice.service.FileManager
 import trik.testsys.webapp.backoffice.service.Grader
 import trik.testsys.webapp.core.service.startup.AbstractStartupRunner
+import trik.testsys.webapp.notifier.CombinedIncidentNotifier
 import java.io.File
 import java.util.regex.Pattern
+import javax.annotation.PostConstruct
 
 @Service
 class GraderInitializer(
@@ -29,12 +30,11 @@ class GraderInitializer(
     private val verdictService: VerdictService,
     private val transactionTemplate: TransactionTemplate,
 
-
     @Value("\${trik.testsys.trik-studio.container.name}") private val trikStudioContainerName: String,
-    @Value("\${trik.testsys.grading-node.addresses}") private val gradingNodeAddresses: String
+    @Value("\${trik.testsys.grading-node.addresses}") private val gradingNodeAddresses: String, private val notifier: CombinedIncidentNotifier
 ) : AbstractStartupRunner() {
     
-    @PostLoad
+    @PostConstruct
     fun init() {
         if (trikStudioContainerName.trim().isEmpty()) {
             throw IllegalStateException("TRIK Studio container name must be defined.")
@@ -98,7 +98,10 @@ class GraderInitializer(
             try {
                 when (gradingInfo) {
                     is Grader.GradingInfo.Ok -> gradingInfo.parse()
-                    is Grader.GradingInfo.Error -> gradingInfo.parse()
+                    is Grader.GradingInfo.Error -> {
+                        notifyGradingError(gradingInfo)
+                        gradingInfo.parse()
+                    }
                 }
             } catch (e: Exception) {
                 logger.error("Failed to parse grading info.", e)
@@ -106,6 +109,25 @@ class GraderInitializer(
                 afterCatchException(gradingInfo)
             }
         }
+    }
+
+    private fun notifyGradingError(error: Grader.GradingInfo.Error) {
+        val kind = error.kind
+        val errorDescription = when (kind) {
+            is Grader.ErrorKind.InnerTimeoutExceed -> null
+            is Grader.ErrorKind.NonZeroExitCode -> {
+                "non-zero exit code[${kind.code}]" + when (kind.code) {
+                    137 -> ", probably out of memory"
+                    125 -> ", probably invalid docker arguments"
+                    else -> ""
+                }
+            }
+            else -> "[ ${kind::class.java.simpleName} ]: ${kind.description}"
+        } ?: return
+
+        val message = "Error while grading solution(id=${error.submissionId}):\n\n $errorDescription"
+
+        notifier.notify(message)
     }
 
     private fun afterCatchException(gradingInfo: Grader.GradingInfo) {

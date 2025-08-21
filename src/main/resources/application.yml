@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: "${TS_APP_NAME:web-app}"
   jpa:
     hibernate:
       ddl-auto: update                                          # Update database schema on start if necessary
@@ -75,3 +77,12 @@ trik:
         verdicts: "${PWD}/data/files/verdicts/"
         recordings: "${PWD}/data/files/recordings/"
         results: "${PWD}/data/files/results/"
+    notifier:
+      email:
+        smtp:
+          host: "${SMTP_HOST:}"
+          port: "${SMTP_PORT:}"
+        credential:
+          username: "${EMAIL_USERNAME:}"
+          password: "${EMAIL_PASSWORD:}"
+        receivers: "${EMAIL_RECEIVERS:}"

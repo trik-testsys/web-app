@@ -4,6 +4,8 @@ import jakarta.servlet.http.HttpSession
 import java.time.Instant
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Controller
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -215,12 +217,72 @@ class DeveloperTaskController(
         val verdicts = verdictService.findAllBySolutions(testSolutions)
         val verdictsBySolutionIds = verdicts.associateBy { it.solutionId }
 
+        val resultsAvailability = testSolutions.associate { s ->
+            val hasVerdicts = fileManager.getVerdictFiles(s).isNotEmpty()
+            val hasRecordings = fileManager.getRecordingFiles(s).isNotEmpty()
+            (s.id!!) to (hasVerdicts || hasRecordings)
+        }
+
         setupModel(model, session, developer)
         model.addAttribute("task", task)
         model.addAttribute("solutions", testSolutions)
         model.addAttribute("verdicts", verdictsBySolutionIds)
+        model.addAttribute("resultsAvailable", resultsAvailability)
 
         return "developer/task-tests"
+    }
+
+    @GetMapping("/tasks/{taskId}/tests/{solutionId}/download")
+    fun downloadTestResults(
+        @PathVariable("taskId") taskId: Long,
+        @PathVariable("solutionId") solutionId: Long,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes,
+    ): Any {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val task = taskService.findById(taskId) ?: run {
+            redirectAttributes.addMessage("Задача не найдена.")
+            return "redirect:/user/developer/tasks"
+        }
+        if (task.developer?.id != developer.id) {
+            redirectAttributes.addMessage("У вас нет доступа к этой Задаче.")
+            return "redirect:/user/developer/tasks"
+        }
+
+        val solution = solutionService.findById(solutionId) ?: run {
+            redirectAttributes.addMessage("Решение не найдено.")
+            return "redirect:/user/developer/tasks/$taskId/tests"
+        }
+        if (solution.task.id != task.id || solution.contest != null) {
+            redirectAttributes.addMessage("Решение не относится к данному тестированию Задачи.")
+            return "redirect:/user/developer/tasks/$taskId/tests"
+        }
+        if (solution.createdBy.id != developer.id) {
+            redirectAttributes.addMessage("У вас нет доступа к данному Решению.")
+            return "redirect:/user/developer/tasks/$taskId/tests"
+        }
+
+        val hasAnyResults = fileManager.getVerdictFiles(solution).isNotEmpty() || fileManager.getRecordingFiles(solution).isNotEmpty()
+        if (!hasAnyResults) {
+            redirectAttributes.addMessage("Результаты для данного Решения отсутствуют.")
+            return "redirect:/user/developer/tasks/$taskId/tests"
+        }
+
+        val results = fileManager.getSolutionResultFilesCompressed(solution)
+        val bytes = results.readBytes()
+        return ResponseEntity.ok()
+            .header("Content-Disposition", "attachment; filename=\"${results.name}\"")
+            .header("Content-Type", MediaType.APPLICATION_OCTET_STREAM_VALUE)
+            .header("Content-Transfer-Encoding", "binary")
+            .header("Content-Length", bytes.size.toString())
+            .body(bytes)
     }
 
     @PostMapping("/tasks/{id}/update")

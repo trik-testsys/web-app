@@ -1,6 +1,11 @@
 package trik.testsys.webapp.notifier
 
+import jakarta.persistence.PostLoad
+import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.stereotype.Component
 import java.util.Properties
+import javax.annotation.PostConstruct
 import javax.mail.Authenticator
 import javax.mail.Message
 import javax.mail.PasswordAuthentication
@@ -13,12 +18,25 @@ import javax.mail.internet.MimeMessage
  * @author Viktor Karasev
  * @since %CURRENT_VERSION%
  */
+@Component
 class EmailClient(
+    @Value("\${trik.testsys.notifier.email.smtp.host}")
     private val smtpHost: String,
+    @Value("\${trik.testsys.notifier.email.smtp.port}")
     private val smtpPort: Int,
+    @Value("\${trik.testsys.notifier.email.credential.username}")
     private val username: String,
+    @Value("\${trik.testsys.notifier.email.credential.password}")
     private val password: String,
 ) {
+
+    @PostConstruct
+    fun init() {
+        if (smtpHost.trim().isEmpty()) error("smtp host must be initialized")
+        if (smtpPort == null) error("smtp port must be initialized")
+        if (username.trim().isEmpty()) error("Email username must be initialized")
+        if (password.trim().isEmpty()) error("Email password must be initialized")
+    }
 
     private val session: Session by lazy {
         val properties = Properties().apply {
@@ -57,9 +75,15 @@ class EmailClient(
                 setText(email.body)
             }
             Transport.send(message)
-            println("Message sent")// TODO: log error
+
+            logger.info("Email message sent.")
         } catch (e: Exception) {
-            println("Failed to send email: ${e.message}\n${e.stackTraceToString()}") // TODO: log error
+            logger.error("Failed to send email: ", e)
         }
+    }
+
+    companion object {
+
+        private val logger = LoggerFactory.getLogger(EmailClient::class.java)
     }
 }
