@@ -41,7 +41,7 @@
                                 t.testingStatus.name() == 'TESTING' ? 'В процессе' : 'Не запускалось')
                             )) : 'Не запускалось'
                         }"></td>
-                        <td th:text="${t.createdAt != null ? #temporals.format(t.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                        <td data-utc th:attr="data-utc=${t.createdAt}" th:text="${t.createdAt != null ? #temporals.format(t.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                     </tr>
                 </tbody>
             </table>
@@ -74,7 +74,7 @@
                                 t.testingStatus.name() == 'TESTING' ? 'В процессе' : 'Не запускалось')
                             )) : 'Не запускалось'
                         }"></td>
-                    <td th:text="${t.createdAt != null ? #temporals.format(t.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td data-utc th:attr="data-utc=${t.createdAt}" th:text="${t.createdAt != null ? #temporals.format(t.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                 </tr>
                 </tbody>
             </table>

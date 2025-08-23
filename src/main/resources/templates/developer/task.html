@@ -74,7 +74,7 @@
                         <td th:text="${f.id}"></td>
                         <td><a th:href="@{'/user/developer/task-files/' + ${f.id}}" th:text="${f.name}"></a></td>
                         <td th:text="${f.localizedType}"></td>
-                        <td th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                        <td data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                         <td>
                             <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/files/' + ${f.id} + '/detach'}" method="post" onsubmit="return confirm('Открепить файл?');">
                                 <button class="button" type="submit" th:disabled="${isTesting || isUsedInAnyContest}">Открепить</button>
@@ -103,7 +103,7 @@
                     <td th:text="${f.id}"></td>
                     <td><a th:href="@{'/user/developer/task-files/' + ${f.id}}" th:text="${f.name}"></a></td>
                     <td th:text="${f.localizedType}"></td>
-                    <td th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                     <td>
                         <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/files/attach'}" method="post">
                             <input type="hidden" name="taskFileId" th:value="${f.id}">
@@ -133,8 +133,8 @@
                 <tr th:each="c : ${attachedContests}">
                     <td th:text="${c.id}"></td>
                     <td><a th:href="@{'/user/developer/contests/' + ${c.id}}" th:text="${c.name}"></a></td>
-                    <td th:text="${c.startsAt != null ? #temporals.format(c.startsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
-                    <td th:text="${c.endsAt != null ? #temporals.format(c.endsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td data-utc th:attr="data-utc=${c.startsAt}" th:text="${c.startsAt != null ? #temporals.format(c.startsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td data-utc th:attr="data-utc=${c.endsAt}" th:text="${c.endsAt != null ? #temporals.format(c.endsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                 </tr>
                 </tbody>
             </table>

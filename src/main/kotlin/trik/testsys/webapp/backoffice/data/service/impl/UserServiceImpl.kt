@@ -123,7 +123,6 @@ class UserServiceImpl(
             val regToken = regTokenService.generate(superUser.id)
             user.adminRegToken = regToken
             regToken.viewer = user
-            regTokenService.save(regToken)
         }
 
         save(user)

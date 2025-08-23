@@ -31,7 +31,7 @@
                 <dt>Код-доступа</dt>
                 <dd><span class="token" th:text="${user.accessToken.value}"></span></dd>
                 <dt>Последний вход</dt>
-                <dd th:text="${user.lastLoginAt != null ? #temporals.format(user.lastLoginAt, 'dd.MM.yyyy HH:mm:ss') : '—'}"></dd>
+                <dd data-utc data-include-seconds th:attr="data-utc=${user.lastLoginAt}" th:text="${user.lastLoginAt != null ? #temporals.format(user.lastLoginAt, 'dd.MM.yyyy HH:mm:ss') : '—'}"></dd>
             </dl>
             <hr class="separator">
             <div style="margin-top: 10px;">

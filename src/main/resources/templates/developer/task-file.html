@@ -26,7 +26,7 @@
                 <dt>Тип</dt>
                 <dd th:text="${localizedType}"></dd>
                 <dt>Дата создания</dt>
-                <dd th:text="${taskFile.createdAt != null ? #temporals.format(taskFile.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></dd>
+                <dd data-utc th:attr="data-utc=${taskFile.createdAt}" th:text="${taskFile.createdAt != null ? #temporals.format(taskFile.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></dd>
             </dl>
         </div>
     </section>
@@ -60,7 +60,7 @@
                 <tr th:each="v : ${versions}">
                     <td th:text="${v.version}"></td>
                     <td th:text="${v.fileName}"></td>
-                    <td th:text="${#temporals.format(v.lastModifiedAt, 'dd.MM.yyyy HH:mm')}"></td>
+                    <td data-utc th:attr="data-utc=${v.lastModifiedAt}" th:text="${#temporals.format(v.lastModifiedAt, 'dd.MM.yyyy HH:mm')}"></td>
                     <td>
                         <a class="button" th:href="@{'/user/developer/task-files/' + ${taskFile.id} + '/download/' + ${v.version}}">Скачать</a>
                     </td>

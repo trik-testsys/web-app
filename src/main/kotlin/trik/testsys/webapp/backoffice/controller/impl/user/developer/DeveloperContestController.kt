@@ -237,6 +237,7 @@ class DeveloperContestController(
         @RequestParam startsAt: String,
         @RequestParam(required = false) endsAt: String?,
         @RequestParam(required = false) duration: Long?,
+        @RequestParam(required = false) timezone: String?,
         session: HttpSession,
         redirectAttributes: RedirectAttributes
     ): String {
@@ -270,7 +271,8 @@ class DeveloperContestController(
 
         val startsInstant = try {
             val ldt = LocalDateTime.parse(startsAt)
-            ldt.atZone(ZoneId.systemDefault()).toInstant()
+            val zone = try { if (timezone.isNullOrBlank()) ZoneId.systemDefault() else ZoneId.of(timezone) } catch (e: Exception) { ZoneId.systemDefault() }
+            ldt.atZone(zone).toInstant()
         } catch (e: Exception) {
             redirectAttributes.addMessage("Некорректная дата начала. Формат: yyyy-MM-dd'T'HH:mm")
             return "redirect:/user/developer/contests/$id"
@@ -279,7 +281,8 @@ class DeveloperContestController(
         val endsInstant = if (!endsAt.isNullOrBlank()) {
             try {
                 val ldt = LocalDateTime.parse(endsAt)
-                ldt.atZone(ZoneId.systemDefault()).toInstant()
+                val zone = try { if (timezone.isNullOrBlank()) ZoneId.systemDefault() else ZoneId.of(timezone) } catch (e: Exception) { ZoneId.systemDefault() }
+                ldt.atZone(zone).toInstant()
             } catch (e: Exception) {
                 redirectAttributes.addMessage("Некорректная дата окончания. Формат: yyyy-MM-dd'T'HH:mm")
                 return "redirect:/user/developer/contests/$id"
@@ -342,6 +345,7 @@ class DeveloperContestController(
         @RequestParam startsAt: String,
         @RequestParam(required = false) endsAt: String?,
         @RequestParam(required = false) duration: Long?,
+        @RequestParam(required = false) timezone: String?,
         session: HttpSession,
         redirectAttributes: RedirectAttributes
     ): String {
@@ -366,7 +370,8 @@ class DeveloperContestController(
 
         val startsInstant = try {
             val ldt = LocalDateTime.parse(startsAt)
-            ldt.atZone(ZoneId.systemDefault()).toInstant()
+            val zone = try { if (timezone.isNullOrBlank()) ZoneId.systemDefault() else ZoneId.of(timezone) } catch (e: Exception) { ZoneId.systemDefault() }
+            ldt.atZone(zone).toInstant()
         } catch (e: Exception) {
             redirectAttributes.addMessage("Некорректная дата начала. Формат: yyyy-MM-dd'T'HH:mm")
             return "redirect:/user/developer/contests"
@@ -375,7 +380,8 @@ class DeveloperContestController(
         val endsInstant = if (!endsAt.isNullOrBlank()) {
             try {
                 val ldt = LocalDateTime.parse(endsAt)
-                ldt.atZone(ZoneId.systemDefault()).toInstant()
+                val zone = try { if (timezone.isNullOrBlank()) ZoneId.systemDefault() else ZoneId.of(timezone) } catch (e: Exception) { ZoneId.systemDefault() }
+                ldt.atZone(zone).toInstant()
             } catch (e: Exception) {
                 redirectAttributes.addMessage("Некорректная дата окончания. Формат: yyyy-MM-dd'T'HH:mm")
                 return "redirect:/user/developer/contests"

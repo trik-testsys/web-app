@@ -34,11 +34,11 @@
                     </label>
                     <label>
                         <div style="margin-bottom:4px;">Дата и время начала<span class="req">*</span></div>
-                        <input id="contest-starts" name="startsAt" type="datetime-local" th:value="${contest.startsAt != null ? #temporals.format(contest.startsAt, 'yyyy-MM-dd''T''HH:mm') : ''}" required disabled style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
+                        <input id="contest-starts" name="startsAt" type="datetime-local" data-utc th:attr="data-utc=${contest.startsAt}" th:value="${contest.startsAt != null ? #temporals.format(contest.startsAt, 'yyyy-MM-dd''T''HH:mm') : ''}" required disabled style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
                     </label>
                     <label>
                         <div style="margin-bottom:4px;">Дата и время окончания</div>
-                        <input id="contest-ends" name="endsAt" type="datetime-local" th:value="${contest.endsAt != null ? #temporals.format(contest.endsAt, 'yyyy-MM-dd''T''HH:mm') : ''}" disabled style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
+                        <input id="contest-ends" name="endsAt" type="datetime-local" data-utc th:attr="data-utc=${contest.endsAt}" th:value="${contest.endsAt != null ? #temporals.format(contest.endsAt, 'yyyy-MM-dd''T''HH:mm') : ''}" disabled style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
                     </label>
                     <label>
                         <div style="margin-bottom:4px;">Время на прохождение (мин)</div>
@@ -50,6 +50,7 @@
                         <button type="submit" class="button button--primary save-button" style="display:none;">Сохранить</button>
                         <button type="button" class="button cancel-button" style="display:none;" onclick="window.App.disableForm('contest-form')">Отмена</button>
                     </div>
+                    <input type="hidden" name="timezone" value="">
                 </form>
             </div>
 
@@ -61,9 +62,9 @@
                 <dt>Описание</dt>
                 <dd th:text="${contest.info ?: '—'}"></dd>
                 <dt>Начало</dt>
-                <dd th:text="${contest.startsAt != null ? #temporals.format(contest.startsAt, 'dd.MM.yyyy HH:mm') : '—'}"></dd>
+                <dd data-utc th:attr="data-utc=${contest.startsAt}" th:text="${contest.startsAt != null ? #temporals.format(contest.startsAt, 'dd.MM.yyyy HH:mm') : '—'}"></dd>
                 <dt>Окончание</dt>
-                <dd th:text="${contest.endsAt != null ? #temporals.format(contest.endsAt, 'dd.MM.yyyy HH:mm') : '—'}"></dd>
+                <dd data-utc th:attr="data-utc=${contest.endsAt}" th:text="${contest.endsAt != null ? #temporals.format(contest.endsAt, 'dd.MM.yyyy HH:mm') : '—'}"></dd>
                 <dt>Время на прохождение</dt>
                 <dd th:text="${contest.duration != null ? contest.duration + ' мин' : '—'}"></dd>
             </dl>

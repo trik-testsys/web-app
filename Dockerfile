@@ -7,7 +7,7 @@ ARG VERSION=2.7.0-snapshot
 
 #Copying application
 WORKDIR /$APP_DIR
-ARG JAR_FILE=build/libs/web-app-$VERSION.jar
+ARG JAR_FILE=target/web-app-3.0.0-SNAPSHOT.jar
 ARG APP=app.jar
 COPY $JAR_FILE $APP
 

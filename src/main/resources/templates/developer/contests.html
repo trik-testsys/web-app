@@ -39,8 +39,8 @@
                         <td>
                             <a th:href="@{'/user/developer/contests/' + ${c.id}}" th:text="${c.name}"></a>
                         </td>
-                        <td th:text="${c.startsAt != null ? #temporals.format(c.startsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
-                        <td th:text="${c.endsAt != null ? #temporals.format(c.endsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                        <td data-utc th:attr="data-utc=${c.startsAt}" th:text="${c.startsAt != null ? #temporals.format(c.startsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                        <td data-utc th:attr="data-utc=${c.endsAt}" th:text="${c.endsAt != null ? #temporals.format(c.endsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                         <td th:text="${c.duration != null ? c.duration + ' мин' : '—'}"></td>
                         <td>
                             <ul class="pill-list" th:if="${!#lists.isEmpty(c.userGroups)}">
@@ -73,8 +73,8 @@
                     <td>
                         <a th:href="@{'/user/developer/contests/' + ${c.id}}" th:text="${c.name}"></a>
                     </td>
-                    <td th:text="${c.startsAt != null ? #temporals.format(c.startsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
-                    <td th:text="${c.endsAt != null ? #temporals.format(c.endsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td data-utc th:attr="data-utc=${c.startsAt}" th:text="${c.startsAt != null ? #temporals.format(c.startsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td data-utc th:attr="data-utc=${c.endsAt}" th:text="${c.endsAt != null ? #temporals.format(c.endsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                     <td th:text="${c.duration != null ? c.duration + ' мин' : '—'}"></td>
                     <td>
                         <ul class="pill-list" th:if="${!#lists.isEmpty(c.userGroups)}">

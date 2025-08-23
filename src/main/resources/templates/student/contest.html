@@ -16,8 +16,8 @@
 
             <div class="grid grid-2">
                 <div>
-                    <div><b>Начало:</b> <span th:text="${contest.startsAt != null ? #temporals.format(contest.startsAt, 'dd.MM.yyyy HH:mm') : '—'}"></span></div>
-                    <div><b>Окончание:</b> <span th:text="${contest.endsAt != null ? #temporals.format(contest.endsAt, 'dd.MM.yyyy HH:mm') : '—'}"></span></div>
+                    <div><b>Начало:</b> <span data-utc th:attr="data-utc=${contest.startsAt}" th:text="${contest.startsAt != null ? #temporals.format(contest.startsAt, 'dd.MM.yyyy HH:mm') : '—'}"></span></div>
+                    <div><b>Окончание:</b> <span data-utc th:attr="data-utc=${contest.endsAt}" th:text="${contest.endsAt != null ? #temporals.format(contest.endsAt, 'dd.MM.yyyy HH:mm') : '—'}"></span></div>
                 </div>
                 <div>
                     <div><b>Время на прохождение:</b> <span th:text="${contest.duration != null ? contest.duration + ' мин' : '—'}"></span></div>

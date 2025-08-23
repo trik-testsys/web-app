@@ -55,7 +55,7 @@
                     <td th:text="${s.id}"></td>
                     <td th:text="${@solutionI18n.toRu(s.status)}"></td>
                     <td th:text="${verdicts != null and #maps.containsKey(verdicts, s.id) ? verdicts[s.id].value : '—'}"></td>
-                    <td th:text="${#temporals.format(s.createdAt, 'dd.MM.yyyy HH:mm')}"></td>
+                    <td data-utc th:attr="data-utc=${s.createdAt}" th:text="${#temporals.format(s.createdAt, 'dd.MM.yyyy HH:mm')}"></td>
 <!--                    <td>-->
 <!--                        <a th:if="${resultsAvailable[s.id]}"-->
 <!--                           th:href="@{'/user/student/contests/' + ${contest.id} + '/tasks/' + ${task.id} + '/results/' + ${s.id} + '/download'}"-->

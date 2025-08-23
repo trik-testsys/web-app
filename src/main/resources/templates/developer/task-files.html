@@ -36,7 +36,7 @@
                             <td th:text="${f.id}"></td>
                             <td><a th:href="@{'/user/developer/task-files/' + ${f.id}}" th:text="${f.name}"></a></td>
                             <td th:text="${f.info ?: '—'}"></td>
-                            <td th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                            <td data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                         </tr>
                     </tbody>
                 </table>
@@ -59,7 +59,7 @@
                             <td th:text="${f.id}"></td>
                             <td><a th:href="@{'/user/developer/task-files/' + ${f.id}}" th:text="${f.name}"></a></td>
                             <td th:text="${f.info ?: '—'}"></td>
-                            <td th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                            <td data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                         </tr>
                     </tbody>
                 </table>
@@ -82,7 +82,7 @@
                             <td th:text="${f.id}"></td>
                             <td><a th:href="@{'/user/developer/task-files/' + ${f.id}}" th:text="${f.name}"></a></td>
                             <td th:text="${f.info ?: '—'}"></td>
-                            <td th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                            <td data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                         </tr>
                     </tbody>
                 </table>
@@ -105,7 +105,7 @@
                             <td th:text="${f.id}"></td>
                             <td><a th:href="@{'/user/developer/task-files/' + ${f.id}}" th:text="${f.name}"></a></td>
                             <td th:text="${f.info ?: '—'}"></td>
-                            <td th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                            <td data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                         </tr>
                     </tbody>
                 </table>

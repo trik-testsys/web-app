@@ -19,15 +19,18 @@ services:
     volumes:
       - ./data/mysql:/var/lib/mysql
 
+#    ports:
+#      - "3306:3306"
+#    expose:
+#      - 3306
+
   web-app:
-    image: ghcr.io/trik-testsys/web-app:2.2.0
+    image: 5h15h4k1n9/web-app:3.0.0-beta
     restart: always
 
     environment:
       - JAVA_OPTIONS=-server -Xmx4g -Xms1g -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/web-app/dumps/ -XX:+CrashOnOutOfMemoryError -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:ParallelGCThreads=6 -XX:ConcGCThreads=3
-      - TRIK_STUDIO_VERSION=latest
-      - GRADING_NODE_ADDRESSES=1.1.1.1:8080,2.2.2.2:8080,3.3.3.3:8080
-      - CONTEXT_PATH=/demo2025
+      - CONTEXT_PATH=/
       - MYSQL_HOST=mysql_host
       - MYSQL_PORT=3306
       - MYSQL_USERNAME=testsys
