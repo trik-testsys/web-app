@@ -6,6 +6,7 @@ import trik.testsys.webapp.backoffice.data.entity.impl.StudentGroup
 import trik.testsys.webapp.backoffice.data.entity.impl.User
 import trik.testsys.webapp.backoffice.data.repository.StudentGroupRepository
 import trik.testsys.webapp.backoffice.data.service.StudentGroupService
+import trik.testsys.webapp.backoffice.data.service.VerdictService
 import trik.testsys.webapp.core.data.service.AbstractService
 import trik.testsys.webapp.backoffice.data.service.UserService
 import trik.testsys.webapp.backoffice.data.service.UserGroupService
@@ -15,6 +16,7 @@ class StudentGroupServiceImpl(
     private val userService: UserService,
     private val accessTokenService: AccessTokenService,
     private val userGroupService: UserGroupService,
+    private val verdictService: VerdictService,
 ) :
     AbstractService<StudentGroup, StudentGroupRepository>(),
     StudentGroupService {
@@ -129,19 +131,92 @@ class StudentGroupServiceImpl(
     }
 
     override fun generateResultsCsv(group: StudentGroup): ByteArray {
-        val header = "student_id,student_name,task_id,task_name,score,status,last_login_at\n"
-        val rows = buildList {
-            val members = group.members.sortedBy { it.id }
-            // Tasks are attached via group's contests; we cannot traverse tasks directly without a relation here.
-            // Emit only student info with placeholders to keep endpoint functional until tasks/solutions are wired.
-            members.forEach { student ->
-                val id = (student.id ?: 0).toString()
-                val name = student.name ?: ""
-                val lastLogin = student.lastLoginAt?.toString() ?: ""
-                add("$id,$name,,,,$lastLogin")
+        return generateResultsCsv(listOf(group))
+    }
+
+    override fun generateResultsCsv(groups: Collection<StudentGroup>): ByteArray {
+        val groupsList = groups.sortedBy { it.id }
+
+        val contests = groupsList.asSequence()
+            .flatMap { it.contests.asSequence() }
+            .distinctBy { it.id }
+            .sortedBy { it.id }
+            .toList()
+
+        val contestTaskPairs = contests.flatMap { contest ->
+            contest.tasks.sortedBy { it.id }.map { task -> contest to task }
+        }
+
+        val fixedHeader = listOf(
+            "student_group_id",
+            "student_group_name",
+            "admin_id",
+            "admin_name",
+            "student_id",
+            "student_name"
+        )
+        val dynamicHeader = contestTaskPairs.map { (contest, task) ->
+            val cId = contest.id ?: 0
+            val cName = contest.name ?: ""
+            val tId = task.id ?: 0
+            val tName = task.name ?: ""
+            "$cId $cName / $tId $tName"
+        }
+        val header = (fixedHeader + dynamicHeader).joinToString(",") + "\n"
+
+        val membersByGroup = groupsList.associateWith { group ->
+            group.members.filter { it.privileges.contains(User.Privilege.STUDENT) }.sortedBy { it.id }
+        }
+
+        val allMembers = membersByGroup.values.flatten()
+
+        val contestIds = contests.mapNotNull { it.id }.toSet()
+        val taskIds = contestTaskPairs.mapNotNull { it.second.id }.toSet()
+
+        val allRelevantSolutions = allMembers.asSequence()
+            .flatMap { it.solutions.asSequence() }
+            .filter { s ->
+                val cId = s.contest?.id
+                val tId = s.task.id
+                cId != null && cId in contestIds && tId in taskIds && s.relevantVerdictId != null
+            }
+            .toList()
+
+        val verdicts = verdictService.findAllBySolutions(allRelevantSolutions)
+        val verdictById = verdicts.associateBy { it.id }
+
+        val csv = StringBuilder()
+        for ((group, members) in groupsList.map { it to (membersByGroup[it] ?: emptyList()) }) {
+            val admin = group.owner
+            for (student in members) {
+                val fixed = listOf(
+                    (group.id ?: 0).toString(),
+                    group.name ?: "",
+                    (admin?.id ?: 0).toString(),
+                    (admin?.name ?: ""),
+                    (student.id ?: 0).toString(),
+                    student.name ?: ""
+                )
+
+                val perTask = contestTaskPairs.map { (contest, task) ->
+                    val solution = student.solutions
+                        .asSequence()
+                        .filter { s ->
+                            (s.contest?.id == contest.id) && (s.task.id == task.id) && s.relevantVerdictId != null
+                        }
+                        .maxByOrNull { it.createdAt }
+
+                    solution?.relevantVerdictId?.let { vid ->
+                        verdictById[vid]?.value?.toString()
+                    } ?: ""
+                }
+
+                csv.append((fixed + perTask).joinToString(","))
+                csv.append('\n')
             }
         }
-        return (header + rows.joinToString("\n")).toByteArray()
+
+        return (header + csv.toString()).toByteArray()
     }
 
     companion object {

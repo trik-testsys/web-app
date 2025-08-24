@@ -31,4 +31,6 @@ interface StudentGroupService : EntityService<StudentGroup> {
     fun generateMembersCsv(group: StudentGroup): ByteArray
 
     fun generateResultsCsv(group: StudentGroup): ByteArray
+
+    fun generateResultsCsv(groups: Collection<StudentGroup>): ByteArray
 }
