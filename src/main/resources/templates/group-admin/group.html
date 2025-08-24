@@ -30,6 +30,9 @@
     <section class="card">
         <h2 class="card-title">Пользователи</h2>
         <div class="card-body">
+            <div style="margin-bottom:10px;">
+                <a class="button" th:href="@{'/user/group-admin/groups/' + ${group.id} + '/users/create'}">Создать пользователя</a>
+            </div>
             <h3 style="margin: 0 0 8px 0;">Список доступных к добалению</h3>
             <div style="margin-top:12px;">
                 <div th:if="${#lists.isEmpty(candidateUsers)}" style="color: var(--color-text-muted);">Нет пользователей для добавления.</div>

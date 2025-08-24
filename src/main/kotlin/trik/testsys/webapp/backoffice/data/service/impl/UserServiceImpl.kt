@@ -101,6 +101,60 @@ class UserServiceImpl(
         return true
     }
 
+    override fun createUserByGroupAdmin(
+        groupAdmin: User,
+        name: String,
+        privileges: Collection<User.Privilege>
+    ): User? {
+        if (!groupAdmin.privileges.contains(User.Privilege.GROUP_ADMIN)) {
+            logger.warn(
+                "Could not create new user(name=$name, privileges=$privileges) for user(id=${groupAdmin.id}), it has no GROUP_ADMIN privileges."
+            )
+            return null
+        }
+
+        // Restrict privileges to allowed set for group admin
+        val allowed = setOf(
+            User.Privilege.ADMIN,
+            User.Privilege.DEVELOPER,
+            User.Privilege.JUDGE,
+            User.Privilege.STUDENT,
+            User.Privilege.VIEWER,
+        )
+        val requested = privileges.toSet().intersect(allowed)
+
+        val trimmed = name.trim()
+        if (trimmed.isEmpty()) return null
+
+        val accessToken = accessTokenService.generate()
+        val newUser = User().also {
+            it.accessToken = accessToken
+            it.name = trimmed
+        }
+
+        val persisted = save(newUser)
+        accessToken.user = persisted
+
+        // assign only allowed privileges
+        requested.forEach { p ->
+            // mimic addPrivilege logic for VIEWER special case
+            persisted.privileges.add(p)
+            if (p == User.Privilege.VIEWER && persisted.adminRegToken == null) {
+                val regToken = regTokenService.generate()
+                persisted.adminRegToken = regToken
+                regToken.viewer = persisted
+            }
+        }
+        save(persisted)
+
+        // Add to group admin's default group if exists to ensure visibility
+        userGroupService.getDefaultGroup()?.let { defaultGroup ->
+            userGroupService.addMember(defaultGroup, persisted)
+        }
+
+        return persisted
+    }
+
     override fun addPrivilege(superUser: User, user: User, privilege: User.Privilege): Boolean {
         if (!superUser.privileges.contains(User.Privilege.SUPER_USER)) {
             logger.warn(

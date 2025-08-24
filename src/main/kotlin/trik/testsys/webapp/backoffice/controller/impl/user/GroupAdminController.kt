@@ -75,6 +75,46 @@ class GroupAdminController(
         return "group-admin/group"
     }
 
+    @GetMapping("/groups/{id}/users/create")
+    fun createUserForm(
+        @PathVariable id: Long,
+        model: Model,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val current = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!current.privileges.contains(User.Privilege.GROUP_ADMIN)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val group = userGroupService.findById(id) ?: run {
+            redirectAttributes.addMessage("Группа не найдена.")
+            return "redirect:/user/group-admin/groups"
+        }
+        if (group.owner?.id != current.id) {
+            redirectAttributes.addMessage("Нет доступа к группе.")
+            return "redirect:/user/group-admin/groups"
+        }
+
+        val allowed = setOf(
+            User.Privilege.ADMIN,
+            User.Privilege.DEVELOPER,
+            User.Privilege.JUDGE,
+            User.Privilege.STUDENT,
+            User.Privilege.VIEWER,
+        )
+        val privilegeOptions = PrivilegeI18n.listOptions()
+            .filter { (name, _) -> allowed.contains(User.Privilege.valueOf(name)) }
+
+        setupModel(model, session, current)
+        model.addAttribute("group", group)
+        model.addAttribute("privilegeOptions", privilegeOptions)
+        return "group-admin/user-create"
+    }
+
     @GetMapping("/groups/create")
     fun createForm(model: Model, session: HttpSession, redirectAttributes: RedirectAttributes): String {
         val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
@@ -142,6 +182,58 @@ class GroupAdminController(
             val ok = userGroupService.removeMember(group, user)
             if (ok) redirectAttributes.addMessage("Пользователь удален.") else redirectAttributes.addMessage("Не удалось удалить пользователя.")
         }
+        return "redirect:/user/group-admin/groups/$id"
+    }
+
+    @PostMapping("/groups/{id}/create-user")
+    fun createUserInGroup(
+        @PathVariable id: Long,
+        @RequestParam name: String?,
+        @RequestParam(required = false) privileges: List<User.Privilege>?,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val current = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!current.privileges.contains(User.Privilege.GROUP_ADMIN)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val group = userGroupService.findById(id) ?: run {
+            redirectAttributes.addMessage("Группа не найдена.")
+            return "redirect:/user/group-admin/groups"
+        }
+        if (group.owner?.id != current.id) {
+            redirectAttributes.addMessage("Нет доступа к группе.")
+            return "redirect:/user/group-admin/groups"
+        }
+
+        val trimmed = (name ?: "").trim()
+        if (trimmed.isEmpty()) {
+            redirectAttributes.addMessage("Имя не может быть пустым.")
+            return "redirect:/user/group-admin/groups/$id"
+        }
+
+        val allowed = setOf(
+            User.Privilege.ADMIN,
+            User.Privilege.DEVELOPER,
+            User.Privilege.JUDGE,
+            User.Privilege.STUDENT,
+            User.Privilege.VIEWER,
+        )
+        val requested = privileges?.toSet()?.intersect(allowed) ?: emptySet()
+
+        val newUser = userService.createUserByGroupAdmin(current, trimmed, requested)
+        if (newUser == null) {
+            redirectAttributes.addMessage("Не удалось создать пользователя.")
+            return "redirect:/user/group-admin/groups/$id"
+        }
+
+        val added = userGroupService.addMember(group, newUser)
+        if (added) redirectAttributes.addMessage("Пользователь создан и добавлен в группу.") else redirectAttributes.addMessage("Пользователь создан, но не удалось добавить в группу.")
+
         return "redirect:/user/group-admin/groups/$id"
     }
 }
