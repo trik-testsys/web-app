@@ -2,6 +2,7 @@ package trik.testsys.webapp.backoffice.data.service.impl
 
 import org.slf4j.LoggerFactory
 import jakarta.persistence.criteria.JoinType
+import jakarta.persistence.criteria.Predicate
 import org.springframework.stereotype.Service
 import trik.testsys.webapp.backoffice.data.entity.impl.User
 import trik.testsys.webapp.backoffice.data.repository.UserRepository
@@ -129,11 +130,22 @@ class UserServiceImpl(
         return true
     }
 
-    override fun findAllSuperUser() = repository.findAll { root, q, cb ->
+    override fun findAllSuperUser(isAllUserSuperUser: Boolean?) = repository.findAll { root, q, cb ->
+        val predicates = mutableListOf<Predicate>()
+
         root.fetch<Any, Any>(User.ACCESS_TOKEN, JoinType.LEFT)
         q?.distinct(true)
+
         val privilegesPath = root.get<Set<User.Privilege>>(User.PRIVILEGES)
-        cb.isMember(User.Privilege.SUPER_USER, privilegesPath)
+        val hasSuperUserPrivilege = cb.isMember(User.Privilege.SUPER_USER, privilegesPath)
+        predicates.add(hasSuperUserPrivilege)
+
+        isAllUserSuperUser?.let {
+            val allUserFlagMatches = cb.equal(root.get<Boolean>(User.IS_ALL_USER_SUPER_USER), isAllUserSuperUser)
+            predicates.add(allUserFlagMatches)
+        }
+
+        cb.and(*predicates.toTypedArray())
     }.toSet()
 
     override fun findAllGroupAdmin() = repository.findAll { root, q, cb ->

@@ -20,5 +20,6 @@ interface SuperUserService {
     fun addPrivileges(superUser: User, user: User, privileges: Collection<User.Privilege>): Boolean =
         privileges.forEach { addPrivilege(superUser, user, it) }.let { true }
 
-    fun findAllSuperUser(): Set<User>
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+    fun findAllSuperUser(isAllUserSuperUser: Boolean? = null): Set<User>
 }

@@ -74,6 +74,9 @@ class User() : AbstractEntity() {
     @OneToMany(mappedBy = "superUser")
     var createdUsers: MutableSet<User> = mutableSetOf()
 
+    @Column(name = "all_user_super_user", nullable = false)
+    var isAllUserSuperUser: Boolean = false
+
     @OneToMany(mappedBy = "developer", orphanRemoval = true)
     var contests: MutableSet<Contest> = mutableSetOf()
 
@@ -108,5 +111,6 @@ class User() : AbstractEntity() {
 
         const val ACCESS_TOKEN = "accessToken"
         const val PRIVILEGES = "privileges"
+        const val IS_ALL_USER_SUPER_USER = "isAllUserSuperUser"
     }
 }

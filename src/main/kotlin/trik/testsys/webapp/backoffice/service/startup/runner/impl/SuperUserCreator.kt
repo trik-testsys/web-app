@@ -5,6 +5,7 @@ import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Service
 import trik.testsys.webapp.backoffice.data.entity.impl.AccessToken
 import trik.testsys.webapp.backoffice.data.entity.impl.User
+import trik.testsys.webapp.backoffice.data.service.SuperUserService
 import trik.testsys.webapp.backoffice.data.service.UserGroupService
 import trik.testsys.webapp.backoffice.data.service.UserService
 import trik.testsys.webapp.backoffice.data.service.impl.AccessTokenService
@@ -22,6 +23,7 @@ class SuperUserCreator(
     @Value("\${trik.testsys.superuser.accessToken}")
     private val accessToken: String,
 
+    private val superUserService: SuperUserService,
     private val userService: UserService,
     private val accessTokenService: AccessTokenService,
     private val userGroupService: UserGroupService
@@ -30,7 +32,7 @@ class SuperUserCreator(
     override suspend fun execute() = createSuperUser()
 
     private fun createSuperUser() {
-        val superUsers = userService.findAllSuperUser().sortedBy { it.id }
+        val superUsers = superUserService.findAllSuperUser(isAllUserSuperUser = true).sortedBy { it.id }
         if (superUsers.isNotEmpty()) {
             logger.info("Super User already exists. Skipping runner.\n\n Access token: ${superUsers.first().accessToken?.value}\n")
             return
@@ -45,6 +47,7 @@ class SuperUserCreator(
             it.name = name
             it.accessToken = token
             it.privileges.addAll(setOf(User.Privilege.SUPER_USER, User.Privilege.GROUP_ADMIN))
+            it.isAllUserSuperUser = true
         }
         val persisted = userService.save(user)
 

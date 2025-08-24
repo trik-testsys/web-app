@@ -42,14 +42,21 @@ class SuperUserController(
 
         val privilegeOptions = PrivilegeI18n.listOptions()
         val allUsers = userService.findAll().sortedBy { it.id }
-        val userRows = allUsers.map { u ->
+
+        val createdUsers = allUsers.filter { it.superUser?.id == currentUser.id }
+        val userRows = createdUsers.map { u ->
+            val privsRu = PrivilegeI18n.listRu(u.privileges)
+            UserRow(id = u.id!!, name = u.name, accessToken = u.accessToken?.value, privilegesRu = privsRu)
+        }
+        val allUserRows = allUsers.map { u ->
             val privsRu = PrivilegeI18n.listRu(u.privileges)
             UserRow(id = u.id!!, name = u.name, accessToken = u.accessToken?.value, privilegesRu = privsRu)
         }
 
         setupModel(model, session, currentUser)
-        model.addAttribute("allUsers", allUsers)
         model.addAttribute("userRows", userRows)
+        model.addAttribute("allUserRows", allUserRows)
+        model.addAttribute("isAllUserSuperUser", currentUser.isAllUserSuperUser)
         model.addAttribute("privileges", User.Privilege.entries)
         model.addAttribute("privilegeOptions", privilegeOptions)
         model.addAttribute("privilegeToRu", PrivilegeI18n.asMap())
