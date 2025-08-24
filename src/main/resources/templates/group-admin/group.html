@@ -30,22 +30,40 @@
     <section class="card">
         <h2 class="card-title">Пользователи</h2>
         <div class="card-body">
-            <h3 style="margin: 0 0 8px 0;">Добавление</h3>
-            <div style="margin: 12px 0; display:flex; gap:8px;">
-                <form th:action="@{'/user/group-admin/groups/' + ${group.id} + '/add-member'}" method="post" style="display:flex; gap:8px; align-items:center;">
-                    <select name="userId" required style="min-width:260px; padding:8px 10px; border:1px solid #dde3ea; border-radius:8px;">
-                        <option value="" disabled selected>Выберите пользователя…</option>
-                        <option th:each="u : ${candidateUsers}"
-                                th:value="${u.id}"
-                                th:text="${#strings.isEmpty(u.name) ? ('User #' + u.id) : (u.id + ' — ' + u.name)}">
-                        </option>
-                    </select>
-                    <button type="submit" class="button button--primary" th:disabled="${#lists.isEmpty(candidateUsers)}">Добавить</button>
-                </form>
+            <h3 style="margin: 0 0 8px 0;">Список доступных к добалению</h3>
+            <div style="margin-top:12px;">
+                <div th:if="${#lists.isEmpty(candidateUsers)}" style="color: var(--color-text-muted);">Нет пользователей для добавления.</div>
+                <table th:if="${!#lists.isEmpty(candidateUsers)}" class="table">
+                    <thead>
+                    <tr>
+                        <th style="text-align:left; padding:8px;">ID</th>
+                        <th style="text-align:left; padding:8px;">Псевдоним</th>
+                        <th style="text-align:left; padding:8px;">Роли</th>
+                        <th style="text-align:left; padding:8px;">Действия</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="u : ${candidateUsers}">
+                        <td style="padding:8px;" th:text="${u.id}"></td>
+                        <td style="padding:8px;" th:text="${#strings.isEmpty(u.name) ? ('User #' + u.id) : u.name}"></td>
+                        <td style="padding:8px;">
+                            <ul class="pill-list">
+                                <li class="pill" th:each="p : ${candidatePrivilegesRuByUserId[u.id]}" th:text="${p}"></li>
+                            </ul>
+                        </td>
+                        <td style="padding:8px;">
+                            <form th:action="@{'/user/group-admin/groups/' + ${group.id} + '/add-member'}" method="post">
+                                <input type="hidden" name="userId" th:value="${u.id}">
+                                <button type="submit" class="button button--primary">Добавить</button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
             <hr class="separator">
             <div style="margin-top: 12px;">
-                <h3 style="margin: 0 0 8px 0;">Список Пользователей</h3>
+                <h3 style="margin: 0 0 8px 0;">Список добавленных</h3>
                 <div th:if="${#lists.isEmpty(group.members)}" style="color: var(--color-text-muted);">В группе пока нет участников.</div>
                 <table th:if="${!#lists.isEmpty(group.members)}" class="table">
                     <thead>

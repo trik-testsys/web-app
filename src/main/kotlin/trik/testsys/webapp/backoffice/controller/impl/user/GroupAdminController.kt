@@ -63,12 +63,14 @@ class GroupAdminController(
         val candidateUsers = userService.findAll()
             .filter { user -> user.id != group.owner?.id && !group.members.contains(user) }
             .sortedBy { it.name?.lowercase() ?: "" }
+        val candidatePrivilegesRuByUserId = candidateUsers.associate { it.id!! to PrivilegeI18n.listRu(it.privileges) }
 
         setupModel(model, session, current)
         model.addAttribute("group", group)
         model.addAttribute("memberPrivilegesRuByUserId", memberPrivilegesRuByUserId)
         model.addAttribute("privilegeToRu", PrivilegeI18n.asMap())
         model.addAttribute("candidateUsers", candidateUsers)
+        model.addAttribute("candidatePrivilegesRuByUserId", candidatePrivilegesRuByUserId)
 
         return "group-admin/group"
     }
