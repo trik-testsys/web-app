@@ -24,7 +24,7 @@
                         <th>Название</th>
                         <th>Описание</th>
                         <th>Статус тестирования</th>
-                        <th>Дата создания</th>
+                        <th class="date-cell">Дата создания</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -41,7 +41,7 @@
                                 t.testingStatus.name() == 'TESTING' ? 'В процессе' : 'Не запускалось')
                             )) : 'Не запускалось'
                         }"></td>
-                        <td class="created-cell" data-utc th:attr="data-utc=${t.createdAt}" th:text="${t.createdAt != null ? #temporals.format(t.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                        <td class="date-cell" data-utc th:attr="data-utc=${t.createdAt}" th:text="${t.createdAt != null ? #temporals.format(t.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                     </tr>
                 </tbody>
             </table>
@@ -57,7 +57,7 @@
                     <th>Название</th>
                     <th>Описание</th>
                     <th>Статус тестирования</th>
-                    <th>Дата создания</th>
+                    <th class="date-cell">Дата создания</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -74,7 +74,7 @@
                                 t.testingStatus.name() == 'TESTING' ? 'В процессе' : 'Не запускалось')
                             )) : 'Не запускалось'
                         }"></td>
-                    <td data-utc th:attr="data-utc=${t.createdAt}" th:text="${t.createdAt != null ? #temporals.format(t.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td class="date-cell" data-utc th:attr="data-utc=${t.createdAt}" th:text="${t.createdAt != null ? #temporals.format(t.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                 </tr>
                 </tbody>
             </table>

@@ -3,8 +3,6 @@
 <head>
     <th:block th:include="fragments/layout :: head('Организаторы')"></th:block>
     <style>
-        .token-cell { min-width: 520px; white-space: nowrap; }
-        .id-cell { width: 80px; white-space: nowrap; }
     </style>
 </head>
 <body>
@@ -41,20 +39,14 @@
                         <tr>
                             <th class="id-cell" style="text-align:left; padding:8px;">ID</th>
                             <th style="text-align:left; padding:8px;">Псевдоним</th>
-                            <th style="text-align:left; padding:8px;">Создан</th>
-                            <th style="text-align:left; padding:8px;">Роли</th>
+                            <th class="date-cell" style="text-align:left; padding:8px;">Дата создания</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr th:each="a : ${admins}">
                             <td class="id-cell" style="padding:8px;" th:text="${a.id}"></td>
                             <td style="padding:8px;" th:text="${a.name}"></td>
-                            <td class="created-cell" style="padding:8px;" data-utc th:attr="data-utc=${a.createdAt}" th:text="${a.createdAt != null ? #temporals.format(a.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
-                            <td style="padding:8px;">
-                                <ul class="pill-list">
-                                    <li class="pill" th:each="p : ${a.privileges}" th:text="${privilegeToRu[p]}"></li>
-                                </ul>
-                            </td>
+                            <td class="date-cell" style="padding:8px;" data-utc th:attr="data-utc=${a.createdAt}" th:text="${a.createdAt != null ? #temporals.format(a.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                         </tr>
                     </tbody>
                 </table>

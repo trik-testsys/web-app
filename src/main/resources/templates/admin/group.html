@@ -3,8 +3,6 @@
 <head>
     <th:block th:include="fragments/layout :: head('Группа')"></th:block>
     <style>
-        .token-cell { min-width: 520px; white-space: nowrap; }
-        .id-cell { width: 80px; white-space: nowrap; }
     </style>
     </head>
 <body>
@@ -49,8 +47,8 @@
                     <tr>
                         <th class="id-cell" style="text-align:left; padding:8px;">ID</th>
                         <th style="text-align:left; padding:8px;">Псевдоним</th>
-                        <th style="text-align:left; padding:8px;">Создан</th>
-                        <th style="text-align:left; padding:8px;">Последний вход</th>
+                        <th class="date-cell" style="text-align:left; padding:8px;">Дата создания</th>
+                        <th class="date-cell" style="text-align:left; padding:8px;">Последний вход</th>
                         <th class="token-cell" style="text-align:left; padding:8px;">Код-доступа</th>
                     </tr>
                     </thead>
@@ -58,7 +56,7 @@
                     <tr th:each="m : ${group.members}">
                         <td class="id-cell" style="padding:8px;" th:text="${m.id}"></td>
                         <td style="padding:8px;" th:text="${m.name}"></td>
-                        <td class="created-cell" style="padding:8px;" data-utc th:attr="data-utc=${m.createdAt}" th:text="${m.createdAt != null ? #temporals.format(m.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                        <td class="date-cell" style="padding:8px;" data-utc th:attr="data-utc=${m.createdAt}" th:text="${m.createdAt != null ? #temporals.format(m.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                         <td style="padding:8px;" data-utc data-include-seconds th:attr="data-utc=${m.lastLoginAt}" th:text="${m.lastLoginAt != null ? #temporals.format(m.lastLoginAt, 'dd.MM.yyyy HH:mm:ss') : '—'}"></td>
                         <td class="token-cell" style="padding:8px;">
                             <span class="token" th:text="${m.accessToken != null ? m.accessToken.value : '—'}"></span>
@@ -81,8 +79,8 @@
                         <tr>
                             <th>ID</th>
                             <th>Название</th>
-                            <th>Начало</th>
-                            <th>Окончание</th>
+                            <th class="date-cell">Начало</th>
+                            <th class="date-cell">Окончание</th>
                             <th>Время на прохождение</th>
                         </tr>
                     </thead>
@@ -90,8 +88,8 @@
                         <tr th:each="c : ${attachedContests}">
                             <td th:text="${c.id}"></td>
                             <td th:text="${c.name}"></td>
-                            <td data-utc th:attr="data-utc=${c.startsAt}" th:text="${c.startsAt != null ? #temporals.format(c.startsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
-                            <td data-utc th:attr="data-utc=${c.endsAt}" th:text="${c.endsAt != null ? #temporals.format(c.endsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                            <td class="date-cell" data-utc th:attr="data-utc=${c.startsAt}" th:text="${c.startsAt != null ? #temporals.format(c.startsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                            <td class="date-cell" data-utc th:attr="data-utc=${c.endsAt}" th:text="${c.endsAt != null ? #temporals.format(c.endsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                             <td th:text="${c.duration != null ? c.duration + ' мин' : '—'}"></td>
                         </tr>
                     </tbody>
@@ -106,8 +104,8 @@
                         <tr>
                             <th>ID</th>
                             <th>Название</th>
-                            <th>Начало</th>
-                            <th>Окончание</th>
+                            <th class="date-cell">Начало</th>
+                            <th class="date-cell">Окончание</th>
                             <th>Время на прохождение</th>
                             <th>Действия</th>
                         </tr>
@@ -116,8 +114,8 @@
                         <tr th:each="c : ${availableContests}">
                             <td th:text="${c.id}"></td>
                             <td th:text="${c.name}"></td>
-                            <td data-utc th:attr="data-utc=${c.startsAt}" th:text="${c.startsAt != null ? #temporals.format(c.startsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
-                            <td data-utc th:attr="data-utc=${c.endsAt}" th:text="${c.endsAt != null ? #temporals.format(c.endsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                            <td class="date-cell" data-utc th:attr="data-utc=${c.startsAt}" th:text="${c.startsAt != null ? #temporals.format(c.startsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                            <td class="date-cell" data-utc th:attr="data-utc=${c.endsAt}" th:text="${c.endsAt != null ? #temporals.format(c.endsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                             <td th:text="${c.duration != null ? c.duration + ' мин' : '—'}"></td>
                             <td>
                                 <form th:action="@{'/user/admin/groups/' + ${group.id} + '/attach-contest'}" method="post" onsubmit="return confirm('Прикрепить Тур к группе?');">

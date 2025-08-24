@@ -31,7 +31,7 @@
                         s.status == T(trik.testsys.webapp.backoffice.data.entity.impl.Solution.Status).ERROR ? 'Ошибка' : 'Не запускалось') )
                     }"></td>
                     <td th:text="${verdicts != null and #maps.containsKey(verdicts, s.id) ? verdicts[s.id].value : '—'}"></td>
-                    <td data-utc th:attr="data-utc=${s.createdAt}" th:text="${s.createdAt != null ? #temporals.format(s.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td class="date-cell" data-utc th:attr="data-utc=${s.createdAt}" th:text="${s.createdAt != null ? #temporals.format(s.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                     <td>
                         <a th:if="${resultsAvailable[s.id]}"
                            th:href="@{'/user/developer/tasks/' + ${task.id} + '/tests/' + ${s.id} + '/download'}"

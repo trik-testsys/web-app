@@ -6,7 +6,6 @@
         .form-row { display: grid; grid-template-columns: 1fr; gap: 12px; }
         @media (min-width: 768px) { .form-row { grid-template-columns: 1fr 1fr; } }
         .field-note { color: var(--color-text-muted); font-size: 13px; margin-top: 6px; }
-        .id-cell { width: 80px; white-space: nowrap; }
     </style>
 </head>
 <body>
@@ -28,8 +27,9 @@
                     <tr>
                         <th class="id-cell">ID</th>
                         <th>Название</th>
-                        <th>Начало</th>
-                        <th>Окончание</th>
+                        <th class="date-cell">Начало</th>
+                        <th class="date-cell">Окончание</th>
+                        <th class="date-cell">Дата создания</th>
                         <th>Время на прохождение</th>
                         <th>Группы Пользователей</th>
                     </tr>
@@ -40,8 +40,9 @@
                         <td>
                             <a th:href="@{'/user/developer/contests/' + ${c.id}}" th:text="${c.name}"></a>
                         </td>
-                        <td data-utc th:attr="data-utc=${c.startsAt}" th:text="${c.startsAt != null ? #temporals.format(c.startsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
-                        <td data-utc th:attr="data-utc=${c.endsAt}" th:text="${c.endsAt != null ? #temporals.format(c.endsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                        <td class="date-cell" data-utc th:attr="data-utc=${c.startsAt}" th:text="${c.startsAt != null ? #temporals.format(c.startsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                        <td class="date-cell" data-utc th:attr="data-utc=${c.endsAt}" th:text="${c.endsAt != null ? #temporals.format(c.endsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                        <td class="date-cell" data-utc th:attr="data-utc=${c.createdAt}" th:text="${c.createdAt != null ? #temporals.format(c.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                         <td th:text="${c.duration != null ? c.duration + ' мин' : '—'}"></td>
                         <td>
                             <ul class="pill-list" th:if="${!#lists.isEmpty(c.userGroups)}">
@@ -62,8 +63,9 @@
                 <tr>
                     <th class="id-cell">ID</th>
                     <th>Название</th>
-                    <th>Начало</th>
-                    <th>Окончание</th>
+                    <th class="date-cell">Начало</th>
+                    <th class="date-cell">Окончание</th>
+                    <th class="date-cell">Дата создания</th>
                     <th>Время на прохождение</th>
                     <th>Группы Пользователей</th>
                 </tr>
@@ -74,8 +76,9 @@
                     <td>
                         <a th:href="@{'/user/developer/contests/' + ${c.id}}" th:text="${c.name}"></a>
                     </td>
-                    <td data-utc th:attr="data-utc=${c.startsAt}" th:text="${c.startsAt != null ? #temporals.format(c.startsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
-                    <td data-utc th:attr="data-utc=${c.endsAt}" th:text="${c.endsAt != null ? #temporals.format(c.endsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td class="date-cell" data-utc th:attr="data-utc=${c.startsAt}" th:text="${c.startsAt != null ? #temporals.format(c.startsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td class="date-cell" data-utc th:attr="data-utc=${c.endsAt}" th:text="${c.endsAt != null ? #temporals.format(c.endsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td class="date-cell" data-utc th:attr="data-utc=${c.createdAt}" th:text="${c.createdAt != null ? #temporals.format(c.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                     <td th:text="${c.duration != null ? c.duration + ' мин' : '—'}"></td>
                     <td>
                         <ul class="pill-list" th:if="${!#lists.isEmpty(c.userGroups)}">

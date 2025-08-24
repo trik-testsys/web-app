@@ -26,7 +26,7 @@
                 <dt>Тип</dt>
                 <dd th:text="${localizedType}"></dd>
                 <dt>Дата создания</dt>
-                <dd data-utc th:attr="data-utc=${taskFile.createdAt}" th:text="${taskFile.createdAt != null ? #temporals.format(taskFile.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></dd>
+                <dd class="date-cell" data-utc th:attr="data-utc=${taskFile.createdAt}" th:text="${taskFile.createdAt != null ? #temporals.format(taskFile.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></dd>
             </dl>
         </div>
     </section>
@@ -50,17 +50,17 @@
             <table th:if="${!#lists.isEmpty(versions)}" class="table">
                 <thead>
                 <tr>
-                    <th>Версия</th>
+                    <th class="version-cell">Версия</th>
                     <th>Имя файла</th>
-                    <th>Дата изменения</th>
+                    <th class="date-cell">Дата создания</th>
                     <th>Действия</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="v : ${versions}">
-                    <td th:text="${v.version}"></td>
+                    <td class="version-cell" th:text="${v.version}"></td>
                     <td th:text="${v.fileName}"></td>
-                    <td data-utc th:attr="data-utc=${v.lastModifiedAt}" th:text="${#temporals.format(v.lastModifiedAt, 'dd.MM.yyyy HH:mm')}"></td>
+                    <td class="date-cell" data-utc th:attr="data-utc=${v.lastModifiedAt}" th:text="${#temporals.format(v.lastModifiedAt, 'dd.MM.yyyy HH:mm')}"></td>
                     <td>
                         <a class="button" th:href="@{'/user/developer/task-files/' + ${taskFile.id} + '/download/' + ${v.version}}">Скачать</a>
                     </td>

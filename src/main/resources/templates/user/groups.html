@@ -28,6 +28,7 @@
                         <th style="text-align:left; padding:8px;">ID</th>
                         <th style="text-align:left; padding:8px;">Название</th>
                         <th style="text-align:left; padding:8px;">Описание</th>
+                        <th class="date-cell" style="text-align:left; padding:8px;">Дата создания</th>
                         <th style="text-align:left; padding:8px;">Действия</th>
                     </tr>
                 </thead>
@@ -36,6 +37,7 @@
                         <td style="padding:8px;" th:text="${g.id}"></td>
                         <td style="padding:8px;" th:text="${g.name ?: 'Без названия'}"></td>
                         <td style="padding:8px;" th:text="${g.info ?: '—'}"></td>
+                        <td class="date-cell" style="padding:8px;" data-utc th:attr="data-utc=${g.createdAt}" th:text="${g.createdAt != null ? #temporals.format(g.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                         <td style="padding:8px;">
                             <form th:action="@{'/user/groups/' + ${g.id} + '/leave'}" method="post" onsubmit="return confirmLeave(this);">
                                 <button type="submit" class="button button--danger">Покинуть</button>

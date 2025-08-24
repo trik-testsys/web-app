@@ -3,7 +3,6 @@
 <head>
     <th:block th:include="fragments/layout :: head('Группы')"></th:block>
     <style>
-        .id-cell { width: 80px; white-space: nowrap; }
     </style>
 </head>
 <body>
@@ -28,6 +27,7 @@
                         <th class="id-cell" style="text-align:left; padding:8px;">ID</th>
                         <th style="text-align:left; padding:8px;">Название</th>
                         <th style="text-align:left; padding:8px;">Описание</th>
+                        <th class="date-cell" style="text-align:left; padding:8px;">Дата создания</th>
                         <th style="text-align:left; padding:8px;">Участники</th>
                     </tr>
                 </thead>
@@ -38,6 +38,7 @@
                             <a th:href="@{'/user/admin/groups/' + ${g.id}}" th:text="${g.name ?: 'Без названия'}"></a>
                         </td>
                         <td style="padding:8px;" th:text="${g.info ?: '—'}"></td>
+                        <td class="date-cell" style="padding:8px;" data-utc th:attr="data-utc=${g.createdAt}" th:text="${g.createdAt != null ? #temporals.format(g.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                         <td style="padding:8px;" th:text="${#lists.size(g.members)}"></td>
                     </tr>
                 </tbody>

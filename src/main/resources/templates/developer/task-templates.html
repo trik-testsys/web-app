@@ -23,6 +23,7 @@
                         <th>ID</th>
                         <th>Название</th>
                         <th>Описание</th>
+                        <th class="date-cell">Дата создания</th>
                         <th>Группы пользователей</th>
                     </tr>
                 </thead>
@@ -33,6 +34,7 @@
                             <a th:href="@{'/user/developer/task-templates/' + ${t.id}}" th:text="${t.name}"></a>
                         </td>
                         <td th:text="${t.info ?: '—'}"></td>
+                        <td class="date-cell" data-utc th:attr="data-utc=${t.createdAt}" th:text="${t.createdAt != null ? #temporals.format(t.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                         <td>
                             <ul class="pill-list" th:if="${!#lists.isEmpty(t.userGroups)}">
                                 <li class="pill" th:each="g : ${t.userGroups}" th:text="${(g.name ?: 'Без названия') + ' (#' + g.id + ')'}"></li>
@@ -55,6 +57,7 @@
                         <th>ID</th>
                         <th>Название</th>
                         <th>Описание</th>
+                        <th class="date-cell">Дата создания</th>
                         <th>Группы Пользователей</th>
                     </tr>
                 </thead>
@@ -65,6 +68,7 @@
                             <a th:href="@{'/user/developer/task-templates/' + ${t.id}}" th:text="${t.name}"></a>
                         </td>
                         <td th:text="${t.info ?: '—'}"></td>
+                        <td class="date-cell" data-utc th:attr="data-utc=${t.createdAt}" th:text="${t.createdAt != null ? #temporals.format(t.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                         <td>
                             <ul class="pill-list" th:if="${!#lists.isEmpty(t.userGroups)}">
                                 <li class="pill" th:each="g : ${t.userGroups}" th:text="${(g.name ?: 'Без названия') + ' (#' + g.id + ')'}"></li>

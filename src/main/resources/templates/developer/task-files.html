@@ -28,7 +28,7 @@
                             <th class="id-cell">ID</th>
                             <th>Название</th>
                             <th>Описание</th>
-                            <th>Дата создания</th>
+                            <th class="date-cell">Дата создания</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -36,7 +36,7 @@
                             <td class="id-cell" th:text="${f.id}"></td>
                             <td><a th:href="@{'/user/developer/task-files/' + ${f.id}}" th:text="${f.name}"></a></td>
                             <td th:text="${f.info ?: '—'}"></td>
-                            <td class="created-cell" data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                            <td class="date-cell" data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                         </tr>
                     </tbody>
                 </table>
@@ -51,7 +51,7 @@
                             <th class="id-cell">ID</th>
                             <th>Название</th>
                             <th>Описание</th>
-                            <th>Дата создания</th>
+                            <th class="date-cell">Дата создания</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -59,7 +59,7 @@
                             <td class="id-cell" th:text="${f.id}"></td>
                             <td><a th:href="@{'/user/developer/task-files/' + ${f.id}}" th:text="${f.name}"></a></td>
                             <td th:text="${f.info ?: '—'}"></td>
-                            <td class="created-cell" data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                            <td class="date-cell" data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                         </tr>
                     </tbody>
                 </table>
@@ -74,7 +74,7 @@
                             <th class="id-cell">ID</th>
                             <th>Название</th>
                             <th>Описание</th>
-                            <th>Дата создания</th>
+                            <th class="date-cell">Дата создания</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -82,7 +82,7 @@
                             <td class="id-cell" th:text="${f.id}"></td>
                             <td><a th:href="@{'/user/developer/task-files/' + ${f.id}}" th:text="${f.name}"></a></td>
                             <td th:text="${f.info ?: '—'}"></td>
-                            <td class="created-cell" data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                            <td class="date-cell" data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                         </tr>
                     </tbody>
                 </table>
@@ -97,7 +97,7 @@
                             <th class="id-cell">ID</th>
                             <th>Название</th>
                             <th>Описание</th>
-                            <th>Дата создания</th>
+                            <th class="date-cell">Дата создания</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -105,7 +105,7 @@
                             <td class="id-cell" th:text="${f.id}"></td>
                             <td><a th:href="@{'/user/developer/task-files/' + ${f.id}}" th:text="${f.name}"></a></td>
                             <td th:text="${f.info ?: '—'}"></td>
-                            <td class="created-cell" data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                            <td class="date-cell" data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                         </tr>
                     </tbody>
                 </table>
