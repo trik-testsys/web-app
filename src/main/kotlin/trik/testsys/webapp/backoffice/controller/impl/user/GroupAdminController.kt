@@ -231,7 +231,7 @@ class GroupAdminController(
             return "redirect:/user/group-admin/groups/$id"
         }
 
-        val added = userGroupService.addMember(group, newUser)
+        val added = if (group.defaultGroup) true else userGroupService.addMember(group, newUser)
         if (added) redirectAttributes.addMessage("Пользователь создан и добавлен в группу.") else redirectAttributes.addMessage("Пользователь создан, но не удалось добавить в группу.")
 
         return "redirect:/user/group-admin/groups/$id"

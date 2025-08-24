@@ -37,6 +37,7 @@
                         <tr>
                             <th style="text-align:left; padding:8px;">ID</th>
                             <th style="text-align:left; padding:8px;">Псевдоним</th>
+                            <th style="text-align:left; padding:8px;">Создан</th>
                             <th style="text-align:left; padding:8px;">Роли</th>
                         </tr>
                     </thead>
@@ -44,6 +45,7 @@
                         <tr th:each="a : ${admins}">
                             <td style="padding:8px;" th:text="${a.id}"></td>
                             <td style="padding:8px;" th:text="${a.name}"></td>
+                            <td style="padding:8px;" data-utc th:attr="data-utc=${a.createdAt}" th:text="${a.createdAt != null ? #temporals.format(a.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                             <td style="padding:8px;">
                                 <ul class="pill-list">
                                     <li class="pill" th:each="p : ${a.privileges}" th:text="${privilegeToRu[p]}"></li>

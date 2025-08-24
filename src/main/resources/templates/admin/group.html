@@ -45,6 +45,7 @@
                     <tr>
                         <th style="text-align:left; padding:8px;">ID</th>
                         <th style="text-align:left; padding:8px;">Псевдоним</th>
+                        <th style="text-align:left; padding:8px;">Создан</th>
                         <th style="text-align:left; padding:8px;">Последний вход</th>
                         <th style="text-align:left; padding:8px;">Код-доступа</th>
                     </tr>
@@ -53,6 +54,7 @@
                     <tr th:each="m : ${group.members}">
                         <td style="padding:8px;" th:text="${m.id}"></td>
                         <td style="padding:8px;" th:text="${m.name}"></td>
+                        <td style="padding:8px;" data-utc th:attr="data-utc=${m.createdAt}" th:text="${m.createdAt != null ? #temporals.format(m.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                         <td style="padding:8px;" data-utc data-include-seconds th:attr="data-utc=${m.lastLoginAt}" th:text="${m.lastLoginAt != null ? #temporals.format(m.lastLoginAt, 'dd.MM.yyyy HH:mm:ss') : '—'}"></td>
                         <td style="padding:8px;">
                             <span class="token" th:text="${m.accessToken != null ? m.accessToken.value : '—'}"></span>

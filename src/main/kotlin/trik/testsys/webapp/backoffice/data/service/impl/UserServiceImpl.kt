@@ -147,11 +147,6 @@ class UserServiceImpl(
         }
         save(persisted)
 
-        // Add to group admin's default group if exists to ensure visibility
-        userGroupService.getDefaultGroup()?.let { defaultGroup ->
-            userGroupService.addMember(defaultGroup, persisted)
-        }
-
         return persisted
     }
 

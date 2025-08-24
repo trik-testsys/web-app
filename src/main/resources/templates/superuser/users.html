@@ -5,7 +5,8 @@
     <style>
         .grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
         .form-inline { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-        .token-cell { min-width: 380px; white-space: nowrap; }
+        .token-cell { min-width: 520px; white-space: nowrap; }
+        .id-cell { width: 80px; white-space: nowrap; }
     </style>
     <script>
         function toggle(elId){ var el = document.getElementById(elId); if(el){ el.hidden = !el.hidden; } }
@@ -29,8 +30,9 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th>ID</th>
+                        <th class="id-cell">ID</th>
                         <th>Имя</th>
+                        <th class="token-cell">Создан</th>
                         <th class="token-cell">Код-доступа</th>
                         <th>Роли</th>
                         <th>Действия</th>
@@ -38,8 +40,9 @@
                 </thead>
                 <tbody>
                     <tr th:each="row : ${userRows}">
-                        <td th:text="${row.id}"></td>
+                        <td class="id-cell" th:text="${row.id}"></td>
                         <td th:text="${row.name}"></td>
+                        <td class="token-cell" data-utc th:attr="data-utc=${row.createdAt}" th:text="${row.createdAt != null ? #temporals.format(row.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                         <td class="token-cell">
                             <span class="token" th:text="${row.accessToken}"></span>
                         </td>
@@ -71,8 +74,9 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th class="id-cell">ID</th>
                             <th>Имя</th>
+                            <th class="token-cell">Создан</th>
                             <th class="token-cell">Код-доступа</th>
                             <th>Роли</th>
                             <th>Действия</th>
@@ -80,8 +84,9 @@
                     </thead>
                     <tbody>
                         <tr th:each="row : ${allUserRows}">
-                            <td th:text="${row.id}"></td>
+                            <td class="id-cell" th:text="${row.id}"></td>
                             <td th:text="${row.name}"></td>
+                            <td class="token-cell" data-utc th:attr="data-utc=${row.createdAt}" th:text="${row.createdAt != null ? #temporals.format(row.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                             <td class="token-cell">
                                 <span class="token" th:text="${row.accessToken}"></span>
                             </td>

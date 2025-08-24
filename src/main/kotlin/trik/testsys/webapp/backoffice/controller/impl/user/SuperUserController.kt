@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
+import java.time.Instant
 import trik.testsys.webapp.backoffice.controller.AbstractUserController
 import trik.testsys.webapp.backoffice.data.entity.impl.User
 import trik.testsys.webapp.backoffice.data.service.SuperUserService
@@ -26,6 +27,7 @@ class SuperUserController(
     private data class UserRow(
         val id: Long,
         val name: String?,
+        val createdAt: Instant?,
         val accessToken: String?,
         val privilegesRu: List<String>
     )
@@ -46,11 +48,11 @@ class SuperUserController(
         val createdUsers = allUsers.filter { it.superUser?.id == currentUser.id }
         val userRows = createdUsers.map { u ->
             val privsRu = PrivilegeI18n.listRu(u.privileges)
-            UserRow(id = u.id!!, name = u.name, accessToken = u.accessToken?.value, privilegesRu = privsRu)
+            UserRow(id = u.id!!, name = u.name, createdAt = u.createdAt, accessToken = u.accessToken?.value, privilegesRu = privsRu)
         }
         val allUserRows = allUsers.map { u ->
             val privsRu = PrivilegeI18n.listRu(u.privileges)
-            UserRow(id = u.id!!, name = u.name, accessToken = u.accessToken?.value, privilegesRu = privsRu)
+            UserRow(id = u.id!!, name = u.name, createdAt = u.createdAt, accessToken = u.accessToken?.value, privilegesRu = privsRu)
         }
 
         setupModel(model, session, currentUser)
