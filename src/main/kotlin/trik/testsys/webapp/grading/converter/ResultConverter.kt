@@ -4,6 +4,10 @@ import trik.testsys.grading.GradingNodeOuterClass
 import trik.testsys.grading.okOrNull
 import trik.testsys.webapp.backoffice.service.Grader
 
+/**
+ * @author Vyacheslav Buchin
+ * @since %CURRENT_VERSION%
+ */
 class ResultConverter(private val fieldResultConverter: FieldResultConverter) {
     fun convert(result: GradingNodeOuterClass.Result): Grader.GradingInfo {
         val submissionId = result.id

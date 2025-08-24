@@ -4,6 +4,10 @@ import trik.testsys.grading.GradingNodeOuterClass.FieldResult
 import trik.testsys.grading.videoOrNull
 import trik.testsys.webapp.backoffice.service.Grader
 
+/**
+ * @author Vyacheslav Buchin
+ * @since %CURRENT_VERSION%
+ */
 class FieldResultConverter(private val fileConverter: FileConverter) {
     fun convert(fieldResult: FieldResult): Grader.GradingInfo.FieldResult {
         val name = fieldResult.name

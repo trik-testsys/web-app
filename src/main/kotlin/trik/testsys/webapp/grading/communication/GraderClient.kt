@@ -24,6 +24,10 @@ import java.time.Duration
 import java.time.LocalDateTime
 import java.util.concurrent.LinkedBlockingQueue
 
+/**
+ * @author Vyacheslav Buchin
+ * @since %CURRENT_VERSION%
+ */
 class GraderClient(
     val address: String,
     private val configuration: GraderConfiguration,

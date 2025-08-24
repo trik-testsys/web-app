@@ -6,6 +6,10 @@ import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.times
 
+/**
+ * @author Vyacheslav Buchin
+ * @since %CURRENT_VERSION%
+ */
 interface GraderConfiguration {
     val statusResponseTimeout: Duration
     val nodePollingInterval: Duration
@@ -13,6 +17,10 @@ interface GraderConfiguration {
     val hangTimeout: Duration
 }
 
+/**
+ * @author Vyacheslav Buchin
+ * @since %CURRENT_VERSION%
+ */
 @Component
 object DefaultGraderConfiguration : GraderConfiguration {
     override val statusResponseTimeout = 2.seconds

@@ -12,6 +12,10 @@ import trik.testsys.webapp.grading.communication.GradingNodeManager
 import java.util.concurrent.LinkedBlockingQueue
 import kotlin.collections.iterator
 
+/**
+ * @author Vyacheslav Buchin
+ * @since %CURRENT_VERSION%
+ */
 @Suppress("UNUSED")
 class GradingManager(
     private val nodeManager: GradingNodeManager,

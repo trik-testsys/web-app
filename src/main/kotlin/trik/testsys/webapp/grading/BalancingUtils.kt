@@ -5,6 +5,10 @@ import org.slf4j.LoggerFactory
 import trik.testsys.webapp.grading.communication.GraderClient
 import trik.testsys.webapp.backoffice.service.Grader
 
+/**
+ * @author Vyacheslav Buchin
+ * @since %CURRENT_VERSION%
+ */
 object BalancingUtils {
     private val log = LoggerFactory.getLogger(BalancingUtils::class.java)
 

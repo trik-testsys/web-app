@@ -8,6 +8,10 @@ import trik.testsys.webapp.backoffice.data.service.SolutionService
 import trik.testsys.webapp.backoffice.service.Grader
 import kotlin.random.Random
 
+/**
+ * @author Roman Shishkin
+ * @since %CURRENT_VERSION%
+ */
 @Service
 class StubGraderService(
     private val verdictService: VerdictService,

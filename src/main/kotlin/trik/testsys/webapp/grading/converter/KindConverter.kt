@@ -2,6 +2,10 @@ package trik.testsys.webapp.grading.converter
 
 import trik.testsys.webapp.backoffice.service.Grader
 
+/**
+ * @author Vyacheslav Buchin
+ * @since %CURRENT_VERSION%
+ */
 object KindConverter {
     fun convert(kind: Int, description: String): Grader.ErrorKind {
         return when (kind) {

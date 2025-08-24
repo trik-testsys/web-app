@@ -14,12 +14,20 @@ import trik.testsys.webapp.backoffice.service.Grader
 import trik.testsys.webapp.grading.converter.SubmissionBuilder
 import java.time.LocalDateTime
 
+/**
+ * @author Vyacheslav Buchin
+ * @since %CURRENT_VERSION%
+ */
 data class SubmissionInfo(
     val solution: Solution,
     val submission: Submission,
     val sentTime: LocalDateTime,
 )
 
+/**
+ * @author Vyacheslav Buchin
+ * @since %CURRENT_VERSION%
+ */
 @Primary
 @Service
 class BalancingGraderService(

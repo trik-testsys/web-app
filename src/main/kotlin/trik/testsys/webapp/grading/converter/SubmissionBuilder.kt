@@ -8,6 +8,10 @@ import trik.testsys.webapp.backoffice.data.entity.impl.Task
 import trik.testsys.webapp.backoffice.service.Grader
 import java.io.File
 
+/**
+ * @author Vyacheslav Buchin
+ * @since %CURRENT_VERSION%
+ */
 class SubmissionBuilder private constructor() {
     lateinit var solution: Solution
     lateinit var solutionFile: File

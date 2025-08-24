@@ -10,6 +10,10 @@ import trik.testsys.webapp.grading.SubmissionInfo
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.collections.mapKeys
 
+/**
+ * @author Vyacheslav Buchin
+ * @since %CURRENT_VERSION%
+ */
 class GradingNodeManager(
     private val configuration: GraderConfiguration,
 ) {
