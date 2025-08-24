@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+<head>
+    <th:block th:include="fragments/layout :: head('Решения')"></th:block>
+    <style>
+        .actions { display: flex; gap: 8px; align-items: center; }
+    </style>
+    <script>
+        function attachUploadHandlers() {
+            document.querySelectorAll('.upload-form input[type=file]').forEach(function(inp){
+                inp.addEventListener('change', function(){ this.form.submit(); });
+            });
+        }
+        document.addEventListener('DOMContentLoaded', attachUploadHandlers);
+    </script>
+</head>
+<body>
+<header th:replace="fragments/layout :: header(userName=${user.name})"></header>
+<aside th:replace="fragments/layout :: sidebar(sections=${menuSections})"></aside>
+
+<main class="app-main">
+    <section class="card">
+        <h2 class="card-title">Посылки</h2>
+        <div class="card-body">
+            <h3 style="margin: 0 0 8px 0;">Посылки Участников</h3>
+            <div th:if="${#lists.isEmpty(studentSolutions)}" style="color: var(--color-text-muted);">Пока нет посылок Участников.</div>
+            <table th:if="${!#lists.isEmpty(studentSolutions)}" class="table">
+                <thead>
+                <tr>
+                    <th class="id-cell">ID</th>
+                    <th>ID Наблюдателя</th>
+                    <th>ID Организатора</th>
+                    <th>ID Группы Участников</th>
+                    <th>ID Участника</th>
+                    <th class="date-cell">Дата создания</th>
+                    <th>Итоговый балл</th>
+                    <th>Действия</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="s : ${studentSolutions}">
+                    <td class="id-cell" th:text="${s.id}"></td>
+                    <td th:text="${viewerBySolutionId[s.id]} ?: '—'"></td>
+                    <td th:text="${adminBySolutionId[s.id]} ?: '—'"></td>
+                    <td th:text="${groupBySolutionId[s.id]} ?: '—'"></td>
+                    <td th:text="${s.createdBy.id}"></td>
+                    <td class="date-cell" data-utc th:attr="data-utc=${s.createdAt}" th:text="${#temporals.format(s.createdAt, 'dd.MM.yyyy HH:mm')}"></td>
+                    <td th:text="${verdicts != null and #maps.containsKey(verdicts, s.id) ? verdicts[s.id].value : '—'}"></td>
+                    <td>
+                        <div class="actions">
+                            <a th:if="${solutionFileAvailable[s.id]}"
+                               th:href="@{'/user/judge/solutions/' + ${s.id} + '/file'}"
+                               class="button button--small">Скачать посылку</a>
+                            <a th:if="${resultsAvailable[s.id]}"
+                               th:href="@{'/user/judge/solutions/' + ${s.id} + '/download'}"
+                               class="button button--small">Скачать zip</a>
+                            <span th:if="${!resultsAvailable[s.id]}" style="color: var(--color-text-muted);">—</span>
+                            <form th:action="@{'/user/judge/solutions/' + ${s.id} + '/resubmit'}" method="post" style="display:inline;">
+                                <button class="button button--small" type="submit">Перезапустить</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <hr class="separator">
+
+            <h3 style="margin: 0 0 8px 0;">Список перезапусков</h3>
+            <div th:if="${#lists.isEmpty(judgeSolutions)}" style="color: var(--color-text-muted);">Пока нет перезапусков.</div>
+            <table th:if="${!#lists.isEmpty(judgeSolutions)}" class="table">
+                <thead>
+                <tr>
+                    <th class="id-cell">ID</th>
+                    <th>Статус</th>
+                    <th>Результат</th>
+                    <th class="date-cell">Дата создания</th>
+                    <th>Действия</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="s : ${judgeSolutions}">
+                    <td class="id-cell" th:text="${s.id}"></td>
+                    <td th:text="${s.status == T(trik.testsys.webapp.backoffice.data.entity.impl.Solution.Status).PASSED ? 'Пройдено' : (s.status == T(trik.testsys.webapp.backoffice.data.entity.impl.Solution.Status).IN_PROGRESS ? 'В процессе' : (s.status == T(trik.testsys.webapp.backoffice.data.entity.impl.Solution.Status).ERROR ? 'Ошибка' : 'Не запускалось'))}"></td>
+                    <td th:text="${verdicts != null and #maps.containsKey(verdicts, s.id) ? verdicts[s.id].value : '—'}"></td>
+                    <td class="date-cell" data-utc th:attr="data-utc=${s.createdAt}" th:text="${s.createdAt != null ? #temporals.format(s.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td>
+                        <div class="actions">
+                            <a th:if="${solutionFileAvailable[s.id]}"
+                               th:href="@{'/user/judge/solutions/' + ${s.id} + '/file'}"
+                               class="button button--small">Скачать посылку</a>
+                            <a th:if="${resultsAvailable[s.id]}"
+                               th:href="@{'/user/judge/solutions/' + ${s.id} + '/download'}"
+                               class="button button--small">Скачать zip</a>
+                            <span th:if="${!resultsAvailable[s.id]}" style="color: var(--color-text-muted);">—</span>
+                            <form th:action="@{'/user/judge/solutions/' + ${s.id} + '/resubmit'}" method="post" style="display:inline;">
+                                <button class="button button--small" type="submit">Перезапустить</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="fragments/layout :: footer"></footer>
+</body>
+</html>
+
+
