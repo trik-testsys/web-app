@@ -16,7 +16,7 @@
             <table th:if="${!#lists.isEmpty(upcomingContests)}" class="table">
                 <thead>
                 <tr>
-                    <th>ID</th>
+                    <th class="id-cell">ID</th>
                     <th>Название</th>
                     <th>Начало</th>
                     <th>Окончание</th>
@@ -25,7 +25,7 @@
                 </thead>
                 <tbody>
                 <tr th:each="c : ${upcomingContests}">
-                    <td th:text="${c.id}"></td>
+                    <td class="id-cell" th:text="${c.id}"></td>
                     <td th:text="${c.name}"></td>
                     <td data-utc th:attr="data-utc=${c.startsAt}" th:text="${c.startsAt != null ? #temporals.format(c.startsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                     <td data-utc th:attr="data-utc=${c.endsAt}" th:text="${c.endsAt != null ? #temporals.format(c.endsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
@@ -41,7 +41,7 @@
             <table th:if="${!#lists.isEmpty(availableContests)}" class="table">
                 <thead>
                 <tr>
-                    <th>ID</th>
+                    <th class="id-cell">ID</th>
                     <th>Название</th>
                     <th>Начало</th>
                     <th>Окончание</th>
@@ -51,7 +51,7 @@
                 </thead>
                 <tbody>
                 <tr th:each="c : ${availableContests}">
-                    <td th:text="${c.id}"></td>
+                    <td class="id-cell" th:text="${c.id}"></td>
                     <td>
                         <a th:if="${startedByContestId[c.id]}" th:href="@{'/user/student/contests/' + ${c.id}}" th:text="${c.name}"></a>
                         <a th:if="${!startedByContestId[c.id]}"
@@ -75,7 +75,7 @@
             <table th:if="${!#lists.isEmpty(endedContests)}" class="table">
                 <thead>
                 <tr>
-                    <th>ID</th>
+                    <th class="id-cell">ID</th>
                     <th>Название</th>
                     <th>Начало</th>
                     <th>Окончание</th>
@@ -84,7 +84,7 @@
                 </thead>
                 <tbody>
                 <tr th:each="c : ${endedContests}">
-                    <td th:text="${c.id}"></td>
+                    <td class="id-cell" th:text="${c.id}"></td>
                     <td th:text="${c.name}"></td>
                     <td data-utc th:attr="data-utc=${c.startsAt}" th:text="${c.startsAt != null ? #temporals.format(c.startsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                     <td data-utc th:attr="data-utc=${c.endsAt}" th:text="${c.endsAt != null ? #temporals.format(c.endsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>

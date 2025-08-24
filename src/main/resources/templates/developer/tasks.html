@@ -20,7 +20,7 @@
             <table th:if="${!#lists.isEmpty(tasks)}" class="table">
                 <thead>
                     <tr>
-                        <th>ID</th>
+                        <th class="id-cell">ID</th>
                         <th>Название</th>
                         <th>Описание</th>
                         <th>Статус тестирования</th>
@@ -29,7 +29,7 @@
                 </thead>
                 <tbody>
                     <tr th:each="t : ${tasks}">
-                        <td th:text="${t.id}"></td>
+                        <td class="id-cell" th:text="${t.id}"></td>
                         <td>
                             <a th:href="@{'/user/developer/tasks/' + ${t.id}}" th:text="${t.name}"></a>
                         </td>
@@ -41,7 +41,7 @@
                                 t.testingStatus.name() == 'TESTING' ? 'В процессе' : 'Не запускалось')
                             )) : 'Не запускалось'
                         }"></td>
-                        <td data-utc th:attr="data-utc=${t.createdAt}" th:text="${t.createdAt != null ? #temporals.format(t.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                        <td class="created-cell" data-utc th:attr="data-utc=${t.createdAt}" th:text="${t.createdAt != null ? #temporals.format(t.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                     </tr>
                 </tbody>
             </table>

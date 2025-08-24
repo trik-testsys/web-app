@@ -2,6 +2,9 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
 <head>
     <th:block th:include="fragments/layout :: head('Администратор Групп')"></th:block>
+    <style>
+        .id-cell { width: 80px; white-space: nowrap; }
+    </style>
 </head>
 <body>
 <header th:replace="fragments/layout :: header(userName=${user.name})"></header>
@@ -21,7 +24,7 @@
             <table th:if="${!#lists.isEmpty(groups)}" class="table">
                 <thead>
                     <tr>
-                        <th style="text-align:left; padding:8px;">ID</th>
+                        <th class="id-cell" style="text-align:left; padding:8px;">ID</th>
                         <th style="text-align:left; padding:8px;">Название</th>
                         <th style="text-align:left; padding:8px;">Описание</th>
                         <th style="text-align:left; padding:8px;">Количество пользователей</th>
@@ -29,7 +32,7 @@
                 </thead>
                 <tbody>
                     <tr th:each="g : ${groups}">
-                        <td style="padding:8px;" th:text="${g.id}"></td>
+                        <td class="id-cell" style="padding:8px;" th:text="${g.id}"></td>
                         <td style="padding:8px;">
                             <a th:href="@{'/user/group-admin/groups/' + ${g.id}}" th:text="${g.name ?: 'Без названия'}"></a>
                         </td>

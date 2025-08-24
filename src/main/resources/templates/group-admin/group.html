@@ -2,6 +2,10 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
 <head>
     <th:block th:include="fragments/layout :: head('Группа пользователей')"></th:block>
+    <style>
+        .token-cell { min-width: 520px; white-space: nowrap; }
+        .id-cell { width: 80px; white-space: nowrap; }
+    </style>
 </head>
 <body>
 <header th:replace="fragments/layout :: header(userName=${user.name})"></header>
@@ -39,7 +43,7 @@
                 <table th:if="${!#lists.isEmpty(candidateUsers)}" class="table">
                     <thead>
                     <tr>
-                        <th style="text-align:left; padding:8px;">ID</th>
+                        <th class="id-cell" style="text-align:left; padding:8px;">ID</th>
                         <th style="text-align:left; padding:8px;">Псевдоним</th>
                         <th style="text-align:left; padding:8px;">Создан</th>
                         <th style="text-align:left; padding:8px;">Роли</th>
@@ -48,9 +52,9 @@
                     </thead>
                     <tbody>
                     <tr th:each="u : ${candidateUsers}">
-                        <td style="padding:8px;" th:text="${u.id}"></td>
+                        <td class="id-cell" style="padding:8px;" th:text="${u.id}"></td>
                         <td style="padding:8px;" th:text="${#strings.isEmpty(u.name) ? ('User #' + u.id) : u.name}"></td>
-                        <td style="padding:8px;" data-utc th:attr="data-utc=${u.createdAt}" th:text="${u.createdAt != null ? #temporals.format(u.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                        <td class="created-cell" style="padding:8px;" data-utc th:attr="data-utc=${u.createdAt}" th:text="${u.createdAt != null ? #temporals.format(u.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                         <td style="padding:8px;">
                             <ul class="pill-list">
                                 <li class="pill" th:each="p : ${candidatePrivilegesRuByUserId[u.id]}" th:text="${p}"></li>
@@ -73,7 +77,7 @@
                 <table th:if="${!#lists.isEmpty(group.members)}" class="table">
                     <thead>
                     <tr>
-                        <th style="text-align:left; padding:8px;">ID</th>
+                        <th class="id-cell" style="text-align:left; padding:8px;">ID</th>
                         <th style="text-align:left; padding:8px;">Псевдоним</th>
                         <th style="text-align:left; padding:8px;">Создан</th>
                         <th style="text-align:left; padding:8px;">Роли</th>
@@ -82,9 +86,9 @@
                     </thead>
                     <tbody>
                     <tr th:each="m : ${group.members}">
-                        <td style="padding:8px;" th:text="${m.id}"></td>
+                        <td class="id-cell" style="padding:8px;" th:text="${m.id}"></td>
                         <td style="padding:8px;" th:text="${m.name}"></td>
-                        <td style="padding:8px;" data-utc th:attr="data-utc=${m.createdAt}" th:text="${m.createdAt != null ? #temporals.format(m.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                        <td class="created-cell" style="padding:8px;" data-utc th:attr="data-utc=${m.createdAt}" th:text="${m.createdAt != null ? #temporals.format(m.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                         <td style="padding:8px;">
                             <ul class="pill-list">
                                 <li class="pill" th:each="p : ${memberPrivilegesRuByUserId[m.id]}" th:text="${p}"></li>

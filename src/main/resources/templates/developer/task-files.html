@@ -25,7 +25,7 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th class="id-cell">ID</th>
                             <th>Название</th>
                             <th>Описание</th>
                             <th>Дата создания</th>
@@ -33,10 +33,10 @@
                     </thead>
                     <tbody>
                         <tr th:each="f : ${polygonFiles}">
-                            <td th:text="${f.id}"></td>
+                            <td class="id-cell" th:text="${f.id}"></td>
                             <td><a th:href="@{'/user/developer/task-files/' + ${f.id}}" th:text="${f.name}"></a></td>
                             <td th:text="${f.info ?: '—'}"></td>
-                            <td data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                            <td class="created-cell" data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                         </tr>
                     </tbody>
                 </table>
@@ -48,7 +48,7 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th class="id-cell">ID</th>
                             <th>Название</th>
                             <th>Описание</th>
                             <th>Дата создания</th>
@@ -56,10 +56,10 @@
                     </thead>
                     <tbody>
                         <tr th:each="f : ${exerciseFiles}">
-                            <td th:text="${f.id}"></td>
+                            <td class="id-cell" th:text="${f.id}"></td>
                             <td><a th:href="@{'/user/developer/task-files/' + ${f.id}}" th:text="${f.name}"></a></td>
                             <td th:text="${f.info ?: '—'}"></td>
-                            <td data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                            <td class="created-cell" data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                         </tr>
                     </tbody>
                 </table>
@@ -71,7 +71,7 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th class="id-cell">ID</th>
                             <th>Название</th>
                             <th>Описание</th>
                             <th>Дата создания</th>
@@ -79,10 +79,10 @@
                     </thead>
                     <tbody>
                         <tr th:each="f : ${solutionFiles}">
-                            <td th:text="${f.id}"></td>
+                            <td class="id-cell" th:text="${f.id}"></td>
                             <td><a th:href="@{'/user/developer/task-files/' + ${f.id}}" th:text="${f.name}"></a></td>
                             <td th:text="${f.info ?: '—'}"></td>
-                            <td data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                            <td class="created-cell" data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                         </tr>
                     </tbody>
                 </table>
@@ -94,7 +94,7 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th class="id-cell">ID</th>
                             <th>Название</th>
                             <th>Описание</th>
                             <th>Дата создания</th>
@@ -102,10 +102,10 @@
                     </thead>
                     <tbody>
                         <tr th:each="f : ${conditionFiles}">
-                            <td th:text="${f.id}"></td>
+                            <td class="id-cell" th:text="${f.id}"></td>
                             <td><a th:href="@{'/user/developer/task-files/' + ${f.id}}" th:text="${f.name}"></a></td>
                             <td th:text="${f.info ?: '—'}"></td>
-                            <td data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                            <td class="created-cell" data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                         </tr>
                     </tbody>
                 </table>

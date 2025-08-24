@@ -62,7 +62,7 @@
             <table th:if="${!#lists.isEmpty(attachedTaskFiles)}" class="table">
                 <thead>
                     <tr>
-                        <th>ID</th>
+                        <th class="id-cell">ID</th>
                         <th>Название</th>
                         <th>Тип</th>
                         <th>Дата создания</th>
@@ -71,10 +71,10 @@
                 </thead>
                 <tbody>
                     <tr th:each="f : ${attachedTaskFiles}">
-                        <td th:text="${f.id}"></td>
+                        <td class="id-cell" th:text="${f.id}"></td>
                         <td><a th:href="@{'/user/developer/task-files/' + ${f.id}}" th:text="${f.name}"></a></td>
                         <td th:text="${f.localizedType}"></td>
-                        <td data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                        <td class="created-cell" data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                         <td>
                             <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/files/' + ${f.id} + '/detach'}" method="post" onsubmit="return confirm('Открепить файл?');">
                                 <button class="button" type="submit" th:disabled="${isTesting || isUsedInAnyContest}">Открепить</button>
@@ -91,7 +91,7 @@
             <table th:if="${!#lists.isEmpty(availableTaskFiles)}" class="table">
                 <thead>
                 <tr>
-                    <th>ID</th>
+                    <th class="id-cell">ID</th>
                     <th>Название</th>
                     <th>Тип</th>
                     <th>Дата создания</th>
@@ -100,10 +100,10 @@
                 </thead>
                 <tbody>
                 <tr th:each="f : ${availableTaskFiles}">
-                    <td th:text="${f.id}"></td>
+                    <td class="id-cell" th:text="${f.id}"></td>
                     <td><a th:href="@{'/user/developer/task-files/' + ${f.id}}" th:text="${f.name}"></a></td>
                     <td th:text="${f.localizedType}"></td>
-                    <td data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td class="created-cell" data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                     <td>
                         <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/files/attach'}" method="post">
                             <input type="hidden" name="taskFileId" th:value="${f.id}">

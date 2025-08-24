@@ -6,6 +6,7 @@
         .form-row { display: grid; grid-template-columns: 1fr; gap: 12px; }
         @media (min-width: 768px) { .form-row { grid-template-columns: 1fr 1fr; } }
         .field-note { color: var(--color-text-muted); font-size: 13px; margin-top: 6px; }
+        .id-cell { width: 80px; white-space: nowrap; }
     </style>
 </head>
 <body>
@@ -25,7 +26,7 @@
             <table th:if="${!#lists.isEmpty(createdContests)}" class="table">
                 <thead>
                     <tr>
-                        <th>ID</th>
+                        <th class="id-cell">ID</th>
                         <th>Название</th>
                         <th>Начало</th>
                         <th>Окончание</th>
@@ -35,7 +36,7 @@
                 </thead>
                 <tbody>
                     <tr th:each="c : ${createdContests}">
-                        <td th:text="${c.id}"></td>
+                        <td class="id-cell" th:text="${c.id}"></td>
                         <td>
                             <a th:href="@{'/user/developer/contests/' + ${c.id}}" th:text="${c.name}"></a>
                         </td>
@@ -59,7 +60,7 @@
             <table th:if="${!#lists.isEmpty(sharedContests)}" class="table">
                 <thead>
                 <tr>
-                    <th>ID</th>
+                    <th class="id-cell">ID</th>
                     <th>Название</th>
                     <th>Начало</th>
                     <th>Окончание</th>
@@ -69,7 +70,7 @@
                 </thead>
                 <tbody>
                 <tr th:each="c : ${sharedContests}">
-                    <td th:text="${c.id}"></td>
+                    <td class="id-cell" th:text="${c.id}"></td>
                     <td>
                         <a th:href="@{'/user/developer/contests/' + ${c.id}}" th:text="${c.name}"></a>
                     </td>

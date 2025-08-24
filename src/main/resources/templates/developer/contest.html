@@ -96,7 +96,7 @@
                                 t.testingStatus.name() == 'TESTING' ? 'В процессе' : 'Не запускалось')
                             )) : 'Не запускалось'
                         }"></td>
-                        <td th:text="${t.createdAt != null ? #temporals.format(t.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                        <td class="created-cell" th:text="${t.createdAt != null ? #temporals.format(t.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                         <td>
                             <form th:action="@{'/user/developer/contests/' + ${contest.id} + '/tasks/' + ${t.id} + '/detach'}" method="post" onsubmit="return confirm('Открепить Задачу?');">
                                 <button class="button" type="submit">Открепить</button>
@@ -131,7 +131,7 @@
                                 t.testingStatus.name() == 'TESTING' ? 'В процессе' : 'Не запускалось')
                             )) : 'Не запускалось'
                         }"></td>
-                    <td th:text="${t.createdAt != null ? #temporals.format(t.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td class="created-cell" th:text="${t.createdAt != null ? #temporals.format(t.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                     <td>
                         <form th:action="@{'/user/developer/contests/' + ${contest.id} + '/tasks/attach'}" method="post">
                             <input type="hidden" name="taskId" th:value="${t.id}">

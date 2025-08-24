@@ -32,7 +32,7 @@
             <table th:if="${!#lists.isEmpty(tasks)}" class="table">
                 <thead>
                 <tr>
-                    <th>ID</th>
+                    <th class="id-cell">ID</th>
                     <th>Название</th>
                     <th>Инфо</th>
                     <th>Лучший результат</th>
@@ -40,7 +40,7 @@
                 </thead>
                 <tbody>
                 <tr th:each="t : ${tasks}">
-                    <td th:text="${t.id}"></td>
+                    <td class="id-cell" th:text="${t.id}"></td>
                     <td><a th:href="@{'/user/student/contests/' + ${contest.id} + '/tasks/' + ${t.id}}" th:text="${t.name}"></a></td>
                     <td th:text="${t.info ?: '—'}"></td>
                     <td th:text="${taskScores[t.id] != null ? taskScores[t.id] : 0}"></td>

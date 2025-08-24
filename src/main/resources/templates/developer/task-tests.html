@@ -15,7 +15,7 @@
             <table th:if="${!#lists.isEmpty(solutions)}" class="table">
                 <thead>
                 <tr>
-                    <th>ID</th>
+                    <th class="id-cell">ID</th>
                     <th>Статус</th>
                     <th>Результат</th>
                     <th>Дата создания</th>
@@ -24,7 +24,7 @@
                 </thead>
                 <tbody>
                 <tr th:each="s : ${solutions}">
-                    <td th:text="${s.id}"></td>
+                    <td class="id-cell" th:text="${s.id}"></td>
                     <td th:text="${
                         s.status == T(trik.testsys.webapp.backoffice.data.entity.impl.Solution.Status).PASSED ? 'Пройдено' : (
                         s.status == T(trik.testsys.webapp.backoffice.data.entity.impl.Solution.Status).IN_PROGRESS ? 'В процессе' : (
