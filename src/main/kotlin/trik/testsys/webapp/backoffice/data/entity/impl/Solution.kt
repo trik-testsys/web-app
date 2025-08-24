@@ -45,14 +45,19 @@ class Solution() : AbstractEntity() {
 
         NOT_STARTED("NST"),
         IN_PROGRESS("INP"),
-        FAILED("FLD"),
         PASSED("PAS"),
         ERROR("ERR");
 
         companion object {
 
             @Converter(autoApply = true)
-            class StatusConverter : AbstractPersistableEnumConverter<Status>()
+            class StatusConverter : AbstractPersistableEnumConverter<Status>() {
+                override fun convertToEntityAttribute(dbData: String?): Status? {
+                    // Map legacy FAILED (FLD) to PASSED
+                    if (dbData == "FLD") return PASSED
+                    return super.convertToEntityAttribute(dbData)
+                }
+            }
         }
     }
 

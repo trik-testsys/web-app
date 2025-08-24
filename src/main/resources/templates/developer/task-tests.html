@@ -27,9 +27,8 @@
                     <td th:text="${s.id}"></td>
                     <td th:text="${
                         s.status == T(trik.testsys.webapp.backoffice.data.entity.impl.Solution.Status).PASSED ? 'Пройдено' : (
-                        s.status == T(trik.testsys.webapp.backoffice.data.entity.impl.Solution.Status).FAILED ? 'Не пройдено' : (
                         s.status == T(trik.testsys.webapp.backoffice.data.entity.impl.Solution.Status).IN_PROGRESS ? 'В процессе' : (
-                        s.status == T(trik.testsys.webapp.backoffice.data.entity.impl.Solution.Status).ERROR ? 'Ошибка' : 'Не запускалось') ) )
+                        s.status == T(trik.testsys.webapp.backoffice.data.entity.impl.Solution.Status).ERROR ? 'Ошибка' : 'Не запускалось') )
                     }"></td>
                     <td th:text="${verdicts != null and #maps.containsKey(verdicts, s.id) ? verdicts[s.id].value : '—'}"></td>
                     <td data-utc th:attr="data-utc=${s.createdAt}" th:text="${s.createdAt != null ? #temporals.format(s.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>

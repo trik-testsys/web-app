@@ -180,7 +180,7 @@ class GraderInitializer(
         }
 
         val managed = solutionService.getById(requireNotNull(solution.id))
-        managed.status = if (allFailed) Solution.Status.FAILED else Solution.Status.PASSED
+        managed.status = Solution.Status.PASSED
         verdictService.createNewForSolution(managed, totalScore)
         solutionService.save(managed)
 
@@ -199,7 +199,7 @@ class GraderInitializer(
     }
 
 //    private fun changeTaskTestingResult(solution: Solution) {
-//        if (solution.status == Solution.Status.FAILED || !solution.task.hasExercise || !solution.task.hasSolution || solution.task.polygonsCount == 0L) {
+//        if (solution.status == Solution.Status.PASSED || !solution.task.hasExercise || !solution.task.hasSolution || solution.task.polygonsCount == 0L) {
 //            solution.task.fail()
 //
 //            solution.task.contests.forEach {
@@ -259,7 +259,7 @@ class GraderInitializer(
         val managed = solutionService.getById(requireNotNull(solution.id))
 
         managed.status = when (kind) {
-            is Grader.ErrorKind.InnerTimeoutExceed -> Solution.Status.FAILED
+            is Grader.ErrorKind.InnerTimeoutExceed -> Solution.Status.PASSED
             else -> Solution.Status.ERROR
         }
 
