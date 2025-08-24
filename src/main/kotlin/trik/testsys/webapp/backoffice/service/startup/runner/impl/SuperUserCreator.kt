@@ -1,5 +1,6 @@
 package trik.testsys.webapp.backoffice.service.startup.runner.impl
 
+import jakarta.persistence.PostLoad
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Service
@@ -10,6 +11,7 @@ import trik.testsys.webapp.backoffice.data.service.UserGroupService
 import trik.testsys.webapp.backoffice.data.service.UserService
 import trik.testsys.webapp.backoffice.data.service.impl.AccessTokenService
 import trik.testsys.webapp.core.service.startup.AbstractStartupRunner
+import java.io.File
 
 /**
  * @author Roman Shishkin
@@ -20,8 +22,10 @@ import trik.testsys.webapp.core.service.startup.AbstractStartupRunner
 class SuperUserCreator(
     @Value("\${trik.testsys.superuser.name}")
     private val name: String,
-    @Value("\${trik.testsys.superuser.accessToken}")
+    @Value("\${trik.testsys.superuser.accessToken.value}")
     private val accessToken: String,
+    @Value("\${trik.testsys.superuser.accessToken.storeDir}")
+    private val storeDirName: String,
 
     private val superUserService: SuperUserService,
     private val userService: UserService,
@@ -29,15 +33,35 @@ class SuperUserCreator(
     private val userGroupService: UserGroupService
 ) : AbstractStartupRunner() {
 
-    override suspend fun execute() = createSuperUser()
+    private val storeDir = File(storeDirName)
 
-    private fun createSuperUser() {
-        val superUsers = superUserService.findAllSuperUser(isAllUserSuperUser = true).sortedBy { it.id }
-        if (superUsers.isNotEmpty()) {
-            logger.info("Super User already exists. Skipping runner.\n\n Access token: ${superUsers.first().accessToken?.value}\n")
-            return
+    @PostLoad
+    fun init() {
+        if (!storeDir.exists()) {
+            storeDir.mkdir()
         }
-        val token = if (accessToken.trim().isEmpty()) {
+    }
+
+    override suspend fun execute() = createSuperUser().storeToken()
+
+    private fun AccessToken.storeToken() {
+        val file = File("$storeDirName/$STORE_FILE_NAME")
+
+        if (file.exists()) return
+        file.createNewFile()
+        file.writeText("${this.value!!}\n")
+    }
+
+    private fun createSuperUser(): AccessToken {
+        val superUsers = superUserService.findAllSuperUser(isAllUserSuperUser = true).sortedBy { it.id }
+        val token: AccessToken
+        if (superUsers.isNotEmpty()) {
+            token = superUsers.first().accessToken!!
+            logger.info("Super User already exists. Skipping runner.\n\n Access token: ${token.value}\n")
+            return token
+        }
+
+        token = if (accessToken.trim().isEmpty()) {
             accessTokenService.generate()
         } else AccessToken().also {
             it.value = accessToken
@@ -54,6 +78,12 @@ class SuperUserCreator(
         // Ensure default PUBLIC group exists owned by Super User
         userGroupService.getOrCreateDefaultGroup(persisted)
 
-        logger.info("Created new Super User(id=${persisted.id}, name=$name).\n\n Access token: ${user.accessToken?.value}\n")
+        logger.info("Created new Super User(id=${persisted.id}, name=$name).\n\n Access token: ${token.value}\n")
+        return token
+    }
+
+    companion object {
+
+        private const val STORE_FILE_NAME = ".access-token"
     }
 }

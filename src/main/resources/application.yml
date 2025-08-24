@@ -60,7 +60,9 @@ trik:
   testsys:
     superuser:
       name: "${SUPER_USER_NAME:Default Super User}"
-      accessToken: "${SUPER_USER_AT:}"
+      accessToken:
+        value: "${SUPER_USER_AT_VALUE:}"
+        storeDir: "${PWD}/data"
     trik-studio:
       container:
         name: "${TS_CONTAINER_NAME:}"
