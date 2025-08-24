@@ -45,7 +45,7 @@ class UserServiceImpl(
             return null
         }
 
-        val accessToken = accessTokenService.generate(viewer.id)
+        val accessToken = accessTokenService.generate()
         val admin = User().also {
             it.accessToken = accessToken
 
@@ -80,7 +80,7 @@ class UserServiceImpl(
             return false
         }
 
-        val accessToken = accessTokenService.generate(superUser.id)
+        val accessToken = accessTokenService.generate()
         val newUser = User().also {
             it.superUser = superUser
             it.accessToken = accessToken
@@ -120,7 +120,7 @@ class UserServiceImpl(
         if (privilege == User.Privilege.VIEWER && user.adminRegToken == null) {
             logger.info("User(id=${user.id}) granted VIEWER. Generating adminRegToken.")
 
-            val regToken = regTokenService.generate(superUser.id)
+            val regToken = regTokenService.generate()
             user.adminRegToken = regToken
             regToken.viewer = user
         }

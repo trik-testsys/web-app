@@ -36,7 +36,7 @@ class SuperUserCreator(
             return
         }
         val token = if (accessToken.trim().isEmpty()) {
-            accessTokenService.generate(null)
+            accessTokenService.generate()
         } else AccessToken().also {
             it.value = accessToken
         }
