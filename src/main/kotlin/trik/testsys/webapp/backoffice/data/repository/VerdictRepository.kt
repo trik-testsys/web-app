@@ -6,4 +6,6 @@ import trik.testsys.webapp.core.data.repository.EntityRepository
 
 @Repository
 interface VerdictRepository : EntityRepository<Verdict> {
+
+    fun findAllBySolutionId(solutionId: Long): Set<Verdict>
 }

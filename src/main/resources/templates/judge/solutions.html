@@ -39,7 +39,9 @@
                 </thead>
                 <tbody>
                 <tr th:each="s : ${studentSolutions}">
-                    <td class="id-cell" th:text="${s.id}"></td>
+                    <td class="id-cell">
+                        <a th:href="@{'/user/judge/solutions/' + ${s.id}}" th:text="${s.id}"></a>
+                    </td>
                     <td th:text="${viewerBySolutionId[s.id]} ?: '—'"></td>
                     <td th:text="${adminBySolutionId[s.id]} ?: '—'"></td>
                     <td th:text="${groupBySolutionId[s.id]} ?: '—'"></td>
@@ -80,8 +82,10 @@
                 </thead>
                 <tbody>
                 <tr th:each="s : ${judgeSolutions}">
-                    <td class="id-cell" th:text="${s.id}"></td>
-                    <td th:text="${s.status == T(trik.testsys.webapp.backoffice.data.entity.impl.Solution.Status).PASSED ? 'Пройдено' : (s.status == T(trik.testsys.webapp.backoffice.data.entity.impl.Solution.Status).IN_PROGRESS ? 'В процессе' : (s.status == T(trik.testsys.webapp.backoffice.data.entity.impl.Solution.Status).ERROR ? 'Ошибка' : 'Не запускалось'))}"></td>
+                    <td class="id-cell">
+                        <a th:href="@{'/user/judge/solutions/' + ${s.id}}" th:text="${s.id}"></a>
+                    </td>
+                    <td th:text="${@solutionI18n.toRu(s.status)}"></td>
                     <td th:text="${verdicts != null and #maps.containsKey(verdicts, s.id) ? verdicts[s.id].value : '—'}"></td>
                     <td class="date-cell" data-utc th:attr="data-utc=${s.createdAt}" th:text="${s.createdAt != null ? #temporals.format(s.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                     <td>

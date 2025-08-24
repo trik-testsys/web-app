@@ -40,4 +40,8 @@ class VerdictServiceImpl(
 
         return verdicts.toSet()
     }
+
+    override fun findAllForSolution(solutionId: Long): Set<Verdict> {
+        return repository.findAllBySolutionId(solutionId)
+    }
 }

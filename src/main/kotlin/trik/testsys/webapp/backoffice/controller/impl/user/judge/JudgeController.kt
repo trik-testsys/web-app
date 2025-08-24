@@ -90,6 +90,83 @@ class JudgeController(
         return "judge/solutions"
     }
 
+    @GetMapping("/solutions/by-name")
+    fun redirectByName(
+        @RequestParam("name") name: String,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val judge = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+        if (!judge.privileges.contains(User.Privilege.JUDGE)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val id = name.toLongOrNull()
+        if (id == null) {
+            redirectAttributes.addMessage("Некорректный идентификатор решения.")
+            return "redirect:/user/judge/solutions"
+        }
+        return "redirect:/user/judge/solutions/$id"
+    }
+
+    @GetMapping("/solutions/{solutionId}")
+    fun solutionDetails(
+        @PathVariable("solutionId") solutionId: Long,
+        model: Model,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes,
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val judge = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!judge.privileges.contains(User.Privilege.JUDGE)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val solution = solutionService.findById(solutionId) ?: run {
+            redirectAttributes.addMessage("Решение не найдено.")
+            return "redirect:/user/judge/solutions"
+        }
+
+        val verdicts = verdictService.findAllForSolution(solutionId).sortedByDescending { it.id }
+
+        setupModel(model, session, judge)
+        model.addAttribute("solution", solution)
+        model.addAttribute("verdicts", verdicts)
+        model.addAttribute("resultsAvailable", (fileManager.getVerdictFiles(solution).isNotEmpty() || fileManager.getRecordingFiles(solution).isNotEmpty()))
+        model.addAttribute("solutionFileAvailable", (fileManager.getSolutionFile(solution) != null))
+        return "judge/solution"
+    }
+
+    @PostMapping("/solutions/{solutionId}/relevant")
+    fun createRelevantVerdict(
+        @PathVariable("solutionId") solutionId: Long,
+        @RequestParam("score") score: Long,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes,
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val judge = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!judge.privileges.contains(User.Privilege.JUDGE)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val solution = solutionService.findById(solutionId) ?: run {
+            redirectAttributes.addMessage("Решение не найдено.")
+            return "redirect:/user/judge/solutions"
+        }
+
+        verdictService.createNewForSolution(solution, score)
+        solutionService.save(solution)
+        redirectAttributes.addMessage("Релевантный вердикт обновлён.")
+        return "redirect:/user/judge/solutions/$solutionId"
+    }
+
     @GetMapping("/solutions/{solutionId}/download")
     fun downloadResults(
         @PathVariable("solutionId") solutionId: Long,

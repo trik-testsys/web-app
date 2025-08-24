@@ -15,4 +15,6 @@ interface VerdictService : EntityService<Verdict> {
     fun findAllBySolutions(solutions: Collection<Solution>): Set<Verdict>
 
     fun findAllBySolutionIds(solutionIds: Collection<Long>): Set<Verdict>
+
+    fun findAllForSolution(solutionId: Long): Set<Verdict>
 }
