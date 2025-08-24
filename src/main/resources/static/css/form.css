@@ -14,7 +14,7 @@
 
 /* Заголовок окна */
 .form-header h1 {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 600;
     color: var(--trik-white);
 }
@@ -54,8 +54,8 @@ form {
 }
 
 .form-input input {
-    padding: 5px;
-    font-size: 1rem;
+    padding: 4px;
+    font-size: 0.95rem;
     border: 1px solid #ccc;
     border-radius: 4px;
     width: 100%;
@@ -171,8 +171,8 @@ input[type="time"].is-empty:disabled {
 
 button {
     appearance: none;
-    padding: 10px 14px;
-    font-size: 1rem;
+    padding: 8px 12px;
+    font-size: 0.95rem;
     border: 0;
     border-radius: 10px;
     cursor: pointer;
@@ -215,16 +215,16 @@ button {
 }
 
 select {
-    padding: 5px;
-    font-size: 1rem;
+    padding: 4px;
+    font-size: 0.95rem;
     border: 1px solid var(--trik-grey);
     border-radius: 4px;
     width: 100%;
 }
 
 option {
-    padding: 5px;
-    font-size: 1rem;
+    padding: 4px;
+    font-size: 0.95rem;
     border: 1px solid var(--trik-grey);
     border-radius: 4px;
     width: 100%;
