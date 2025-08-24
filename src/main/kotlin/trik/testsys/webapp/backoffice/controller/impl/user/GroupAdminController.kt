@@ -12,10 +12,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import trik.testsys.webapp.backoffice.controller.AbstractUserController
 import trik.testsys.webapp.backoffice.data.entity.impl.User
 import trik.testsys.webapp.backoffice.data.service.UserGroupService
-import trik.testsys.webapp.backoffice.utils.addHasActiveSession
 import trik.testsys.webapp.backoffice.utils.addMessage
-import trik.testsys.webapp.backoffice.utils.addSections
-import trik.testsys.webapp.backoffice.utils.addUser
 import trik.testsys.webapp.backoffice.utils.PrivilegeI18n
 
 @Controller
