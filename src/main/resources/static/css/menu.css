@@ -26,12 +26,12 @@
 }
 
 .logo-img {
-    height: 50px;
+    height: 44px;
     margin-right: 10px;
 }
 
 .cabinet-name {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     font-weight: bold;
 }
 
@@ -45,7 +45,7 @@
 }
 
 .menu-button {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     background: none;
     border: none;
     color: var(--trik-white);
@@ -87,7 +87,7 @@
 .side-menu ul li a {
     text-decoration: none;
     color: var(--trik-white);
-    font-size: 1.2rem;
+    font-size: 1.05rem;
     transition: color 0.3s ease;
 }
 
@@ -103,7 +103,7 @@
     background: none;
     border: none;
     color: var(--trik-red);
-    font-size: 2rem;
+    font-size: 1.6rem;
     align-self: flex-end;
     cursor: pointer;
 }

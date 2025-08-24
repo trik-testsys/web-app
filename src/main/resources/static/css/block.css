@@ -18,7 +18,7 @@
 
 /* Стили для заголовка блока */
 .block-title {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: bold;
     margin-bottom: 12px;
     color: var(--trik-blue);
@@ -39,7 +39,7 @@
     }
 
     .block-title {
-        font-size: 18px;
+        font-size: 16px;
     }
 }
 
@@ -49,6 +49,6 @@
     }
 
     .block-title {
-        font-size: 16px;
+        font-size: 14px;
     }
 }

@@ -1,6 +1,6 @@
 .date-cell {
   white-space: nowrap;
-  width: 180px;
+  width: 150px;
 }
 
 .id-cell {
@@ -9,7 +9,7 @@
 }
 
 .token-cell {
-  min-width: 520px;
+  min-width: 400px;
   white-space: nowrap;
 }
 
