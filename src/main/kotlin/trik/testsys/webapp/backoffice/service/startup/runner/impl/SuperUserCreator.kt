@@ -50,6 +50,8 @@ class SuperUserCreator(
         if (file.exists()) return
         file.createNewFile()
         file.writeText("${this.value!!}\n")
+
+        logger.info("Stored access token in ${file.path}")
     }
 
     private fun createSuperUser(): AccessToken {

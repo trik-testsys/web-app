@@ -97,10 +97,8 @@ class GroupAdminController(
         }
 
         val allowed = setOf(
-            User.Privilege.ADMIN,
             User.Privilege.DEVELOPER,
             User.Privilege.JUDGE,
-            User.Privilege.STUDENT,
             User.Privilege.VIEWER,
         )
         val privilegeOptions = PrivilegeI18n.listOptions()
