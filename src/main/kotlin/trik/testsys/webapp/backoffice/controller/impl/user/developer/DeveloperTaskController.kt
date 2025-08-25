@@ -23,6 +23,7 @@ import trik.testsys.webapp.backoffice.data.service.SolutionService
 import trik.testsys.webapp.backoffice.data.service.TaskFileService
 import trik.testsys.webapp.backoffice.data.service.TaskService
 import trik.testsys.webapp.backoffice.data.service.VerdictService
+import trik.testsys.webapp.backoffice.data.service.UserGroupService
 import trik.testsys.webapp.backoffice.service.FileManager
 import trik.testsys.webapp.backoffice.service.Grader
 import trik.testsys.webapp.backoffice.utils.addMessage
@@ -39,6 +40,7 @@ class DeveloperTaskController(
     @Value("\${trik.testsys.trik-studio.container.name}")
     private val trikStudioContainerName: String,
     private val verdictService: VerdictService,
+    private val userGroupService: UserGroupService,
 ) : AbstractUserController() {
 
     @GetMapping("/tasks")
@@ -173,6 +175,7 @@ class DeveloperTaskController(
 
         setupModel(model, session, developer)
         model.addAttribute("task", task)
+        model.addAttribute("isOwner", true)
         model.addAttribute("attachedTaskFiles", attachedItems)
         model.addAttribute("availableTaskFiles", availableItems)
         model.addAttribute("isTesting", task.testingStatus == Task.TestingStatus.TESTING)
@@ -182,6 +185,12 @@ class DeveloperTaskController(
         model.addAttribute("testStatus", lastTestStatus)
         model.addAttribute("isUsedInAnyContest", isUsedInAnyContest)
         model.addAttribute("attachedContests", attachedContests)
+        model.addAttribute(
+            "availableUserGroups",
+            userGroupService.findByMember(developer)
+                .filterNot { g -> task.userGroups.any { it.id == g.id } }
+                .sortedBy { it.id }
+        )
 
         return "developer/task"
     }
@@ -283,6 +292,42 @@ class DeveloperTaskController(
             .header("Content-Transfer-Encoding", "binary")
             .header("Content-Length", bytes.size.toString())
             .body(bytes)
+    }
+
+    @PostMapping("/tasks/{id}/groups/add")
+    fun addUserGroup(
+        @PathVariable id: Long,
+        @RequestParam("groupId") groupId: Long,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val task = taskService.findById(id) ?: run {
+            redirectAttributes.addMessage("Задача не найдена.")
+            return "redirect:/user/developer/tasks"
+        }
+        if (task.developer?.id != developer.id) {
+            redirectAttributes.addMessage("Доступно только владельцу.")
+            return "redirect:/user/developer/tasks/$id"
+        }
+
+        val group = userGroupService.findById(groupId)
+        if (group == null) {
+            redirectAttributes.addMessage("Группа не найдена.")
+            return "redirect:/user/developer/tasks/$id"
+        }
+
+        val added = task.userGroups.add(group)
+        taskService.save(task)
+        if (added) redirectAttributes.addMessage("Группа добавлена к доступу.") else redirectAttributes.addMessage("Группа уже имеет доступ.")
+        return "redirect:/user/developer/tasks/$id"
     }
 
     @PostMapping("/tasks/{id}/update")

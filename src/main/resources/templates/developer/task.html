@@ -31,6 +31,27 @@
     </section>
 
     <section class="card">
+        <h2 class="card-title">Доступ для Групп Пользователей</h2>
+        <div class="card-body">
+            <div th:if="${#lists.isEmpty(task.userGroups)}" style="color: var(--color-text-muted);">Доступно только Вам</div>
+            <ul th:if="${!#lists.isEmpty(task.userGroups)}" class="pill-list">
+                <li class="pill" th:each="g : ${task.userGroups}">
+                    <span th:text="${(g.name ?: 'Без названия') + ' (#' + g.id + ')'}"></span>
+                </li>
+            </ul>
+
+            <div style="margin-top:12px; display:flex; gap:8px; align-items:center;">
+                <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/groups/add'}" method="post" style="display:flex; gap:8px; align-items:center;" onsubmit="return confirm('Данное действие нельзя будет отменить в будущем');">
+                    <select name="groupId" required style="min-width:240px; padding:6px; border:1px solid #dde3ea; border-radius:8px;">
+                        <option th:each="g : ${availableUserGroups}" th:value="${g.id}" th:text="${(g.name ?: 'Без названия') + ' (#' + g.id + ')'}"></option>
+                    </select>
+                    <button class="button" type="submit">Добавить группу</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <section class="card">
         <h2 class="card-title">Тестирование</h2>
         <div class="card-body">
             <div style="margin-bottom:10px;">

@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import trik.testsys.webapp.backoffice.data.entity.impl.Solution
+import trik.testsys.webapp.backoffice.data.entity.impl.Task
 import trik.testsys.webapp.backoffice.data.service.ContestService
 import trik.testsys.webapp.backoffice.data.service.SolutionService
 import trik.testsys.webapp.backoffice.data.service.TaskService
@@ -191,7 +192,7 @@ class GraderInitializer(
             val allSolutions = solutionService.findAll().filter { it.task.id == task.id && it.contest == null }
             val anyInProgress = allSolutions.any { it.status == Solution.Status.NOT_STARTED || it.status == Solution.Status.IN_PROGRESS }
             if (!anyInProgress) {
-                task.testingStatus = if (allFailed) trik.testsys.webapp.backoffice.data.entity.impl.Task.TestingStatus.FAILED else trik.testsys.webapp.backoffice.data.entity.impl.Task.TestingStatus.PASSED
+                task.testingStatus = Task.TestingStatus.PASSED
                 taskService.save(task)
             }
         }
