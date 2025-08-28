@@ -11,6 +11,8 @@ import jakarta.persistence.ManyToMany
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import jakarta.persistence.Transient
+import org.hibernate.annotations.JdbcTypeCode
+import org.hibernate.type.SqlTypes
 import trik.testsys.webapp.backoffice.data.entity.impl.TaskFile.TaskFileType.Companion.extension
 import trik.testsys.webapp.core.data.entity.AbstractEntity
 import trik.testsys.webapp.core.data.entity.AbstractEntity.Companion.TABLE_PREFIX
@@ -23,6 +25,10 @@ class TaskFile() : AbstractEntity() {
 
     @Column(name = "name", nullable = false)
     var name: String? = null
+
+    @Column(name = "data", nullable = false)
+    @JdbcTypeCode(SqlTypes.JSON)
+    var data: Data = Data()
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "developer_id", nullable = false)
@@ -76,4 +82,8 @@ class TaskFile() : AbstractEntity() {
             }
         }
     }
+
+    data class Data(
+        val originalFileNameByVersion: MutableMap<Long, String> = mutableMapOf()
+    )
 }

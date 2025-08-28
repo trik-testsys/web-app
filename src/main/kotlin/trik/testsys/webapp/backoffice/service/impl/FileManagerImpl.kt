@@ -89,7 +89,10 @@ class FileManagerImpl(
         return files.mapNotNull { f ->
             val ver = f.name.removePrefix(prefix).substringBeforeLast('.')
             ver.toLongOrNull()?.let { v ->
-                TaskFileVersionInfo(version = v, fileName = f.name, lastModifiedAt = Instant.ofEpochMilli(f.lastModified()))
+                TaskFileVersionInfo(
+                    v, f.name, Instant.ofEpochMilli(f.lastModified()),
+                    taskFile.data.originalFileNameByVersion[v] ?: f.name
+                )
             }
         }.sortedByDescending { it.version }
     }

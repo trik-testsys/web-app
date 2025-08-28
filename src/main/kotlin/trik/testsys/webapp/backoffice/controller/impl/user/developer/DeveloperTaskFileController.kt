@@ -2,6 +2,8 @@ package trik.testsys.webapp.backoffice.controller.impl.user.developer
 
 import jakarta.servlet.http.HttpSession
 import org.springframework.http.MediaType
+import org.springframework.http.ContentDisposition
+import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
@@ -14,10 +16,12 @@ import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import trik.testsys.webapp.backoffice.controller.AbstractUserController
 import trik.testsys.webapp.backoffice.data.entity.impl.TaskFile
+import trik.testsys.webapp.backoffice.data.entity.impl.TaskFile.TaskFileType.Companion.extension
 import trik.testsys.webapp.backoffice.data.entity.impl.User
 import trik.testsys.webapp.backoffice.data.service.TaskFileService
 import trik.testsys.webapp.backoffice.service.FileManager
 import trik.testsys.webapp.backoffice.utils.addMessage
+import java.nio.charset.StandardCharsets
 import java.time.Instant
 
 @Controller
@@ -114,6 +118,8 @@ class DeveloperTaskFileController(
 
         val taskFile = TaskFile().also {
             it.name = trimmedName
+            it.data.originalFileNameByVersion[it.fileVersion] = file.originalFilename?.substringBeforeLast('.')
+                ?: trimmedName
             it.developer = developer
             it.info = info?.takeIf { s -> s.isNotBlank() }
             it.type = tfType
@@ -197,6 +203,9 @@ class DeveloperTaskFileController(
         }
 
         tf.fileVersion = (tf.fileVersion + 1)
+        tf.data.originalFileNameByVersion[tf.fileVersion] = file.originalFilename?.substringBeforeLast('.')
+            ?: tf.name!!
+
         val saved = fileManager.saveTaskFile(tf, file)
         if (!saved) {
             tf.fileVersion = (tf.fileVersion - 1)
@@ -239,11 +248,16 @@ class DeveloperTaskFileController(
         }
 
         val bytes = file.readBytes()
-        val disposition = "attachment; filename=\"${file.name}\""
+        val name = tf.data.originalFileNameByVersion[version] ?: tf.name
+        val filename = "${name}${tf.type?.extension()}"
+        val disposition = ContentDisposition
+            .attachment()
+            .filename(filename, StandardCharsets.UTF_8)
+            .build()
         return ResponseEntity.ok()
-            .header("Content-Disposition", disposition)
-            .header("Content-Type", MediaType.APPLICATION_OCTET_STREAM_VALUE)
-            .header("Content-Length", bytes.size.toString())
+            .header(HttpHeaders.CONTENT_DISPOSITION, disposition.toString())
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE)
+            .header(HttpHeaders.CONTENT_LENGTH, bytes.size.toString())
             .body(bytes)
     }
 

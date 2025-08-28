@@ -59,7 +59,7 @@
                 <tbody>
                 <tr th:each="v : ${versions}">
                     <td class="version-cell" th:text="${v.version}"></td>
-                    <td th:text="${v.fileName}"></td>
+                    <td th:text="${v.originalName}"></td>
                     <td class="date-cell" data-utc th:attr="data-utc=${v.lastModifiedAt}" th:text="${#temporals.format(v.lastModifiedAt, 'dd.MM.yyyy HH:mm')}"></td>
                     <td>
                         <a class="button" th:href="@{'/user/developer/task-files/' + ${taskFile.id} + '/download/' + ${v.version}}">Скачать</a>

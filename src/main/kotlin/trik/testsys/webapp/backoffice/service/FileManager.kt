@@ -38,4 +38,5 @@ data class TaskFileVersionInfo(
     val version: Long,
     val fileName: String,
     val lastModifiedAt: Instant,
+    val originalName: String
 )
