@@ -15,6 +15,7 @@ import trik.testsys.webapp.backoffice.data.service.UserGroupService
 class StudentGroupServiceImpl(
     private val userService: UserService,
     private val accessTokenService: AccessTokenService,
+    private val studentGroupTokenService: StudentGroupTokenService,
     private val userGroupService: UserGroupService,
     private val verdictService: VerdictService,
 ) :
@@ -74,6 +75,7 @@ class StudentGroupServiceImpl(
             it.owner = owner
             it.name = name.trim()
             it.info = info?.trim()
+            it.studentGroupToken = studentGroupTokenService.generate()
         }
 
         return save(newGroup)

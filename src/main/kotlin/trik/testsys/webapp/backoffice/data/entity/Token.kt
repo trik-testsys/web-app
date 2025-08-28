@@ -31,7 +31,8 @@ abstract class Token(
     enum class Type(override val dbKey: String) : PersistableEnum {
 
         REGISTRATION("REG"),
-        ACCESS("ACS");
+        ACCESS("ACS"),
+        STUDENT_GROUP("STG");
 
         companion object {
 

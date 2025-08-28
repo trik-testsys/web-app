@@ -22,6 +22,8 @@
                 <dd th:text="${group.name ?: 'Без названия'}"></dd>
                 <dt>Описание</dt>
                 <dd th:text="${group.info ?: '—'}"></dd>
+                <dt>Код-регистрации</dt>
+                <dd><span class="token" th:text="${group.studentGroupToken != null ? group.studentGroupToken.value : '—'}"></span></dd>
             </dl>
         </div>
     </section>

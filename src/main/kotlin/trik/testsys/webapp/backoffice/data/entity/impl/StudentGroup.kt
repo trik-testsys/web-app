@@ -34,4 +34,8 @@ class StudentGroup() : AbstractEntity() {
         inverseJoinColumns = [JoinColumn(name = "contest_id")]
     )
     var contests: MutableSet<Contest> = mutableSetOf()
+
+    @OneToOne(fetch = FetchType.EAGER, optional = true, orphanRemoval = true)
+    @JoinColumn(name = "student_group_token_id", nullable = true, unique = true)
+    var studentGroupToken: StudentGroupToken? = null
 }
