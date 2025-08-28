@@ -3,6 +3,7 @@ package trik.testsys.webapp.backoffice.data.service.impl
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
+import trik.testsys.webapp.backoffice.data.entity.Token
 import java.security.SecureRandom
 import trik.testsys.webapp.backoffice.data.entity.impl.AccessToken
 import trik.testsys.webapp.backoffice.data.repository.AccessTokenRepository
@@ -25,7 +26,7 @@ class AccessTokenService : AbstractService<AccessToken, AccessTokenRepository>()
 
         do {
             token.value = "${nextChunk()}-${nextChunk()}-${nextChunk()}-${nextChunk()}"
-        } while (repository.findByValue(token.value) != null)
+        } while (findByValue(token.value!!) != null)
 
         return save(token)
     }
@@ -72,6 +73,6 @@ class AccessTokenService : AbstractService<AccessToken, AccessTokenRepository>()
     }
 
     override fun findByValue(value: String): AccessToken? {
-        return repository.findByValue(value)
+        return repository.findByValueAndType(value, Token.Type.ACCESS)
     }
 }

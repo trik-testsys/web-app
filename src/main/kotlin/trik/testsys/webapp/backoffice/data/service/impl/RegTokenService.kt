@@ -3,6 +3,7 @@ package trik.testsys.webapp.backoffice.data.service.impl
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
+import trik.testsys.webapp.backoffice.data.entity.Token
 import trik.testsys.webapp.backoffice.data.entity.impl.RegToken
 import trik.testsys.webapp.backoffice.data.repository.RegTokenRepository
 import trik.testsys.webapp.backoffice.data.service.TokenService
@@ -27,12 +28,12 @@ class RegTokenService :
 
         do {
             token.value = "${nextChunk()}-${nextChunk()}-${nextChunk()}"
-        } while (repository.findByValue(token.value) != null)
+        } while (findByValue(token.value!!) != null)
 
         return save(token)
     }
 
     override fun findByValue(value: String): RegToken? {
-        return repository.findByValue(value)
+        return repository.findByValueAndType(value, Token.Type.REGISTRATION)
     }
 }

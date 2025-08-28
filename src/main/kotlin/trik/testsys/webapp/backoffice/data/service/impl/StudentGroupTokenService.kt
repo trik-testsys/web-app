@@ -3,6 +3,7 @@ package trik.testsys.webapp.backoffice.data.service.impl
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
+import trik.testsys.webapp.backoffice.data.entity.Token
 import trik.testsys.webapp.backoffice.data.entity.impl.StudentGroupToken
 import trik.testsys.webapp.backoffice.data.repository.StudentGroupTokenRepository
 import trik.testsys.webapp.backoffice.data.service.TokenService
@@ -23,13 +24,13 @@ class StudentGroupTokenService :
 
         do {
             token.value = "${nextChunk()}-${nextChunk()}"
-        } while (repository.findByValue(token.value) != null)
+        } while (findByValue(token.value!!) != null)
 
         return save(token)
     }
 
     override fun findByValue(value: String): StudentGroupToken? {
-        return repository.findByValue(value)
+        return repository.findByValueAndType(value, Token.Type.STUDENT_GROUP)
     }
 }
 

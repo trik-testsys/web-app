@@ -12,6 +12,9 @@ import trik.testsys.webapp.backoffice.data.service.UserService
 import trik.testsys.webapp.backoffice.data.service.ViewerService
 import trik.testsys.webapp.backoffice.data.service.impl.AccessTokenService
 import trik.testsys.webapp.backoffice.data.service.impl.RegTokenService
+import trik.testsys.webapp.backoffice.data.service.impl.StudentGroupTokenService
+import trik.testsys.webapp.backoffice.data.service.StudentGroupService
+import trik.testsys.webapp.backoffice.data.entity.impl.User
 import trik.testsys.webapp.backoffice.utils.SESSION_ACCESS_TOKEN
 import trik.testsys.webapp.backoffice.utils.addHasActiveSession
 import trik.testsys.webapp.backoffice.utils.addMessage
@@ -21,7 +24,9 @@ class MainController(
     private val accessTokenService: AccessTokenService,
     private val regTokenService: RegTokenService,
     private val viewerService: ViewerService,
-    private val userService: UserService
+    private val userService: UserService,
+    private val studentGroupTokenService: StudentGroupTokenService,
+    private val studentGroupService: StudentGroupService
 ) {
 
     @GetMapping("/")
@@ -78,23 +83,52 @@ class MainController(
         redirectAttributes: RedirectAttributes
     ): String {
         val provided = regTokenValue.trim()
-        val token = regTokenService.findByValue(provided) ?: run {
+        // Try Admin registration via viewer RegToken first
+        regTokenService.findByValue(provided)?.let { token ->
+            val viewer = token.viewer ?: run {
                 redirectAttributes.addMessage("Неверный Код-доступа.")
                 return "redirect:/login"
             }
 
-        val viewer = token.viewer ?: run {
+            val newUser = viewerService.createAdmin(viewer, name) ?: run {
+                redirectAttributes.addMessage("Ошибка")
+                return "redirect:/login"
+            }
+
+            request.setAttribute("accessToken", newUser.accessToken?.value)
+            return "forward:/login"
+        }
+
+        // Try Student registration via StudentGroupToken
+        val stgToken = studentGroupTokenService.findByValue(provided) ?: run {
             redirectAttributes.addMessage("Неверный Код-доступа.")
             return "redirect:/login"
         }
 
-        val newUser = viewerService.createAdmin(viewer, name) ?: run {
-            redirectAttributes.addMessage("Ошибка")
+        val group = stgToken.studentGroup ?: run {
+            redirectAttributes.addMessage("Неверный Код-доступа.")
             return "redirect:/login"
         }
 
-        // Forward POST to /login with accessToken as request attribute to avoid exposing it in URL
-        request.setAttribute("accessToken", newUser.accessToken?.value)
+        val trimmedName = name.trim()
+        if (trimmedName.isEmpty()) {
+            redirectAttributes.addMessage("Псевдоним не может быть пустым.")
+            return "redirect:/login"
+        }
+
+        val accessToken = accessTokenService.generate()
+        val student = User().also {
+            it.accessToken = accessToken
+            it.name = trimmedName
+            it.privileges.add(User.Privilege.STUDENT)
+        }
+
+        val persisted = userService.save(student)
+        accessToken.user = persisted
+        // Add student to the StudentGroup; service will also add to admin owner's user groups
+        studentGroupService.addMember(group, persisted)
+
+        request.setAttribute("accessToken", persisted.accessToken?.value)
         return "forward:/login"
     }
 
