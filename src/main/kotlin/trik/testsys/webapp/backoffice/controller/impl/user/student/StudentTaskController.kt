@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import org.springframework.http.MediaType
+import org.springframework.http.ContentDisposition
+import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseEntity
 import trik.testsys.webapp.backoffice.controller.AbstractUserController
 import trik.testsys.webapp.backoffice.data.entity.impl.Solution
@@ -23,6 +25,8 @@ import trik.testsys.webapp.backoffice.service.Grader
 import trik.testsys.webapp.backoffice.utils.addMessage
 import org.springframework.web.multipart.MultipartFile
 import trik.testsys.webapp.backoffice.data.service.VerdictService
+import java.nio.charset.StandardCharsets
+import trik.testsys.webapp.backoffice.data.entity.impl.TaskFile.TaskFileType.Companion.extension
 
 @Controller
 @RequestMapping("/user/student/contests/{contestId}/tasks/{taskId}")
@@ -187,11 +191,15 @@ class StudentTaskController(
 
         val results = fileManager.getSolutionResultFilesCompressed(solution)
         val bytes = results.readBytes()
+        val disposition = ContentDisposition
+            .attachment()
+            .filename(results.name, StandardCharsets.UTF_8)
+            .build()
         return ResponseEntity.ok()
-            .header("Content-Disposition", "attachment; filename=\"${results.name}\"")
-            .header("Content-Type", MediaType.APPLICATION_OCTET_STREAM_VALUE)
+            .header(HttpHeaders.CONTENT_DISPOSITION, disposition.toString())
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE)
             .header("Content-Transfer-Encoding", "binary")
-            .header("Content-Length", bytes.size.toString())
+            .header(HttpHeaders.CONTENT_LENGTH, bytes.size.toString())
             .body(bytes)
     }
 
@@ -233,10 +241,16 @@ class StudentTaskController(
         }
 
         val bytes = file.readBytes()
+        val originalName = "${task.name} (Упражнение)"
+        val filename = "${originalName}${exerciseTf.type?.extension()}"
+        val disposition = ContentDisposition
+            .attachment()
+            .filename(filename, StandardCharsets.UTF_8)
+            .build()
         return ResponseEntity.ok()
-            .header("Content-Disposition", "attachment; filename=\"${task.id}.qrs\"")
-            .header("Content-Type", MediaType.APPLICATION_OCTET_STREAM_VALUE)
-            .header("Content-Length", bytes.size.toString())
+            .header(HttpHeaders.CONTENT_DISPOSITION, disposition.toString())
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE)
+            .header(HttpHeaders.CONTENT_LENGTH, bytes.size.toString())
             .body(bytes)
     }
 
@@ -278,10 +292,16 @@ class StudentTaskController(
         }
 
         val bytes = file.readBytes()
+        val originalName = "${task.name} (Условие)"
+        val filename = "${originalName}${conditionTf.type?.extension()}"
+        val disposition = ContentDisposition
+            .attachment()
+            .filename(filename, StandardCharsets.UTF_8)
+            .build()
         return ResponseEntity.ok()
-            .header("Content-Disposition", "attachment; filename=\"${task.id}.pdf\"")
-            .header("Content-Type", MediaType.APPLICATION_OCTET_STREAM_VALUE)
-            .header("Content-Length", bytes.size.toString())
+            .header(HttpHeaders.CONTENT_DISPOSITION, disposition.toString())
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE)
+            .header(HttpHeaders.CONTENT_LENGTH, bytes.size.toString())
             .body(bytes)
     }
 }
