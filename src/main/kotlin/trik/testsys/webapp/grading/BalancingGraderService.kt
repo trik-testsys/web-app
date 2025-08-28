@@ -65,6 +65,12 @@ class BalancingGraderService(
             this.gradingOptions = gradingOptions
         }
 
+        submission.task.fieldsList.forEach {
+            val name = it.name
+            val size = it.content.size()
+            log.info("Submission info for solution(id=${solution.id}): polygon(name=$name, size=$size)")
+        }
+
         gradingManager.enqueueSubmission(SubmissionInfo(managedSolution, submission, LocalDateTime.now()))
     }
 
