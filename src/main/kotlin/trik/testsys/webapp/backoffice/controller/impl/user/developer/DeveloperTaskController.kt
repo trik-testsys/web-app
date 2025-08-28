@@ -136,8 +136,8 @@ class DeveloperTaskController(
             return "redirect:/user/developer/tasks"
         }
 
-        val attachedTaskFiles = task.taskFiles.sortedBy { it.id }
-        val ownedTaskFiles = taskFileService.findByDeveloper(developer).sortedBy { it.id }
+        val attachedTaskFiles = task.taskFiles.filterNot { it.isRemoved }.sortedBy { it.id }
+        val ownedTaskFiles = taskFileService.findByDeveloper(developer).filterNot { it.isRemoved }.sortedBy { it.id }
         val availableTaskFiles = ownedTaskFiles.filterNot { otf -> attachedTaskFiles.any { it.id == otf.id } }
 
         fun toTaskFileListItem(tf: TaskFile) = TaskFileListItem(

@@ -39,6 +39,12 @@
                     <button type="button" class="button cancel-button" style="display:none;" onclick="window.App.disableForm('task-file-form')">Отмена</button>
                 </div>
             </form>
+            <div style="margin-top:16px;">
+                <form th:action="@{'/user/developer/task-files/' + ${taskFile.id} + '/delete'}" method="post" onsubmit="return confirm('Удалить файл? Это действие нельзя отменить.');">
+                    <button type="submit" class="button" th:disabled="${!#lists.isEmpty(taskFile.tasks)}">Удалить</button>
+                    <span th:if="${!#lists.isEmpty(taskFile.tasks)}" style="color: var(--color-text-muted); margin-left:8px;">Нельзя удалить: файл прикреплён к задаче</span>
+                </form>
+            </div>
         </div>
     </section>
 

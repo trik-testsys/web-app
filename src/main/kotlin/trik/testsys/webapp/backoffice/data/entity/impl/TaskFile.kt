@@ -41,6 +41,9 @@ class TaskFile() : AbstractEntity() {
     @Column(name = "file_version", nullable = false)
     var fileVersion: Long = 0
 
+    @Column(name = "is_removed", nullable = false)
+    var isRemoved: Boolean = false
+
     @get:Transient
     val fileName: String
         get() = "$id-$fileVersion${type?.extension()}"

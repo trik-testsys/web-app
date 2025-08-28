@@ -1,6 +1,7 @@
 package trik.testsys.webapp.backoffice.controller.impl.user.developer
 
 import jakarta.servlet.http.HttpSession
+import org.slf4j.LoggerFactory
 import org.springframework.http.MediaType
 import org.springframework.http.ContentDisposition
 import org.springframework.http.HttpHeaders
@@ -41,7 +42,7 @@ class DeveloperTaskFileController(
             return "redirect:/user"
         }
 
-        val allTaskFiles = taskFileService.findByDeveloper(developer).sortedBy { it.id }
+        val allTaskFiles = taskFileService.findByDeveloper(developer).filterNot { it.isRemoved }.sortedBy { it.id }
 
         fun toListItem(tf: TaskFile) = TaskFileListItem(
             id = tf.id!!,
@@ -159,6 +160,10 @@ class DeveloperTaskFileController(
             redirectAttributes.addMessage("У вас нет доступа к этому Файлу.")
             return "redirect:/user/developer/task-files"
         }
+        if (tf.isRemoved) {
+            redirectAttributes.addMessage("Файл удалён.")
+            return "redirect:/user/developer/task-files"
+        }
 
         val localizedType = when (tf.type) {
             TaskFile.TaskFileType.POLYGON -> "Полигон"
@@ -201,6 +206,10 @@ class DeveloperTaskFileController(
             redirectAttributes.addMessage("Редактирование доступно только владельцу.")
             return "redirect:/user/developer/task-files/$id"
         }
+        if (tf.isRemoved) {
+            redirectAttributes.addMessage("Файл удалён и недоступен для обновления.")
+            return "redirect:/user/developer/task-files"
+        }
 
         tf.fileVersion = (tf.fileVersion + 1)
         tf.data.originalFileNameByVersion[tf.fileVersion] = file.originalFilename?.substringBeforeLast('.')
@@ -242,6 +251,10 @@ class DeveloperTaskFileController(
             redirectAttributes.addMessage("Редактирование доступно только владельцу.")
             return "redirect:/user/developer/task-files/$id"
         }
+        if (tf.isRemoved) {
+            redirectAttributes.addMessage("Файл удалён и недоступен для обновления.")
+            return "redirect:/user/developer/task-files"
+        }
 
         val trimmedName = name.trim()
         if (trimmedName.isEmpty()) {
@@ -254,6 +267,43 @@ class DeveloperTaskFileController(
         taskFileService.save(tf)
         redirectAttributes.addMessage("Данные Файла обновлены.")
         return "redirect:/user/developer/task-files/$id"
+    }
+
+    @PostMapping("/task-files/{id}/delete")
+    fun deleteTaskFile(
+        @PathVariable id: Long,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val tf = taskFileService.findById(id) ?: run {
+            redirectAttributes.addMessage("Файл не найден.")
+            return "redirect:/user/developer/task-files"
+        }
+        if (tf.developer?.id != developer.id) {
+            redirectAttributes.addMessage("Удаление доступно только владельцу.")
+            return "redirect:/user/developer/task-files/$id"
+        }
+
+        if (tf.tasks.isNotEmpty()) {
+            redirectAttributes.addMessage("Нельзя удалить Файл, прикреплённый к Задаче.")
+            return "redirect:/user/developer/task-files/$id"
+        }
+
+        tf.isRemoved = true
+        taskFileService.save(tf)
+
+        logger.info("TaskFile(id=${tf.id}) was marked as removed.")
+
+        redirectAttributes.addMessage("Файл удален.")
+        return "redirect:/user/developer/task-files"
     }
 
     @GetMapping("/task-files/{id}/download/{version}")
@@ -277,6 +327,10 @@ class DeveloperTaskFileController(
         }
         if (tf.developer?.id != developer.id) {
             redirectAttributes.addMessage("У вас нет доступа к этому Файлу.")
+            return "redirect:/user/developer/task-files"
+        }
+        if (tf.isRemoved) {
+            redirectAttributes.addMessage("Файл удалён.")
             return "redirect:/user/developer/task-files"
         }
 
@@ -306,4 +360,9 @@ class DeveloperTaskFileController(
         val createdAt: Instant?,
         val localizedType: String,
     )
+
+    companion object {
+
+        private val logger = LoggerFactory.getLogger(DeveloperTaskFileController::class.java)
+    }
 }
