@@ -16,18 +16,29 @@
         <div class="card-body">
             <h3 style="margin-top:0;">Основная информация</h3>
 
-            <dl class="kv-wide">
-                <dt>ID</dt>
-                <dd th:text="${taskFile.id}"></dd>
-                <dt>Название</dt>
-                <dd th:text="${taskFile.name}"></dd>
-                <dt>Описание</dt>
-                <dd th:text="${taskFile.info ?: '—'}"></dd>
-                <dt>Тип</dt>
-                <dd th:text="${localizedType}"></dd>
-                <dt>Дата создания</dt>
-                <dd class="date-cell" data-utc th:attr="data-utc=${taskFile.createdAt}" th:text="${taskFile.createdAt != null ? #temporals.format(taskFile.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></dd>
-            </dl>
+            <form id="task-file-form" data-readonly-toggle th:action="@{'/user/developer/task-files/' + ${taskFile.id} + '/update'}" method="post" class="form" style="display:grid; gap:12px; max-width:720px;">
+                <label>
+                    <div style="margin-bottom:4px;">Название<span class="req">*</span></div>
+                    <input name="name" type="text" th:value="${taskFile.name}" required disabled style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
+                </label>
+                <label>
+                    <div style="margin-bottom:4px;">Описание</div>
+                    <textarea name="info" rows="3" th:text="${taskFile.info}" disabled style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;"></textarea>
+                </label>
+                <div>
+                    <div style="margin-bottom:4px;">Тип</div>
+                    <div th:text="${localizedType}"></div>
+                </div>
+                <div>
+                    <div style="margin-bottom:4px;">Дата создания</div>
+                    <div class="date-cell" data-utc th:attr="data-utc=${taskFile.createdAt}" th:text="${taskFile.createdAt != null ? #temporals.format(taskFile.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></div>
+                </div>
+                <div class="form-buttons">
+                    <button type="button" class="button edit-button" onclick="window.App.enableForm('task-file-form')">Редактировать</button>
+                    <button type="submit" class="button button--primary save-button" style="display:none;">Сохранить</button>
+                    <button type="button" class="button cancel-button" style="display:none;" onclick="window.App.disableForm('task-file-form')">Отмена</button>
+                </div>
+            </form>
         </div>
     </section>
 

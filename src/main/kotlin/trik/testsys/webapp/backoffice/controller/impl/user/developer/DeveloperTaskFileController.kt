@@ -218,6 +218,44 @@ class DeveloperTaskFileController(
         return "redirect:/user/developer/task-files/$id"
     }
 
+    @PostMapping("/task-files/{id}/update")
+    fun updateTaskFileMeta(
+        @PathVariable id: Long,
+        @RequestParam name: String,
+        @RequestParam(required = false) info: String?,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val tf = taskFileService.findById(id) ?: run {
+            redirectAttributes.addMessage("Файл не найден.")
+            return "redirect:/user/developer/task-files"
+        }
+        if (tf.developer?.id != developer.id) {
+            redirectAttributes.addMessage("Редактирование доступно только владельцу.")
+            return "redirect:/user/developer/task-files/$id"
+        }
+
+        val trimmedName = name.trim()
+        if (trimmedName.isEmpty()) {
+            redirectAttributes.addMessage("Название не может быть пустым.")
+            return "redirect:/user/developer/task-files/$id"
+        }
+
+        tf.name = trimmedName
+        tf.info = info?.takeIf { it.isNotBlank() }
+        taskFileService.save(tf)
+        redirectAttributes.addMessage("Данные Файла обновлены.")
+        return "redirect:/user/developer/task-files/$id"
+    }
+
     @GetMapping("/task-files/{id}/download/{version}")
     fun downloadTaskFileVersion(
         @PathVariable id: Long,
