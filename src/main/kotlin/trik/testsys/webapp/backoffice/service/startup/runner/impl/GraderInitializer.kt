@@ -260,12 +260,18 @@ class GraderInitializer(
         val managed = solutionService.getById(requireNotNull(solution.id))
 
         managed.status = when (kind) {
-            is Grader.ErrorKind.InnerTimeoutExceed -> Solution.Status.PASSED
+            is Grader.ErrorKind.InnerTimeoutExceed -> Solution.Status.TIMEOUT
             else -> Solution.Status.ERROR
         }
 
         verdictService.createNewForSolution(managed, 0)
         solutionService.save(managed)
+
+        if (managed.contest == null) {
+            val task = managed.task
+            task.testingStatus = Task.TestingStatus.FAILED
+            taskService.save(task)
+        }
     }
     
     companion object {

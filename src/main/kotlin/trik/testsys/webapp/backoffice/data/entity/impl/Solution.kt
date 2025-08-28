@@ -45,6 +45,7 @@ class Solution() : AbstractEntity() {
 
         NOT_STARTED("NST"),
         IN_PROGRESS("INP"),
+        TIMEOUT("TMO"),
         PASSED("PAS"),
         ERROR("ERR");
 

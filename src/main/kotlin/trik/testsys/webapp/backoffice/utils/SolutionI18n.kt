@@ -9,6 +9,7 @@ class SolutionI18n {
     private val statusToRu: Map<Solution.Status, String> = mapOf(
         Solution.Status.NOT_STARTED to "В очереди",
         Solution.Status.IN_PROGRESS to "В процессе",
+        Solution.Status.TIMEOUT to "Превышено время ожидания",
         Solution.Status.PASSED to "Пройдено",
         Solution.Status.ERROR to "Ошибка",
     )
