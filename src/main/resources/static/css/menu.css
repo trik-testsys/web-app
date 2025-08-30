@@ -67,10 +67,12 @@
     color: var(--trik-white);
     transition: right 0.3s ease;
     padding: 20px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    align-items: stretch;
+    justify-content: flex-start;
     z-index: 100;
     box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
 }
@@ -81,13 +83,13 @@
 }
 
 .side-menu ul li {
-    margin: 20px 0;
+    margin: 12px 0;
 }
 
 .side-menu ul li a {
     text-decoration: none;
     color: var(--trik-white);
-    font-size: 1.05rem;
+    font-size: 0.95rem;
     transition: color 0.3s ease;
 }
 
@@ -98,6 +100,13 @@
 .side-menu.active {
     right: 0;
 }
+
+/* Side menu scrollbar: more visible */
+.side-menu { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.6) rgba(255,255,255,.12); }
+.side-menu::-webkit-scrollbar { width: 10px; }
+.side-menu::-webkit-scrollbar-track { background: rgba(255,255,255,.12); border-radius: 8px; }
+.side-menu::-webkit-scrollbar-thumb { background: rgba(255,255,255,.6); border-radius: 8px; }
+.side-menu::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.75); }
 
 .close-button {
     background: none;
