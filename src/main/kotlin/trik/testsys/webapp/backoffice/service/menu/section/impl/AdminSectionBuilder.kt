@@ -18,7 +18,7 @@ class AdminSectionBuilder : MenuSectionBuilder {
         return MenuBuilder.MenuSection(
             title = "Организатор",
             items = listOf(
-                MenuBuilder.MenuItem(name = "Группы", link = "/user/admin/groups")
+                MenuBuilder.MenuItem(name = "Группы Участников", link = "/user/admin/groups")
             )
         )
     }

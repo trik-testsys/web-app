@@ -43,7 +43,7 @@
             <hr class="separator">
             <div style="margin-top: 12px;">
                 <h3 style="margin: 0 0 8px 0;">Список Участников</h3>
-                <div th:if="${#lists.isEmpty(group.members)}" style="color: var(--color-text-muted);">В группе пока нет участников.</div>
+                <div th:if="${#lists.isEmpty(group.members)}" style="color: var(--color-text-muted);">Здесь будут отображены состоящие в этой Группе Участники</div>
                 <table th:if="${!#lists.isEmpty(group.members)}" class="table">
                     <thead>
                     <tr>
@@ -75,7 +75,7 @@
         <div class="card-body">
             <div style="margin-top: 12px;">
                 <h3 style="margin: 0 0 8px 0;">Прикреплённые Туры</h3>
-                <div th:if="${#lists.isEmpty(attachedContests)}" style="color: var(--color-text-muted);">Нет прикреплённых Туров.</div>
+                <div th:if="${#lists.isEmpty(attachedContests)}" style="color: var(--color-text-muted);">Здесь будут отображены Туры, доступные к прикреплению к этой Группе Участников</div>
                 <table th:if="${!#lists.isEmpty(attachedContests)}" class="table">
                     <thead>
                         <tr>
@@ -95,7 +95,7 @@
                             <td class="date-cell" data-utc th:attr="data-utc=${c.endsAt}" th:text="${c.endsAt != null ? #temporals.format(c.endsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                             <td th:text="${c.duration != null ? c.duration + ' мин' : '—'}"></td>
                             <td>
-                                <form th:action="@{'/user/admin/groups/' + ${group.id} + '/detach-contest'}" method="post" onsubmit="return confirm('Открепить Тур от группы?');">
+                                <form th:action="@{'/user/admin/groups/' + ${group.id} + '/detach-contest'}" method="post" onsubmit="return confirm('Открепить Тур от Группы Участников?');">
                                     <input type="hidden" name="contestId" th:value="${c.id}">
                                     <button type="submit" class="button button--danger">Открепить</button>
                                 </form>
@@ -107,7 +107,7 @@
             <hr class="separator">
             <div style="margin-top: 12px;">
                 <h3 style="margin: 16px 0 8px 0;">Туры, доступные для прикрепления</h3>
-                <div th:if="${#lists.isEmpty(availableContests)}" style="color: var(--color-text-muted);">Нет доступных Туров.</div>
+                <div th:if="${#lists.isEmpty(availableContests)}" style="color: var(--color-text-muted);">Здесь будут отображены Туры, прикрепленные к этой Группе Участников</div>
                 <table th:if="${!#lists.isEmpty(availableContests)}" class="table">
                     <thead>
                         <tr>
@@ -127,7 +127,7 @@
                             <td class="date-cell" data-utc th:attr="data-utc=${c.endsAt}" th:text="${c.endsAt != null ? #temporals.format(c.endsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                             <td th:text="${c.duration != null ? c.duration + ' мин' : '—'}"></td>
                             <td>
-                                <form th:action="@{'/user/admin/groups/' + ${group.id} + '/attach-contest'}" method="post" onsubmit="return confirm('Прикрепить Тур к группе?');">
+                                <form th:action="@{'/user/admin/groups/' + ${group.id} + '/attach-contest'}" method="post" onsubmit="return confirm('Прикрепить Тур к Группе Участников?');">
                                     <input type="hidden" name="contestId" th:value="${c.id}">
                                     <button type="submit" class="button">Прикрепить</button>
                                 </form>

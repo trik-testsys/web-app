@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
 <head>
-    <th:block th:include="fragments/layout :: head('Группы')"></th:block>
+    <th:block th:include="fragments/layout :: head('Группы Участников')"></th:block>
     <style>
     </style>
 </head>
@@ -11,16 +11,16 @@
 
 <main class="app-main">
     <section class="card">
-        <h2 class="card-title">Группы</h2>
+        <h2 class="card-title">Группы Участников</h2>
         <div class="card-body">
             <div class="alert" th:if="${message}" th:text="${message}"></div>
             <div style="margin-bottom:10px;">
-                <a class="button" th:href="@{/user/admin/groups/create}">Создать группу</a>
+                <a class="button" th:href="@{/user/admin/groups/create}">Создать Группу Участников</a>
             </div>
             <hr class="separator">
 
-            <h3 style="margin: 0 0 8px 0;">Созданные Группы</h3>
-            <div th:if="${#lists.isEmpty(groups)}" style="color: var(--color-text-muted);">У вас пока нет групп.</div>
+            <h3 style="margin: 0 0 8px 0;">Созданные Группы Участников</h3>
+            <div th:if="${#lists.isEmpty(groups)}" style="color: var(--color-text-muted);">Здесь будут отображены созданные Вами Группы Участников</div>
             <table th:if="${!#lists.isEmpty(groups)}" class="table">
                 <thead>
                     <tr>
