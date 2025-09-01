@@ -146,7 +146,8 @@ class StudentGroupServiceImpl(
             .toList()
 
         val contestTaskPairs = contests.flatMap { contest ->
-            contest.tasks.sortedBy { it.id }.map { task -> contest to task }
+            val orders = contest.getOrders()
+            contest.tasks.sortedBy { t -> orders[t.id!!] ?: Long.MAX_VALUE }.map { task -> contest to task }
         }
 
         val fixedHeader = listOf(

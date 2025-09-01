@@ -66,13 +66,15 @@ class DeveloperContestController(
         model.addAttribute("hasAnySolutions", contest.solutions.isNotEmpty())
         val isAttachedToAnyStudentGroup = studentGroupService.findAll().any { g -> g.contests.any { it.id == contest.id } }
         model.addAttribute("isAttachedToAnyStudentGroup", isAttachedToAnyStudentGroup)
+        val taskOrders = contest.getOrders()
         model.addAttribute(
             "availableUserGroups",
             userGroupService.findByMember(developer)
                 .filterNot { g -> contest.userGroups.any { it.id == g.id } }
                 .sortedBy { it.id }
         )
-        model.addAttribute("attachedTasks", contest.tasks.sortedBy { it.id })
+        model.addAttribute("attachedTasks", contest.tasks.sortedBy { t -> taskOrders[t.id!!] ?: Long.MAX_VALUE })
+        model.addAttribute("taskOrders", taskOrders)
         model.addAttribute(
             "availableTasks",
             taskService.findAll().filter { it.developer?.id == developer.id }
@@ -127,6 +129,12 @@ class DeveloperContestController(
         }
 
         val added = contest.tasks.add(task)
+        if (added && contest.data.orderByTaskId.isNotEmpty()) {
+            // Only assign explicit order if ordering was already customized
+            val currentOrders = contest.getOrders()
+            val nextOrder = (currentOrders.values.maxOrNull() ?: 0L) + 1L
+            contest.data.orderByTaskId[task.id!!] = nextOrder
+        }
         contestService.save(contest)
         if (added) redirectAttributes.addMessage("Задача прикреплена к Туру.") else redirectAttributes.addMessage("Задача уже была прикреплена.")
         return "redirect:/user/developer/contests/$id"
@@ -193,9 +201,60 @@ class DeveloperContestController(
         }
 
         val removed = contest.tasks.removeIf { it.id == taskId }
+        if (removed) {
+            contest.data.orderByTaskId.remove(taskId)
+        }
         contestService.save(contest)
         if (removed) redirectAttributes.addMessage("Задача откреплена от Тура.") else redirectAttributes.addMessage("Задача не была прикреплена.")
         return "redirect:/user/developer/contests/$contestId"
+    }
+
+    @PostMapping("/contests/{id}/tasks/order")
+    fun updateTaskOrder(
+        @PathVariable id: Long,
+        @RequestParam("taskId") taskIds: List<Long>,
+        @RequestParam("order") orderValues: List<Long>,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val contest = contestService.findById(id) ?: run {
+            redirectAttributes.addMessage("Тур не найден.")
+            return "redirect:/user/developer/contests"
+        }
+        if (contest.developer?.id != developer.id) {
+            redirectAttributes.addMessage("Доступно только владельцу.")
+            return "redirect:/user/developer/contests/$id"
+        }
+
+        if (taskIds.size != orderValues.size) {
+            redirectAttributes.addMessage("Некорректные параметры порядка.")
+            return "redirect:/user/developer/contests/$id"
+        }
+
+        val attachedIds = contest.tasks.mapNotNull { it.id }.toSet()
+        val pairs = taskIds.zip(orderValues)
+            .filter { (tId, _) -> tId in attachedIds }
+            .sortedBy { it.second }
+
+        // normalize to 1..N to avoid duplicates and gaps
+        contest.data.orderByTaskId.clear()
+        var pos = 1L
+        for ((tId, _) in pairs) {
+            contest.data.orderByTaskId[tId] = pos
+            pos += 1
+        }
+
+        contestService.save(contest)
+        redirectAttributes.addMessage("Порядок задач обновлён.")
+        return "redirect:/user/developer/contests/$id"
     }
 
     @PostMapping("/contests/{id}/rename")

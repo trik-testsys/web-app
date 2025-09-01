@@ -61,7 +61,8 @@ class StudentContestController(
 
         setupModel(model, session, user)
         model.addAttribute("contest", contest)
-        val tasks = contest.tasks.sortedBy { it.id }
+        val orders = contest.getOrders()
+        val tasks = contest.tasks.sortedBy { t -> orders[t.id!!] ?: Long.MAX_VALUE }
         model.addAttribute("tasks", tasks)
         model.addAttribute("remainingTime", remainingTimeString(user, Instant.now(), contest))
 

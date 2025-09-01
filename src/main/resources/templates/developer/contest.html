@@ -9,6 +9,13 @@
         .form-row { display: grid; grid-template-columns: 1fr; gap: 12px; }
         @media (min-width: 768px) { .form-row { grid-template-columns: 1fr 1fr; } }
     </style>
+    <style>
+        .drag-handle { cursor: grab; color: var(--color-text-muted); }
+        tr.dragging { background: #f5f7fb; }
+        .order-cell { width: 100px; white-space: nowrap; }
+        .order-actions { display: inline-flex; gap: 4px; vertical-align: middle; }
+        .order-actions .button { padding: 2px 6px; font-size: 12px; }
+    </style>
     </head>
 <body>
 <header th:replace="fragments/layout :: header(userName=${user.name})"></header>
@@ -80,18 +87,29 @@
         <div class="card-body">
             <h3 style="margin: 16px 0 8px 0;">Прикрепленные Задачи</h3>
             <div th:if="${#lists.isEmpty(attachedTasks)}" style="color: var(--color-text-muted);">Пока нет прикреплённых Задач.</div>
-            <table th:if="${!#lists.isEmpty(attachedTasks)}" class="table">
-                <thead>
+            <form th:if="${!#lists.isEmpty(attachedTasks)}" th:id="'orderForm'" th:action="@{'/user/developer/contests/' + ${contest.id} + '/tasks/order'}" method="post" style="display:none;"></form>
+            <div th:if="${!#lists.isEmpty(attachedTasks)}">
+                <table class="table" id="attachedTasksTable" th:attr="data-is-owner=${isOwner}">
+                    <thead>
                     <tr>
+                        <th class="order-cell">№</th>
                         <th>ID</th>
                         <th>Название</th>
                         <th>Статус тестирования</th>
                         <th class="date-cell">Дата создания</th>
                         <th></th>
                     </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="t : ${attachedTasks}">
+                    </thead>
+                    <tbody>
+                    <tr th:each="t : ${attachedTasks}" th:attr="data-task-id=${t.id}">
+                        <td class="order-cell">
+                            <span class="drag-handle"><i class="fa fa-grip-vertical"></i></span>
+                            <span class="order-index" style="margin: 0 6px;">1</span>
+                            <span class="order-actions" th:if="${isOwner}">
+                                <button type="button" class="button" data-move="up" title="Вверх">▲</button>
+                                <button type="button" class="button" data-move="down" title="Вниз">▼</button>
+                            </span>
+                        </td>
                         <td th:text="${t.id}"></td>
                         <td><a th:href="@{'/user/developer/tasks/' + ${t.id}}" th:text="${t.name}"></a></td>
                         <td th:text="${
@@ -108,8 +126,88 @@
                             </form>
                         </td>
                     </tr>
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+                <div class="form-buttons">
+                    <button class="button" type="submit" th:disabled="${!isOwner}" form="orderForm">Сохранить порядок</button>
+                </div>
+            </div>
+            <script>
+            (function(){
+                const table = document.getElementById('attachedTasksTable');
+                if (!table) return;
+                const tbody = table.querySelector('tbody');
+                const isOwner = table.getAttribute('data-is-owner') === 'true';
+                function refreshNumbers() {
+                    const rows = Array.from(tbody.querySelectorAll('tr[data-task-id]'));
+                    rows.forEach((row, idx) => {
+                        const idxEl = row.querySelector('.order-index');
+                        if (idxEl) idxEl.textContent = String(idx + 1);
+                    });
+                }
+                if (isOwner) {
+                    function onDragStart(e){
+                        e.dataTransfer.effectAllowed = 'move';
+                        e.currentTarget.classList.add('dragging');
+                    }
+                    function onDragEnd(e){
+                        e.currentTarget.classList.remove('dragging');
+                        refreshNumbers();
+                    }
+                    function onDragOver(e){
+                        e.preventDefault();
+                        const dragging = tbody.querySelector('tr.dragging');
+                        if (!dragging) return;
+                        const after = getAfterElement(tbody, e.clientY);
+                        if (after == null) tbody.appendChild(dragging); else tbody.insertBefore(dragging, after);
+                    }
+                    function getAfterElement(container, y){
+                        const els = Array.from(container.querySelectorAll('tr[data-task-id]:not(.dragging)'));
+                        let closest = {offset: Number.NEGATIVE_INFINITY, element: null};
+                        els.forEach(el => {
+                            const box = el.getBoundingClientRect();
+                            const offset = y - box.top - box.height / 2;
+                            if (offset < 0 && offset > closest.offset) closest = {offset, element: el};
+                        });
+                        return closest.element;
+                    }
+                    Array.from(tbody.querySelectorAll('tr[data-task-id]')).forEach(row => {
+                        row.draggable = true;
+                        row.addEventListener('dragstart', onDragStart);
+                        row.addEventListener('dragend', onDragEnd);
+                    });
+                    tbody.addEventListener('dragover', onDragOver);
+
+                    tbody.addEventListener('click', function(e){
+                        const btn = e.target.closest('[data-move]');
+                        if (!btn) return;
+                        const row = btn.closest('tr[data-task-id]');
+                        if (!row) return;
+                        if (btn.dataset.move === 'up') {
+                            const prev = row.previousElementSibling;
+                            if (prev) tbody.insertBefore(row, prev);
+                        } else if (btn.dataset.move === 'down') {
+                            const next = row.nextElementSibling;
+                            if (next) tbody.insertBefore(next, row);
+                        }
+                        refreshNumbers();
+                    });
+                }
+                refreshNumbers();
+
+                const form = document.getElementById('orderForm');
+                if (form) {
+                    form.addEventListener('submit', function(){
+                        while (form.firstChild) form.removeChild(form.firstChild);
+                        const rows = Array.from(tbody.querySelectorAll('tr[data-task-id]'));
+                        rows.forEach((row, idx) => {
+                            const t = document.createElement('input'); t.type = 'hidden'; t.name = 'taskId'; t.value = row.getAttribute('data-task-id'); form.appendChild(t);
+                            const o = document.createElement('input'); o.type = 'hidden'; o.name = 'order'; o.value = String(idx + 1); form.appendChild(o);
+                        });
+                    });
+                }
+            })();
+            </script>
 
             <hr class="separator">
 
@@ -141,7 +239,7 @@
                         <form th:action="@{'/user/developer/contests/' + ${contest.id} + '/tasks/attach'}" method="post">
                             <input type="hidden" name="taskId" th:value="${t.id}">
                             <button class="button" type="submit" th:disabled="${
-                                (t.testingStatus == null || t.testingStatus.name() != 'PASSED') || !isOwner ||
+                                (t.testingStatus == null || t.testingStatus.name() != 'PASSED') ||
                                 #lists.isEmpty(t.taskFiles.?[type?.name() == 'POLYGON']) ||
                                 #lists.isEmpty(t.taskFiles.?[type?.name() == 'SOLUTION']) ||
                                 #lists.isEmpty(t.taskFiles.?[type?.name() == 'EXERCISE'])
