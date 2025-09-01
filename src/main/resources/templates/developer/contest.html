@@ -16,7 +16,12 @@
 
 <main class="app-main">
     <section class="card">
-        <h2 class="card-title"><a th:href="@{/user/developer/contests}">Туры</a> / Тур</h2>
+        <h2 class="card-title" style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+            <span><a th:href="@{/user/developer/contests}">Туры</a> / <span th:text="${contest.name ?: 'Тур'}"></span></span>
+            <form th:if="${isOwner}" th:action="@{'/user/developer/contests/' + ${contest.id} + '/delete'}" method="post" onsubmit="return confirm('Удалить Тур? Это действие необратимо.');">
+                <button class="button button--danger" type="submit" th:disabled="${(isAttachedToAnyStudentGroup == true) or (hasAnySolutions == true)}" th:title="${(isAttachedToAnyStudentGroup == true)} ? 'Нельзя удалить: Тур прикреплён Группе Участников' : ((hasAnySolutions == true) ? 'Нельзя удалить: по Туру есть Решения' : null)"><i class="fa fa-trash"></i>Удалить</button>
+            </form>
+        </h2>
         <div class="card-body">
             <div class="alert" th:if="${message}" th:text="${message}"></div>
 

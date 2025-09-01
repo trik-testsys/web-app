@@ -185,6 +185,7 @@ class DeveloperTaskController(
         model.addAttribute("testStatus", lastTestStatus)
         model.addAttribute("isUsedInAnyContest", isUsedInAnyContest)
         model.addAttribute("attachedContests", attachedContests)
+        model.addAttribute("hasAnySolutions", task.solutions.any { it.contest != null })
         model.addAttribute(
             "availableUserGroups",
             userGroupService.findByMember(developer)
@@ -554,6 +555,45 @@ class DeveloperTaskController(
 
         redirectAttributes.addMessage("Задача отправлена на тестирование.")
         return "redirect:/user/developer/tasks/$id"
+    }
+
+    @PostMapping("/tasks/{id}/delete")
+    fun deleteTask(
+        @PathVariable id: Long,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val task = taskService.findById(id) ?: run {
+            redirectAttributes.addMessage("Задача не найдена.")
+            return "redirect:/user/developer/tasks"
+        }
+        if (task.developer?.id != developer.id) {
+            redirectAttributes.addMessage("Удаление доступно только владельцу.")
+            return "redirect:/user/developer/tasks/$id"
+        }
+
+        val usedInContest = contestService.findAll().any { c -> c.tasks.any { it.id == task.id } }
+        if (usedInContest) {
+            redirectAttributes.addMessage("Нельзя удалить Задачу, прикреплённую к Туру.")
+            return "redirect:/user/developer/tasks/$id"
+        }
+
+        if (task.solutions.isNotEmpty()) {
+            redirectAttributes.addMessage("Нельзя удалить Задачу, по которой есть Решения.")
+            return "redirect:/user/developer/tasks/$id"
+        }
+
+        taskService.delete(task)
+        redirectAttributes.addMessage("Задача удалена.")
+        return "redirect:/user/developer/tasks"
     }
 
     // Task templates (kept here until a dedicated controller is introduced)

@@ -9,7 +9,12 @@
 
 <main class="app-main">
     <section class="card">
-        <h2 class="card-title"><a th:href="@{/user/developer/tasks}">Задачи</a> / <span th:text="${task.name}"></span></h2>
+        <h2 class="card-title" style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+            <span><a th:href="@{/user/developer/tasks}">Задачи</a> / <span th:text="${task.name}"></span></span>
+            <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/delete'}" method="post" onsubmit="return confirm('Удалить Задачу? Это действие необратимо.');">
+                <button class="button button--danger" type="submit" th:disabled="${(isUsedInAnyContest == true) or (hasAnySolutions == true)}" th:title="${(isUsedInAnyContest == true)} ? 'Нельзя удалить: Задача прикреплена к Туру' : ((hasAnySolutions == true) ? 'Нельзя удалить: по Задаче есть Решения' : null)"><i class="fa fa-trash"></i>Удалить</button>
+            </form>
+        </h2>
         <div class="card-body">
             <div class="alert" th:if="${message}" th:text="${message}"></div>
             <form id="task-form" data-readonly-toggle th:action="@{'/user/developer/tasks/' + ${task.id} + '/update'}" method="post" class="form" style="display:grid; gap:12px; max-width:720px;">

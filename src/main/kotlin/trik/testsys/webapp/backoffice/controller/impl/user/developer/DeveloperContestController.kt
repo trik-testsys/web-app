@@ -15,6 +15,7 @@ import trik.testsys.webapp.backoffice.data.entity.impl.Task
 import trik.testsys.webapp.backoffice.data.entity.impl.TaskFile
 import trik.testsys.webapp.backoffice.data.entity.impl.User
 import trik.testsys.webapp.backoffice.data.service.ContestService
+import trik.testsys.webapp.backoffice.data.service.StudentGroupService
 import trik.testsys.webapp.backoffice.data.service.TaskService
 import trik.testsys.webapp.backoffice.data.service.UserGroupService
 import trik.testsys.webapp.backoffice.utils.addMessage
@@ -26,6 +27,7 @@ import java.time.ZoneId
 class DeveloperContestController(
     private val contestService: ContestService,
     private val userGroupService: UserGroupService,
+    private val studentGroupService: StudentGroupService,
     private val taskService: TaskService,
 ) : AbstractUserController() {
 
@@ -61,6 +63,9 @@ class DeveloperContestController(
         setupModel(model, session, developer)
         model.addAttribute("contest", contest)
         model.addAttribute("isOwner", isOwner)
+        model.addAttribute("hasAnySolutions", contest.solutions.isNotEmpty())
+        val isAttachedToAnyStudentGroup = studentGroupService.findAll().any { g -> g.contests.any { it.id == contest.id } }
+        model.addAttribute("isAttachedToAnyStudentGroup", isAttachedToAnyStudentGroup)
         model.addAttribute(
             "availableUserGroups",
             userGroupService.findByMember(developer)
@@ -403,6 +408,45 @@ class DeveloperContestController(
         }
         contestService.save(contest)
         redirectAttributes.addMessage("Тур создан (id=${contest.id}).")
+        return "redirect:/user/developer/contests"
+    }
+
+    @PostMapping("/contests/{id}/delete")
+    fun deleteContest(
+        @PathVariable id: Long,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val contest = contestService.findById(id) ?: run {
+            redirectAttributes.addMessage("Тур не найден.")
+            return "redirect:/user/developer/contests"
+        }
+        if (contest.developer?.id != developer.id) {
+            redirectAttributes.addMessage("Удаление доступно только владельцу.")
+            return "redirect:/user/developer/contests/$id"
+        }
+
+        val attachedToStudentGroups = studentGroupService.findAll().any { g -> g.contests.any { it.id == contest.id } }
+        if (attachedToStudentGroups) {
+            redirectAttributes.addMessage("Нельзя удалить Тур, прикреплённый к студенческим группам.")
+            return "redirect:/user/developer/contests/$id"
+        }
+
+        if (contest.solutions.isNotEmpty()) {
+            redirectAttributes.addMessage("Нельзя удалить Тур, по которому есть Решения.")
+            return "redirect:/user/developer/contests/$id"
+        }
+
+        contestService.delete(contest)
+        redirectAttributes.addMessage("Тур удалён.")
         return "redirect:/user/developer/contests"
     }
 }

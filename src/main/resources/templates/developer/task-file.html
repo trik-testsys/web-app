@@ -12,7 +12,14 @@
 
 <main class="app-main">
     <section class="card">
-        <h2 class="card-title"><a th:href="@{/user/developer/task-files}">Файлы</a> / [<span th:text="${localizedType}"></span>] <span th:text="${taskFile.name}"></span></h2>
+        <h2 class="card-title" style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+            <span><a th:href="@{/user/developer/task-files}">Файлы</a> / [<span th:text="${localizedType}"></span>] <span th:text="${taskFile.name}"></span></span>
+            <span style="display:flex; align-items:center; gap:8px;">
+                <form th:action="@{'/user/developer/task-files/' + ${taskFile.id} + '/delete'}" method="post" onsubmit="return confirm('Удалить файл? Это действие нельзя отменить.');">
+                    <button type="submit" class="button button--danger" th:disabled="${!#lists.isEmpty(taskFile.tasks)}" th:title="${!#lists.isEmpty(taskFile.tasks)} ? 'Нельзя удалить: файл прикреплён к задаче' : null"><i class="fa fa-trash"></i>Удалить</button>
+                </form>
+            </span>
+        </h2>
         <div class="card-body">
             <h3 style="margin-top:0;">Основная информация</h3>
 
@@ -39,12 +46,6 @@
                     <button type="button" class="button cancel-button" style="display:none;" onclick="window.App.disableForm('task-file-form')">Отмена</button>
                 </div>
             </form>
-            <div style="margin-top:16px;">
-                <form th:action="@{'/user/developer/task-files/' + ${taskFile.id} + '/delete'}" method="post" onsubmit="return confirm('Удалить файл? Это действие нельзя отменить.');">
-                    <button type="submit" class="button" th:disabled="${!#lists.isEmpty(taskFile.tasks)}">Удалить</button>
-                    <span th:if="${!#lists.isEmpty(taskFile.tasks)}" style="color: var(--color-text-muted); margin-left:8px;">Нельзя удалить: файл прикреплён к задаче</span>
-                </form>
-            </div>
         </div>
     </section>
 
