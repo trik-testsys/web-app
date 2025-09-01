@@ -89,6 +89,22 @@ class User() : AbstractEntity() {
     @OneToMany(mappedBy = "createdBy", orphanRemoval = true)
     var solutions: MutableSet<Solution> = mutableSetOf()
 
+    fun hasAnyOf(privileges: Collection<Privilege>): Boolean {
+        privileges.forEach { privilege ->
+            if (this.privileges.contains(privilege)) return true
+        }
+
+        return false
+    }
+
+    fun hasAllOf(privileges: Collection<Privilege>): Boolean {
+        return this.privileges.containsAll(privileges)
+    }
+
+    fun hasOnly(privileges: Collection<Privilege>): Boolean {
+        return privileges.containsAll(this.privileges)
+    }
+
     @Suppress("unused")
     enum class Privilege(override val dbKey: String) : PersistableEnum {
 

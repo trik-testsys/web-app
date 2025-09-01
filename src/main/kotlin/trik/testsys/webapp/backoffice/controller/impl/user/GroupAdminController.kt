@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpSession
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -72,6 +73,13 @@ class GroupAdminController(
         return "group-admin/group"
     }
 
+    @ModelAttribute("allowedPrivileges")
+    fun allowedPrivileges() = setOf(
+        User.Privilege.DEVELOPER,
+        User.Privilege.JUDGE,
+        User.Privilege.VIEWER,
+    )
+
     @GetMapping("/groups/{id}/users/create")
     fun createUserForm(
         @PathVariable id: Long,
@@ -96,11 +104,8 @@ class GroupAdminController(
             return "redirect:/user/group-admin/groups"
         }
 
-        val allowed = setOf(
-            User.Privilege.DEVELOPER,
-            User.Privilege.JUDGE,
-            User.Privilege.VIEWER,
-        )
+        val allowed = allowedPrivileges()
+
         val privilegeOptions = PrivilegeI18n.listOptions()
             .filter { (name, _) -> allowed.contains(User.Privilege.valueOf(name)) }
 
@@ -211,13 +216,7 @@ class GroupAdminController(
             return "redirect:/user/group-admin/groups/$id"
         }
 
-        val allowed = setOf(
-            User.Privilege.ADMIN,
-            User.Privilege.DEVELOPER,
-            User.Privilege.JUDGE,
-            User.Privilege.STUDENT,
-            User.Privilege.VIEWER,
-        )
+        val allowed = allowedPrivileges()
         val requested = privileges?.toSet()?.intersect(allowed) ?: emptySet()
 
         val newUser = userService.createUserByGroupAdmin(current, trimmed, requested)

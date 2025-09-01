@@ -35,7 +35,7 @@
             <div style="margin-bottom:10px;">
                 <a class="button" th:href="@{'/user/group-admin/groups/' + ${group.id} + '/users/create'}">Создать пользователя</a>
             </div>
-            <h3 style="margin: 0 0 8px 0;">Список доступных к добалению</h3>
+            <h3 style="margin: 0 0 8px 0;">Список доступных к добавлению</h3>
             <div style="margin-top:12px;">
                 <div th:if="${#lists.isEmpty(candidateUsers)}" style="color: var(--color-text-muted);">Нет пользователей для добавления.</div>
                 <table th:if="${!#lists.isEmpty(candidateUsers)}" class="table">
@@ -44,7 +44,6 @@
                         <th class="id-cell" style="text-align:left; padding:8px;">ID</th>
                         <th style="text-align:left; padding:8px;">Псевдоним</th>
                         <th class="date-cell" style="text-align:left; padding:8px;">Дата создания</th>
-                        <th class="token-cell" style="text-align:left; padding:8px;">Код-доступа</th>
                         <th style="text-align:left; padding:8px;">Роли</th>
                         <th style="text-align:left; padding:8px;">Действия</th>
                     </tr>
@@ -54,9 +53,6 @@
                         <td class="id-cell" style="padding:8px;" th:text="${u.id}"></td>
                         <td style="padding:8px;" th:text="${#strings.isEmpty(u.name) ? ('User #' + u.id) : u.name}"></td>
                         <td class="date-cell" style="padding:8px;" data-utc th:attr="data-utc=${u.createdAt}" th:text="${u.createdAt != null ? #temporals.format(u.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
-                        <td class="token-cell" style="padding:8px;">
-                            <span class="token" th:text="${u.accessToken.value}"></span>
-                        </td>
                         <td style="padding:8px;">
                             <ul class="pill-list">
                                 <li class="pill" th:each="p : ${candidatePrivilegesRuByUserId[u.id]}" th:text="${p}"></li>
@@ -93,7 +89,7 @@
                         <td style="padding:8px;" th:text="${m.name}"></td>
                         <td class="date-cell" style="padding:8px;" data-utc th:attr="data-utc=${m.createdAt}" th:text="${m.createdAt != null ? #temporals.format(m.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                         <td class="token-cell" style="padding:8px;">
-                            <span class="token" th:text="${m.accessToken.value}"></span>
+                            <span class="token" th:if="${m.superUser == null && m.hasOnly(allowedPrivileges)}" th:text="${m.accessToken.value}"></span>
                         </td>
                         <td style="padding:8px;">
                             <ul class="pill-list">

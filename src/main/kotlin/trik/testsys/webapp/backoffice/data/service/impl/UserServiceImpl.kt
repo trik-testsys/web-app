@@ -115,10 +115,8 @@ class UserServiceImpl(
 
         // Restrict privileges to allowed set for group admin
         val allowed = setOf(
-            User.Privilege.ADMIN,
             User.Privilege.DEVELOPER,
             User.Privilege.JUDGE,
-            User.Privilege.STUDENT,
             User.Privilege.VIEWER,
         )
         val requested = privileges.toSet().intersect(allowed)
