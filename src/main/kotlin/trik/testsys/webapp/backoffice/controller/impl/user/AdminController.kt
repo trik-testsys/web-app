@@ -210,4 +210,33 @@ class AdminController(
         }
         return "redirect:/user/admin/groups/$id"
     }
+
+    @PostMapping("/groups/{id}/detach-contest")
+    fun detachContest(
+        @PathVariable id: Long,
+        @RequestParam("contestId") contestId: Long,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val admin = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        val group = studentGroupService.findById(id) ?: return "redirect:/user/admin/groups"
+        if (group.owner?.id != admin.id) return "redirect:/user/admin/groups"
+
+        val contest = contestService.findById(contestId)
+        if (contest == null) {
+            redirectAttributes.addMessage("Тур не найден.")
+            return "redirect:/user/admin/groups/$id"
+        }
+
+        val removed = group.contests.removeIf { it.id == contest.id }
+        studentGroupService.save(group)
+        if (removed) {
+            redirectAttributes.addMessage("Тур откреплён от группы.")
+        } else {
+            redirectAttributes.addMessage("Тур не был прикреплён к группе.")
+        }
+        return "redirect:/user/admin/groups/$id"
+    }
 }

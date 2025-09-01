@@ -84,6 +84,7 @@
                             <th class="date-cell">Начало</th>
                             <th class="date-cell">Окончание</th>
                             <th>Время на прохождение</th>
+                            <th>Действия</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -93,6 +94,12 @@
                             <td class="date-cell" data-utc th:attr="data-utc=${c.startsAt}" th:text="${c.startsAt != null ? #temporals.format(c.startsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                             <td class="date-cell" data-utc th:attr="data-utc=${c.endsAt}" th:text="${c.endsAt != null ? #temporals.format(c.endsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                             <td th:text="${c.duration != null ? c.duration + ' мин' : '—'}"></td>
+                            <td>
+                                <form th:action="@{'/user/admin/groups/' + ${group.id} + '/detach-contest'}" method="post" onsubmit="return confirm('Открепить Тур от группы?');">
+                                    <input type="hidden" name="contestId" th:value="${c.id}">
+                                    <button type="submit" class="button button--danger">Открепить</button>
+                                </form>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
