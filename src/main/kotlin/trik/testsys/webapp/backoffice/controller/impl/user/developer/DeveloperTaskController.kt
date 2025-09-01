@@ -586,7 +586,7 @@ class DeveloperTaskController(
             return "redirect:/user/developer/tasks/$id"
         }
 
-        if (task.solutions.isNotEmpty()) {
+        if (task.solutions.any { it.contest != null }) {
             redirectAttributes.addMessage("Нельзя удалить Задачу, по которой есть Решения.")
             return "redirect:/user/developer/tasks/$id"
         }
