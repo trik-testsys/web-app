@@ -43,8 +43,8 @@
             <hr class="separator">
             <div style="margin-top: 12px;">
                 <h3 style="margin: 0 0 8px 0;">Список Участников</h3>
-                <div th:if="${#lists.isEmpty(group.members)}" style="color: var(--color-text-muted);">Здесь будут отображены состоящие в этой Группе Участники</div>
-                <table th:if="${!#lists.isEmpty(group.members)}" class="table">
+                <div th:if="${#lists.isEmpty(activeMembers)}" style="color: var(--color-text-muted);">Здесь будут отображены состоящие в этой Группе Участники</div>
+                <table th:if="${!#lists.isEmpty(activeMembers)}" class="table">
                     <thead>
                     <tr>
                         <th class="id-cell" style="text-align:left; padding:8px;">ID</th>
@@ -55,7 +55,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="m : ${group.members}">
+                    <tr th:each="m : ${activeMembers}">
                         <td class="id-cell" style="padding:8px;" th:text="${m.id}"></td>
                         <td style="padding:8px;" th:text="${m.name}"></td>
                         <td class="date-cell" style="padding:8px;" data-utc th:attr="data-utc=${m.createdAt}" th:text="${m.createdAt != null ? #temporals.format(m.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>

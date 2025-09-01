@@ -64,6 +64,7 @@ class AdminController(
 
         setupModel(model, session, admin)
         model.addAttribute("group", group)
+        model.addAttribute("activeMembers", group.members.filter { !it.isRemoved }.sortedBy { it.id })
         model.addAttribute("memberPrivilegesRuByUserId", memberPrivilegesRuByUserId)
         model.addAttribute("privilegeToRu", PrivilegeI18n.asMap())
         model.addAttribute("attachedContests", group.contests.sortedBy { it.id })
