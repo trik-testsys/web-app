@@ -26,7 +26,8 @@ class SuperUserController(
         val name: String?,
         val createdAt: Instant?,
         val accessToken: String?,
-        val privilegesRu: List<String>
+        val privilegesRu: List<String>,
+        val canRemove: Boolean
     )
 
     @GetMapping("/users")
@@ -40,21 +41,29 @@ class SuperUserController(
         }
 
         val privilegeOptions = PrivilegeI18n.listOptions()
-        val allUsers = userService.findAll().sortedBy { it.id }
+        val createdUsers = userService.findAllBySuperUser(currentUser)
 
-        val createdUsers = allUsers.filter { it.superUser?.id == currentUser.id }
-        val userRows = createdUsers.map { u ->
+        val userRows = createdUsers.filter { !it.isRemoved }.map { u ->
             val privsRu = PrivilegeI18n.listRu(u.privileges)
-            UserRow(id = u.id!!, name = u.name, createdAt = u.createdAt, accessToken = u.accessToken?.value, privilegesRu = privsRu)
+            UserRow(id = u.id!!, name = u.name, createdAt = u.createdAt, accessToken = u.accessToken?.value, privilegesRu = privsRu, canRemove = !u.hasLoggedIn)
         }
-        val allUserRows = allUsers.map { u ->
+
+        val allUsers = if (currentUser.isAllUserSuperUser) userService.findAll() else emptyList()
+        val (nonRemovedUsers, removedUsers) = allUsers.partition { !it.isRemoved }
+
+        val allUserRows = nonRemovedUsers.map { u ->
             val privsRu = PrivilegeI18n.listRu(u.privileges)
-            UserRow(id = u.id!!, name = u.name, createdAt = u.createdAt, accessToken = u.accessToken?.value, privilegesRu = privsRu)
+            UserRow(id = u.id!!, name = u.name, createdAt = u.createdAt, accessToken = u.accessToken?.value, privilegesRu = privsRu, canRemove = !u.hasLoggedIn)
+        }
+        val removedUsersRow = removedUsers.map { u ->
+            val privsRu = PrivilegeI18n.listRu(u.privileges)
+            UserRow(id = u.id!!, name = u.name, createdAt = u.createdAt, accessToken = u.accessToken?.value, privilegesRu = privsRu, canRemove = false)
         }
 
         setupModel(model, session, currentUser)
         model.addAttribute("userRows", userRows)
         model.addAttribute("allUserRows", allUserRows)
+        model.addAttribute("removedUsersRow", removedUsersRow)
         model.addAttribute("isAllUserSuperUser", currentUser.isAllUserSuperUser)
         model.addAttribute("privileges", User.Privilege.entries)
         model.addAttribute("privilegeOptions", privilegeOptions)
@@ -128,6 +137,31 @@ class SuperUserController(
 
         val ok = superUserService.addPrivilege(currentUser, target, privilege)
         if (ok) redirectAttributes.addMessage("Роль добавлена.") else redirectAttributes.addMessage("Не удалось добавить роль.")
+        return "redirect:/user/superuser/users"
+    }
+
+    @PostMapping("/users/remove")
+    fun removeUser(
+        @RequestParam userId: Long,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val currentUser = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!currentUser.privileges.contains(User.Privilege.SUPER_USER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val target = userService.findById(userId)
+        if (target == null) {
+            redirectAttributes.addMessage("Пользователь не найден.")
+            return "redirect:/user/superuser/users"
+        }
+
+        val ok = superUserService.removeUser(currentUser, target)
+        if (ok) redirectAttributes.addMessage("Пользователь удалён.") else redirectAttributes.addMessage("Не удалось удалить пользователя.")
         return "redirect:/user/superuser/users"
     }
 }

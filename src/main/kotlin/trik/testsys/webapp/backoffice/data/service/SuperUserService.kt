@@ -22,4 +22,7 @@ interface SuperUserService {
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     fun findAllSuperUser(isAllUserSuperUser: Boolean? = null): Set<User>
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    fun removeUser(superUser: User, user: User): Boolean
 }

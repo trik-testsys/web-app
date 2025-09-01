@@ -11,5 +11,7 @@ import trik.testsys.webapp.core.data.repository.EntityRepository
 @Repository
 interface UserRepository: EntityRepository<User> {
 
+    fun findAllBySuperUser(superUser: User): Set<User>
+
     fun findByViewer(viewer: User): Set<User>
 }

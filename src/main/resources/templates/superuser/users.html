@@ -50,17 +50,23 @@
                             </ul>
                         </td>
                         <td>
-                            <details>
-                                <summary>Добавить роль</summary>
-                                <form class="form form-inline" th:action="@{/user/superuser/users/privilege}" method="post">
+                            <div style="display:flex; gap:8px; align-items:center;">
+                                <details>
+                                    <summary>Добавить роль</summary>
+                                    <form class="form form-inline" th:action="@{/user/superuser/users/privilege}" method="post">
+                                        <input type="hidden" name="userId" th:value="${row.id}"/>
+                                        <select name="privilege" required>
+                                            <option value="" disabled selected>Выберите роль</option>
+                                            <option th:each="opt : ${privilegeOptions}" th:value="${opt.first}" th:text="${opt.second}"></option>
+                                        </select>
+                                        <button type="submit" class="btn">Добавить</button>
+                                    </form>
+                                </details>
+                                <form th:if="${row.canRemove}" th:action="@{/user/superuser/users/remove}" method="post" onsubmit="return confirm('Удалить пользователя?');">
                                     <input type="hidden" name="userId" th:value="${row.id}"/>
-                                    <select name="privilege" required>
-                                        <option value="" disabled selected>Выберите роль</option>
-                                        <option th:each="opt : ${privilegeOptions}" th:value="${opt.first}" th:text="${opt.second}"></option>
-                                    </select>
-                                    <button type="submit" class="btn">Добавить</button>
+                                    <button type="submit" class="btn btn-danger">Удалить</button>
                                 </form>
-                            </details>
+                            </div>
                         </td>
                     </tr>
                 </tbody>
@@ -68,7 +74,7 @@
 
             <div th:if="${isAllUserSuperUser}">
                 <hr class="separator">
-                <h3 style="margin: 0 0 8px 0;">Все Пользователи</h3>
+                <h3 style="margin: 0 0 8px 0;">Активные Пользователи</h3>
                 <table class="table">
                     <thead>
                         <tr>
@@ -94,19 +100,54 @@
                                 </ul>
                             </td>
                             <td>
-                                <details>
-                                    <summary>Добавить роль</summary>
-                                    <form class="form form-inline" th:action="@{/user/superuser/users/privilege}" method="post">
+                                <div style="display:flex; gap:8px; align-items:center;">
+                                    <details>
+                                        <summary>Добавить роль</summary>
+                                        <form class="form form-inline" th:action="@{/user/superuser/users/privilege}" method="post">
+                                            <input type="hidden" name="userId" th:value="${row.id}"/>
+                                            <select name="privilege" required>
+                                                <option value="" disabled selected>Выберите роль</option>
+                                                <option th:each="opt : ${privilegeOptions}" th:value="${opt.first}" th:text="${opt.second}"></option>
+                                            </select>
+                                            <button type="submit" class="btn">Добавить</button>
+                                        </form>
+                                    </details>
+                                    <form th:if="${row.canRemove}" th:action="@{/user/superuser/users/remove}" method="post" onsubmit="return confirm('Удалить пользователя?');">
                                         <input type="hidden" name="userId" th:value="${row.id}"/>
-                                        <select name="privilege" required>
-                                            <option value="" disabled selected>Выберите роль</option>
-                                            <option th:each="opt : ${privilegeOptions}" th:value="${opt.first}" th:text="${opt.second}"></option>
-                                        </select>
-                                        <button type="submit" class="btn">Добавить</button>
+                                        <button type="submit" class="btn btn-danger">Удалить</button>
                                     </form>
-                                </details>
+                                </div>
                             </td>
                         </tr>
+                    </tbody>
+                </table>
+
+                <hr class="separator">
+                <h3 style="margin: 0 0 8px 0;">Удаленные Пользователи</h3>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th class="id-cell">ID</th>
+                        <th>Имя</th>
+                        <th class="date-cell">Дата создания</th>
+                        <th class="token-cell">Код-доступа</th>
+                        <th>Роли</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="row : ${removedUsersRow}">
+                        <td class="id-cell" th:text="${row.id}"></td>
+                        <td th:text="${row.name}"></td>
+                        <td class="date-cell" data-utc th:attr="data-utc=${row.createdAt}" th:text="${row.createdAt != null ? #temporals.format(row.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                        <td class="token-cell">
+                            <span class="token" th:text="${row.accessToken}"></span>
+                        </td>
+                        <td>
+                            <ul class="pill-list" style="margin:0;">
+                                <li class="pill" th:each="pr : ${row.privilegesRu}" th:text="${pr}"></li>
+                            </ul>
+                        </td>
+                    </tr>
                     </tbody>
                 </table>
             </div>

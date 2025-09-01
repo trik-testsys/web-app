@@ -46,7 +46,13 @@ abstract class AbstractUserController {
             return null
         }
 
-        return accessToken.user
+        val user = accessToken.user ?: error("UNDEFINED")
+        if (user.isRemoved) {
+            redirectAttributes.addMessage("Доступ запрещён.")
+            return null
+        }
+
+        return user
     }
 
     /**

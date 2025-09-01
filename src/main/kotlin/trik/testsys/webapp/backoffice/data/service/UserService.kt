@@ -21,6 +21,9 @@ interface UserService : EntityService<User> {
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     fun findAllGroupAdmin(): Set<User>
 
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+    fun findAllBySuperUser(superUser: User): Set<User>
+
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     fun createUserByGroupAdmin(
         groupAdmin: User,

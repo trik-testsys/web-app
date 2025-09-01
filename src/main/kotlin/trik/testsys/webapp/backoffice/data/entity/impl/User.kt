@@ -35,8 +35,12 @@ class User() : AbstractEntity() {
     @Column(name = "last_login_at")
     var lastLoginAt: Instant? = null
 
-    @Transient
-    var hasLoggedIn = lastLoginAt != null
+    @Column(name = "is_removed", nullable = false)
+    var isRemoved: Boolean = false
+
+    @get:Transient
+    val hasLoggedIn: Boolean
+        get() = lastLoginAt != null
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "${TABLE_PREFIX}privilege", joinColumns = [JoinColumn(name = "user_id")])
@@ -128,5 +132,6 @@ class User() : AbstractEntity() {
         const val ACCESS_TOKEN = "accessToken"
         const val PRIVILEGES = "privileges"
         const val IS_ALL_USER_SUPER_USER = "isAllUserSuperUser"
+        const val IS_REMOVED = "isRemoved"
     }
 }

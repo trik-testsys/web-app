@@ -177,6 +177,34 @@ class UserServiceImpl(
         return true
     }
 
+    override fun removeUser(superUser: User, user: User): Boolean {
+        if (!superUser.privileges.contains(User.Privilege.SUPER_USER)) {
+            logger.warn(
+                "Could not remove user(id=${user.id}) by user(id=${superUser.id}), it has no SuperUser privileges."
+            )
+            return false
+        }
+
+        if (!superUser.isAllUserSuperUser && user.superUser?.id != superUser.id) {
+            logger.warn("Could not remove user(id=${user.id}) not created by current SuperUser(id=${superUser.id}).")
+            return false
+        }
+
+        if (user.lastLoginAt != null) {
+            logger.warn("Could not remove user(id=${user.id}) that already logged in.")
+            return false
+        }
+
+        if (user.isRemoved) {
+            logger.info("User(id=${user.id}) already marked as removed.")
+            return true
+        }
+
+        user.isRemoved = true
+        save(user)
+        return true
+    }
+
     override fun findAllSuperUser(isAllUserSuperUser: Boolean?) = repository.findAll { root, q, cb ->
         val predicates = mutableListOf<Predicate>()
 
@@ -201,6 +229,10 @@ class UserServiceImpl(
         val privilegesPath = root.get<Set<User.Privilege>>(User.PRIVILEGES)
         cb.isMember(User.Privilege.GROUP_ADMIN, privilegesPath)
     }.toSet()
+
+    override fun findAllBySuperUser(superUser: User): Set<User> {
+        return repository.findAllBySuperUser(superUser)
+    }
 
     override fun save(entity: User): User {
         val isNewEntity = entity.isNew

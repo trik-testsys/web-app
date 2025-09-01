@@ -62,6 +62,11 @@ class MainController(
             return "redirect:/login"
         }
 
+        if (user.isRemoved) {
+            redirectAttributes.addMessage("Доступ запрещён.")
+            return "redirect:/login"
+        }
+
         userService.updateLastLoginAt(user)
 
         session.setAttribute(SESSION_USER_ID, user.id)
