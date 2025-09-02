@@ -75,7 +75,7 @@
         <div class="card-body">
             <div style="margin-top: 12px;">
                 <h3 style="margin: 0 0 8px 0;">Прикреплённые Туры</h3>
-                <div th:if="${#lists.isEmpty(attachedContests)}" style="color: var(--color-text-muted);">Здесь будут отображены Туры, доступные к прикреплению к этой Группе Участников</div>
+                <div th:if="${#lists.isEmpty(attachedContests)}" style="color: var(--color-text-muted);">Здесь будут отображены Туры, прикрепленные к этой Группе Участников</div>
                 <table th:if="${!#lists.isEmpty(attachedContests)}" class="table">
                     <thead>
                         <tr>
@@ -107,7 +107,7 @@
             <hr class="separator">
             <div style="margin-top: 12px;">
                 <h3 style="margin: 16px 0 8px 0;">Туры, доступные для прикрепления</h3>
-                <div th:if="${#lists.isEmpty(availableContests)}" style="color: var(--color-text-muted);">Здесь будут отображены Туры, прикрепленные к этой Группе Участников</div>
+                <div th:if="${#lists.isEmpty(availableContests)}" style="color: var(--color-text-muted);">Здесь будут отображены Туры, доступные к прикреплению к этой Группе Участников</div>
                 <table th:if="${!#lists.isEmpty(availableContests)}" class="table">
                     <thead>
                         <tr>

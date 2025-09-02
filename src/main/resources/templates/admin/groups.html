@@ -39,7 +39,7 @@
                         </td>
                         <td style="padding:8px;" th:text="${g.info ?: '—'}"></td>
                         <td class="date-cell" style="padding:8px;" data-utc th:attr="data-utc=${g.createdAt}" th:text="${g.createdAt != null ? #temporals.format(g.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
-                        <td style="padding:8px;" th:text="${#lists.size(g.members)}"></td>
+                        <td style="padding:8px;" th:text="${groupSizes[g.id]}"></td>
                     </tr>
                 </tbody>
             </table>

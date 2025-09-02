@@ -33,9 +33,13 @@ class AdminController(
         val admin = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
 
         val groups = studentGroupService.findByOwner(admin).sortedBy { it.id }
+        val groupSizes = groups.associate { group ->
+            group.id!! to group.members.filterNot { it.isRemoved }.size
+        }
 
         setupModel(model, session, admin)
         model.addAttribute("groups", groups)
+        model.addAttribute("groupSizes", groupSizes)
         model.addAttribute("privilegeToRu", PrivilegeI18n.asMap())
 
         return "admin/groups"

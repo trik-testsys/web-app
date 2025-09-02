@@ -10,32 +10,8 @@
 <main class="app-main">
     <section class="card">
         <h2 class="card-title">Туры</h2>
+
         <div class="card-body">
-            <h3 style="margin: 16px 0 8px 0;">Предстоящие</h3>
-            <div th:if="${#lists.isEmpty(upcomingContests)}" style="color: var(--color-text-muted);">Пока нет предстоящих Туров.</div>
-            <table th:if="${!#lists.isEmpty(upcomingContests)}" class="table">
-                <thead>
-                <tr>
-                    <th class="id-cell">ID</th>
-                    <th>Название</th>
-                    <th class="date-cell">Начало</th>
-                    <th class="date-cell">Окончание</th>
-                    <th>Время на прохождение</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="c : ${upcomingContests}">
-                    <td class="id-cell" th:text="${c.id}"></td>
-                    <td th:text="${c.name}"></td>
-                    <td class="date-cell" data-utc th:attr="data-utc=${c.startsAt}" th:text="${c.startsAt != null ? #temporals.format(c.startsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
-                    <td class="date-cell" data-utc th:attr="data-utc=${c.endsAt}" th:text="${c.endsAt != null ? #temporals.format(c.endsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
-                    <td th:text="${c.duration != null ? c.duration + ' мин' : '—'}"></td>
-                </tr>
-                </tbody>
-            </table>
-
-            <hr class="separator">
-
             <h3 style="margin: 16px 0 8px 0;">Доступные к прохождению</h3>
             <div th:if="${#lists.isEmpty(availableContests)}" style="color: var(--color-text-muted);">Пока нет доступных Туров.</div>
             <table th:if="${!#lists.isEmpty(availableContests)}" class="table">
@@ -64,6 +40,31 @@
                     <td class="date-cell" data-utc th:attr="data-utc=${c.endsAt}" th:text="${c.endsAt != null ? #temporals.format(c.endsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                     <td th:text="${c.duration != null ? c.duration + ' мин' : '—'}"></td>
                     <td th:text="${remainingByContestId[c.id]} ?: '—'"></td>
+                </tr>
+                </tbody>
+            </table>
+
+            <hr class="separator">
+
+            <h3 style="margin: 16px 0 8px 0;">Предстоящие</h3>
+            <div th:if="${#lists.isEmpty(upcomingContests)}" style="color: var(--color-text-muted);">Пока нет предстоящих Туров.</div>
+            <table th:if="${!#lists.isEmpty(upcomingContests)}" class="table">
+                <thead>
+                <tr>
+                    <th class="id-cell">ID</th>
+                    <th>Название</th>
+                    <th class="date-cell">Начало</th>
+                    <th class="date-cell">Окончание</th>
+                    <th>Время на прохождение</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="c : ${upcomingContests}">
+                    <td class="id-cell" th:text="${c.id}"></td>
+                    <td th:text="${c.name}"></td>
+                    <td class="date-cell" data-utc th:attr="data-utc=${c.startsAt}" th:text="${c.startsAt != null ? #temporals.format(c.startsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td class="date-cell" data-utc th:attr="data-utc=${c.endsAt}" th:text="${c.endsAt != null ? #temporals.format(c.endsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td th:text="${c.duration != null ? c.duration + ' мин' : '—'}"></td>
                 </tr>
                 </tbody>
             </table>
