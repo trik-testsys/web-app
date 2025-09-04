@@ -11,7 +11,10 @@
 
 <main class="app-main">
     <section class="card">
-        <h2 class="card-title">Организаторы</h2>
+        <h2 class="card-title" style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+            <span>Организаторы</span>
+            <a class="button button--info" target="_blank" href="https://trik-testsys.github.io/watcher.html#watcher-chapter-invite-managers" title="Информация о странице"><i class="fa fa-info-circle"></i>Справка</a>
+        </h2>
         <div class="card-body">
             <div style="margin-bottom: 12px;">
                 <div class="token-box" th:if="${user.adminRegToken != null}">

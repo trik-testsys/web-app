@@ -20,7 +20,10 @@
 
 <main class="app-main">
     <section class="card">
-        <h2 class="card-title">Посылки</h2>
+        <h2 class="card-title" style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+            <span>Посылки</span>
+            <a class="button button--info" target="_blank" href="https://trik-testsys.github.io/judge.html" title="Информация о странице"><i class="fa fa-info-circle"></i>Справка</a>
+        </h2>
         <div class="card-body">
             <h3 style="margin: 0 0 8px 0;">Посылки Участников</h3>
             <div th:if="${#lists.isEmpty(studentSolutions)}" style="color: var(--color-text-muted);">Пока нет посылок Участников.</div>

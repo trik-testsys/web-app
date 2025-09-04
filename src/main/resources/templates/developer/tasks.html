@@ -9,7 +9,10 @@
 
 <main class="app-main">
     <section class="card">
-        <h2 class="card-title">Задачи</h2>
+        <h2 class="card-title" style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+            <span>Задачи</span>
+            <a class="button button--info" target="_blank" href="https://trik-testsys.github.io/developer.html#developer-chapter-create-task" title="Информация о странице"><i class="fa fa-info-circle"></i>Справка</a>
+        </h2>
         <div class="card-body">
             <div style="margin-bottom:10px;">
                 <a class="button" th:href="@{/user/developer/tasks/create}">Создать Задачу</a>
