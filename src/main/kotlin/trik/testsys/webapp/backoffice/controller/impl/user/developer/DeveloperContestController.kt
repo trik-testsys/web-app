@@ -65,9 +65,7 @@ class DeveloperContestController(
         model.addAttribute("contest", contest)
         model.addAttribute("isOwner", isOwner)
         model.addAttribute("hasAnySolutions", contest.solutions.isNotEmpty())
-        val isAttachedToAnyStudentGroup =
-            studentGroupService.findAll().any { g -> g.contests.any { it.id == contest.id } }
-        model.addAttribute("isAttachedToAnyStudentGroup", isAttachedToAnyStudentGroup)
+        model.addAttribute("isAttachedToAnyStudentGroup", studentGroupService.existsByContestId(contest.id!!))
         val taskOrders = contest.getOrders()
         model.addAttribute(
             "availableUserGroups",
@@ -418,7 +416,7 @@ class DeveloperContestController(
             return "redirect:/user"
         }
 
-        val createdContests = contestService.findAll().filter { it.developer?.id == developer.id }.sortedBy { it.id }
+        val createdContests = contestService.findForOwner(developer).sortedBy { it.id }
         val sharedContests = contestService.findForUser(developer).sortedBy { it.id }
 
         setupModel(model, session, developer)
@@ -527,7 +525,7 @@ class DeveloperContestController(
             return "redirect:/user/developer/contests/$id"
         }
 
-        val attachedToStudentGroups = studentGroupService.findAll().any { g -> g.contests.any { it.id == contest.id } }
+        val attachedToStudentGroups = studentGroupService.existsByContestId(contest.id!!)
         if (attachedToStudentGroups) {
             redirectAttributes.addMessage("Нельзя удалить Тур, прикреплённый к студенческим группам.")
             return "redirect:/user/developer/contests/$id"

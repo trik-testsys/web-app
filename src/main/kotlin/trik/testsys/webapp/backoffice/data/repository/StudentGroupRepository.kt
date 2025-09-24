@@ -9,4 +9,6 @@ import trik.testsys.webapp.core.data.repository.EntityRepository
 interface StudentGroupRepository : EntityRepository<StudentGroup> {
 
     fun findByOwner(owner: User): Set<StudentGroup>
+
+    fun existsByContests_Id(contestId: Long): Boolean
 }

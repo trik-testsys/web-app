@@ -16,8 +16,14 @@ class ContestServiceImpl :
     AbstractService<Contest, ContestRepository>(),
     ContestService {
 
-    override fun findForUser(user: User): Set<Contest> {
+    override fun findForOwner(user: User): Set<Contest> {
         val ownedByUser = repository.findByDeveloper(user)
+
+        return ownedByUser
+    }
+
+    override fun findForUser(user: User): Set<Contest> {
+        val ownedByUser = findForOwner(user)
         val viaGroups = if (user.memberedGroups.isEmpty()) emptySet() else repository.findDistinctByUserGroupsIn(user.memberedGroups)
         return (ownedByUser + viaGroups).toSet()
     }

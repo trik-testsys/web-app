@@ -224,6 +224,10 @@ class StudentGroupServiceImpl(
         return (header + csv.toString()).toByteArray()
     }
 
+    override fun existsByContestId(contestId: Long): Boolean {
+        return repository.existsByContests_Id(contestId)
+    }
+
     companion object {
 
         private val logger = LoggerFactory.getLogger(StudentGroupServiceImpl::class.java)

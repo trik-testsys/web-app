@@ -10,5 +10,7 @@ import trik.testsys.webapp.core.data.service.EntityService
  */
 interface ContestService : EntityService<Contest> {
 
+    fun findForOwner(user: User): Set<Contest>
+
     fun findForUser(user: User): Set<Contest>
 }

@@ -33,4 +33,6 @@ interface StudentGroupService : EntityService<StudentGroup> {
     fun generateResultsCsv(group: StudentGroup): ByteArray
 
     fun generateResultsCsv(groups: Collection<StudentGroup>): ByteArray
+
+    fun existsByContestId(contestId: Long): Boolean
 }
