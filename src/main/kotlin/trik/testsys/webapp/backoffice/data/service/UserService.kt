@@ -3,6 +3,7 @@ package trik.testsys.webapp.backoffice.data.service
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import trik.testsys.webapp.backoffice.data.entity.impl.User
+import trik.testsys.webapp.backoffice.data.entity.impl.UserGroup
 import trik.testsys.webapp.core.data.service.EntityService
 import java.time.Instant
 
@@ -30,4 +31,7 @@ interface UserService : EntityService<User> {
         name: String,
         privileges: Collection<User.Privilege>
     ): User?
+
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+    fun findCandidatesFor(userGroup: UserGroup): Set<User>
 }

@@ -5,12 +5,14 @@ import jakarta.persistence.criteria.JoinType
 import jakarta.persistence.criteria.Predicate
 import org.springframework.stereotype.Service
 import trik.testsys.webapp.backoffice.data.entity.impl.User
+import trik.testsys.webapp.backoffice.data.entity.impl.UserGroup
 import trik.testsys.webapp.backoffice.data.repository.UserRepository
 import trik.testsys.webapp.backoffice.data.service.UserService
 import trik.testsys.webapp.backoffice.data.service.UserGroupService
 import trik.testsys.webapp.backoffice.data.service.SuperUserService
 import trik.testsys.webapp.backoffice.data.service.ViewerService
 import trik.testsys.webapp.core.data.service.AbstractService
+import trik.testsys.webapp.core.data.entity.AbstractEntity
 import java.time.Instant
 import kotlin.random.Random
 
@@ -247,6 +249,31 @@ class UserServiceImpl(
         }
 
         return persisted
+    }
+
+    override fun findCandidatesFor(userGroup: UserGroup): Set<User> {
+        val ownerId = userGroup.owner?.id
+        val memberIds = userGroup.members.mapNotNull { it.id }.toSet()
+
+        return repository.findAll { root, q, cb ->
+            val predicates = mutableListOf<Predicate>()
+
+            q?.distinct(true)
+
+            // Exclude removed users
+            predicates.add(cb.isFalse(root.get<Boolean>(User.IS_REMOVED)))
+
+            // Exclude group owner if present
+            ownerId?.let { predicates.add(cb.notEqual(root.get<Long>(AbstractEntity.ID), it)) }
+
+            // Exclude already membered users
+            if (memberIds.isNotEmpty()) {
+                val idPath = root.get<Long>(AbstractEntity.ID)
+                predicates.add(idPath.`in`(memberIds).not())
+            }
+
+            cb.and(*predicates.toTypedArray())
+        }.toSet()
     }
 
     companion object {

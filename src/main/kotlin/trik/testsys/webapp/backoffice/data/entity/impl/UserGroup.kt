@@ -44,6 +44,7 @@ class UserGroup : AbstractEntity() {
         inverseJoinColumns = [JoinColumn(name = "member_id")]
     )
     var members: MutableSet<User> = mutableSetOf()
+        get() = field.filter { !it.isRemoved }.toMutableSet()
 
     @ManyToMany(mappedBy = "userGroups")
     var contests: MutableSet<Contest> = mutableSetOf()

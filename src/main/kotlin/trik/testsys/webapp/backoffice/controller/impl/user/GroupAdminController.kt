@@ -58,8 +58,7 @@ class GroupAdminController(
         val memberPrivilegesRuByUserId = group.members.associate { it.id!! to PrivilegeI18n.listRu(it.privileges) }
 
         // Build a list of candidate users to add: exclude owner and already added members
-        val candidateUsers = userService.findAll()
-            .filter { user -> user.id != group.owner?.id && !group.members.contains(user) }
+        val candidateUsers = userService.findCandidatesFor(group)
             .sortedBy { it.name?.lowercase() ?: "" }
         val candidatePrivilegesRuByUserId = candidateUsers.associate { it.id!! to PrivilegeI18n.listRu(it.privileges) }
 
