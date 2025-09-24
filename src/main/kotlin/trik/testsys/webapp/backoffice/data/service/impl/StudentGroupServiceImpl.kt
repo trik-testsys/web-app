@@ -207,7 +207,9 @@ class StudentGroupServiceImpl(
                         .filter { s ->
                             (s.contest?.id == contest.id) && (s.task.id == task.id) && s.relevantVerdictId != null
                         }
-                        .maxByOrNull { it.createdAt }
+                        .maxByOrNull { s ->
+                            verdictById[s.relevantVerdictId]?.value ?: Long.MIN_VALUE
+                        }
 
                     solution?.relevantVerdictId?.let { vid ->
                         verdictById[vid]?.value?.toString()
