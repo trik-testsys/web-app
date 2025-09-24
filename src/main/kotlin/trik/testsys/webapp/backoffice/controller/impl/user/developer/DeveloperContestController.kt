@@ -14,6 +14,7 @@ import trik.testsys.webapp.backoffice.data.entity.impl.Contest
 import trik.testsys.webapp.backoffice.data.entity.impl.Task
 import trik.testsys.webapp.backoffice.data.entity.impl.TaskFile
 import trik.testsys.webapp.backoffice.data.entity.impl.User
+import trik.testsys.webapp.backoffice.data.entity.impl.UserGroup
 import trik.testsys.webapp.backoffice.data.service.ContestService
 import trik.testsys.webapp.backoffice.data.service.StudentGroupService
 import trik.testsys.webapp.backoffice.data.service.TaskService
@@ -64,7 +65,8 @@ class DeveloperContestController(
         model.addAttribute("contest", contest)
         model.addAttribute("isOwner", isOwner)
         model.addAttribute("hasAnySolutions", contest.solutions.isNotEmpty())
-        val isAttachedToAnyStudentGroup = studentGroupService.findAll().any { g -> g.contests.any { it.id == contest.id } }
+        val isAttachedToAnyStudentGroup =
+            studentGroupService.findAll().any { g -> g.contests.any { it.id == contest.id } }
         model.addAttribute("isAttachedToAnyStudentGroup", isAttachedToAnyStudentGroup)
         val taskOrders = contest.getOrders()
         model.addAttribute(
@@ -75,12 +77,28 @@ class DeveloperContestController(
         )
         model.addAttribute("attachedTasks", contest.tasks.sortedBy { t -> taskOrders[t.id!!] ?: Long.MAX_VALUE })
         model.addAttribute("taskOrders", taskOrders)
-        model.addAttribute(
-            "availableTasks",
-            taskService.findAll().filter { it.developer?.id == developer.id }
-                .filterNot { t -> contest.tasks.any { it.id == t.id } }
-                .sortedBy { it.id }
-        )
+        val availableTasks = taskService.findForUser(developer)
+            .filterNot { t -> contest.tasks.any { it.id == t.id } }
+            .filter { it.testingStatus == Task.TestingStatus.PASSED }
+            .sortedBy { it.id }
+        model.addAttribute("availableTasks", availableTasks)
+
+        // Build availability info: groups intersection and ownership flag
+        val developerGroupIds = developer.memberedGroups.mapNotNull { it.id }.toSet()
+        val availableGroupsByTaskId: Map<Long, List<UserGroup>> = availableTasks
+            .filter { it.id != null }
+            .associate { task ->
+                val groups = task.userGroups
+                    .filter { ug -> ug.id != null && developerGroupIds.contains(ug.id) }
+                    .sortedBy { it.id }
+                task.id!! to groups
+            }
+        val ownedTaskIds: Set<Long> = availableTasks
+            .filter { it.developer?.id == developer.id }
+            .mapNotNull { it.id }
+            .toSet()
+        model.addAttribute("availableGroupsByTaskId", availableGroupsByTaskId)
+        model.addAttribute("ownedTaskIds", ownedTaskIds)
 
         return "developer/contest"
     }
@@ -110,7 +128,7 @@ class DeveloperContestController(
         }
 
         val task = taskService.findById(taskId)
-        if (task == null || task.developer?.id != developer.id) {
+        if (task == null || (task.developer?.id != developer.id && task.userGroups.none { developer.memberedGroups.contains(it) })) {
             redirectAttributes.addMessage("Задача не найдена или недоступна.")
             return "redirect:/user/developer/contests/$id"
         }
@@ -335,7 +353,11 @@ class DeveloperContestController(
 
         val startsInstant = try {
             val ldt = LocalDateTime.parse(startsAt)
-            val zone = try { if (timezone.isNullOrBlank()) ZoneId.systemDefault() else ZoneId.of(timezone) } catch (e: Exception) { ZoneId.systemDefault() }
+            val zone = try {
+                if (timezone.isNullOrBlank()) ZoneId.systemDefault() else ZoneId.of(timezone)
+            } catch (e: Exception) {
+                ZoneId.systemDefault()
+            }
             ldt.atZone(zone).toInstant()
         } catch (e: Exception) {
             redirectAttributes.addMessage("Некорректная дата начала. Формат: yyyy-MM-dd'T'HH:mm")
@@ -345,7 +367,11 @@ class DeveloperContestController(
         val endsInstant = if (!endsAt.isNullOrBlank()) {
             try {
                 val ldt = LocalDateTime.parse(endsAt)
-                val zone = try { if (timezone.isNullOrBlank()) ZoneId.systemDefault() else ZoneId.of(timezone) } catch (e: Exception) { ZoneId.systemDefault() }
+                val zone = try {
+                    if (timezone.isNullOrBlank()) ZoneId.systemDefault() else ZoneId.of(timezone)
+                } catch (e: Exception) {
+                    ZoneId.systemDefault()
+                }
                 ldt.atZone(zone).toInstant()
             } catch (e: Exception) {
                 redirectAttributes.addMessage("Некорректная дата окончания. Формат: yyyy-MM-dd'T'HH:mm")
@@ -434,7 +460,11 @@ class DeveloperContestController(
 
         val startsInstant = try {
             val ldt = LocalDateTime.parse(startsAt)
-            val zone = try { if (timezone.isNullOrBlank()) ZoneId.systemDefault() else ZoneId.of(timezone) } catch (e: Exception) { ZoneId.systemDefault() }
+            val zone = try {
+                if (timezone.isNullOrBlank()) ZoneId.systemDefault() else ZoneId.of(timezone)
+            } catch (e: Exception) {
+                ZoneId.systemDefault()
+            }
             ldt.atZone(zone).toInstant()
         } catch (e: Exception) {
             redirectAttributes.addMessage("Некорректная дата начала. Формат: yyyy-MM-dd'T'HH:mm")
@@ -444,7 +474,11 @@ class DeveloperContestController(
         val endsInstant = if (!endsAt.isNullOrBlank()) {
             try {
                 val ldt = LocalDateTime.parse(endsAt)
-                val zone = try { if (timezone.isNullOrBlank()) ZoneId.systemDefault() else ZoneId.of(timezone) } catch (e: Exception) { ZoneId.systemDefault() }
+                val zone = try {
+                    if (timezone.isNullOrBlank()) ZoneId.systemDefault() else ZoneId.of(timezone)
+                } catch (e: Exception) {
+                    ZoneId.systemDefault()
+                }
                 ldt.atZone(zone).toInstant()
             } catch (e: Exception) {
                 redirectAttributes.addMessage("Некорректная дата окончания. Формат: yyyy-MM-dd'T'HH:mm")

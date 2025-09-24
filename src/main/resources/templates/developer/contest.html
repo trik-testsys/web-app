@@ -219,6 +219,7 @@
                     <th>ID</th>
                     <th>Название</th>
                     <th>Статус тестирования</th>
+                    <th>Доступно из</th>
                     <th class="date-cell">Дата создания</th>
                     <th></th>
                 </tr>
@@ -234,6 +235,13 @@
                                 t.testingStatus.name() == 'TESTING' ? 'В процессе' : 'Не запускалось')
                             )) : 'Не запускалось'
                         }"></td>
+                    <td>
+                        <span th:if="${ownedTaskIds.contains(t.id)}" style="color: var(--color-text-muted);">—</span>
+                        <ul class="pill-list" th:if="${!ownedTaskIds.contains(t.id)}" style="margin:0; display:inline-flex; gap:6px;">
+                            <li class="pill" th:each="g : ${availableGroupsByTaskId[t.id]}" th:text="${(g.name ?: 'Без названия') + ' (#' + g.id + ')'}"></li>
+                            <li class="pill" th:if="${#lists.isEmpty(availableGroupsByTaskId[t.id])}">—</li>
+                        </ul>
+                    </td>
                     <td class="date-cell" th:text="${t.createdAt != null ? #temporals.format(t.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                     <td>
                         <form th:action="@{'/user/developer/contests/' + ${contest.id} + '/tasks/attach'}" method="post">
