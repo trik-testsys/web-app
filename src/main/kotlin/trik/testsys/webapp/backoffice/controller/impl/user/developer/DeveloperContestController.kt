@@ -94,7 +94,7 @@ class DeveloperContestController(
         val ownedTaskIds: Set<Long> = availableTasks
             .filter { it.developer?.id == developer.id }
             .mapNotNull { it.id }
-            .toMutableSet()
+            .toSet()
 
         model.addAttribute("availableGroupsByTaskId", availableGroupsByTaskId)
         model.addAttribute("ownedTaskIds", ownedTaskIds)

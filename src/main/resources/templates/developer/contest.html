@@ -236,8 +236,8 @@
                             )) : 'Не запускалось'
                         }"></td>
                     <td>
-                        <span th:if="${ownedTaskIds.contains(t.id)}" style="color: var(--color-text-muted);">—</span>
-                        <ul class="pill-list" th:if="${!ownedTaskIds.contains(t.id)}" style="margin:0; display:inline-flex; gap:6px;">
+                        <span th:if="${#sets.contains(ownedTaskIds, t.id)}" style="color: var(--color-text-muted);">—</span>
+                        <ul class="pill-list" th:if="${!#sets.contains(ownedTaskIds, t.id)}" style="margin:0; display:inline-flex; gap:6px;">
                             <li class="pill" th:each="g : ${availableGroupsByTaskId[t.id]}" th:text="${(g.name ?: 'Без названия') + ' (#' + g.id + ')'}"></li>
                             <li class="pill" th:if="${#lists.isEmpty(availableGroupsByTaskId[t.id])}">—</li>
                         </ul>
