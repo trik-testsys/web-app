@@ -253,7 +253,7 @@ class UserServiceImpl(
 
     override fun findCandidatesFor(userGroup: UserGroup): Set<User> {
         val ownerId = userGroup.owner?.id
-        val memberIds = userGroup.members.mapNotNull { it.id }.toSet()
+        val memberIds = userGroup.activeMembers.mapNotNull { it.id }.toSet()
 
         return repository.findAll { root, q, cb ->
             val predicates = mutableListOf<Predicate>()

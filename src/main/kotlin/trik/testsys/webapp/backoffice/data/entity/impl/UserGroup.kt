@@ -9,6 +9,7 @@ import jakarta.persistence.ManyToMany
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.PrePersist
 import jakarta.persistence.Table
+import jakarta.persistence.Transient
 import trik.testsys.webapp.core.data.entity.AbstractEntity
 
 /**
@@ -30,7 +31,7 @@ class UserGroup : AbstractEntity() {
 
     @PrePersist
     fun prePersist() {
-        owner?.let { members.add(it) } ?: error("'owner' field must be initialized")
+        owner?.let { addMember(it) } ?: error("'owner' field must be initialized")
     }
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
@@ -44,7 +45,18 @@ class UserGroup : AbstractEntity() {
         inverseJoinColumns = [JoinColumn(name = "member_id")]
     )
     var members: MutableSet<User> = mutableSetOf()
-        get() = field.filter { !it.isRemoved }.toMutableSet()
+
+    @get:Transient
+    val activeMembers: Set<User>
+        get() = members.filter { !it.isRemoved }.toSet()
+
+    fun addMember(member: User) = addMembers(listOf(member))
+
+    fun addMembers(members: Collection<User>) = this.members.addAll(members)
+
+    fun removeMember(member: User) = removeMembers(listOf(member))
+
+    fun removeMembers(members: Collection<User>) = this.members.removeAll(members)
 
     @ManyToMany(mappedBy = "userGroups")
     var contests: MutableSet<Contest> = mutableSetOf()

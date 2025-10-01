@@ -29,28 +29,28 @@ class UserGroupServiceImpl :
 
         when (user) {
             managed.owner,
-            in managed.members -> {
+            in managed.activeMembers -> {
                 logger.warn("Could not add already membered user(id=${user.id}) to userGroup(id=${managed.id}).")
                 return false
             }
             else -> {
                 logger.debug("Adding user(id=${user.id}) to userGroup(id=${managed.id})")
-                managed.members.add(user)
+                managed.addMember(user)
             }
         }
 
         if (user.privileges.contains(User.Privilege.VIEWER)) {
             val allAdmins = user.managedAdmins
-            managed.members.addAll(allAdmins)
+            managed.addMembers(allAdmins)
 
             val allStudents = allAdmins
                 .flatMap { it.ownedStudentGroups }
                 .flatMap { it.members }
-            managed.members.addAll(allStudents)
+            managed.addMembers(allStudents)
         } else if (user.privileges.contains(User.Privilege.ADMIN)) {
             val allStudents = user.ownedStudentGroups
                 .flatMap { it.members }
-            managed.members.addAll(allStudents)
+            managed.addMembers(allStudents)
         }
 
         save(managed)
@@ -86,17 +86,17 @@ class UserGroupServiceImpl :
                 logger.warn("Could not remove owner(id=${user.id}) from userGroup(id=${managed.id}) members.")
                 false
             }
-            in managed.members.takeIf { managed.defaultGroup } ?: emptySet() -> {
+            in managed.activeMembers.takeIf { managed.defaultGroup } ?: emptySet() -> {
                 logger.warn("Could not remove user(id=${user.id}) from default userGroup(id=${managed.id}).")
                 false
             }
-            !in managed.members -> {
+            !in managed.activeMembers -> {
                 logger.warn("Could not remove user(id=${user.id}) from not membered userGroup(id=${managed.id}).")
                 false
             }
             else -> {
                 logger.debug("Removing member(id=${user.id}) from userGroup(id=${managed.id}).")
-                managed.members.remove(user)
+                managed.removeMember(user)
                 save(managed)
                 true
             }

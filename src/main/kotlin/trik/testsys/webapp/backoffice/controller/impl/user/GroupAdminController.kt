@@ -55,7 +55,7 @@ class GroupAdminController(
             return "redirect:/user/group-admin/groups"
         }
 
-        val memberPrivilegesRuByUserId = group.members.associate { it.id!! to PrivilegeI18n.listRu(it.privileges) }
+        val memberPrivilegesRuByUserId = group.activeMembers.associate { it.id!! to PrivilegeI18n.listRu(it.privileges) }
 
         // Build a list of candidate users to add: exclude owner and already added members
         val candidateUsers = userService.findCandidatesFor(group)
@@ -150,7 +150,7 @@ class GroupAdminController(
         if (user == null) {
             redirectAttributes.addMessage("Пользователь не найден.")
         } else {
-            if (group.members.contains(user)) {
+            if (group.activeMembers.contains(user)) {
                 redirectAttributes.addMessage("Пользователь уже в группе.")
             } else {
                 val ok = userGroupService.addMember(group, user)

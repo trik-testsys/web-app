@@ -88,7 +88,7 @@ class UserController(
             redirectAttributes.addMessage("Группа не найдена.")
             return "redirect:/user"
         }
-        if (!group.members.contains(user)) {
+        if (!group.activeMembers.contains(user)) {
             redirectAttributes.addMessage("Вы не состоите в этой группе.")
             return "redirect:/user"
         }
