@@ -13,8 +13,10 @@ import trik.testsys.webapp.backoffice.service.FileManager
 import trik.testsys.webapp.backoffice.service.Grader
 import trik.testsys.webapp.backoffice.service.TaskFileVersionInfo
 import java.io.File
+import java.nio.file.Files
 import java.time.Instant
 import javax.annotation.PostConstruct
+import kotlin.streams.asSequence
 
 @Service
 class FileManagerImpl(
@@ -106,7 +108,7 @@ class FileManagerImpl(
 
     override fun saveSolutionFile(solution: Solution, fileData: MultipartFile): Boolean {
         // Persist original uploaded solution alongside task files under solutionsDir
-        val file = File(solutionsDir, "solution-${solution.id}.qrs")
+        val file = File(solution.dir, solution.fileName)
         return try {
             fileData.transferTo(file)
             true
@@ -117,7 +119,7 @@ class FileManagerImpl(
     }
 
     override fun saveSolutionFile(solution: Solution, sourceFile: File): Boolean {
-        val target = File(solutionsDir, "solution-${solution.id}.qrs")
+        val target = File(solution.dir, solution.fileName)
         return try {
             sourceFile.copyTo(target, overwrite = true)
             true
@@ -128,10 +130,27 @@ class FileManagerImpl(
     }
 
     override fun getSolutionFile(solution: Solution): File? {
-        val file = File(solutionsDir, "solution-${solution.id}.qrs")
-
+        val file = File(solution.dir, solution.fileName)
         return if (file.exists()) file else null
     }
+
+    override fun hasSolutionFile(solution: Solution): Boolean {
+        val has = Files.list(solution.dir.toPath()).use { stream ->
+            stream.asSequence().firstOrNull { it.fileName.toString() == solution.fileName }
+        }?.let { true } ?: false
+
+        return has
+    }
+
+    // TODO: uncomment on major release
+//    private val Solution.dir: File
+//        get() = when (contest) {
+//            null -> solutionsDir
+//            else -> solutionFilesDir
+//        }
+
+    private val Solution.dir: File
+        get() = solutionsDir
 
     override fun saveSuccessfulGradingInfo(fieldResult: Grader.GradingInfo.Ok) {
         logger.info("Saving ok grading info")
@@ -160,17 +179,49 @@ class FileManagerImpl(
     override fun getVerdictFiles(solution: Solution): List<File> {
         logger.info("Getting verdict files for solution with id ${solution.id}")
 
-        val verdictFiles = verdictFilesDir.listFiles { _, name -> name.startsWith("${solution.id}_") } ?: emptyArray()
+        val verdictFiles = Files.list(verdictFilesDir.toPath()).use { stream ->
+            stream.asSequence()
+                .filter { it.fileName.toString().startsWith("${solution.id}_") }
+                .map { it.toFile() }
+                .toList()
+        }
 
-        return verdictFiles.toList()
+        return verdictFiles
+    }
+
+    override fun hasAnyVerdictFile(solution: Solution): Boolean {
+        logger.debug("Finding verdict files for solution(id=${solution.id})")
+
+        val hasAny = Files.list(verdictFilesDir.toPath()).use { stream ->
+            stream.asSequence()
+                .any { it.fileName.toString().startsWith("${solution.id}_") }
+        }
+
+        return hasAny
     }
 
     override fun getRecordingFiles(solution: Solution): List<File> {
         logger.info("Getting recording files for solution with id ${solution.id}")
 
-        val recordingFiles = recordingFilesDir.listFiles { _, name -> name.startsWith("${solution.id}_") } ?: emptyArray()
+        val recordingFiles = Files.list(recordingFilesDir.toPath()).use { stream ->
+            stream.asSequence()
+                .filter { it.fileName.toString().startsWith("${solution.id}_") }
+                .map { it.toFile() }
+                .toList()
+        }
 
-        return recordingFiles.toList()
+        return recordingFiles
+    }
+
+    override fun hasAnyRecordingFile(solution: Solution): Boolean {
+        logger.debug("Finding recording files for solution(id=${solution.id})")
+
+        val hasAny = Files.list(recordingFilesDir.toPath()).use { stream ->
+            stream.asSequence()
+                .any { it.fileName.toString().startsWith("${solution.id}_") }
+        }
+
+        return hasAny
     }
 
     override fun getSolutionResultFilesCompressed(solution: Solution): File {

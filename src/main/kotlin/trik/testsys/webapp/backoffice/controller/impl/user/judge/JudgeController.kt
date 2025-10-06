@@ -68,13 +68,13 @@ class JudgeController(
         }
 
         val resultsAvailability = (studentSolutions + judgeSolutions).associate { s ->
-            val hasVerdicts = fileManager.getVerdictFiles(s).isNotEmpty()
-            val hasRecordings = fileManager.getRecordingFiles(s).isNotEmpty()
+            val hasVerdicts = fileManager.hasAnyVerdictFile(s)
+            val hasRecordings = fileManager.hasAnyRecordingFile(s)
             (s.id!!) to (hasVerdicts || hasRecordings)
         }
 
         val solutionFileAvailability = (studentSolutions + judgeSolutions).associate { s ->
-            (s.id!!) to (fileManager.getSolutionFile(s) != null)
+            (s.id!!) to fileManager.hasSolutionFile(s)
         }
 
         setupModel(model, session, judge)
@@ -258,6 +258,7 @@ class JudgeController(
             it.createdBy = judge
             it.contest = original.contest
             it.task = original.task
+            it.type = original.type
         }
         val saved = solutionService.save(cloned)
 

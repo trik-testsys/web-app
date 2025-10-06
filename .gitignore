@@ -194,3 +194,4 @@ data/**
 
 amplicode.xml
 .env
+/.vscode/settings.json

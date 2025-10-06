@@ -25,11 +25,17 @@ interface FileManager {
 
     fun getSolutionFile(solution: Solution): File?
 
+    fun hasSolutionFile(solution: Solution): Boolean
+
     fun saveSuccessfulGradingInfo(fieldResult: Grader.GradingInfo.Ok)
 
     fun getVerdictFiles(solution: Solution): List<File>
 
+    fun hasAnyVerdictFile(solution: Solution): Boolean
+
     fun getRecordingFiles(solution: Solution): List<File>
+
+    fun hasAnyRecordingFile(solution: Solution): Boolean
 
     fun getSolutionResultFilesCompressed(solution: Solution): File
 }

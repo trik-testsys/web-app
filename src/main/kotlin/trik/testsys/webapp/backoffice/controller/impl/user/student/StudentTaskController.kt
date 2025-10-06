@@ -104,6 +104,7 @@ class StudentTaskController(
         @PathVariable("contestId") contestId: Long,
         @PathVariable("taskId") taskId: Long,
         @RequestParam("file") file: MultipartFile,
+        @RequestParam("solutionType", required = false) type: Solution.SolutionType?,
         session: HttpSession,
         redirectAttributes: RedirectAttributes,
     ): String {
@@ -132,6 +133,7 @@ class StudentTaskController(
             it.createdBy = user
             it.contest = contest
             it.task = task
+            it.type = type ?: Solution.SolutionType.QRS
         }
         val saved = solutionService.save(solution)
         val ok = fileManager.saveSolutionFile(saved, file)

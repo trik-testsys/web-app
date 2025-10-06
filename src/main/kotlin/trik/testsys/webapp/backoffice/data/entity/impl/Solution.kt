@@ -62,11 +62,11 @@ class Solution() : AbstractEntity() {
         }
     }
 
-    enum class SolutionType(override val dbKey: String) : PersistableEnum {
+    enum class SolutionType(override val dbKey: String, val extension: String) : PersistableEnum {
 
-        QRS("QRS"),
-        PYTHON("PY"),
-        JAVA_SCRIPT("JS");
+        QRS("QRS", "qrs"),
+        PYTHON("PY", "py"),
+        JAVA_SCRIPT("JS", "js");
 
         companion object {
 
@@ -74,4 +74,12 @@ class Solution() : AbstractEntity() {
             class SolutionTypeConverter : AbstractPersistableEnumConverter<SolutionType>()
         }
     }
+
+    @get:Transient
+    val fileName: String
+        get() = "solution-$id.$extension"
+
+    @get:Transient
+    val extension: String
+        get() = type.extension
 }

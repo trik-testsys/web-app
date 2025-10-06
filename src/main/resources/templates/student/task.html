@@ -32,11 +32,39 @@
 
             <hr class="separator">
 
-            <h3 style="margin: 16px 0 8px 0;">Загрузить решение для тестирования</h3>
-            <form th:action="@{'/user/student/contests/' + ${contest.id} + '/tasks/' + ${task.id}}" method="post" enctype="multipart/form-data" style="display:flex; gap:8px; align-items:center;">
-                <input type="file" name="file" accept=".qrs" required>
-                <button class="button button--primary" type="submit">Отправить</button>
+            <h3 style="margin: 16px 0 8px 0;">Загрузить решение</h3>
+            <form th:action="@{'/user/student/contests/' + ${contest.id} + '/tasks/' + ${task.id}}" method="post" enctype="multipart/form-data" class="form" style="display:grid; grid-template-columns: 160px max-content; gap:8px; width: fit-content; padding:12px; border:1px solid #dde3ea; border-radius:10px; background:white;">
+                <label for="solutionFile" style="color: var(--color-text); align-self:center;">Файл</label>
+                <input id="solutionFile" type="file" name="file" accept=".qrs" required style="width:200px; padding:8px; border:1px solid #dde3ea; border-radius:8px; background:white;">
+
+                <label for="solutionType" style="color: var(--color-text); align-self:center;">Тип решения</label>
+                <select name="solutionType" id="solutionType" style="padding:8px; width:200px; border:1px solid #dde3ea; border-radius:8px; background:white;">
+                    <option value="QRS" selected>TRIK Studio (.qrs)</option>
+                    <option value="PYTHON">Python (.py)</option>
+                    <option value="JAVA_SCRIPT">JavaScript (.js)</option>
+                </select>
+
+                <div></div>
+                <div class="form-buttons" style="grid-column: 2; margin-top:4px; width:200px; display:flex; justify-content:flex-end;">
+                    <button class="button button--primary" type="submit">Отправить</button>
+                </div>
             </form>
+            <script>
+            (function() {
+                var select = document.getElementById('solutionType');
+                var fileInput = document.getElementById('solutionFile');
+                var acceptByType = { QRS: '.qrs', PYTHON: '.py', JAVA_SCRIPT: '.js' };
+                function applyAccept() {
+                    var ext = acceptByType[select.value] || '.qrs';
+                    fileInput.setAttribute('accept', ext);
+                    if (fileInput.value) fileInput.value = '';
+                }
+                select.addEventListener('change', applyAccept);
+                applyAccept();
+            })();
+            </script>
+
+            <hr class="separator">
 
             <h3 style="margin: 16px 0 8px 0;">Мои решения</h3>
             <div th:if="${#lists.isEmpty(solutions)}" style="color: var(--color-text-muted);">Пока нет загруженных решений.</div>
