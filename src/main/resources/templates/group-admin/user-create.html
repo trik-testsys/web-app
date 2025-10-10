@@ -26,7 +26,7 @@
                     <select name="privileges" multiple size="7" style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
                         <option th:each="opt : ${privilegeOptions}" th:value="${opt.first}" th:text="${opt.second}"></option>
                     </select>
-                    <div class="field-note">Можно выбрать несколько.</div>
+                    <div class="field-note">Для выбора нескольких ролей зажмите клавишу CTRL/CMD.</div>
                 </label>
                 <hr class="separator">
                 <div class="form-buttons">
