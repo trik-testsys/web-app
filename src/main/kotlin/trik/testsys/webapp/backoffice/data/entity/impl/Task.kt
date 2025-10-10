@@ -13,6 +13,8 @@ import jakarta.persistence.ManyToOne
 import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
 import jakarta.persistence.Transient
+import org.hibernate.annotations.JdbcTypeCode
+import org.hibernate.type.SqlTypes
 import trik.testsys.webapp.core.data.entity.AbstractEntity
 import trik.testsys.webapp.core.data.entity.AbstractEntity.Companion.TABLE_PREFIX
 import trik.testsys.webapp.core.utils.enums.PersistableEnum
@@ -31,10 +33,7 @@ class Task() : AbstractEntity(), Sharable {
     @JoinColumn(name = "developer_id", nullable = false)
     var developer: User? = null
 
-//    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-//    @JoinColumn(name = "created_from_id", nullable = false)
-//    var createdFrom: TaskTemplate? = null
-
+    @Deprecated("")
     @ManyToMany
     @JoinTable(
         name = "${TABLE_PREFIX}task_taskFiles",
@@ -62,10 +61,14 @@ class Task() : AbstractEntity(), Sharable {
     @Column(name = "testing_status", nullable = false)
     var testingStatus: TestingStatus = TestingStatus.NOT_TESTED
 
-
+    @Deprecated("")
     @get:Transient
-    val polygons: Set<TaskFile>
+    val polygonTaskFiles: Set<TaskFile>
         get() = taskFiles.filter { it.type == TaskFile.TaskFileType.POLYGON }.toSet()
+
+    @Column(name = "data", nullable = false)
+    @JdbcTypeCode(SqlTypes.JSON)
+    var data: Data = Data()
 
     enum class TestingStatus(override val dbKey: String) : PersistableEnum {
 
@@ -80,4 +83,11 @@ class Task() : AbstractEntity(), Sharable {
             class EnumConverter : AbstractPersistableEnumConverter<TestingStatus>()
         }
     }
+
+    data class Data(
+        val conditionFileIds: MutableList<Long> = mutableListOf(),
+        val exerciseFileIds: MutableList<Long> = mutableListOf(),
+        val polygonFileIds: MutableList<Long> = mutableListOf(),
+        val solutionFileScoreById: MutableMap<Long, Long> = mutableMapOf(),
+    )
 }
