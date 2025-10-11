@@ -13,7 +13,6 @@ import trik.testsys.webapp.backoffice.data.entity.impl.taskFile.ConditionFile
 import trik.testsys.webapp.backoffice.data.entity.impl.taskFile.ExerciseFile
 import trik.testsys.webapp.backoffice.data.entity.impl.taskFile.PolygonFile
 import trik.testsys.webapp.backoffice.data.entity.impl.taskFile.SolutionFile
-import trik.testsys.webapp.backoffice.data.service.TaskFileService
 import trik.testsys.webapp.backoffice.data.service.impl.taskFile.ConditionFileService
 import trik.testsys.webapp.backoffice.data.service.impl.taskFile.ExerciseFileService
 import trik.testsys.webapp.backoffice.data.service.impl.taskFile.PolygonFileService
@@ -39,7 +38,6 @@ class FileManagerImpl(
     @Value("\${trik.testsys.paths.files.recordings}") private val recordingsPath: String,
     @Value("\${trik.testsys.paths.files.results}") private val resultsPath: String,
 
-    private val taskFileService: TaskFileService,
     private val conditionFileService: ConditionFileService,
     private val exerciseFileService: ExerciseFileService,
     private val polygonFileService: PolygonFileService,

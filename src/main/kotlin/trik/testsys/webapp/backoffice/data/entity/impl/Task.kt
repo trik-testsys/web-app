@@ -61,17 +61,12 @@ class Task() : AbstractEntity(), Sharable {
     @Column(name = "testing_status", nullable = false)
     var testingStatus: TestingStatus = TestingStatus.NOT_TESTED
 
-    @Deprecated("")
-    @get:Transient
-    val polygonTaskFiles: Set<TaskFile>
-        get() = taskFiles.filter { it.type == TaskFile.TaskFileType.POLYGON }.toSet()
-
     @Column(name = "data", nullable = false)
     @JdbcTypeCode(SqlTypes.JSON)
     var data: Data = Data()
 
     @get:Transient
-    val availableSolutionTypes: Set<Solution.SolutionType>
+    val allowedSolutionTypes: Set<Solution.SolutionType>
         get() = data.solutionFileDataById.values.map { it.type }.toSet()
 
     enum class TestingStatus(override val dbKey: String) : PersistableEnum {

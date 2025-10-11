@@ -58,9 +58,6 @@ class TaskFile() : AbstractEntity() {
     @ManyToMany(mappedBy = "taskFiles")
     var tasks: MutableSet<Task> = mutableSetOf()
 
-//    @ManyToMany(mappedBy = "taskFiles")
-//    var taskTemplates: MutableSet<TaskTemplate> = mutableSetOf()
-
     @Deprecated(message = "Useless enum class")
     enum class TaskFileType(override val dbKey: String) : PersistableEnum {
 

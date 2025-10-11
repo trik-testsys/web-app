@@ -12,7 +12,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import trik.testsys.webapp.backoffice.controller.AbstractUserController
 import trik.testsys.webapp.backoffice.data.entity.impl.Contest
 import trik.testsys.webapp.backoffice.data.entity.impl.Task
-import trik.testsys.webapp.backoffice.data.entity.impl.TaskFile
 import trik.testsys.webapp.backoffice.data.entity.impl.User
 import trik.testsys.webapp.backoffice.data.entity.impl.UserGroup
 import trik.testsys.webapp.backoffice.data.service.ContestService
@@ -137,9 +136,9 @@ class DeveloperContestController(
             return "redirect:/user/developer/contests/$id"
         }
 
-        val hasPolygon = task.taskFiles.any { it.type == TaskFile.TaskFileType.POLYGON }
-        val hasSolution = task.taskFiles.any { it.type == TaskFile.TaskFileType.SOLUTION }
-        val hasExercise = task.taskFiles.any { it.type == TaskFile.TaskFileType.EXERCISE }
+        val hasPolygon = task.data.polygonFileIds.isNotEmpty()
+        val hasSolution = task.data.solutionFileDataById.isNotEmpty()
+        val hasExercise = task.data.exerciseFileIds.isNotEmpty()
         if (!hasPolygon || !hasSolution || !hasExercise) {
             redirectAttributes.addMessage("Для прикрепления к Туру требуется минимум один Полигон, одно Эталонное Решение и одно Упражнение.")
             return "redirect:/user/developer/contests/$id"

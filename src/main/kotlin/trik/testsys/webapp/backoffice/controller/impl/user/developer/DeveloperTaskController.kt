@@ -19,7 +19,6 @@ import trik.testsys.webapp.backoffice.data.entity.impl.Task
 import trik.testsys.webapp.backoffice.data.entity.impl.User
 import trik.testsys.webapp.backoffice.data.service.ContestService
 import trik.testsys.webapp.backoffice.data.service.SolutionService
-import trik.testsys.webapp.backoffice.data.service.TaskFileService
 import trik.testsys.webapp.backoffice.data.service.TaskService
 import trik.testsys.webapp.backoffice.data.service.VerdictService
 import trik.testsys.webapp.backoffice.data.service.UserGroupService
@@ -36,7 +35,6 @@ import trik.testsys.webapp.backoffice.utils.addMessage
 class DeveloperTaskController(
     private val contestService: ContestService,
     private val taskService: TaskService,
-    private val taskFileService: TaskFileService,
     private val solutionService: SolutionService,
     private val fileManager: FileManager,
     private val grader: Grader,
@@ -812,7 +810,6 @@ class DeveloperTaskController(
             return "redirect:/user/developer/tasks/$id"
         }
 
-        // Prepare and send grading for each SOLUTION TaskFile using all POLYGONs
         val solutionFiles = solutionFileService.findAllById(task.data.solutionFileDataById.keys)
         val polygonFiles = polygonFileService.findAllById(task.data.polygonFileIds)
 

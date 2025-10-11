@@ -39,9 +39,13 @@
 
                 <label for="solutionType" style="color: var(--color-text); align-self:center;">Тип решения</label>
                 <select name="solutionType" id="solutionType" style="padding:8px; width:200px; border:1px solid #dde3ea; border-radius:8px; background:white;">
-                    <option value="QRS" selected>TRIK Studio (.qrs)</option>
-                    <option value="PYTHON">Python (.py)</option>
-                    <option value="JAVA_SCRIPT">JavaScript (.js)</option>
+                    <option th:each="type : ${task.allowedSolutionTypes}"
+                            th:value="${type}"
+                            th:text="${type == T(trik.testsys.webapp.backoffice.data.entity.impl.Solution.SolutionType).QRS ? 'TRIK Studio (.qrs)' :
+                                     type == T(trik.testsys.webapp.backoffice.data.entity.impl.Solution.SolutionType).PYTHON ? 'Python (.py)' :
+                                     'JavaScript (.js)'}"
+                            th:selected="${type == T(trik.testsys.webapp.backoffice.data.entity.impl.Solution.SolutionType).QRS}">
+                    </option>
                 </select>
 
                 <div></div>

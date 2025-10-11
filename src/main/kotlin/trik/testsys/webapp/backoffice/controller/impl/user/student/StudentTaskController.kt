@@ -24,10 +24,10 @@ import trik.testsys.webapp.backoffice.service.FileManager
 import trik.testsys.webapp.backoffice.service.Grader
 import trik.testsys.webapp.backoffice.utils.addMessage
 import org.springframework.web.multipart.MultipartFile
-import trik.testsys.webapp.backoffice.data.entity.impl.TaskFile
 import trik.testsys.webapp.backoffice.data.service.VerdictService
 import java.nio.charset.StandardCharsets
-import trik.testsys.webapp.backoffice.data.entity.impl.TaskFile.TaskFileType.Companion.extension
+import trik.testsys.webapp.backoffice.data.service.impl.taskFile.ConditionFileService
+import trik.testsys.webapp.backoffice.data.service.impl.taskFile.ExerciseFileService
 
 @Controller
 @RequestMapping("/user/student/contests/{contestId}/tasks/{taskId}")
@@ -41,6 +41,7 @@ class StudentTaskController(
 
     @Value("\${trik.testsys.trik-studio.container.name}")
     private val trikStudioContainerName: String,
+    private val exerciseFileService: ExerciseFileService, private val conditionFileService: ConditionFileService,
 ) : AbstractUserController() {
 
     @GetMapping
@@ -93,8 +94,8 @@ class StudentTaskController(
         model.addAttribute("resultsAvailable", resultsAvailability)
         val maxScore = verdicts.maxOfOrNull { it.value } ?: 0
         model.addAttribute("maxScore", maxScore)
-        val hasExercise = task.taskFiles.any { it.type == trik.testsys.webapp.backoffice.data.entity.impl.TaskFile.TaskFileType.EXERCISE }
-        val hasCondition = task.taskFiles.any { it.type == trik.testsys.webapp.backoffice.data.entity.impl.TaskFile.TaskFileType.CONDITION }
+        val hasExercise = task.data.exerciseFileIds.isNotEmpty()
+        val hasCondition = task.data.conditionFileIds.isNotEmpty()
         model.addAttribute("hasExercise", hasExercise)
         model.addAttribute("hasCondition", hasCondition)
         return "student/task"
@@ -234,18 +235,20 @@ class StudentTaskController(
             return "redirect:/user/student/contests/$contestId"
         }
 
-        val exerciseTf = task.taskFiles.firstOrNull { it.type == TaskFile.TaskFileType.EXERCISE } ?: run {
+        val exerciseTf = task.data.exerciseFileIds.firstOrNull()?.let {
+            exerciseFileService.findById(it)
+        } ?: run {
             redirectAttributes.addMessage("Упражнение не найдено.")
             return "redirect:/user/student/contests/$contestId/tasks/$taskId"
         }
-        val file = fileManager.getTaskFile(exerciseTf) ?: run {
+        val file = fileManager.getExerciseFile(exerciseTf) ?: run {
             redirectAttributes.addMessage("Файл упражнения отсутствует на сервере.")
             return "redirect:/user/student/contests/$contestId/tasks/$taskId"
         }
 
         val bytes = file.readBytes()
         val originalName = "${task.name} (Упражнение)"
-        val filename = "${originalName}${exerciseTf.type?.extension()}"
+        val filename = "${originalName}${exerciseTf.type?.extension}"
         val disposition = ContentDisposition
             .attachment()
             .filename(filename, StandardCharsets.UTF_8)
@@ -285,18 +288,20 @@ class StudentTaskController(
             return "redirect:/user/student/contests/$contestId"
         }
 
-        val conditionTf = task.taskFiles.firstOrNull { it.type == trik.testsys.webapp.backoffice.data.entity.impl.TaskFile.TaskFileType.CONDITION } ?: run {
+        val conditionTf = task.data.conditionFileIds.firstOrNull()?.let {
+            conditionFileService.findById(it)
+        } ?: run {
             redirectAttributes.addMessage("У задания нет Условия.")
             return "redirect:/user/student/contests/$contestId/tasks/$taskId"
         }
-        val file = fileManager.getTaskFile(conditionTf) ?: run {
+        val file = fileManager.getConditionFile(conditionTf) ?: run {
             redirectAttributes.addMessage("Файл условия отсутствует на сервере.")
             return "redirect:/user/student/contests/$contestId/tasks/$taskId"
         }
 
         val bytes = file.readBytes()
         val originalName = "${task.name} (Условие)"
-        val filename = "${originalName}${conditionTf.type?.extension()}"
+        val filename = "${originalName}${conditionTf.type?.extension}"
         val disposition = ContentDisposition
             .attachment()
             .filename(filename, StandardCharsets.UTF_8)

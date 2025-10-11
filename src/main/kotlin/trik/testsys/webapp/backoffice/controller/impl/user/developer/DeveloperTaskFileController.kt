@@ -17,15 +17,12 @@ import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import trik.testsys.webapp.backoffice.controller.AbstractUserController
 import trik.testsys.webapp.backoffice.data.entity.impl.Solution
-import trik.testsys.webapp.backoffice.data.entity.impl.TaskFile
-import trik.testsys.webapp.backoffice.data.entity.impl.TaskFile.TaskFileType.Companion.extension
 import trik.testsys.webapp.backoffice.data.entity.impl.User
 import trik.testsys.webapp.backoffice.data.entity.impl.taskFile.ConditionFile
 import trik.testsys.webapp.backoffice.data.entity.impl.taskFile.ExerciseFile
 import trik.testsys.webapp.backoffice.data.entity.impl.taskFile.PolygonFile
 import trik.testsys.webapp.backoffice.data.entity.impl.taskFile.SolutionFile
 import trik.testsys.webapp.backoffice.data.enums.FileType
-import trik.testsys.webapp.backoffice.data.service.TaskFileService
 import trik.testsys.webapp.backoffice.data.service.impl.taskFile.ConditionFileService
 import trik.testsys.webapp.backoffice.data.service.impl.taskFile.ExerciseFileService
 import trik.testsys.webapp.backoffice.data.service.impl.taskFile.PolygonFileService
@@ -33,12 +30,10 @@ import trik.testsys.webapp.backoffice.data.service.impl.taskFile.SolutionFileSer
 import trik.testsys.webapp.backoffice.service.FileManager
 import trik.testsys.webapp.backoffice.utils.addMessage
 import java.nio.charset.StandardCharsets
-import java.time.Instant
 
 @Controller
 @RequestMapping("/user/developer")
 class DeveloperTaskFileController(
-    private val taskFileService: TaskFileService,
     private val fileManager: FileManager,
 
     private val conditionFileService: ConditionFileService,

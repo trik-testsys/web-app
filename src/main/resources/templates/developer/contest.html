@@ -248,9 +248,9 @@
                             <input type="hidden" name="taskId" th:value="${t.id}">
                             <button class="button" type="submit" th:disabled="${
                                 (t.testingStatus == null || t.testingStatus.name() != 'PASSED') ||
-                                #lists.isEmpty(t.taskFiles.?[type?.name() == 'POLYGON']) ||
-                                #lists.isEmpty(t.taskFiles.?[type?.name() == 'SOLUTION']) ||
-                                #lists.isEmpty(t.taskFiles.?[type?.name() == 'EXERCISE'])
+                                #lists.isEmpty(t.data.polygonFileIds) ||
+                                #lists.isEmpty(t.data.exerciseFileIds) ||
+                                #lists.isEmpty(t.data.solutionFileDataById)
                             }">Прикрепить</button>
                         </form>
                     </td>
