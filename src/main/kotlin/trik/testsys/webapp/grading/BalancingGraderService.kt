@@ -53,8 +53,8 @@ class BalancingGraderService(
         val managedSolution = solutionService.getById(requireNotNull(solution.id) { "Solution ID must not be null" })
         val managedTask = managedSolution.task
 
-        val taskFiles = managedTask.polygons.mapNotNull { fileManager.getTaskFile(it) }
-        val solutionFile = fileManager.getSolutionFile(managedSolution)
+        val taskFiles = managedTask.polygonTaskFiles.mapNotNull { fileManager.getTaskFile(it) }
+        val solutionFile = fileManager.getSolution(managedSolution)
             ?: throw IllegalArgumentException("Cannot find solution file")
 
         val submission = SubmissionBuilder.build {

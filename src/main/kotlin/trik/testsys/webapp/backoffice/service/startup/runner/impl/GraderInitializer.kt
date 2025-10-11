@@ -57,7 +57,7 @@ class GraderInitializer(
         val ungradedSolutions = solutionService.findAll()
             .filter { it.status == Solution.Status.NOT_STARTED || it.status == Solution.Status.IN_PROGRESS }
             .filter {
-                val file = fileManager.getSolutionFile(it)
+                val file = fileManager.getSolution(it)
                 if (file == null) {
                     logger.error("Solution file for solution ${it.id} is missing.")
 
@@ -152,7 +152,7 @@ class GraderInitializer(
         fileManager.saveSuccessfulGradingInfo(this)
 
         val solution = solutionService.findById(solutionId.toLong()) ?: return@let
-        val verdicts = fileManager.getVerdictFiles(solution)
+        val verdicts = fileManager.getVerdicts(solution)
 
         val objectMapper = createMapper()
 

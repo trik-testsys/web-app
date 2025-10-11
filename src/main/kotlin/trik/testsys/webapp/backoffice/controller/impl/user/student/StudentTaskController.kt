@@ -85,8 +85,8 @@ class StudentTaskController(
         model.addAttribute("solutions", solutions)
         model.addAttribute("verdicts", verdictsBySolutionId)
         val resultsAvailability = solutions.associate { s ->
-            val hasVerdicts = fileManager.getVerdictFiles(s).isNotEmpty()
-            val hasRecordings = fileManager.getRecordingFiles(s).isNotEmpty()
+            val hasVerdicts = fileManager.getVerdicts(s).isNotEmpty()
+            val hasRecordings = fileManager.getRecording(s).isNotEmpty()
             (s.id!!) to (hasVerdicts || hasRecordings)
         }
         model.addAttribute("resultsAvailable", resultsAvailability)
@@ -136,7 +136,7 @@ class StudentTaskController(
             it.type = type ?: Solution.SolutionType.QRS
         }
         val saved = solutionService.save(solution)
-        val ok = fileManager.saveSolutionFile(saved, file)
+        val ok = fileManager.saveSolution(saved, file)
         if (!ok) {
             redirectAttributes.addMessage("Не удалось сохранить файл решения.")
             return "redirect:/user/student/contests/$contestId/tasks/$taskId"
@@ -185,7 +185,7 @@ class StudentTaskController(
             return "redirect:/user/student/contests/$contestId/tasks/$taskId"
         }
 
-        val hasAnyResults = fileManager.getVerdictFiles(solution).isNotEmpty() || fileManager.getRecordingFiles(solution).isNotEmpty()
+        val hasAnyResults = fileManager.getVerdicts(solution).isNotEmpty() || fileManager.getRecording(solution).isNotEmpty()
         if (!hasAnyResults) {
             redirectAttributes.addMessage("Результаты для данного Решения отсутствуют.")
             return "redirect:/user/student/contests/$contestId/tasks/$taskId"

@@ -19,6 +19,13 @@ import trik.testsys.webapp.core.data.entity.AbstractEntity.Companion.TABLE_PREFI
 import trik.testsys.webapp.core.utils.enums.PersistableEnum
 import trik.testsys.webapp.core.utils.enums.converter.AbstractPersistableEnumConverter
 
+@Deprecated(
+    message =  "Useless",
+    replaceWith = ReplaceWith(
+        "AbstractFile",
+        "trik.testsys.webapp.backoffice.data.entity.AbstractFile"
+    )
+)
 @Entity
 @Table(name = "${TABLE_PREFIX}task_file")
 class TaskFile() : AbstractEntity() {
@@ -54,6 +61,7 @@ class TaskFile() : AbstractEntity() {
 //    @ManyToMany(mappedBy = "taskFiles")
 //    var taskTemplates: MutableSet<TaskTemplate> = mutableSetOf()
 
+    @Deprecated(message = "Useless enum class")
     enum class TaskFileType(override val dbKey: String) : PersistableEnum {
 
         POLYGON("PLG"),

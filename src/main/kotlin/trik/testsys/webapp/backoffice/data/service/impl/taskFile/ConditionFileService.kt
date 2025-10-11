@@ -12,7 +12,7 @@ import trik.testsys.webapp.core.data.service.AbstractService
 @Service
 class ConditionFileService : AbstractService<ConditionFile, ConditionFileRepository>() {
 
-    fun finaByDeveloper(developerId: Long, isRemoved: Boolean = false): Set<ConditionFile> {
+    fun findByDeveloper(developerId: Long, isRemoved: Boolean = false): Set<ConditionFile> {
         val result = repository.findByDeveloperId(developerId).filter { it.isRemoved == isRemoved }
         return result.toSet()
     }

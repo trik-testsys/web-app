@@ -1,6 +1,9 @@
 package trik.testsys.webapp.backoffice.data.entity
 
+import jakarta.persistence.Basic
 import jakarta.persistence.Column
+import jakarta.persistence.Convert
+import jakarta.persistence.Enumerated
 import jakarta.persistence.ManyToMany
 import jakarta.persistence.MappedSuperclass
 import org.hibernate.annotations.JdbcTypeCode
@@ -33,6 +36,7 @@ abstract class AbstractFile : AbstractEntity() {
     @Column(name = "is_removed", nullable = false)
     var isRemoved: Boolean = false
 
+    @Convert(converter = FileType.Companion.EnumConverter::class)
     @Column(name = "type", nullable = false)
     var type: FileType? = null
 

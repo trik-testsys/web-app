@@ -228,8 +228,8 @@ class DeveloperTaskController(
         val verdictsBySolutionIds = verdicts.associateBy { it.solutionId }
 
         val resultsAvailability = testSolutions.associate { s ->
-            val hasVerdicts = fileManager.getVerdictFiles(s).isNotEmpty()
-            val hasRecordings = fileManager.getRecordingFiles(s).isNotEmpty()
+            val hasVerdicts = fileManager.getVerdicts(s).isNotEmpty()
+            val hasRecordings = fileManager.getRecording(s).isNotEmpty()
             (s.id!!) to (hasVerdicts || hasRecordings)
         }
 
@@ -279,7 +279,7 @@ class DeveloperTaskController(
             return "redirect:/user/developer/tasks/$taskId/tests"
         }
 
-        val hasAnyResults = fileManager.getVerdictFiles(solution).isNotEmpty() || fileManager.getRecordingFiles(solution).isNotEmpty()
+        val hasAnyResults = fileManager.getVerdicts(solution).isNotEmpty() || fileManager.getRecording(solution).isNotEmpty()
         if (!hasAnyResults) {
             redirectAttributes.addMessage("Результаты для данного Решения отсутствуют.")
             return "redirect:/user/developer/tasks/$taskId/tests"
@@ -544,7 +544,7 @@ class DeveloperTaskController(
                     return "redirect:/user/developer/tasks/$id"
                 }
 
-            val ok = fileManager.saveSolutionFile(saved, solutionSource)
+            val ok = fileManager.saveSolution(saved, solutionSource)
             if (!ok) {
                 redirectAttributes.addMessage("Не удалось подготовить файл решения для тестирования.")
                 return "redirect:/user/developer/tasks/$id"

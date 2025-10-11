@@ -68,13 +68,13 @@ class JudgeController(
         }
 
         val resultsAvailability = (studentSolutions + judgeSolutions).associate { s ->
-            val hasVerdicts = fileManager.hasAnyVerdictFile(s)
-            val hasRecordings = fileManager.hasAnyRecordingFile(s)
+            val hasVerdicts = fileManager.hasAnyVerdict(s)
+            val hasRecordings = fileManager.hasAnyRecording(s)
             (s.id!!) to (hasVerdicts || hasRecordings)
         }
 
         val solutionFileAvailability = (studentSolutions + judgeSolutions).associate { s ->
-            (s.id!!) to fileManager.hasSolutionFile(s)
+            (s.id!!) to fileManager.hasSolution(s)
         }
 
         setupModel(model, session, judge)
@@ -136,8 +136,8 @@ class JudgeController(
         setupModel(model, session, judge)
         model.addAttribute("solution", solution)
         model.addAttribute("verdicts", verdicts)
-        model.addAttribute("resultsAvailable", (fileManager.getVerdictFiles(solution).isNotEmpty() || fileManager.getRecordingFiles(solution).isNotEmpty()))
-        model.addAttribute("solutionFileAvailable", (fileManager.getSolutionFile(solution) != null))
+        model.addAttribute("resultsAvailable", (fileManager.getVerdicts(solution).isNotEmpty() || fileManager.getRecording(solution).isNotEmpty()))
+        model.addAttribute("solutionFileAvailable", (fileManager.getSolution(solution) != null))
         return "judge/solution"
     }
 
@@ -186,7 +186,7 @@ class JudgeController(
             return "redirect:/user/judge/solutions"
         }
 
-        val hasAnyResults = fileManager.getVerdictFiles(solution).isNotEmpty() || fileManager.getRecordingFiles(solution).isNotEmpty()
+        val hasAnyResults = fileManager.getVerdicts(solution).isNotEmpty() || fileManager.getRecording(solution).isNotEmpty()
         if (!hasAnyResults) {
             redirectAttributes.addMessage("Результаты для данного Решения отсутствуют.")
             return "redirect:/user/judge/solutions"
@@ -221,7 +221,7 @@ class JudgeController(
             return "redirect:/user/judge/solutions"
         }
 
-        val file = fileManager.getSolutionFile(solution) ?: run {
+        val file = fileManager.getSolution(solution) ?: run {
             redirectAttributes.addMessage("Файл посылки отсутствует на сервере.")
             return "redirect:/user/judge/solutions"
         }
@@ -263,12 +263,12 @@ class JudgeController(
         val saved = solutionService.save(cloned)
 
         // Copy original solution file to the cloned one
-        val sourceFile = fileManager.getSolutionFile(original)
+        val sourceFile = fileManager.getSolution(original)
         if (sourceFile == null) {
             redirectAttributes.addMessage("Файл исходного решения отсутствует на сервере.")
             return "redirect:/user/judge/solutions"
         }
-        val copied = fileManager.saveSolutionFile(saved, sourceFile)
+        val copied = fileManager.saveSolution(saved, sourceFile)
         if (!copied) {
             redirectAttributes.addMessage("Не удалось подготовить файл решения для перезапуска.")
             return "redirect:/user/judge/solutions"

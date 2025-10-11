@@ -34,15 +34,15 @@ class Task() : AbstractEntity(), Sharable {
     var developer: User? = null
 
     @Deprecated("")
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "${TABLE_PREFIX}task_taskFiles",
         joinColumns = [JoinColumn(name = "task_id")],
-        inverseJoinColumns = [JoinColumn(name = "taskFiles_id")]
+        inverseJoinColumns = [JoinColumn(name = "taskFiles_id")],
     )
     var taskFiles: MutableSet<TaskFile> = mutableSetOf()
 
-    @OneToMany(mappedBy = "task", orphanRemoval = true)
+    @OneToMany(mappedBy = "task", orphanRemoval = true, fetch = FetchType.EAGER)
     var solutions: MutableSet<Solution> = mutableSetOf()
 
     @get:Transient
