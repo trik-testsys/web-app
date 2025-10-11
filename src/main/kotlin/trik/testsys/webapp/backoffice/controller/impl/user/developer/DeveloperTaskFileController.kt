@@ -484,7 +484,7 @@ class DeveloperTaskFileController(
         model.addAttribute("taskFile", solutionFile)
         model.addAttribute("versions", versions)
 
-        return "developer/polygon-file"
+        return "developer/solution-file"
     }
 
     @PostMapping("/task-files/condition/{id}/upload")

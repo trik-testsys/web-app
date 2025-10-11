@@ -2,6 +2,19 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
 <head>
     <th:block th:include="fragments/layout :: head('Задача')"></th:block>
+    <style>
+        .two-column-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 1200px) {
+            .two-column-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
 <header th:replace="fragments/layout :: header(userName=${user.name})"></header>
@@ -79,42 +92,14 @@
         </div>
     </section>
 
+    <div class="two-column-grid">
     <section class="card">
-        <h2 class="card-title">Файлы</h2>
+        <h2 class="card-title">Полигоны</h2>
         <div class="card-body">
 
             <h3 style="margin: 0 0 8px 0;">Прикрепленные</h3>
-            <div th:if="${#lists.isEmpty(attachedTaskFiles)}" style="color: var(--color-text-muted);">Пока нет прикреплённых файлов.</div>
-            <table th:if="${!#lists.isEmpty(attachedTaskFiles)}" class="table">
-                <thead>
-                    <tr>
-                        <th class="id-cell">ID</th>
-                        <th>Название</th>
-                        <th>Тип</th>
-                        <th class="date-cell">Дата создания</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="f : ${attachedTaskFiles}">
-                        <td class="id-cell" th:text="${f.id}"></td>
-                        <td><a th:href="@{'/user/developer/task-files/' + ${f.id}}" th:text="${f.name}"></a></td>
-                        <td th:text="${f.localizedType}"></td>
-                        <td class="date-cell" data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
-                        <td>
-                            <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/files/' + ${f.id} + '/detach'}" method="post" onsubmit="return confirm('Открепить файл?');">
-                                <button class="button" type="submit" th:disabled="${isTesting || isUsedInAnyContest}">Открепить</button>
-                            </form>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <hr class="separator">
-
-            <h3 style="margin: 0 0 8px 0;">Доступные к прикреплению</h3>
-            <div th:if="${#lists.isEmpty(availableTaskFiles)}" style="color: var(--color-text-muted);">Нет доступных файлов для прикрепления.</div>
-            <table th:if="${!#lists.isEmpty(availableTaskFiles)}" class="table">
+            <div th:if="${#lists.isEmpty(attachedPolygons)}" style="color: var(--color-text-muted);">Пока нет прикреплённых Полигонов.</div>
+            <table th:if="${!#lists.isEmpty(attachedPolygons)}" class="table">
                 <thead>
                 <tr>
                     <th class="id-cell">ID</th>
@@ -125,14 +110,43 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="f : ${availableTaskFiles}">
+                <tr th:each="f : ${attachedPolygons}">
                     <td class="id-cell" th:text="${f.id}"></td>
-                    <td><a th:href="@{'/user/developer/task-files/' + ${f.id}}" th:text="${f.name}"></a></td>
-                    <td th:text="${f.localizedType}"></td>
+                    <td><a th:href="@{'/user/developer/task-files/polygon/' + ${f.id}}" th:text="${f.name}"></a></td>
+                    <td th:text="${f.type}"></td>
                     <td class="date-cell" data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                     <td>
-                        <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/files/attach'}" method="post">
-                            <input type="hidden" name="taskFileId" th:value="${f.id}">
+                        <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/files/polygon/' + ${f.id} + '/detach'}" method="post" onsubmit="return confirm('Открепить файл?');">
+                            <button class="button" type="submit" th:disabled="${isTesting || isUsedInAnyContest}">Открепить</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <hr class="separator">
+
+            <h3 style="margin: 0 0 8px 0;">Доступные к прикреплению</h3>
+            <div th:if="${#lists.isEmpty(availablePolygons)}" style="color: var(--color-text-muted);">Больше нет доступных к прикреплению Полигонов.</div>
+            <table th:if="${!#lists.isEmpty(availablePolygons)}" class="table">
+                <thead>
+                <tr>
+                    <th class="id-cell">ID</th>
+                    <th>Название</th>
+                    <th>Тип</th>
+                    <th class="date-cell">Дата создания</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="f : ${availablePolygons}">
+                    <td class="id-cell" th:text="${f.id}"></td>
+                    <td><a th:href="@{'/user/developer/task-files/polygon/' + ${f.id}}" th:text="${f.name}"></a></td>
+                    <td th:text="${f.type}"></td>
+                    <td class="date-cell" data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td>
+                        <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/files/polygon/attach'}" method="post">
+                            <input type="hidden" name="polygonId" th:value="${f.id}">
                             <button class="button" type="submit" th:disabled="${isTesting || isUsedInAnyContest}">Прикрепить</button>
                         </form>
                     </td>
@@ -141,6 +155,198 @@
             </table>
         </div>
     </section>
+
+    <section class="card">
+        <h2 class="card-title">Эталонные решения</h2>
+        <div class="card-body">
+
+            <h3 style="margin: 0 0 8px 0;">Прикрепленные</h3>
+            <div th:if="${#lists.isEmpty(attachedSolutions)}" style="color: var(--color-text-muted);">Пока нет прикреплённых Эталонных решений.</div>
+            <table th:if="${!#lists.isEmpty(attachedSolutions)}" class="table">
+                <thead>
+                <tr>
+                    <th class="id-cell">ID</th>
+                    <th>Название</th>
+                    <th>Тип</th>
+                    <th class="date-cell">Дата создания</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="f : ${attachedSolutions}">
+                    <td class="id-cell" th:text="${f.id}"></td>
+                    <td><a th:href="@{'/user/developer/task-files/solution/' + ${f.id}}" th:text="${f.name}"></a></td>
+                    <td th:text="${f.type}"></td>
+                    <td class="date-cell" data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td>
+                        <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/files/solution/' + ${f.id} + '/detach'}" method="post" onsubmit="return confirm('Открепить файл?');">
+                            <button class="button" type="submit" th:disabled="${isTesting || isUsedInAnyContest}">Открепить</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <hr class="separator">
+
+            <h3 style="margin: 0 0 8px 0;">Доступные к прикреплению</h3>
+            <div th:if="${#lists.isEmpty(availableSolutions)}" style="color: var(--color-text-muted);">Больше нет доступных к прикреплению Эталонных решений.</div>
+            <table th:if="${!#lists.isEmpty(availableSolutions)}" class="table">
+                <thead>
+                <tr>
+                    <th class="id-cell">ID</th>
+                    <th>Название</th>
+                    <th>Тип</th>
+                    <th class="date-cell">Дата создания</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="f : ${availableSolutions}">
+                    <td class="id-cell" th:text="${f.id}"></td>
+                    <td><a th:href="@{'/user/developer/task-files/solution/' + ${f.id}}" th:text="${f.name}"></a></td>
+                    <td th:text="${f.type}"></td>
+                    <td class="date-cell" data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td>
+                        <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/files/solution/attach'}" method="post">
+                            <input type="hidden" name="solutionId" th:value="${f.id}">
+                            <button class="button" type="submit" th:disabled="${isTesting || isUsedInAnyContest}">Прикрепить</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+    </div>
+
+    <div class="two-column-grid">
+    <section class="card">
+        <h2 class="card-title">Упражнение</h2>
+        <div class="card-body">
+
+            <h3 style="margin: 0 0 8px 0;">Прикрепленные</h3>
+            <div th:if="${#lists.isEmpty(attachedExercises)}" style="color: var(--color-text-muted);">Пока нет прикреплённых Упражнение.</div>
+            <table th:if="${!#lists.isEmpty(attachedExercises)}" class="table">
+                <thead>
+                <tr>
+                    <th class="id-cell">ID</th>
+                    <th>Название</th>
+                    <th>Тип</th>
+                    <th class="date-cell">Дата создания</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="f : ${attachedExercises}">
+                    <td class="id-cell" th:text="${f.id}"></td>
+                    <td><a th:href="@{'/user/developer/task-files/exercise/' + ${f.id}}" th:text="${f.name}"></a></td>
+                    <td th:text="${f.type}"></td>
+                    <td class="date-cell" data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td>
+                        <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/files/exercise/' + ${f.id} + '/detach'}" method="post" onsubmit="return confirm('Открепить файл?');">
+                            <button class="button" type="submit">Открепить</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <hr class="separator">
+
+            <h3 style="margin: 0 0 8px 0;">Доступные к прикреплению</h3>
+            <div th:if="${#lists.isEmpty(availableExercises)}" style="color: var(--color-text-muted);">Больше нет доступных к прикреплению Упражнений.</div>
+            <table th:if="${!#lists.isEmpty(availableExercises)}" class="table">
+                <thead>
+                <tr>
+                    <th class="id-cell">ID</th>
+                    <th>Название</th>
+                    <th>Тип</th>
+                    <th class="date-cell">Дата создания</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="f : ${availableExercises}">
+                    <td class="id-cell" th:text="${f.id}"></td>
+                    <td><a th:href="@{'/user/developer/task-files/exercise/' + ${f.id}}" th:text="${f.name}"></a></td>
+                    <td th:text="${f.type}"></td>
+                    <td class="date-cell" data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td>
+                        <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/files/exercise/attach'}" method="post">
+                            <input type="hidden" name="exerciseId" th:value="${f.id}">
+                            <button class="button" type="submit">Прикрепить</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2 class="card-title">Условия</h2>
+        <div class="card-body">
+
+            <h3 style="margin: 0 0 8px 0;">Прикрепленные</h3>
+            <div th:if="${#lists.isEmpty(attachedConditions)}" style="color: var(--color-text-muted);">Пока нет прикреплённых Условий.</div>
+            <table th:if="${!#lists.isEmpty(attachedConditions)}" class="table">
+                <thead>
+                <tr>
+                    <th class="id-cell">ID</th>
+                    <th>Название</th>
+                    <th>Тип</th>
+                    <th class="date-cell">Дата создания</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="f : ${attachedConditions}">
+                    <td class="id-cell" th:text="${f.id}"></td>
+                    <td><a th:href="@{'/user/developer/task-files/condition/' + ${f.id}}" th:text="${f.name}"></a></td>
+                    <td th:text="${f.type}"></td>
+                    <td class="date-cell" data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td>
+                        <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/files/condition/' + ${f.id} + '/detach'}" method="post" onsubmit="return confirm('Открепить файл?');">
+                            <button class="button" type="submit">Открепить</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <hr class="separator">
+
+            <h3 style="margin: 0 0 8px 0;">Доступные к прикреплению</h3>
+            <div th:if="${#lists.isEmpty(availableConditions)}" style="color: var(--color-text-muted);">Больше нет доступных к прикреплению Условий.</div>
+            <table th:if="${!#lists.isEmpty(availableConditions)}" class="table">
+                <thead>
+                <tr>
+                    <th class="id-cell">ID</th>
+                    <th>Название</th>
+                    <th>Тип</th>
+                    <th class="date-cell">Дата создания</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="f : ${availableConditions}">
+                    <td class="id-cell" th:text="${f.id}"></td>
+                    <td><a th:href="@{'/user/developer/task-files/condition/' + ${f.id}}" th:text="${f.name}"></a></td>
+                    <td th:text="${f.type}"></td>
+                    <td class="date-cell" data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td>
+                        <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/files/condition/attach'}" method="post">
+                            <input type="hidden" name="conditionId" th:value="${f.id}">
+                            <button class="button" type="submit">Прикрепить</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+    </div>
 
     <section class="card">
         <h2 class="card-title">Туры, к которым прикреплена</h2>

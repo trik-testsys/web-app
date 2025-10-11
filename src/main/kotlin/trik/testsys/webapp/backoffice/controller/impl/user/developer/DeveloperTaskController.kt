@@ -24,6 +24,10 @@ import trik.testsys.webapp.backoffice.data.service.TaskFileService
 import trik.testsys.webapp.backoffice.data.service.TaskService
 import trik.testsys.webapp.backoffice.data.service.VerdictService
 import trik.testsys.webapp.backoffice.data.service.UserGroupService
+import trik.testsys.webapp.backoffice.data.service.impl.taskFile.ConditionFileService
+import trik.testsys.webapp.backoffice.data.service.impl.taskFile.ExerciseFileService
+import trik.testsys.webapp.backoffice.data.service.impl.taskFile.PolygonFileService
+import trik.testsys.webapp.backoffice.data.service.impl.taskFile.SolutionFileService
 import trik.testsys.webapp.backoffice.service.FileManager
 import trik.testsys.webapp.backoffice.service.Grader
 import trik.testsys.webapp.backoffice.utils.addMessage
@@ -41,6 +45,11 @@ class DeveloperTaskController(
     private val trikStudioContainerName: String,
     private val verdictService: VerdictService,
     private val userGroupService: UserGroupService,
+
+    private val conditionFileService: ConditionFileService,
+    private val exerciseFileService: ExerciseFileService,
+    private val polygonFileService: PolygonFileService,
+    private val solutionFileService: SolutionFileService,
 ) : AbstractUserController() {
 
     @GetMapping("/tasks")
@@ -136,33 +145,25 @@ class DeveloperTaskController(
             return "redirect:/user/developer/tasks"
         }
 
-        val attachedTaskFiles = task.taskFiles.filterNot { it.isRemoved }.sortedBy { it.id }
-        val ownedTaskFiles = taskFileService.findByDeveloper(developer).filterNot { it.isRemoved }.sortedBy { it.id }
-        val availableTaskFiles = ownedTaskFiles.filterNot { otf -> attachedTaskFiles.any { it.id == otf.id } }
+        val attachedConditions = task.data.conditionFileIds.let { conditionFileService.findAllById(it) }
+        val attachedExercises = task.data.exerciseFileIds.let { exerciseFileService.findAllById(it) }
+        val attachedPolygons = task.data.polygonFileIds.let { polygonFileService.findAllById(it) }
+        val attachedSolutions = task.data.solutionFileDataById.keys.let { solutionFileService.findAllById(it) }
 
-        fun toTaskFileListItem(tf: TaskFile) = TaskFileListItem(
-            id = tf.id!!,
-            name = tf.name,
-            info = tf.info,
-            createdAt = tf.createdAt,
-            localizedType = when (tf.type) {
-                TaskFile.TaskFileType.POLYGON -> "Полигон"
-                TaskFile.TaskFileType.EXERCISE -> "Упражнение"
-                TaskFile.TaskFileType.SOLUTION -> "Эталонное Решение"
-                TaskFile.TaskFileType.CONDITION -> "Условие"
-                else -> tf.type?.name ?: "—"
-            }
-        )
+        val ownedConditions = conditionFileService.findByDeveloper(developer.id!!).filterNot { task.data.conditionFileIds.contains(it.id) }
+        val ownedExercises = exerciseFileService.findByDeveloper(developer.id!!).filterNot { task.data.exerciseFileIds.contains(it.id) }
+        val ownedPolygons = polygonFileService.findByDeveloper(developer.id!!).filterNot { task.data.polygonFileIds.contains(it.id) }
+        val ownedSolutions = solutionFileService.findByDeveloper(developer.id!!).filterNot { task.data.solutionFileDataById.keys.contains(it.id) }
 
-        val attachedItems = attachedTaskFiles.map(::toTaskFileListItem)
-        val availableItems = availableTaskFiles.map(::toTaskFileListItem)
+        val hasPolygon = attachedPolygons.isNotEmpty()
+        val hasSolution = attachedSolutions.isNotEmpty()
 
-        val hasPolygon = task.data.polygonFileIds.isNotEmpty()
-        val hasSolution = task.data.solutionFileDataById.isNotEmpty()
-        val isUsedInAnyContest = contestService.findAll().any { c -> c.tasks.any { it.id == task.id } }
+        val allContests = contestService.findAll()
 
-        val attachedContests = contestService
-            .findAll()
+        val isUsedInAnyContest = allContests.asSequence()
+            .any { c -> c.tasks.any { it.id == task.id } }
+
+        val attachedContests = allContests
             .filter { c -> c.tasks.any { it.id == task.id } }
             .sortedBy { it.id }
 
@@ -174,14 +175,23 @@ class DeveloperTaskController(
         }
 
         setupModel(model, session, developer)
+
+        model.addAttribute("attachedConditions", attachedConditions)
+        model.addAttribute("attachedExercises", attachedExercises)
+        model.addAttribute("attachedPolygons", attachedPolygons)
+        model.addAttribute("attachedSolutions", attachedSolutions)
+
+        model.addAttribute("availableConditions", ownedConditions)
+        model.addAttribute("availableExercises", ownedExercises)
+        model.addAttribute("availablePolygons", ownedPolygons)
+        model.addAttribute("availableSolutions", ownedSolutions)
+
         model.addAttribute("task", task)
         model.addAttribute("isOwner", true)
-        model.addAttribute("attachedTaskFiles", attachedItems)
-        model.addAttribute("availableTaskFiles", availableItems)
         model.addAttribute("isTesting", task.testingStatus == Task.TestingStatus.TESTING)
         model.addAttribute("testReady", hasPolygon && hasSolution)
-        model.addAttribute("numPolygons", task.taskFiles.count { it.type == TaskFile.TaskFileType.POLYGON })
-        model.addAttribute("numSolutions", task.taskFiles.count { it.type == TaskFile.TaskFileType.SOLUTION })
+        model.addAttribute("numPolygons", attachedPolygons.size)
+        model.addAttribute("numSolutions", attachedSolutions.size)
         model.addAttribute("testStatus", lastTestStatus)
         model.addAttribute("isUsedInAnyContest", isUsedInAnyContest)
         model.addAttribute("attachedContests", attachedContests)
@@ -369,10 +379,10 @@ class DeveloperTaskController(
         return "redirect:/user/developer/tasks/$id"
     }
 
-    @PostMapping("/tasks/{id}/files/attach")
-    fun attachTaskFile(
+    @PostMapping("/tasks/{id}/files/condition/attach")
+    fun attachConditionFile(
         @PathVariable id: Long,
-        @RequestParam("taskFileId") taskFileId: Long,
+        @RequestParam("conditionId") conditionFileId: Long,
         session: HttpSession,
         redirectAttributes: RedirectAttributes
     ): String {
@@ -393,12 +403,154 @@ class DeveloperTaskController(
             return "redirect:/user/developer/tasks/$id"
         }
 
-        val tf = taskFileService.findById(taskFileId)
-        if (tf == null) {
+        val conditionFile = conditionFileService.findById(conditionFileId) ?: run {
             redirectAttributes.addMessage("Файл не найден.")
             return "redirect:/user/developer/tasks/$id"
         }
-        if (tf.developer?.id != developer.id) {
+        if (conditionFile.developerId != developer.id) {
+            redirectAttributes.addMessage("Можно прикреплять только свои файлы.")
+            return "redirect:/user/developer/tasks/$id"
+        }
+
+        task.data.conditionFileIds.clear()
+        task.data.conditionFileIds.add(conditionFileId)
+        taskService.save(task)
+
+        conditionFile.data.attachedTaskIds.add(task.id!!)
+        conditionFileService.save(conditionFile)
+
+        redirectAttributes.addMessage("Файл прикреплён к Задаче.")
+        return "redirect:/user/developer/tasks/$id"
+    }
+
+    @PostMapping("/tasks/{id}/files/exercise/attach")
+    fun attachExerciseFile(
+        @PathVariable id: Long,
+        @RequestParam("exerciseId") exerciseFileId: Long,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val task = taskService.findById(id) ?: run {
+            redirectAttributes.addMessage("Задача не найдена.")
+            return "redirect:/user/developer/tasks"
+        }
+        if (task.developer?.id != developer.id) {
+            redirectAttributes.addMessage("Изменение доступов доступно только владельцу.")
+            return "redirect:/user/developer/tasks/$id"
+        }
+
+        val exerciseFile = exerciseFileService.findById(exerciseFileId) ?: run {
+            redirectAttributes.addMessage("Файл не найден.")
+            return "redirect:/user/developer/tasks/$id"
+        }
+        if (exerciseFile.developerId != developer.id) {
+            redirectAttributes.addMessage("Можно прикреплять только свои файлы.")
+            return "redirect:/user/developer/tasks/$id"
+        }
+
+        task.data.exerciseFileIds.clear()
+        task.data.exerciseFileIds.add(exerciseFileId)
+        taskService.save(task)
+
+        exerciseFile.data.attachedTaskIds.add(task.id!!)
+        exerciseFileService.save(exerciseFile)
+
+        redirectAttributes.addMessage("Файл прикреплён к Задаче.")
+        return "redirect:/user/developer/tasks/$id"
+    }
+
+    @PostMapping("/tasks/{id}/files/polygon/attach")
+    fun attachPolygonFile(
+        @PathVariable id: Long,
+        @RequestParam("polygonId") polygonFileId: Long,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val task = taskService.findById(id) ?: run {
+            redirectAttributes.addMessage("Задача не найдена.")
+            return "redirect:/user/developer/tasks"
+        }
+        if (task.developer?.id != developer.id) {
+            redirectAttributes.addMessage("Изменение доступов доступно только владельцу.")
+            return "redirect:/user/developer/tasks/$id"
+        }
+
+        val polygonFile = polygonFileService.findById(polygonFileId) ?: run {
+            redirectAttributes.addMessage("Файл не найден.")
+            return "redirect:/user/developer/tasks/$id"
+        }
+        if (polygonFile.developerId != developer.id) {
+            redirectAttributes.addMessage("Можно прикреплять только свои файлы.")
+            return "redirect:/user/developer/tasks/$id"
+        }
+
+        if (task.testingStatus == Task.TestingStatus.TESTING) {
+            redirectAttributes.addMessage("Нельзя изменять Полигоны во время тестирования.")
+            return "redirect:/user/developer/tasks/$id"
+        }
+
+        val usedInContest = contestService.findAll().asSequence().any { c -> c.tasks.any { it.id == task.id } }
+        if (usedInContest) {
+            redirectAttributes.addMessage("Нельзя изменять Полигоны Задачи, прикреплённой к Туру.")
+            return "redirect:/user/developer/tasks/$id"
+        }
+
+        task.testingStatus = Task.TestingStatus.NOT_TESTED
+        task.data.polygonFileIds.add(polygonFileId)
+        taskService.save(task)
+
+        polygonFile.data.attachedTaskIds.add(task.id!!)
+        polygonFileService.save(polygonFile)
+
+        redirectAttributes.addMessage("Файл прикреплён к Задаче.")
+        return "redirect:/user/developer/tasks/$id"
+    }
+
+    @PostMapping("/tasks/{id}/files/solution/attach")
+    fun attachSolutionFile(
+        @PathVariable id: Long,
+        @RequestParam("solutionId") solutionFileId: Long,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val task = taskService.findById(id) ?: run {
+            redirectAttributes.addMessage("Задача не найдена.")
+            return "redirect:/user/developer/tasks"
+        }
+        if (task.developer?.id != developer.id) {
+            redirectAttributes.addMessage("Изменение доступов доступно только владельцу.")
+            return "redirect:/user/developer/tasks/$id"
+        }
+
+        val solutionFile = solutionFileService.findById(solutionFileId) ?: run {
+            redirectAttributes.addMessage("Файл не найден.")
+            return "redirect:/user/developer/tasks/$id"
+        }
+        if (solutionFile.developerId != developer.id) {
             redirectAttributes.addMessage("Можно прикреплять только свои файлы.")
             return "redirect:/user/developer/tasks/$id"
         }
@@ -408,27 +560,109 @@ class DeveloperTaskController(
             return "redirect:/user/developer/tasks/$id"
         }
 
-        val usedInContest = contestService.findAll().any { c -> c.tasks.any { it.id == task.id } }
+        val usedInContest = contestService.findAll().asSequence().any { c -> c.tasks.any { it.id == task.id } }
         if (usedInContest) {
-            redirectAttributes.addMessage("Нельзя изменять файлы Задачи, прикреплённой к Туру.")
+            redirectAttributes.addMessage("Нельзя изменять Полигоны Задачи, прикреплённой к Туру.")
             return "redirect:/user/developer/tasks/$id"
         }
 
-        val added = task.taskFiles.add(tf)
-        if (added && task.testingStatus == Task.TestingStatus.PASSED) {
-            task.testingStatus = Task.TestingStatus.NOT_TESTED
-        }
+        task.testingStatus = Task.TestingStatus.NOT_TESTED
+
+        val solutionFileData = Task.SolutionFileData(
+            solutionFile.solutionType,
+            null,
+            0L
+        )
+        task.data.solutionFileDataById[solutionFileId] = solutionFileData
         taskService.save(task)
-        if (added) {
-            redirectAttributes.addMessage("Файл прикреплён к Задаче.")
-        } else {
-            redirectAttributes.addMessage("Файл уже был прикреплён.")
-        }
+
+        solutionFile.data.attachedTaskIds.add(task.id!!)
+        solutionFileService.save(solutionFile)
+
+        redirectAttributes.addMessage("Файл прикреплён к Задаче.")
         return "redirect:/user/developer/tasks/$id"
     }
 
-    @PostMapping("/tasks/{taskId}/files/{fileId}/detach")
-    fun detachTaskFile(
+    @PostMapping("/tasks/{taskId}/files/condition/{fileId}/detach")
+    fun detachConditionFile(
+        @PathVariable taskId: Long,
+        @PathVariable fileId: Long,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val task = taskService.findById(taskId) ?: run {
+            redirectAttributes.addMessage("Задача не найдена.")
+            return "redirect:/user/developer/tasks"
+        }
+        if (task.developer?.id != developer.id) {
+            redirectAttributes.addMessage("Изменение доступов доступно только владельцу.")
+            return "redirect:/user/developer/tasks/$taskId"
+        }
+
+        val conditionFile = conditionFileService.findById(fileId) ?: run {
+            redirectAttributes.addMessage("Файл не найден.")
+            return "redirect:/user/developer/tasks/$taskId"
+        }
+
+        task.data.conditionFileIds.remove(fileId)
+        taskService.save(task)
+
+        conditionFile.data.attachedTaskIds.remove(taskId)
+        conditionFileService.save(conditionFile)
+
+        redirectAttributes.addMessage("Файл откреплён от Задачи.")
+        return "redirect:/user/developer/tasks/$taskId"
+    }
+
+    @PostMapping("/tasks/{taskId}/files/exercise/{fileId}/detach")
+    fun detachExerciseFile(
+        @PathVariable taskId: Long,
+        @PathVariable fileId: Long,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val task = taskService.findById(taskId) ?: run {
+            redirectAttributes.addMessage("Задача не найдена.")
+            return "redirect:/user/developer/tasks"
+        }
+        if (task.developer?.id != developer.id) {
+            redirectAttributes.addMessage("Изменение доступов доступно только владельцу.")
+            return "redirect:/user/developer/tasks/$taskId"
+        }
+
+        val exerciseFile = exerciseFileService.findById(fileId) ?: run {
+            redirectAttributes.addMessage("Файл не найден.")
+            return "redirect:/user/developer/tasks/$taskId"
+        }
+
+        task.data.exerciseFileIds.remove(fileId)
+        taskService.save(task)
+
+        exerciseFile.data.attachedTaskIds.remove(taskId)
+        exerciseFileService.save(exerciseFile)
+
+        redirectAttributes.addMessage("Файл откреплён от Задачи.")
+        return "redirect:/user/developer/tasks/$taskId"
+    }
+
+    @PostMapping("/tasks/{taskId}/files/polygon/{fileId}/detach")
+    fun detachPolygonFile(
         @PathVariable taskId: Long,
         @PathVariable fileId: Long,
         session: HttpSession,
@@ -452,26 +686,80 @@ class DeveloperTaskController(
         }
 
         if (task.testingStatus == Task.TestingStatus.TESTING) {
-            redirectAttributes.addMessage("Нельзя изменять файлы во время тестирования.")
+            redirectAttributes.addMessage("Нельзя откреплять Полигоны во время тестирования.")
             return "redirect:/user/developer/tasks/$taskId"
         }
 
-        val usedInContest = contestService.findAll().any { c -> c.tasks.any { it.id == task.id } }
+        val usedInContest = contestService.findAll().asSequence().any { c -> c.tasks.any { it.id == task.id } }
         if (usedInContest) {
-            redirectAttributes.addMessage("Нельзя изменять файлы Задачи, прикреплённой к Туру.")
+            redirectAttributes.addMessage("Нельзя откреплять Полигоны от Задачи, прикреплённой к Туру.")
             return "redirect:/user/developer/tasks/$taskId"
         }
 
-        val removed = task.taskFiles.removeIf { it.id == fileId }
-        if (removed && task.testingStatus == Task.TestingStatus.PASSED) {
-            task.testingStatus = Task.TestingStatus.NOT_TESTED
+        val polygonFile = polygonFileService.findById(fileId) ?: run {
+            redirectAttributes.addMessage("Файл не найден.")
+            return "redirect:/user/developer/tasks/$taskId"
         }
+
+        task.testingStatus = Task.TestingStatus.NOT_TESTED
+        task.data.polygonFileIds.remove(fileId)
         taskService.save(task)
-        if (removed) {
-            redirectAttributes.addMessage("Файл откреплён от Задачи.")
-        } else {
-            redirectAttributes.addMessage("Файл не был прикреплён.")
+
+        polygonFile.data.attachedTaskIds.remove(taskId)
+        polygonFileService.save(polygonFile)
+
+        redirectAttributes.addMessage("Файл откреплён от Задачи.")
+        return "redirect:/user/developer/tasks/$taskId"
+    }
+
+    @PostMapping("/tasks/{taskId}/files/solution/{fileId}/detach")
+    fun detachSolutionFile(
+        @PathVariable taskId: Long,
+        @PathVariable fileId: Long,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
         }
+
+        val task = taskService.findById(taskId) ?: run {
+            redirectAttributes.addMessage("Задача не найдена.")
+            return "redirect:/user/developer/tasks"
+        }
+        if (task.developer?.id != developer.id) {
+            redirectAttributes.addMessage("Изменение доступов доступно только владельцу.")
+            return "redirect:/user/developer/tasks/$taskId"
+        }
+
+        if (task.testingStatus == Task.TestingStatus.TESTING) {
+            redirectAttributes.addMessage("Нельзя откреплять Эталонные решения во время тестирования.")
+            return "redirect:/user/developer/tasks/$taskId"
+        }
+
+        val usedInContest = contestService.findAll().asSequence().any { c -> c.tasks.any { it.id == task.id } }
+        if (usedInContest) {
+            redirectAttributes.addMessage("Нельзя откреплять Эталонные решения от Задачи, прикреплённой к Туру.")
+            return "redirect:/user/developer/tasks/$taskId"
+        }
+
+        val solutionFile = solutionFileService.findById(fileId) ?: run {
+            redirectAttributes.addMessage("Файл не найден.")
+            return "redirect:/user/developer/tasks/$taskId"
+        }
+
+        task.testingStatus = Task.TestingStatus.NOT_TESTED
+        task.data.solutionFileDataById.remove(fileId)
+        taskService.save(task)
+
+        solutionFile.data.attachedTaskIds.remove(taskId)
+        solutionFileService.save(solutionFile)
+
+        redirectAttributes.addMessage("Файл откреплён от Задачи.")
         return "redirect:/user/developer/tasks/$taskId"
     }
 
@@ -535,6 +823,7 @@ class DeveloperTaskController(
                 it.createdBy = developer
                 it.contest = null
                 it.task = task
+                it.info = "Тестирование Эталонного решения (id=${solutionTf.id}) для Задачи (id=${task.id})."
             }
             val saved = solutionService.save(solution)
 
@@ -590,6 +879,21 @@ class DeveloperTaskController(
             redirectAttributes.addMessage("Нельзя удалить Задачу, по которой есть Решения.")
             return "redirect:/user/developer/tasks/$id"
         }
+
+        val attachedConditions = task.data.conditionFileIds.let { conditionFileService.findAllById(it) }
+        val attachedExercises = task.data.exerciseFileIds.let { exerciseFileService.findAllById(it) }
+        val attachedPolygons = task.data.polygonFileIds.let { polygonFileService.findAllById(it) }
+        val attachedSolutions = task.data.solutionFileDataById.keys.let { solutionFileService.findAllById(it) }
+
+        attachedConditions.forEach { it.data.attachedTaskIds.remove(task.id) }
+        attachedExercises.forEach { it.data.attachedTaskIds.remove(task.id) }
+        attachedPolygons.forEach { it.data.attachedTaskIds.remove(task.id) }
+        attachedSolutions.forEach { it.data.attachedTaskIds.remove(task.id) }
+
+        conditionFileService.saveAll(attachedConditions)
+        exerciseFileService.saveAll(attachedExercises)
+        polygonFileService.saveAll(attachedPolygons)
+        solutionFileService.saveAll(attachedSolutions)
 
         taskService.delete(task)
         redirectAttributes.addMessage("Задача удалена.")
