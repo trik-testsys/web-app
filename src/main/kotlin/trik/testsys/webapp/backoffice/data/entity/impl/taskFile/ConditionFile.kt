@@ -3,6 +3,7 @@ package trik.testsys.webapp.backoffice.data.entity.impl.taskFile
 import jakarta.persistence.Entity
 import jakarta.persistence.Table
 import trik.testsys.webapp.backoffice.data.entity.AbstractFile
+import trik.testsys.webapp.backoffice.data.enums.FileType
 import trik.testsys.webapp.core.data.entity.AbstractEntity.Companion.TABLE_PREFIX
 
 /**
@@ -18,5 +19,7 @@ class ConditionFile : AbstractFile() {
     companion object {
 
         const val FILE_NAME_PREFIX = "cond"
+
+        val allowedTypes = setOf(FileType.PDF, FileType.TXT)
     }
 }

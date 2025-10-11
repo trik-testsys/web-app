@@ -3,6 +3,7 @@ package trik.testsys.webapp.backoffice.data.entity.impl.taskFile
 import jakarta.persistence.Entity
 import jakarta.persistence.Table
 import trik.testsys.webapp.backoffice.data.entity.AbstractFile
+import trik.testsys.webapp.backoffice.data.enums.FileType
 import trik.testsys.webapp.core.data.entity.AbstractEntity.Companion.TABLE_PREFIX
 
 /**
@@ -18,5 +19,7 @@ class ExerciseFile : AbstractFile() {
     companion object {
 
         const val FILE_NAME_PREFIX = "ex"
+
+        val allowedTypes = setOf(FileType.QRS, FileType.ZIP)
     }
 }

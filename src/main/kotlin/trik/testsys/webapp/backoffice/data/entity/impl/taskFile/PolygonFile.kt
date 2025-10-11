@@ -25,5 +25,7 @@ class PolygonFile : AbstractFile() {
     companion object {
 
         const val FILE_NAME_PREFIX = "pol"
+
+        val allowedTypes = setOf(FileType.XML)
     }
 }
