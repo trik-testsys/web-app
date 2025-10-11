@@ -88,6 +88,12 @@ class Task() : AbstractEntity(), Sharable {
         val conditionFileIds: MutableList<Long> = mutableListOf(),
         val exerciseFileIds: MutableList<Long> = mutableListOf(),
         val polygonFileIds: MutableList<Long> = mutableListOf(),
-        val solutionFileScoreById: MutableMap<Long, Long> = mutableMapOf(),
+        val solutionFileDataById: MutableMap<Long, SolutionFileData> = mutableMapOf(),
+    )
+
+    data class SolutionFileData(
+        val type: Solution.SolutionType = Solution.SolutionType.QRS,
+        var lastSolutionId: Long? = null,
+        var score: Long = 0
     )
 }

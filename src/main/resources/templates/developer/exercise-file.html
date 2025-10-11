@@ -13,17 +13,17 @@
 <main class="app-main">
     <section class="card">
         <h2 class="card-title" style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
-            <span><a th:href="@{/user/developer/task-files}">Файлы</a> / [<span th:text="${localizedType}"></span>] <span th:text="${taskFile.name}"></span></span>
+            <span><a th:href="@{/user/developer/task-files}">Файлы</a> / [Упражнение] <span th:text="${taskFile.name}"></span></span>
             <span style="display:flex; align-items:center; gap:8px;">
-                <form th:action="@{'/user/developer/task-files/' + ${taskFile.id} + '/delete'}" method="post" onsubmit="return confirm('Удалить файл? Это действие нельзя отменить.');">
-                    <button type="submit" class="button button--danger" th:disabled="${!#lists.isEmpty(taskFile.tasks)}" th:title="${!#lists.isEmpty(taskFile.tasks)} ? 'Нельзя удалить: файл прикреплён к задаче' : null"><i class="fa fa-trash"></i>Удалить</button>
+                <form th:action="@{'/user/developer/task-files/exercise/' + ${taskFile.id} + '/delete'}" method="post" onsubmit="return confirm('Удалить файл? Это действие нельзя отменить.');">
+                    <button type="submit" class="button button--danger" th:disabled="${!#lists.isEmpty(taskFile.taskIds)}" th:title="${!#lists.isEmpty(taskFile.taskIds)} ? 'Нельзя удалить: файл прикреплён к задаче' : null"><i class="fa fa-trash"></i>Удалить</button>
                 </form>
             </span>
         </h2>
         <div class="card-body">
             <h3 style="margin-top:0;">Основная информация</h3>
 
-            <form id="task-file-form" data-readonly-toggle th:action="@{'/user/developer/task-files/' + ${taskFile.id} + '/update'}" method="post" class="form" style="display:grid; gap:12px; max-width:720px;">
+            <form id="task-file-form" data-readonly-toggle th:action="@{'/user/developer/task-files/exercise/' + ${taskFile.id} + '/update'}" method="post" class="form" style="display:grid; gap:12px; max-width:720px;">
                 <label>
                     <div style="margin-bottom:4px;">Название<span class="req">*</span></div>
                     <input name="name" type="text" th:value="${taskFile.name}" required disabled style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
@@ -34,7 +34,7 @@
                 </label>
                 <div>
                     <div style="margin-bottom:4px;">Тип</div>
-                    <div th:text="${localizedType}"></div>
+                    <div th:text="${taskFile.type}"></div>
                 </div>
                 <div>
                     <div style="margin-bottom:4px;">Дата создания</div>
@@ -54,9 +54,9 @@
 
         <div class="card-body">
             <h3 style="margin-top:0;">Загрузить новую версию</h3>
-            <form th:action="@{'/user/developer/task-files/' + ${taskFile.id} + '/upload'}" method="post" enctype="multipart/form-data" class="form" style="gap:12px; max-width: 720px;">
+            <form th:action="@{'/user/developer/task-files/exercise/' + ${taskFile.id} + '/upload'}" method="post" enctype="multipart/form-data" class="form" style="gap:12px; max-width: 720px;">
                 <label>
-                    <input name="file" type="file" required style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px; background:white;">
+                    <input name="file" type="file" required style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px; background:white;" th:accept="${taskFile.type.extension}">
                 </label>
                 <div class="form-buttons">
                     <button type="submit" class="button button--primary">Загрузить</button>
@@ -80,7 +80,7 @@
                     <td th:text="${v.originalName}"></td>
                     <td class="date-cell" data-utc th:attr="data-utc=${v.lastModifiedAt}" th:text="${#temporals.format(v.lastModifiedAt, 'dd.MM.yyyy HH:mm')}"></td>
                     <td>
-                        <a class="button" th:href="@{'/user/developer/task-files/' + ${taskFile.id} + '/download/' + ${v.version}}">Скачать</a>
+                        <a class="button" th:href="@{'/user/developer/task-files/exercise/' + ${taskFile.id} + '/download/' + ${v.version}}">Скачать</a>
                     </td>
                 </tr>
                 </tbody>

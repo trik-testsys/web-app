@@ -157,8 +157,8 @@ class DeveloperTaskController(
         val attachedItems = attachedTaskFiles.map(::toTaskFileListItem)
         val availableItems = availableTaskFiles.map(::toTaskFileListItem)
 
-        val hasPolygon = task.taskFiles.any { it.type == TaskFile.TaskFileType.POLYGON }
-        val hasSolution = task.taskFiles.any { it.type == TaskFile.TaskFileType.SOLUTION }
+        val hasPolygon = task.data.polygonFileIds.isNotEmpty()
+        val hasSolution = task.data.solutionFileDataById.isNotEmpty()
         val isUsedInAnyContest = contestService.findAll().any { c -> c.tasks.any { it.id == task.id } }
 
         val attachedContests = contestService
@@ -594,35 +594,6 @@ class DeveloperTaskController(
         taskService.delete(task)
         redirectAttributes.addMessage("Задача удалена.")
         return "redirect:/user/developer/tasks"
-    }
-
-    // Task templates (kept here until a dedicated controller is introduced)
-    @GetMapping("/task-templates")
-    fun taskTemplatesPage(model: Model, session: HttpSession, redirectAttributes: RedirectAttributes): String {
-        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
-        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
-
-        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
-            redirectAttributes.addMessage("Недостаточно прав.")
-            return "redirect:/user"
-        }
-
-        setupModel(model, session, developer)
-        return "developer/task-templates"
-    }
-
-    @GetMapping("/task-templates/create")
-    fun taskTemplateCreateForm(model: Model, session: HttpSession, redirectAttributes: RedirectAttributes): String {
-        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
-        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
-
-        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
-            redirectAttributes.addMessage("Недостаточно прав.")
-            return "redirect:/user"
-        }
-
-        setupModel(model, session, developer)
-        return "developer/task-template-create"
     }
 
     private data class TaskFileListItem(

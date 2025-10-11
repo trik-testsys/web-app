@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import org.zeroturnaround.zip.ZipUtil
+import trik.testsys.webapp.backoffice.data.entity.AbstractFile
 import trik.testsys.webapp.backoffice.data.entity.impl.TaskFile
 import trik.testsys.webapp.backoffice.data.entity.impl.Solution
 import trik.testsys.webapp.backoffice.data.entity.impl.TaskFile.TaskFileType.Companion.extension
@@ -387,6 +388,84 @@ class FileManagerImpl(
             solutionFileService.delete(saved)
             null
         }
+    }
+
+    override fun getConditionFile(conditionFile: ConditionFile, version: Long): File? {
+        logger.debug("Getting conditionFile(id=${conditionFile.id}, version=$version)")
+        val file = File(conditionFilesDir, conditionFile.getFileName(version))
+
+        return if (file.exists()) file else {
+            logger.error("ConditionFile(id=${conditionFile.id}, version=$version) not found.")
+            null
+        }
+    }
+
+    override fun getExerciseFile(exerciseFile: ExerciseFile, version: Long): File? {
+        logger.debug("Getting exerciseFile(id=${exerciseFile.id}, version=$version)")
+        val file = File(exerciseFilesDir, exerciseFile.getFileName(version))
+
+        return if (file.exists()) file else {
+            logger.error("ExerciseFile(id=${exerciseFile.id}, version=$version) not found.")
+            null
+        }
+    }
+
+    override fun getPolygonFile(polygonFile: PolygonFile, version: Long): File? {
+        logger.debug("Getting polygonFile(id=${polygonFile.id}, version=$version)")
+        val file = File(polygonFilesDir, polygonFile.getFileName(version))
+
+        return if (file.exists()) file else {
+            logger.error("PolygonFile(id=${polygonFile.id}, version=$version) not found.")
+            null
+        }
+    }
+
+    override fun getSolutionFile(solutionFile: SolutionFile, version: Long): File? {
+        logger.debug("Getting solutionFile(id=${solutionFile.id}, version=$version)")
+        val file = File(conditionFilesDir, solutionFile.getFileName(version))
+
+        return if (file.exists()) file else {
+            logger.error("SolutionFile(id=${solutionFile.id}, version=$version) not found.")
+            null
+        }
+    }
+
+    override fun listFileVersions(file: AbstractFile): List<TaskFileVersionInfo> {
+        val dir = when (file) {
+            is ConditionFile -> conditionFilesDir
+            is ExerciseFile -> exerciseFilesDir
+            is PolygonFile -> polygonFilesDir
+            is SolutionFile -> solutionFilesDir
+            else -> {
+                logger.error("Unsupported file type for listing versions: ${file::class.simpleName}")
+                return emptyList()
+            }
+        }
+
+        val prefix = when (file) {
+            is ConditionFile -> "${ConditionFile.FILE_NAME_PREFIX}-${file.id}-"
+            is ExerciseFile -> "${ExerciseFile.FILE_NAME_PREFIX}-${file.id}-"
+            is PolygonFile -> "${PolygonFile.FILE_NAME_PREFIX}-${file.id}-"
+            is SolutionFile -> "${SolutionFile.FILE_NAME_PREFIX}-${file.id}-"
+            else -> {
+                logger.error("Unsupported file type for prefix generation: ${file::class.simpleName}")
+                return emptyList()
+            }
+        }
+        
+        val files = dir.listFiles { _, name -> name.startsWith(prefix) } ?: emptyArray()
+        
+        return files.mapNotNull { f ->
+            val versionStr = f.name.removePrefix(prefix).substringBeforeLast('.')
+            versionStr.toLongOrNull()?.let { version ->
+                TaskFileVersionInfo(
+                    version = version,
+                    fileName = f.name,
+                    lastModifiedAt = Instant.ofEpochMilli(f.lastModified()),
+                    originalName = file.data.originalFileNameByVersion[version] ?: f.name
+                )
+            }
+        }.sortedByDescending { it.version }
     }
 
     companion object {

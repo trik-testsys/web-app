@@ -6,6 +6,7 @@ import jakarta.persistence.Convert
 import jakarta.persistence.Enumerated
 import jakarta.persistence.ManyToMany
 import jakarta.persistence.MappedSuperclass
+import jakarta.persistence.Transient
 import org.hibernate.annotations.JdbcTypeCode
 import org.hibernate.type.SqlTypes
 import trik.testsys.webapp.backoffice.data.entity.impl.Task
@@ -42,7 +43,12 @@ abstract class AbstractFile : AbstractEntity() {
 
     abstract fun getFileName(version: Long = fileVersion): String
 
+    @get:Transient
+    val taskIds: List<Long>
+        get() = data.attachedTaskIds
+
     data class Data(
         val originalFileNameByVersion: MutableMap<Long, String> = mutableMapOf(),
+        val attachedTaskIds: MutableList<Long> = mutableListOf(),
     )
 }

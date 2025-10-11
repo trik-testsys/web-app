@@ -16,10 +16,20 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import trik.testsys.webapp.backoffice.controller.AbstractUserController
+import trik.testsys.webapp.backoffice.data.entity.impl.Solution
 import trik.testsys.webapp.backoffice.data.entity.impl.TaskFile
 import trik.testsys.webapp.backoffice.data.entity.impl.TaskFile.TaskFileType.Companion.extension
 import trik.testsys.webapp.backoffice.data.entity.impl.User
+import trik.testsys.webapp.backoffice.data.entity.impl.taskFile.ConditionFile
+import trik.testsys.webapp.backoffice.data.entity.impl.taskFile.ExerciseFile
+import trik.testsys.webapp.backoffice.data.entity.impl.taskFile.PolygonFile
+import trik.testsys.webapp.backoffice.data.entity.impl.taskFile.SolutionFile
+import trik.testsys.webapp.backoffice.data.enums.FileType
 import trik.testsys.webapp.backoffice.data.service.TaskFileService
+import trik.testsys.webapp.backoffice.data.service.impl.taskFile.ConditionFileService
+import trik.testsys.webapp.backoffice.data.service.impl.taskFile.ExerciseFileService
+import trik.testsys.webapp.backoffice.data.service.impl.taskFile.PolygonFileService
+import trik.testsys.webapp.backoffice.data.service.impl.taskFile.SolutionFileService
 import trik.testsys.webapp.backoffice.service.FileManager
 import trik.testsys.webapp.backoffice.utils.addMessage
 import java.nio.charset.StandardCharsets
@@ -30,6 +40,11 @@ import java.time.Instant
 class DeveloperTaskFileController(
     private val taskFileService: TaskFileService,
     private val fileManager: FileManager,
+
+    private val conditionFileService: ConditionFileService,
+    private val exerciseFileService: ExerciseFileService,
+    private val polygonFileService: PolygonFileService,
+    private val solutionFileService: SolutionFileService
 ) : AbstractUserController() {
 
     @GetMapping("/task-files")
@@ -42,26 +57,12 @@ class DeveloperTaskFileController(
             return "redirect:/user"
         }
 
-        val allTaskFiles = taskFileService.findByDeveloper(developer).filterNot { it.isRemoved }.sortedBy { it.id }
+        val developerId = developer.id!!
 
-        fun toListItem(tf: TaskFile) = TaskFileListItem(
-            id = tf.id!!,
-            name = tf.name,
-            info = tf.info,
-            createdAt = tf.createdAt,
-            localizedType = when (tf.type) {
-                TaskFile.TaskFileType.POLYGON -> "Полигон"
-                TaskFile.TaskFileType.EXERCISE -> "Упражнение"
-                TaskFile.TaskFileType.SOLUTION -> "Эталонное Решение"
-                TaskFile.TaskFileType.CONDITION -> "Условие"
-                else -> tf.type?.name ?: "—"
-            }
-        )
-
-        val polygonFiles = allTaskFiles.filter { it.type == TaskFile.TaskFileType.POLYGON }.map(::toListItem)
-        val exerciseFiles = allTaskFiles.filter { it.type == TaskFile.TaskFileType.EXERCISE }.map(::toListItem)
-        val solutionFiles = allTaskFiles.filter { it.type == TaskFile.TaskFileType.SOLUTION }.map(::toListItem)
-        val conditionFiles = allTaskFiles.filter { it.type == TaskFile.TaskFileType.CONDITION }.map(::toListItem)
+        val conditionFiles = conditionFileService.findByDeveloper(developerId)
+        val exerciseFiles = exerciseFileService.findByDeveloper(developerId)
+        val polygonFiles = polygonFileService.findByDeveloper(developerId)
+        val solutionFiles = solutionFileService.findByDeveloper(developerId)
 
         setupModel(model, session, developer)
         model.addAttribute("polygonFiles", polygonFiles)
@@ -72,8 +73,12 @@ class DeveloperTaskFileController(
         return "developer/task-files"
     }
 
-    @GetMapping("/task-files/create")
-    fun taskFileCreateForm(model: Model, session: HttpSession, redirectAttributes: RedirectAttributes): String {
+    @GetMapping("/task-files/condition")
+    fun conditionFileCreateForm(
+        model: Model,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
         val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
         val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
 
@@ -84,14 +89,71 @@ class DeveloperTaskFileController(
 
         setupModel(model, session, developer)
 
-        return "developer/task-file-create"
+        return "developer/condition-create"
     }
 
-    @PostMapping("/task-files/create")
-    fun createTaskFile(
+    @GetMapping("/task-files/exercise")
+    fun exerciseFileCreateForm(
+        model: Model,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        setupModel(model, session, developer)
+
+        return "developer/exercise-create"
+    }
+
+    @GetMapping("/task-files/polygon")
+    fun polygonFileCreateForm(
+        model: Model,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        setupModel(model, session, developer)
+
+        return "developer/polygon-create"
+    }
+
+    @GetMapping("/task-files/solution")
+    fun solutionFileCreateForm(
+        model: Model,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        setupModel(model, session, developer)
+
+        return "developer/solution-create"
+    }
+
+    @PostMapping("/task-files/condition/create")
+    fun conditionFileCreate(
         @RequestParam name: String,
         @RequestParam(required = false) info: String?,
-        @RequestParam type: String,
+        @RequestParam type: FileType,
         @RequestParam("file") file: MultipartFile,
         session: HttpSession,
         redirectAttributes: RedirectAttributes
@@ -110,35 +172,171 @@ class DeveloperTaskFileController(
             return "redirect:/user/developer/task-files"
         }
 
-        val tfType = try {
-            TaskFile.TaskFileType.valueOf(type)
-        } catch (e: Exception) {
+        if (!ConditionFile.allowedTypes.contains(type)) {
             redirectAttributes.addMessage("Некорректный тип файла.")
             return "redirect:/user/developer/task-files"
         }
 
-        val taskFile = TaskFile().also {
+        val conditionFile = ConditionFile().also {
             it.name = trimmedName
-            it.data.originalFileNameByVersion[it.fileVersion] = file.originalFilename?.substringBeforeLast('.')
-                ?: trimmedName
-            it.developer = developer
+            it.data.originalFileNameByVersion[it.fileVersion] = file.originalFilename?.substringBeforeLast(".") ?: trimmedName
+            it.developerId = developer.id
             it.info = info?.takeIf { s -> s.isNotBlank() }
-            it.type = tfType
+            it.type = type
         }
 
-        val saved = fileManager.saveTaskFile(taskFile, file)
-        if (!saved) {
-            taskFileService.delete(taskFile)
-            redirectAttributes.addMessage("Не удалось сохранить файл на диск.")
+        val saved = fileManager.saveConditionFile(conditionFile, file) ?: run {
+            conditionFileService.delete(conditionFile)
+            redirectAttributes.addMessage("Не удалось сохранить файл.")
             return "redirect:/user/developer/task-files"
         }
 
-        redirectAttributes.addMessage("Файл создан (id=${taskFile.id}).")
+        redirectAttributes.addMessage("Файл создан (id=${saved.id}).")
         return "redirect:/user/developer/task-files"
     }
 
-    @GetMapping("/task-files/{id}")
-    fun viewTaskFile(
+    @PostMapping("/task-files/exercise/create")
+    fun exerciseFileCreate(
+        @RequestParam name: String,
+        @RequestParam(required = false) info: String?,
+        @RequestParam type: FileType,
+        @RequestParam("file") file: MultipartFile,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val trimmedName = name.trim()
+        if (trimmedName.isEmpty()) {
+            redirectAttributes.addMessage("Название не может быть пустым.")
+            return "redirect:/user/developer/task-files"
+        }
+
+        if (!ExerciseFile.allowedTypes.contains(type)) {
+            redirectAttributes.addMessage("Некорректный тип файла.")
+            return "redirect:/user/developer/task-files"
+        }
+
+        val exerciseFile = ExerciseFile().also {
+            it.name = trimmedName
+            it.data.originalFileNameByVersion[it.fileVersion] = file.originalFilename?.substringBeforeLast(".") ?: trimmedName
+            it.developerId = developer.id
+            it.info = info?.takeIf { s -> s.isNotBlank() }
+            it.type = type
+        }
+
+        val saved = fileManager.saveExerciseFile(exerciseFile, file) ?: run {
+            exerciseFileService.delete(exerciseFile)
+            redirectAttributes.addMessage("Не удалось сохранить файл.")
+            return "redirect:/user/developer/task-files"
+        }
+
+        redirectAttributes.addMessage("Файл создан (id=${saved.id}).")
+        return "redirect:/user/developer/task-files"
+    }
+
+    @PostMapping("/task-files/polygon/create")
+    fun polygonFileCreate(
+        @RequestParam name: String,
+        @RequestParam(required = false) info: String?,
+        @RequestParam type: FileType,
+        @RequestParam("file") file: MultipartFile,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val trimmedName = name.trim()
+        if (trimmedName.isEmpty()) {
+            redirectAttributes.addMessage("Название не может быть пустым.")
+            return "redirect:/user/developer/task-files"
+        }
+
+        if (!PolygonFile.allowedTypes.contains(type)) {
+            redirectAttributes.addMessage("Некорректный тип файла.")
+            return "redirect:/user/developer/task-files"
+        }
+
+        val polygonFile = PolygonFile().also {
+            it.name = trimmedName
+            it.data.originalFileNameByVersion[it.fileVersion] = file.originalFilename?.substringBeforeLast(".") ?: trimmedName
+            it.developerId = developer.id
+            it.info = info?.takeIf { s -> s.isNotBlank() }
+            it.type = type
+        }
+
+        val saved = fileManager.savePolygonFile(polygonFile, file) ?: run {
+            polygonFileService.delete(polygonFile)
+            redirectAttributes.addMessage("Не удалось сохранить файл.")
+            return "redirect:/user/developer/task-files"
+        }
+
+        redirectAttributes.addMessage("Файл создан (id=${saved.id}).")
+        return "redirect:/user/developer/task-files"
+    }
+
+    @PostMapping("/task-files/solution/create")
+    fun solutionFileCreate(
+        @RequestParam name: String,
+        @RequestParam(required = false) info: String?,
+        @RequestParam type: FileType,
+        @RequestParam solutionType: Solution.SolutionType,
+        @RequestParam("file") file: MultipartFile,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val trimmedName = name.trim()
+        if (trimmedName.isEmpty()) {
+            redirectAttributes.addMessage("Название не может быть пустым.")
+            return "redirect:/user/developer/task-files"
+        }
+
+        if (!SolutionFile.allowedTypes.contains(type)) {
+            redirectAttributes.addMessage("Некорректный тип файла.")
+            return "redirect:/user/developer/task-files"
+        }
+
+        val solutionFile = SolutionFile().also {
+            it.name = trimmedName
+            it.data.originalFileNameByVersion[it.fileVersion] = file.originalFilename?.substringBeforeLast(".") ?: trimmedName
+            it.developerId = developer.id
+            it.info = info?.takeIf { s -> s.isNotBlank() }
+            it.type = type
+            it.solutionType = solutionType
+        }
+
+        val saved = fileManager.saveSolutionFile(solutionFile, file) ?: run {
+            solutionFileService.delete(solutionFile)
+            redirectAttributes.addMessage("Не удалось сохранить файл.")
+            return "redirect:/user/developer/task-files"
+        }
+
+        redirectAttributes.addMessage("Файл создан (id=${saved.id}).")
+        return "redirect:/user/developer/task-files"
+    }
+
+    @GetMapping("/task-files/condition/{id}")
+    fun viewConditionFile(
         @PathVariable id: Long,
         model: Model,
         session: HttpSession,
@@ -152,39 +350,145 @@ class DeveloperTaskFileController(
             return "redirect:/user"
         }
 
-        val tf = taskFileService.findById(id) ?: run {
+        val conditionFile = conditionFileService.findById(id) ?: run {
             redirectAttributes.addMessage("Файл не найден.")
             return "redirect:/user/developer/task-files"
         }
-        if (tf.developer?.id != developer.id) {
+
+        if (conditionFile.developerId != developer.id) {
             redirectAttributes.addMessage("У вас нет доступа к этому Файлу.")
             return "redirect:/user/developer/task-files"
         }
-        if (tf.isRemoved) {
+        if (conditionFile.isRemoved) {
             redirectAttributes.addMessage("Файл удалён.")
             return "redirect:/user/developer/task-files"
         }
 
-        val localizedType = when (tf.type) {
-            TaskFile.TaskFileType.POLYGON -> "Полигон"
-            TaskFile.TaskFileType.EXERCISE -> "Упражнение"
-            TaskFile.TaskFileType.SOLUTION -> "Эталонное Решение"
-            TaskFile.TaskFileType.CONDITION -> "Условие"
-            else -> tf.type?.name ?: "—"
-        }
-
-        val versions = fileManager.listTaskFileVersions(tf)
+        val versions = fileManager.listFileVersions(conditionFile)
 
         setupModel(model, session, developer)
-        model.addAttribute("taskFile", tf)
-        model.addAttribute("localizedType", localizedType)
+        model.addAttribute("taskFile", conditionFile)
         model.addAttribute("versions", versions)
 
-        return "developer/task-file"
+        return "developer/condition-file"
     }
 
-    @PostMapping("/task-files/{id}/upload")
-    fun updateTaskFile(
+    @GetMapping("/task-files/exercise/{id}")
+    fun viewExerciseFile(
+        @PathVariable id: Long,
+        model: Model,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val exerciseFile = exerciseFileService.findById(id) ?: run {
+            redirectAttributes.addMessage("Файл не найден.")
+            return "redirect:/user/developer/task-files"
+        }
+
+        if (exerciseFile.developerId != developer.id) {
+            redirectAttributes.addMessage("У вас нет доступа к этому Файлу.")
+            return "redirect:/user/developer/task-files"
+        }
+        if (exerciseFile.isRemoved) {
+            redirectAttributes.addMessage("Файл удалён.")
+            return "redirect:/user/developer/task-files"
+        }
+
+        val versions = fileManager.listFileVersions(exerciseFile)
+
+        setupModel(model, session, developer)
+        model.addAttribute("taskFile", exerciseFile)
+        model.addAttribute("versions", versions)
+
+        return "developer/exercise-file"
+    }
+
+    @GetMapping("/task-files/polygon/{id}")
+    fun viewPolygonFile(
+        @PathVariable id: Long,
+        model: Model,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val polygonFile = polygonFileService.findById(id) ?: run {
+            redirectAttributes.addMessage("Файл не найден.")
+            return "redirect:/user/developer/task-files"
+        }
+
+        if (polygonFile.developerId != developer.id) {
+            redirectAttributes.addMessage("У вас нет доступа к этому Файлу.")
+            return "redirect:/user/developer/task-files"
+        }
+        if (polygonFile.isRemoved) {
+            redirectAttributes.addMessage("Файл удалён.")
+            return "redirect:/user/developer/task-files"
+        }
+
+        val versions = fileManager.listFileVersions(polygonFile)
+
+        setupModel(model, session, developer)
+        model.addAttribute("taskFile", polygonFile)
+        model.addAttribute("versions", versions)
+
+        return "developer/polygon-file"
+    }
+
+    @GetMapping("/task-files/solution/{id}")
+    fun viewSolutionFile(
+        @PathVariable id: Long,
+        model: Model,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val solutionFile = solutionFileService.findById(id) ?: run {
+            redirectAttributes.addMessage("Файл не найден.")
+            return "redirect:/user/developer/task-files"
+        }
+
+        if (solutionFile.developerId != developer.id) {
+            redirectAttributes.addMessage("У вас нет доступа к этому Файлу.")
+            return "redirect:/user/developer/task-files"
+        }
+        if (solutionFile.isRemoved) {
+            redirectAttributes.addMessage("Файл удалён.")
+            return "redirect:/user/developer/task-files"
+        }
+
+        val versions = fileManager.listFileVersions(solutionFile)
+
+        setupModel(model, session, developer)
+        model.addAttribute("taskFile", solutionFile)
+        model.addAttribute("versions", versions)
+
+        return "developer/polygon-file"
+    }
+
+    @PostMapping("/task-files/condition/{id}/upload")
+    fun updateConditionFile(
         @PathVariable id: Long,
         @RequestParam("file") file: MultipartFile,
         session: HttpSession,
@@ -198,37 +502,165 @@ class DeveloperTaskFileController(
             return "redirect:/user"
         }
 
-        val tf = taskFileService.findById(id) ?: run {
+        val conditionFile = conditionFileService.findById(id) ?: run {
             redirectAttributes.addMessage("Файл не найден.")
             return "redirect:/user/developer/task-files"
         }
-        if (tf.developer?.id != developer.id) {
+        if (conditionFile.developerId != developer.id) {
             redirectAttributes.addMessage("Редактирование доступно только владельцу.")
-            return "redirect:/user/developer/task-files/$id"
+            return "redirect:/user/developer/task-files/condition/$id"
         }
-        if (tf.isRemoved) {
+        if (conditionFile.isRemoved) {
             redirectAttributes.addMessage("Файл удалён и недоступен для обновления.")
             return "redirect:/user/developer/task-files"
         }
 
-        tf.fileVersion = (tf.fileVersion + 1)
-        tf.data.originalFileNameByVersion[tf.fileVersion] = file.originalFilename?.substringBeforeLast('.')
-            ?: tf.name!!
+        conditionFile.fileVersion++
+        conditionFile.data.originalFileNameByVersion[conditionFile.fileVersion] = file.originalFilename?.substringBeforeLast('.')
+            ?: conditionFile.name!!
 
-        val saved = fileManager.saveTaskFile(tf, file)
-        if (!saved) {
-            tf.fileVersion = (tf.fileVersion - 1)
+        val saved = fileManager.saveConditionFile(conditionFile, file) ?: run {
+            conditionFile.fileVersion--
             redirectAttributes.addMessage("Не удалось сохранить файл.")
-            return "redirect:/user/developer/task-files/$id"
+            return "redirect:/user/developer/task-files/condition/$id"
         }
 
-        taskFileService.save(tf)
+        conditionFileService.save(saved)
         redirectAttributes.addMessage("Файл обновлён.")
-        return "redirect:/user/developer/task-files/$id"
+        return "redirect:/user/developer/task-files/condition/$id"
     }
 
-    @PostMapping("/task-files/{id}/update")
-    fun updateTaskFileMeta(
+    @PostMapping("/task-files/exercise/{id}/upload")
+    fun updateExerciseFile(
+        @PathVariable id: Long,
+        @RequestParam("file") file: MultipartFile,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val exerciseFile = exerciseFileService.findById(id) ?: run {
+            redirectAttributes.addMessage("Файл не найден.")
+            return "redirect:/user/developer/task-files"
+        }
+        if (exerciseFile.developerId != developer.id) {
+            redirectAttributes.addMessage("Редактирование доступно только владельцу.")
+            return "redirect:/user/developer/task-files/exercise/$id"
+        }
+        if (exerciseFile.isRemoved) {
+            redirectAttributes.addMessage("Файл удалён и недоступен для обновления.")
+            return "redirect:/user/developer/task-files"
+        }
+
+        exerciseFile.fileVersion++
+        exerciseFile.data.originalFileNameByVersion[exerciseFile.fileVersion] = file.originalFilename?.substringBeforeLast('.')
+            ?: exerciseFile.name!!
+
+        val saved = fileManager.saveExerciseFile(exerciseFile, file) ?: run {
+            exerciseFile.fileVersion--
+            redirectAttributes.addMessage("Не удалось сохранить файл.")
+            return "redirect:/user/developer/task-files/exercise/$id"
+        }
+
+        exerciseFileService.save(saved)
+        redirectAttributes.addMessage("Файл обновлён.")
+        return "redirect:/user/developer/task-files/exercise/$id"
+    }
+
+    @PostMapping("/task-files/polygon/{id}/upload")
+    fun updatePolygonFile(
+        @PathVariable id: Long,
+        @RequestParam("file") file: MultipartFile,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val polygonFile = polygonFileService.findById(id) ?: run {
+            redirectAttributes.addMessage("Файл не найден.")
+            return "redirect:/user/developer/task-files"
+        }
+        if (polygonFile.developerId != developer.id) {
+            redirectAttributes.addMessage("Редактирование доступно только владельцу.")
+            return "redirect:/user/developer/task-files/polygon/$id"
+        }
+        if (polygonFile.isRemoved) {
+            redirectAttributes.addMessage("Файл удалён и недоступен для обновления.")
+            return "redirect:/user/developer/task-files"
+        }
+
+        polygonFile.fileVersion++
+        polygonFile.data.originalFileNameByVersion[polygonFile.fileVersion] = file.originalFilename?.substringBeforeLast('.')
+            ?: polygonFile.name!!
+
+        val saved = fileManager.savePolygonFile(polygonFile, file) ?: run {
+            polygonFile.fileVersion--
+            redirectAttributes.addMessage("Не удалось сохранить файл.")
+            return "redirect:/user/developer/task-files/polygon/$id"
+        }
+
+        polygonFileService.save(saved)
+        redirectAttributes.addMessage("Файл обновлён.")
+        return "redirect:/user/developer/task-files/polygon/$id"
+    }
+
+    @PostMapping("/task-files/solution/{id}/upload")
+    fun updateSolutionFile(
+        @PathVariable id: Long,
+        @RequestParam("file") file: MultipartFile,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val solutionFile = solutionFileService.findById(id) ?: run {
+            redirectAttributes.addMessage("Файл не найден.")
+            return "redirect:/user/developer/task-files"
+        }
+        if (solutionFile.developerId != developer.id) {
+            redirectAttributes.addMessage("Редактирование доступно только владельцу.")
+            return "redirect:/user/developer/task-files/solution/$id"
+        }
+        if (solutionFile.isRemoved) {
+            redirectAttributes.addMessage("Файл удалён и недоступен для обновления.")
+            return "redirect:/user/developer/task-files"
+        }
+
+        solutionFile.fileVersion++
+        solutionFile.data.originalFileNameByVersion[solutionFile.fileVersion] = file.originalFilename?.substringBeforeLast('.')
+            ?: solutionFile.name!!
+
+        val saved = fileManager.saveSolutionFile(solutionFile, file) ?: run {
+            solutionFile.fileVersion--
+            redirectAttributes.addMessage("Не удалось сохранить файл.")
+            return "redirect:/user/developer/task-files/solution/$id"
+        }
+
+        solutionFileService.save(saved)
+        redirectAttributes.addMessage("Файл обновлён.")
+        return "redirect:/user/developer/task-files/solution/$id"
+    }
+
+    @PostMapping("/task-files/condition/{id}/update")
+    fun updateConditionFileMeta(
         @PathVariable id: Long,
         @RequestParam name: String,
         @RequestParam(required = false) info: String?,
@@ -243,15 +675,15 @@ class DeveloperTaskFileController(
             return "redirect:/user"
         }
 
-        val tf = taskFileService.findById(id) ?: run {
+        val conditionFile = conditionFileService.findById(id) ?: run {
             redirectAttributes.addMessage("Файл не найден.")
             return "redirect:/user/developer/task-files"
         }
-        if (tf.developer?.id != developer.id) {
+        if (conditionFile.developerId != developer.id) {
             redirectAttributes.addMessage("Редактирование доступно только владельцу.")
-            return "redirect:/user/developer/task-files/$id"
+            return "redirect:/user/developer/task-files/condition/$id"
         }
-        if (tf.isRemoved) {
+        if (conditionFile.isRemoved) {
             redirectAttributes.addMessage("Файл удалён и недоступен для обновления.")
             return "redirect:/user/developer/task-files"
         }
@@ -259,18 +691,144 @@ class DeveloperTaskFileController(
         val trimmedName = name.trim()
         if (trimmedName.isEmpty()) {
             redirectAttributes.addMessage("Название не может быть пустым.")
-            return "redirect:/user/developer/task-files/$id"
+            return "redirect:/user/developer/task-files/condition/$id"
         }
 
-        tf.name = trimmedName
-        tf.info = info?.takeIf { it.isNotBlank() }
-        taskFileService.save(tf)
+        conditionFile.name = trimmedName
+        conditionFile.info = info?.takeIf { it.isNotBlank() }
+        conditionFileService.save(conditionFile)
         redirectAttributes.addMessage("Данные Файла обновлены.")
-        return "redirect:/user/developer/task-files/$id"
+        return "redirect:/user/developer/task-files/condition/$id"
     }
 
-    @PostMapping("/task-files/{id}/delete")
-    fun deleteTaskFile(
+    @PostMapping("/task-files/exercise/{id}/update")
+    fun updateExerciseFileMeta(
+        @PathVariable id: Long,
+        @RequestParam name: String,
+        @RequestParam(required = false) info: String?,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val exerciseFile = exerciseFileService.findById(id) ?: run {
+            redirectAttributes.addMessage("Файл не найден.")
+            return "redirect:/user/developer/task-files"
+        }
+        if (exerciseFile.developerId != developer.id) {
+            redirectAttributes.addMessage("Редактирование доступно только владельцу.")
+            return "redirect:/user/developer/task-files/exercise/$id"
+        }
+        if (exerciseFile.isRemoved) {
+            redirectAttributes.addMessage("Файл удалён и недоступен для обновления.")
+            return "redirect:/user/developer/task-files"
+        }
+
+        val trimmedName = name.trim()
+        if (trimmedName.isEmpty()) {
+            redirectAttributes.addMessage("Название не может быть пустым.")
+            return "redirect:/user/developer/task-files/exercise/$id"
+        }
+
+        exerciseFile.name = trimmedName
+        exerciseFile.info = info?.takeIf { it.isNotBlank() }
+        exerciseFileService.save(exerciseFile)
+        redirectAttributes.addMessage("Данные Файла обновлены.")
+        return "redirect:/user/developer/task-files/exercise/$id"
+    }
+
+    @PostMapping("/task-files/polygon/{id}/update")
+    fun updatePolygonFileMeta(
+        @PathVariable id: Long,
+        @RequestParam name: String,
+        @RequestParam(required = false) info: String?,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val polygonFile = polygonFileService.findById(id) ?: run {
+            redirectAttributes.addMessage("Файл не найден.")
+            return "redirect:/user/developer/task-files"
+        }
+        if (polygonFile.developerId != developer.id) {
+            redirectAttributes.addMessage("Редактирование доступно только владельцу.")
+            return "redirect:/user/developer/task-files/polygon/$id"
+        }
+        if (polygonFile.isRemoved) {
+            redirectAttributes.addMessage("Файл удалён и недоступен для обновления.")
+            return "redirect:/user/developer/task-files"
+        }
+
+        val trimmedName = name.trim()
+        if (trimmedName.isEmpty()) {
+            redirectAttributes.addMessage("Название не может быть пустым.")
+            return "redirect:/user/developer/task-files/polygon/$id"
+        }
+
+        polygonFile.name = trimmedName
+        polygonFile.info = info?.takeIf { it.isNotBlank() }
+        polygonFileService.save(polygonFile)
+        redirectAttributes.addMessage("Данные Файла обновлены.")
+        return "redirect:/user/developer/task-files/polygon/$id"
+    }
+
+    @PostMapping("/task-files/solution/{id}/update")
+    fun updateSolutionFileMeta(
+        @PathVariable id: Long,
+        @RequestParam name: String,
+        @RequestParam(required = false) info: String?,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val solutionFile = solutionFileService.findById(id) ?: run {
+            redirectAttributes.addMessage("Файл не найден.")
+            return "redirect:/user/developer/task-files"
+        }
+        if (solutionFile.developerId != developer.id) {
+            redirectAttributes.addMessage("Редактирование доступно только владельцу.")
+            return "redirect:/user/developer/task-files/solution/$id"
+        }
+        if (solutionFile.isRemoved) {
+            redirectAttributes.addMessage("Файл удалён и недоступен для обновления.")
+            return "redirect:/user/developer/task-files"
+        }
+
+        val trimmedName = name.trim()
+        if (trimmedName.isEmpty()) {
+            redirectAttributes.addMessage("Название не может быть пустым.")
+            return "redirect:/user/developer/task-files/solution/$id"
+        }
+
+        solutionFile.name = trimmedName
+        solutionFile.info = info?.takeIf { it.isNotBlank() }
+        solutionFileService.save(solutionFile)
+        redirectAttributes.addMessage("Данные Файла обновлены.")
+        return "redirect:/user/developer/task-files/solution/$id"
+    }
+
+    @PostMapping("/task-files/condition/{id}/delete")
+    fun deleteConditionFile(
         @PathVariable id: Long,
         session: HttpSession,
         redirectAttributes: RedirectAttributes
@@ -283,31 +841,142 @@ class DeveloperTaskFileController(
             return "redirect:/user"
         }
 
-        val tf = taskFileService.findById(id) ?: run {
+        val conditionFile = conditionFileService.findById(id) ?: run {
             redirectAttributes.addMessage("Файл не найден.")
             return "redirect:/user/developer/task-files"
         }
-        if (tf.developer?.id != developer.id) {
+        if (conditionFile.developerId != developer.id) {
             redirectAttributes.addMessage("Удаление доступно только владельцу.")
-            return "redirect:/user/developer/task-files/$id"
+            return "redirect:/user/developer/task-files/condition/$id"
         }
 
-        if (tf.tasks.isNotEmpty()) {
+        if (conditionFile.taskIds.isNotEmpty()) {
             redirectAttributes.addMessage("Нельзя удалить Файл, прикреплённый к Задаче.")
-            return "redirect:/user/developer/task-files/$id"
+            return "redirect:/user/developer/task-files/condition/$id"
         }
 
-        tf.isRemoved = true
-        taskFileService.save(tf)
+        conditionFile.isRemoved = true
+        conditionFileService.save(conditionFile)
 
-        logger.info("TaskFile(id=${tf.id}) was marked as removed.")
+        logger.info("ConditionFile(id=${conditionFile.id}) was marked as removed.")
 
         redirectAttributes.addMessage("Файл удален.")
         return "redirect:/user/developer/task-files"
     }
 
-    @GetMapping("/task-files/{id}/download/{version}")
-    fun downloadTaskFileVersion(
+    @PostMapping("/task-files/exercise/{id}/delete")
+    fun deleteExerciseFile(
+        @PathVariable id: Long,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val exerciseFile = exerciseFileService.findById(id) ?: run {
+            redirectAttributes.addMessage("Файл не найден.")
+            return "redirect:/user/developer/task-files"
+        }
+        if (exerciseFile.developerId != developer.id) {
+            redirectAttributes.addMessage("Удаление доступно только владельцу.")
+            return "redirect:/user/developer/task-files/exercise/$id"
+        }
+
+        if (exerciseFile.taskIds.isNotEmpty()) {
+            redirectAttributes.addMessage("Нельзя удалить Файл, прикреплённый к Задаче.")
+            return "redirect:/user/developer/task-files/exercise/$id"
+        }
+
+        exerciseFile.isRemoved = true
+        exerciseFileService.save(exerciseFile)
+
+        logger.info("ExerciseFile(id=${exerciseFile.id}) was marked as removed.")
+
+        redirectAttributes.addMessage("Файл удален.")
+        return "redirect:/user/developer/task-files"
+    }
+
+    @PostMapping("/task-files/polygon/{id}/delete")
+    fun deletePolygonFile(
+        @PathVariable id: Long,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val polygonFile = polygonFileService.findById(id) ?: run {
+            redirectAttributes.addMessage("Файл не найден.")
+            return "redirect:/user/developer/task-files"
+        }
+        if (polygonFile.developerId != developer.id) {
+            redirectAttributes.addMessage("Удаление доступно только владельцу.")
+            return "redirect:/user/developer/task-files/polygon/$id"
+        }
+
+        if (polygonFile.taskIds.isNotEmpty()) {
+            redirectAttributes.addMessage("Нельзя удалить Файл, прикреплённый к Задаче.")
+            return "redirect:/user/developer/task-files/polygon/$id"
+        }
+
+        polygonFile.isRemoved = true
+        polygonFileService.save(polygonFile)
+
+        logger.info("PolygonFile(id=${polygonFile.id}) was marked as removed.")
+
+        redirectAttributes.addMessage("Файл удален.")
+        return "redirect:/user/developer/task-files"
+    }
+
+    @PostMapping("/task-files/solution/{id}/delete")
+    fun deleteSolutionFile(
+        @PathVariable id: Long,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val solutionFile = solutionFileService.findById(id) ?: run {
+            redirectAttributes.addMessage("Файл не найден.")
+            return "redirect:/user/developer/task-files"
+        }
+        if (solutionFile.developerId != developer.id) {
+            redirectAttributes.addMessage("Удаление доступно только владельцу.")
+            return "redirect:/user/developer/task-files/solution/$id"
+        }
+
+        if (solutionFile.taskIds.isNotEmpty()) {
+            redirectAttributes.addMessage("Нельзя удалить Файл, прикреплённый к Задаче.")
+            return "redirect:/user/developer/task-files/solution/$id"
+        }
+
+        solutionFile.isRemoved = true
+        solutionFileService.save(solutionFile)
+
+        logger.info("SolutionFile(id=${solutionFile.id}) was marked as removed.")
+
+        redirectAttributes.addMessage("Файл удален.")
+        return "redirect:/user/developer/task-files"
+    }
+
+    @GetMapping("/task-files/condition/{id}/download/{version}")
+    fun downloadConditionFileVersion(
         @PathVariable id: Long,
         @PathVariable version: Long,
         session: HttpSession,
@@ -321,27 +990,27 @@ class DeveloperTaskFileController(
             return "redirect:/user"
         }
 
-        val tf = taskFileService.findById(id) ?: run {
+        val conditionFile = conditionFileService.findById(id) ?: run {
             redirectAttributes.addMessage("Файл не найден.")
             return "redirect:/user/developer/task-files"
         }
-        if (tf.developer?.id != developer.id) {
+        if (conditionFile.developerId != developer.id) {
             redirectAttributes.addMessage("У вас нет доступа к этому Файлу.")
             return "redirect:/user/developer/task-files"
         }
-        if (tf.isRemoved) {
+        if (conditionFile.isRemoved) {
             redirectAttributes.addMessage("Файл удалён.")
             return "redirect:/user/developer/task-files"
         }
 
-        val file = fileManager.getTaskFileVersion(tf, version) ?: run {
+        val file = fileManager.getConditionFile(conditionFile, version) ?: run {
             redirectAttributes.addMessage("Версия не найдена.")
-            return "redirect:/user/developer/task-files/$id"
+            return "redirect:/user/developer/task-files/condition/$id"
         }
 
         val bytes = file.readBytes()
-        val name = tf.data.originalFileNameByVersion[version] ?: tf.name
-        val filename = "${name}${tf.type?.extension()}"
+        val name = conditionFile.data.originalFileNameByVersion[version] ?: conditionFile.name
+        val filename = "${name}${conditionFile.type?.extension}"
         val disposition = ContentDisposition
             .attachment()
             .filename(filename, StandardCharsets.UTF_8)
@@ -353,13 +1022,146 @@ class DeveloperTaskFileController(
             .body(bytes)
     }
 
-    private data class TaskFileListItem(
-        val id: Long,
-        val name: String?,
-        val info: String?,
-        val createdAt: Instant?,
-        val localizedType: String,
-    )
+    @GetMapping("/task-files/exercise/{id}/download/{version}")
+    fun downloadExerciseFileVersion(
+        @PathVariable id: Long,
+        @PathVariable version: Long,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): Any {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val exerciseFile = exerciseFileService.findById(id) ?: run {
+            redirectAttributes.addMessage("Файл не найден.")
+            return "redirect:/user/developer/task-files"
+        }
+        if (exerciseFile.developerId != developer.id) {
+            redirectAttributes.addMessage("У вас нет доступа к этому Файлу.")
+            return "redirect:/user/developer/task-files"
+        }
+        if (exerciseFile.isRemoved) {
+            redirectAttributes.addMessage("Файл удалён.")
+            return "redirect:/user/developer/task-files"
+        }
+
+        val file = fileManager.getExerciseFile(exerciseFile, version) ?: run {
+            redirectAttributes.addMessage("Версия не найдена.")
+            return "redirect:/user/developer/task-files/exercise/$id"
+        }
+
+        val bytes = file.readBytes()
+        val name = exerciseFile.data.originalFileNameByVersion[version] ?: exerciseFile.name
+        val filename = "${name}${exerciseFile.type?.extension}"
+        val disposition = ContentDisposition
+            .attachment()
+            .filename(filename, StandardCharsets.UTF_8)
+            .build()
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, disposition.toString())
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE)
+            .header(HttpHeaders.CONTENT_LENGTH, bytes.size.toString())
+            .body(bytes)
+    }
+
+    @GetMapping("/task-files/polygon/{id}/download/{version}")
+    fun downloadPolygonFileVersion(
+        @PathVariable id: Long,
+        @PathVariable version: Long,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): Any {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val polygonFile = polygonFileService.findById(id) ?: run {
+            redirectAttributes.addMessage("Файл не найден.")
+            return "redirect:/user/developer/task-files"
+        }
+        if (polygonFile.developerId != developer.id) {
+            redirectAttributes.addMessage("У вас нет доступа к этому Файлу.")
+            return "redirect:/user/developer/task-files"
+        }
+        if (polygonFile.isRemoved) {
+            redirectAttributes.addMessage("Файл удалён.")
+            return "redirect:/user/developer/task-files"
+        }
+
+        val file = fileManager.getPolygonFile(polygonFile, version) ?: run {
+            redirectAttributes.addMessage("Версия не найдена.")
+            return "redirect:/user/developer/task-files/polygon/$id"
+        }
+
+        val bytes = file.readBytes()
+        val name = polygonFile.data.originalFileNameByVersion[version] ?: polygonFile.name
+        val filename = "${name}${polygonFile.type?.extension}"
+        val disposition = ContentDisposition
+            .attachment()
+            .filename(filename, StandardCharsets.UTF_8)
+            .build()
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, disposition.toString())
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE)
+            .header(HttpHeaders.CONTENT_LENGTH, bytes.size.toString())
+            .body(bytes)
+    }
+
+    @GetMapping("/task-files/solution/{id}/download/{version}")
+    fun downloadSolutionFileVersion(
+        @PathVariable id: Long,
+        @PathVariable version: Long,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): Any {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val solutionFile = solutionFileService.findById(id) ?: run {
+            redirectAttributes.addMessage("Файл не найден.")
+            return "redirect:/user/developer/task-files"
+        }
+        if (solutionFile.developerId != developer.id) {
+            redirectAttributes.addMessage("У вас нет доступа к этому Файлу.")
+            return "redirect:/user/developer/task-files"
+        }
+        if (solutionFile.isRemoved) {
+            redirectAttributes.addMessage("Файл удалён.")
+            return "redirect:/user/developer/task-files"
+        }
+
+        val file = fileManager.getSolutionFile(solutionFile, version) ?: run {
+            redirectAttributes.addMessage("Версия не найдена.")
+            return "redirect:/user/developer/task-files/solution/$id"
+        }
+
+        val bytes = file.readBytes()
+        val name = solutionFile.data.originalFileNameByVersion[version] ?: solutionFile.name
+        val filename = "${name}${solutionFile.type?.extension}"
+        val disposition = ContentDisposition
+            .attachment()
+            .filename(filename, StandardCharsets.UTF_8)
+            .build()
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, disposition.toString())
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE)
+            .header(HttpHeaders.CONTENT_LENGTH, bytes.size.toString())
+            .body(bytes)
+    }
 
     companion object {
 

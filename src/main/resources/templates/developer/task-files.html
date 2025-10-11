@@ -40,7 +40,7 @@
                     <tbody>
                         <tr th:each="f : ${polygonFiles}">
                             <td class="id-cell" th:text="${f.id}"></td>
-                            <td><a th:href="@{'/user/developer/task-files/' + ${f.id}}" th:text="${f.name}"></a></td>
+                            <td><a th:href="@{'/user/developer/task-files/polygon/' + ${f.id}}" th:text="${f.name}"></a></td>
                             <td th:text="${f.info ?: '—'}"></td>
                             <td th:text="${f.type}"></td>
                             <td class="date-cell" data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
@@ -71,7 +71,7 @@
                     <tbody>
                         <tr th:each="f : ${exerciseFiles}">
                             <td class="id-cell" th:text="${f.id}"></td>
-                            <td><a th:href="@{'/user/developer/task-files/' + ${f.id}}" th:text="${f.name}"></a></td>
+                            <td><a th:href="@{'/user/developer/task-files/exercise/' + ${f.id}}" th:text="${f.name}"></a></td>
                             <td th:text="${f.info ?: '—'}"></td>
                             <td th:text="${f.type}"></td>
                             <td class="date-cell" data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
@@ -102,7 +102,7 @@
                     <tbody>
                         <tr th:each="f : ${solutionFiles}">
                             <td class="id-cell" th:text="${f.id}"></td>
-                            <td><a th:href="@{'/user/developer/task-files/' + ${f.id}}" th:text="${f.name}"></a></td>
+                            <td><a th:href="@{'/user/developer/task-files/solution/' + ${f.id}}" th:text="${f.name}"></a></td>
                             <td th:text="${f.info ?: '—'}"></td>
                             <td th:text="${f.type}"></td>
                             <td class="date-cell" data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
@@ -133,7 +133,7 @@
                     <tbody>
                         <tr th:each="f : ${conditionFiles}">
                             <td class="id-cell" th:text="${f.id}"></td>
-                            <td><a th:href="@{'/user/developer/task-files/' + ${f.id}}" th:text="${f.name}"></a></td>
+                            <td><a th:href="@{'/user/developer/task-files/condition/' + ${f.id}}" th:text="${f.name}"></a></td>
                             <td th:text="${f.info ?: '—'}"></td>
                             <td th:text="${f.type}"></td>
                             <td class="date-cell" data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>

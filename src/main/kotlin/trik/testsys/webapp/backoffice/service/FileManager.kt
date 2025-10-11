@@ -2,6 +2,7 @@ package trik.testsys.webapp.backoffice.service
 
 import jakarta.transaction.Transactional
 import org.springframework.web.multipart.MultipartFile
+import trik.testsys.webapp.backoffice.data.entity.AbstractFile
 import trik.testsys.webapp.backoffice.data.entity.impl.Solution
 import trik.testsys.webapp.backoffice.data.entity.impl.TaskFile
 import trik.testsys.webapp.backoffice.data.entity.impl.taskFile.ConditionFile
@@ -71,6 +72,16 @@ interface FileManager {
 
     @Transactional
     fun saveSolutionFile(solutionFile: SolutionFile, file: File): SolutionFile?
+
+    fun getConditionFile(conditionFile: ConditionFile, version: Long = conditionFile.fileVersion): File?
+
+    fun getExerciseFile(exerciseFile: ExerciseFile, version: Long = exerciseFile.fileVersion): File?
+
+    fun getPolygonFile(polygonFile: PolygonFile, version: Long = polygonFile.fileVersion): File?
+
+    fun getSolutionFile(solutionFile: SolutionFile, version: Long = solutionFile.fileVersion): File?
+
+    fun listFileVersions(file: AbstractFile): List<TaskFileVersionInfo>
 }
 
 data class TaskFileVersionInfo(
