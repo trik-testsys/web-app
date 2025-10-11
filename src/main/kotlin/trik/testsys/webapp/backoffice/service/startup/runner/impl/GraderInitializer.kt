@@ -188,13 +188,44 @@ class GraderInitializer(
         // When solution belongs to developer task testing (contest == null), update task.testingStatus
         if (managed.contest == null) {
             val task = managed.task
-            // Determine if all test solutions for this task have finished
-            val allSolutions = solutionService.findAll().filter { it.task.id == task.id && it.contest == null }
-            val anyInProgress = allSolutions.any { it.status == Solution.Status.NOT_STARTED || it.status == Solution.Status.IN_PROGRESS }
-            if (!anyInProgress) {
-                task.testingStatus = Task.TestingStatus.PASSED
-                taskService.save(task)
+
+            task.data.solutionFileDataById.forEach { (_, data) ->
+                if (data.lastSolutionId == managed.id) {
+                    data.lastTestScore = totalScore
+                    return@forEach
+                }
             }
+
+            val allTestSolutionBySolutionFileId = mutableMapOf<Long, Solution>()
+            task.data.solutionFileDataById.forEach { (solutionFileId, data) ->
+                val solution = solutionService.findById(data.lastSolutionId!!)!!
+                allTestSolutionBySolutionFileId[solutionFileId] = solution
+            }
+
+            val anyInProgress = allTestSolutionBySolutionFileId.asSequence()
+                .any { it.value.status == Solution.Status.IN_PROGRESS || it.value.status == Solution.Status.NOT_STARTED }
+            if (anyInProgress) {
+                taskService.save(task)
+                return
+            }
+
+            val scoreBySolutionId = allTestSolutionBySolutionFileId.mapNotNull {
+                val verdictId = it.value.relevantVerdictId!!
+                val verdict = verdictService.findById(verdictId)!!
+
+                it.value.id!! to verdict.value
+            }.toMap()
+
+            val allScoreMatched = allTestSolutionBySolutionFileId.asSequence()
+                .all { task.data.solutionFileDataById[it.key]?.score == scoreBySolutionId[it.value.id] }
+
+            // Determine if all test solutions for this task have finished
+            if (allScoreMatched) {
+                task.testingStatus = Task.TestingStatus.PASSED
+            } else {
+                task.testingStatus = Task.TestingStatus.FAILED
+            }
+            taskService.save(task)
         }
 
     }

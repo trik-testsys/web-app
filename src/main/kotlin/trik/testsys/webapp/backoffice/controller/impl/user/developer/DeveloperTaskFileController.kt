@@ -292,7 +292,6 @@ class DeveloperTaskFileController(
         @RequestParam name: String,
         @RequestParam(required = false) info: String?,
         @RequestParam type: FileType,
-        @RequestParam solutionType: Solution.SolutionType,
         @RequestParam("file") file: MultipartFile,
         session: HttpSession,
         redirectAttributes: RedirectAttributes
@@ -322,7 +321,7 @@ class DeveloperTaskFileController(
             it.developerId = developer.id
             it.info = info?.takeIf { s -> s.isNotBlank() }
             it.type = type
-            it.solutionType = solutionType
+            it.solutionType = type.toSolutionType()
         }
 
         val saved = fileManager.saveSolutionFile(solutionFile, file) ?: run {
@@ -333,6 +332,13 @@ class DeveloperTaskFileController(
 
         redirectAttributes.addMessage("Файл создан (id=${saved.id}).")
         return "redirect:/user/developer/task-files"
+    }
+
+    private fun FileType.toSolutionType() = when (this) {
+        FileType.PYTHON -> Solution.SolutionType.PYTHON
+        FileType.QRS -> Solution.SolutionType.QRS
+        FileType.JAVASCRIPT -> Solution.SolutionType.JAVA_SCRIPT
+        else -> error("NOT ALLOWED FILE TYPE")
     }
 
     @GetMapping("/task-files/condition/{id}")

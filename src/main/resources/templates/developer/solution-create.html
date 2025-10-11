@@ -16,7 +16,7 @@
     <section class="card">
         <h2 class="card-title"><a th:href="@{/user/developer/task-files}">Файлы</a> / Создание Файла</h2>
         <div class="card-body">
-            <form id="task-file-create-form" th:action="@{/user/developer/task-files/create}" method="post" enctype="multipart/form-data" class="form" style="gap:12px; max-width: 720px;">
+            <form id="task-file-create-form" th:action="@{/user/developer/task-files/solution/create}" method="post" enctype="multipart/form-data" class="form" style="gap:12px; max-width: 720px;">
                 <label>
                     <div style="margin-bottom:4px;">Название<span class="req">*</span></div>
                     <input name="name" type="text" placeholder="Введите название" required style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
@@ -28,10 +28,9 @@
                 <label>
                     <div style="margin-bottom:4px;">Тип<span class="req">*</span></div>
                     <select id="task-file-type" name="type" required style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
-                        <option value="POLYGON">Полигон</option>
-                        <option value="EXERCISE">Упражнение</option>
-                        <option value="SOLUTION">Эталонное Решение</option>
-                        <option value="CONDITION">Условие</option>
+                        <option value="QRS">TRIK Studio (.qrs)</option>
+                        <option value="PYTHON">Python (.py)</option>
+                        <option value="JAVASCRIPT">JavaScript (.js)</option>
                     </select>
                 </label>
                 <label>
@@ -56,10 +55,9 @@
         const form = document.getElementById('task-file-create-form');
 
         const acceptByType = {
-            'EXERCISE': '.qrs',
-            'SOLUTION': '.qrs',
-            'CONDITION': '.pdf',
-            'POLYGON': '.xml'
+            'QRS': '.qrs',
+            'PYTHON': '.py',
+            'JAVASCRIPT': '.js'
         };
 
         function updateAccept() {

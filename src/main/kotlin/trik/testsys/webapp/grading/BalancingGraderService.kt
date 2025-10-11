@@ -9,6 +9,7 @@ import trik.testsys.grading.GradingNodeOuterClass.Submission
 import trik.testsys.webapp.grading.communication.GradingNodeManager
 import trik.testsys.webapp.backoffice.data.entity.impl.Solution
 import trik.testsys.webapp.backoffice.data.service.SolutionService
+import trik.testsys.webapp.backoffice.data.service.impl.taskFile.PolygonFileService
 import trik.testsys.webapp.backoffice.service.FileManager
 import trik.testsys.webapp.backoffice.service.Grader
 import trik.testsys.webapp.grading.converter.SubmissionBuilder
@@ -33,7 +34,10 @@ data class SubmissionInfo(
 class BalancingGraderService(
     private val fileManager: FileManager,
     private val solutionService: SolutionService,
-    configuration: GraderConfiguration,
+    private val polygonFileService: PolygonFileService,
+
+
+    configuration: GraderConfiguration
 ): Grader {
 
     private val nodeManager = GradingNodeManager(configuration)
@@ -53,7 +57,10 @@ class BalancingGraderService(
         val managedSolution = solutionService.getById(requireNotNull(solution.id) { "Solution ID must not be null" })
         val managedTask = managedSolution.task
 
-        val taskFiles = managedTask.polygonTaskFiles.mapNotNull { fileManager.getTaskFile(it) }
+        val taskFiles = managedTask.data.polygonFileIds.mapNotNull {
+            val polygonFile = polygonFileService.findById(it)!!
+            fileManager.getPolygonFile(polygonFile)
+        }
         val solutionFile = fileManager.getSolution(managedSolution)
             ?: throw IllegalArgumentException("Cannot find solution file")
 

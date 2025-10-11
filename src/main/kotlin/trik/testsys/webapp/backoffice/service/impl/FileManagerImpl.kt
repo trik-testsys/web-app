@@ -77,46 +77,6 @@ class FileManagerImpl(
     }
 
     @Deprecated("")
-    override fun saveTaskFile(taskFile: TaskFile, fileData: MultipartFile): Boolean {
-        val saved = taskFileService.save(taskFile)
-
-        val dir = dirByTaskFileType[saved.type] ?: error("UNDEFINED")
-        val file = File(dir, saved.fileName)
-
-        return try {
-            fileData.transferTo(file)
-            true
-        } catch (e: Exception) {
-            logger.error("Failed to save task file(id=${taskFile.id})", e)
-            false
-        }
-    }
-
-    @Deprecated("")
-    override fun getTaskFile(taskFile: TaskFile): File? {
-        val dir = dirByTaskFileType[taskFile.type] ?: error("UNDEFINED")
-        val file = File(dir, taskFile.fileName)
-
-        return if (file.exists()) file else null
-    }
-
-    @Deprecated("")
-    override fun listTaskFileVersions(taskFile: TaskFile): List<TaskFileVersionInfo> {
-        val dir = dirByTaskFileType[taskFile.type] ?: return emptyList()
-        val prefix = "${taskFile.id}-"
-        val files = dir.listFiles { _, name -> name.startsWith(prefix) } ?: emptyArray()
-        return files.mapNotNull { f ->
-            val ver = f.name.removePrefix(prefix).substringBeforeLast('.')
-            ver.toLongOrNull()?.let { v ->
-                TaskFileVersionInfo(
-                    v, f.name, Instant.ofEpochMilli(f.lastModified()),
-                    taskFile.data.originalFileNameByVersion[v] ?: f.name
-                )
-            }
-        }.sortedByDescending { it.version }
-    }
-
-    @Deprecated("")
     override fun getTaskFileVersion(taskFile: TaskFile, version: Long): File? {
         val dir = dirByTaskFileType[taskFile.type] ?: return null
         val ext = taskFile.type?.extension() ?: return null
@@ -422,7 +382,7 @@ class FileManagerImpl(
 
     override fun getSolutionFile(solutionFile: SolutionFile, version: Long): File? {
         logger.debug("Getting solutionFile(id=${solutionFile.id}, version=$version)")
-        val file = File(conditionFilesDir, solutionFile.getFileName(version))
+        val file = File(solutionFilesDir, solutionFile.getFileName(version))
 
         return if (file.exists()) file else {
             logger.error("SolutionFile(id=${solutionFile.id}, version=$version) not found.")

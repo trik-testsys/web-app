@@ -16,8 +16,9 @@
                 <thead>
                 <tr>
                     <th class="id-cell">ID</th>
+                    <th>Описание</th>
                     <th>Статус</th>
-                    <th>Результат</th>
+                    <th>Балл</th>
                     <th class="date-cell">Дата создания</th>
                     <th>Результаты</th>
                 </tr>
@@ -25,6 +26,7 @@
                 <tbody>
                 <tr th:each="s : ${solutions}">
                     <td class="id-cell" th:text="${s.id}"></td>
+                    <td th:text="${s.info}"></td>
                     <td th:text="${@solutionI18n.toRu(s.status)}"></td>
                     <td th:text="${verdicts != null and #maps.containsKey(verdicts, s.id) ? verdicts[s.id].value : '—'}"></td>
                     <td class="date-cell" data-utc th:attr="data-utc=${s.createdAt}" th:text="${s.createdAt != null ? #temporals.format(s.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>

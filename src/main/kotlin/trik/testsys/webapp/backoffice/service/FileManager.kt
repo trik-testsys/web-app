@@ -17,16 +17,7 @@ import java.time.Instant
  */
 interface FileManager {
 
-    @Deprecated("")
-    fun saveTaskFile(taskFile: TaskFile, fileData: MultipartFile): Boolean
-
-    @Deprecated("")
-    fun getTaskFile(taskFile: TaskFile): File?
-
-    @Deprecated("")
-    fun listTaskFileVersions(taskFile: TaskFile): List<TaskFileVersionInfo>
-
-    @Deprecated("")
+    @Deprecated("Remove after migration")
     fun getTaskFileVersion(taskFile: TaskFile, version: Long): File?
 
     fun saveSolution(solution: Solution, fileData: MultipartFile): Boolean

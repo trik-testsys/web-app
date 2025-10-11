@@ -16,7 +16,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import trik.testsys.webapp.backoffice.controller.AbstractUserController
 import trik.testsys.webapp.backoffice.data.entity.impl.Solution
 import trik.testsys.webapp.backoffice.data.entity.impl.Task
-import trik.testsys.webapp.backoffice.data.entity.impl.TaskFile
 import trik.testsys.webapp.backoffice.data.entity.impl.User
 import trik.testsys.webapp.backoffice.data.service.ContestService
 import trik.testsys.webapp.backoffice.data.service.SolutionService
@@ -806,49 +805,68 @@ class DeveloperTaskController(
             return "redirect:/user/developer/tasks/$id"
         }
 
-        val hasPolygon = task.taskFiles.any { it.type == TaskFile.TaskFileType.POLYGON }
-        val hasSolution = task.taskFiles.any { it.type == TaskFile.TaskFileType.SOLUTION }
-        if (!hasPolygon || !hasSolution) {
+        val hasPolygons = task.data.polygonFileIds.isNotEmpty()
+        val hasSolutions = task.data.solutionFileDataById.isNotEmpty()
+        if (!hasPolygons || !hasSolutions) {
             redirectAttributes.addMessage("Для тестирования требуется минимум один Файл типа Полигон и один Файл типа Эталонное Решение.")
             return "redirect:/user/developer/tasks/$id"
         }
 
         // Prepare and send grading for each SOLUTION TaskFile using all POLYGONs
-        val solutionTaskFiles = task.taskFiles.filter { it.type == TaskFile.TaskFileType.SOLUTION }
-        val polygonTaskFiles = task.taskFiles.filter { it.type == TaskFile.TaskFileType.POLYGON }
+        val solutionFiles = solutionFileService.findAllById(task.data.solutionFileDataById.keys)
+        val polygonFiles = polygonFileService.findAllById(task.data.polygonFileIds)
 
-        if (solutionTaskFiles.isEmpty() || polygonTaskFiles.isEmpty()) {
+        if (solutionFiles.isEmpty() || polygonFiles.isEmpty()) {
             redirectAttributes.addMessage("Для тестирования требуется минимум один Полигон и один Эталонное Решение.")
             return "redirect:/user/developer/tasks/$id"
         }
 
-        // Mark testing in progress
-        task.testingStatus = Task.TestingStatus.TESTING
-        taskService.save(task)
+        // Collect all solution file updates first
+        val solutionFileUpdates = mutableMapOf<Long, Pair<Long, Long>>()
+        val solutionsToGrade = mutableListOf<Solution>()
 
-        // For each solution file, create a synthetic Solution and grade it
-        solutionTaskFiles.forEach { solutionTf ->
+        // For each solution file, create a synthetic Solution and prepare for grading
+        solutionFiles.forEach { solutionTf ->
             val solution = Solution().also {
                 it.createdBy = developer
                 it.contest = null
                 it.task = task
-                it.info = "Тестирование Эталонного решения (id=${solutionTf.id}) для Задачи (id=${task.id})."
+                it.type = solutionTf.solutionType
+                it.info = "Тестирование Эталонного решения (id=${solutionTf.id}, type=${it.type}) для Задачи (id=${task.id})."
             }
             val saved = solutionService.save(solution)
 
-            val solutionSource = fileManager.getTaskFile(solutionTf)
+            val solutionSource = fileManager.getSolutionFile(solutionTf)
                 ?: run {
+                    solutionService.delete(saved)
                     redirectAttributes.addMessage("Файл эталонного решения недоступен на сервере.")
                     return "redirect:/user/developer/tasks/$id"
                 }
 
             val ok = fileManager.saveSolution(saved, solutionSource)
             if (!ok) {
+                solutionService.delete(saved)
                 redirectAttributes.addMessage("Не удалось подготовить файл решения для тестирования.")
                 return "redirect:/user/developer/tasks/$id"
             }
 
-            grader.sendToGrade(saved, Grader.GradingOptions(shouldRecordRun = true, trikStudioVersion = trikStudioContainerName))
+            solutionFileUpdates[solutionTf.id!!] = Pair(saved.id!!, 0L)
+            solutionsToGrade.add(saved)
+        }
+
+        // Mark testing in progress and update task data in a single save
+        task.testingStatus = Task.TestingStatus.TESTING
+        solutionFileUpdates.forEach { entry ->
+            val solutionFileId = entry.key
+            val (solutionId, score) = entry.value
+            task.data.solutionFileDataById[solutionFileId]?.lastSolutionId = solutionId
+            task.data.solutionFileDataById[solutionFileId]?.lastTestScore = score
+        }
+        taskService.save(task)
+
+        // Send all solutions for grading after task is saved
+        solutionsToGrade.forEach { solution ->
+            grader.sendToGrade(solution, Grader.GradingOptions(shouldRecordRun = true, trikStudioVersion = trikStudioContainerName))
         }
 
         redirectAttributes.addMessage("Задача отправлена на тестирование.")
