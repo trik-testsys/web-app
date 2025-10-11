@@ -70,6 +70,10 @@ class Task() : AbstractEntity(), Sharable {
     @JdbcTypeCode(SqlTypes.JSON)
     var data: Data = Data()
 
+    @get:Transient
+    val availableSolutionTypes: Set<Solution.SolutionType>
+        get() = data.solutionFileDataById.values.map { it.type }.toSet()
+
     enum class TestingStatus(override val dbKey: String) : PersistableEnum {
 
         NOT_TESTED("NTR"),
@@ -94,6 +98,7 @@ class Task() : AbstractEntity(), Sharable {
     data class SolutionFileData(
         val type: Solution.SolutionType = Solution.SolutionType.QRS,
         var lastSolutionId: Long? = null,
-        var score: Long = 0
+        var score: Long = 0,
+        var lastTestScore: Long? = null
     )
 }

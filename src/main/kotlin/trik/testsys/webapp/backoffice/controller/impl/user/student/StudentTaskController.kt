@@ -24,6 +24,7 @@ import trik.testsys.webapp.backoffice.service.FileManager
 import trik.testsys.webapp.backoffice.service.Grader
 import trik.testsys.webapp.backoffice.utils.addMessage
 import org.springframework.web.multipart.MultipartFile
+import trik.testsys.webapp.backoffice.data.entity.impl.TaskFile
 import trik.testsys.webapp.backoffice.data.service.VerdictService
 import java.nio.charset.StandardCharsets
 import trik.testsys.webapp.backoffice.data.entity.impl.TaskFile.TaskFileType.Companion.extension
@@ -233,7 +234,7 @@ class StudentTaskController(
             return "redirect:/user/student/contests/$contestId"
         }
 
-        val exerciseTf = task.taskFiles.firstOrNull { it.type == trik.testsys.webapp.backoffice.data.entity.impl.TaskFile.TaskFileType.EXERCISE } ?: run {
+        val exerciseTf = task.taskFiles.firstOrNull { it.type == TaskFile.TaskFileType.EXERCISE } ?: run {
             redirectAttributes.addMessage("Упражнение не найдено.")
             return "redirect:/user/student/contests/$contestId/tasks/$taskId"
         }

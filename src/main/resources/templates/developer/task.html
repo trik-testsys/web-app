@@ -14,6 +14,18 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        .score-input {
+            width: 80px;
+            padding: 4px 8px;
+            border: 1px solid #dde3ea;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .score-form {
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
@@ -89,6 +101,51 @@
             </div>
             <div class="field-note" style="margin-top:8px;">Для тестирования требуется минимум один Полигон и одно Эталонное Решение.</div>
             <div class="field-note" style="margin-top:8px;">Для прикрепления к Туру требуется минимум один Полигон, одно Эталонное Решение и одно Упражнение.</div>
+
+            <hr class="separator" style="margin: 20px 0;">
+
+            <h3 style="margin: 0 0 12px 0;">Настройка баллов для Эталонных решений</h3>
+            <div th:if="${#maps.isEmpty(task.data.solutionFileDataById)}" style="color: var(--color-text-muted);">Нет прикреплённых решений для настройки.</div>
+            <table th:if="${!#maps.isEmpty(task.data.solutionFileDataById)}" class="table">
+                <thead>
+                <tr>
+                    <th class="id-cell">ID</th>
+                    <th>Название</th>
+                    <th>Тип решения</th>
+                    <th>Ожидаемый балл</th>
+                    <th>Полученный балл</th>
+                    <th>Результат</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="solutionFileEntry : ${task.data.solutionFileDataById}">
+                    <td class="id-cell" th:text="${solutionFileEntry.key}"></td>
+                    <td>
+                        <a th:href="@{'/user/developer/task-files/solution/' + ${solutionFileEntry.key}}">
+                            <span th:each="solutionFile : ${attachedSolutions}"
+                                  th:if="${solutionFile.id == solutionFileEntry.key}"
+                                  th:text="${solutionFile.name}">
+                            </span>
+                        </a>
+                    </td>
+                    <td th:text="${solutionFileEntry.value.type}"></td>
+                    <td>
+                        <form class="score-form" th:action="@{'/user/developer/tasks/' + ${task.id} + '/solution-score'}" method="post">
+                            <input type="hidden" name="solutionFileId" th:value="${solutionFileEntry.key}">
+                            <input type="number" name="score" class="score-input" th:value="${solutionFileEntry.value.score}" min="0" max="100" th:disabled="${isTesting || isUsedInAnyContest}">
+                            <button class="button" type="submit" th:disabled="${isTesting || isUsedInAnyContest}">Сохранить</button>
+                        </form>
+                    </td>
+                    <td th:text="${solutionFileEntry.value.lastTestScore ?: '—'}"></td>
+                    <td>
+                        <a th:if="${solutionFileEntry.value.lastSolutionId != null && resultsAvailable[solutionFileEntry.value.lastSolutionId]}"
+                           th:href="@{'/user/developer/tasks/' + ${task.id} + '/tests/' + ${solutionFileEntry.value.lastSolutionId} + '/download'}"
+                           class="button button--small">Скачать</a>
+                        <span th:if="${solutionFileEntry.value.lastSolutionId == null || !resultsAvailable[solutionFileEntry.value.lastSolutionId]}" style="color: var(--color-text-muted);">—</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
         </div>
     </section>
 

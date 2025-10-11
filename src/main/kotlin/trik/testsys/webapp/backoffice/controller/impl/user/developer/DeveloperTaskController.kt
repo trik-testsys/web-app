@@ -174,6 +174,15 @@ class DeveloperTaskController(
             Task.TestingStatus.FAILED -> "Не пройдено"
         }
 
+        val testSolutions = task.solutions.filter { it.contest == null }
+            .sortedByDescending { it.id }
+
+        val resultsAvailability = testSolutions.associate { s ->
+            val hasVerdicts = fileManager.getVerdicts(s).isNotEmpty()
+            val hasRecordings = fileManager.getRecording(s).isNotEmpty()
+            (s.id!!) to (hasVerdicts || hasRecordings)
+        }
+
         setupModel(model, session, developer)
 
         model.addAttribute("attachedConditions", attachedConditions)
@@ -195,7 +204,8 @@ class DeveloperTaskController(
         model.addAttribute("testStatus", lastTestStatus)
         model.addAttribute("isUsedInAnyContest", isUsedInAnyContest)
         model.addAttribute("attachedContests", attachedContests)
-        model.addAttribute("hasAnySolutions", task.solutions.any { it.contest != null })
+        model.addAttribute("hasAnySolutions", testSolutions.isNotEmpty())
+        model.addAttribute("resultsAvailable", resultsAvailability)
         model.addAttribute(
             "availableUserGroups",
             userGroupService.findByMember(developer)
@@ -230,8 +240,7 @@ class DeveloperTaskController(
             return "redirect:/user/developer/tasks"
         }
 
-        val testSolutions = solutionService.findAll()
-            .filter { it.task.id == task.id && it.contest == null }
+        val testSolutions = task.solutions.filter { it.contest == null }
             .sortedByDescending { it.id }
 
         val verdicts = verdictService.findAllBySolutions(testSolutions)

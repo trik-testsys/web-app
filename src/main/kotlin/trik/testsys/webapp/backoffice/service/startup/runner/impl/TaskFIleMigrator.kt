@@ -169,6 +169,7 @@ class TaskFIleMigrator(
                 solutionFileMapping[it.id]!! to Task.SolutionFileData(
                     Solution.SolutionType.QRS,
                     solution?.id,
+                    solitonFileScore,
                     solitonFileScore
                 )
             }
