@@ -132,7 +132,7 @@
                     <td>
                         <form class="score-form" th:action="@{'/user/developer/tasks/' + ${task.id} + '/solution-score'}" method="post">
                             <input type="hidden" name="solutionFileId" th:value="${solutionFileEntry.key}">
-                            <input type="number" name="score" class="score-input" th:value="${solutionFileEntry.value.score}" min="0" max="100" th:disabled="${isTesting || isUsedInAnyContest}">
+                            <input type="number" name="score" class="score-input" th:value="${solutionFileEntry.value.score}" th:disabled="${isTesting || isUsedInAnyContest}">
                             <button class="button" type="submit" th:disabled="${isTesting || isUsedInAnyContest}">Сохранить</button>
                         </form>
                     </td>

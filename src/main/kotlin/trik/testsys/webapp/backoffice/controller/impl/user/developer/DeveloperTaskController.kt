@@ -927,6 +927,58 @@ class DeveloperTaskController(
         return "redirect:/user/developer/tasks"
     }
 
+    @PostMapping("/tasks/{id}/solution-score")
+    fun updateSolutionScore(
+        @PathVariable id: Long,
+        @RequestParam solutionFileId: Long,
+        @RequestParam score: Long,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
+        val developer = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
+
+        if (!developer.privileges.contains(User.Privilege.DEVELOPER)) {
+            redirectAttributes.addMessage("Недостаточно прав.")
+            return "redirect:/user"
+        }
+
+        val task = taskService.findById(id) ?: run {
+            redirectAttributes.addMessage("Задача не найдена.")
+            return "redirect:/user/developer/tasks"
+        }
+        if (task.developer?.id != developer.id) {
+            redirectAttributes.addMessage("У вас нет доступа к этой Задаче.")
+            return "redirect:/user/developer/tasks"
+        }
+
+        if (task.testingStatus == Task.TestingStatus.TESTING) {
+            redirectAttributes.addMessage("Нельзя изменять баллы во время тестирования.")
+            return "redirect:/user/developer/tasks/$id"
+        }
+
+        val allContests = contestService.findAll()
+        val isUsedInAnyContest = allContests.asSequence()
+            .any { c -> c.tasks.any { it.id == task.id } }
+
+        if (isUsedInAnyContest) {
+            redirectAttributes.addMessage("Нельзя изменять баллы для задачи, используемой в соревновании.")
+            return "redirect:/user/developer/tasks/$id"
+        }
+
+        val solutionFileData = task.data.solutionFileDataById[solutionFileId]
+        if (solutionFileData == null) {
+            redirectAttributes.addMessage("Решение не найдено в задаче.")
+            return "redirect:/user/developer/tasks/$id"
+        }
+        
+        solutionFileData.score = score
+        taskService.save(task)
+
+        redirectAttributes.addMessage("Балл для решения обновлён.")
+        return "redirect:/user/developer/tasks/$id"
+    }
+
     private data class TaskFileListItem(
         val id: Long,
         val name: String?,
