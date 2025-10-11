@@ -275,7 +275,7 @@ class GraderInitializer(
             val LEVEL_ERROR = "error"
 
             // regex for strings like "Успешно пройдено. Набрано баллов: 100."
-            val SCORE_PATTERN = Pattern.compile("Набрано баллов:\\s*(\\d+)")
+            val SCORE_PATTERN = Pattern.compile("Набрано баллов:\\s*(-?\\d+)")
 
             fun matchScore(message: String): Long? {
                 val matcher = SCORE_PATTERN.matcher(message)

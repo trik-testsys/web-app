@@ -34,7 +34,7 @@ class Task() : AbstractEntity(), Sharable {
     var developer: User? = null
 
     @Deprecated("")
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany
     @JoinTable(
         name = "${TABLE_PREFIX}task_taskFiles",
         joinColumns = [JoinColumn(name = "task_id")],
