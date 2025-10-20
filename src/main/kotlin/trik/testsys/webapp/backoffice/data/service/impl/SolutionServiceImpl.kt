@@ -2,6 +2,7 @@ package trik.testsys.webapp.backoffice.data.service.impl
 
 import org.springframework.stereotype.Service
 import trik.testsys.webapp.backoffice.data.entity.impl.Solution
+import trik.testsys.webapp.backoffice.data.entity.impl.Task
 import trik.testsys.webapp.backoffice.data.repository.SolutionRepository
 import trik.testsys.webapp.backoffice.data.service.SolutionService
 import trik.testsys.webapp.core.data.service.AbstractService
@@ -15,4 +16,8 @@ class SolutionServiceImpl :
     AbstractService<Solution, SolutionRepository>(),
     SolutionService {
 
+    override fun findAllTestingSolutions(tasks: List<Task>): List<Solution> {
+        val allTesting = repository.findAllByTaskInAndContestNull(tasks)
+        return allTesting
+    }
 }

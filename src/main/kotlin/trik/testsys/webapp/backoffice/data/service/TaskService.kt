@@ -10,9 +10,9 @@ import trik.testsys.webapp.core.data.service.EntityService
  */
 interface TaskService : EntityService<Task> {
 
-//    fun findByTaskTemplate(taskTemplate: TaskTemplate): Set<Task>
-
     fun findByDeveloper(developer: User): Set<Task>
 
     fun findForUser(user: User): Set<Task>
+
+    fun findAllTesting(): List<Task>
 }

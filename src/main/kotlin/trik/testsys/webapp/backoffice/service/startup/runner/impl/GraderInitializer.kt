@@ -185,67 +185,7 @@ class GraderInitializer(
         verdictService.createNewForSolution(managed, totalScore)
         solutionService.save(managed)
 
-        // When solution belongs to developer task testing (contest == null), update task.testingStatus
-        if (managed.contest == null) {
-            val task = managed.task
-
-            task.data.solutionFileDataById.forEach { (_, data) ->
-                if (data.lastSolutionId == managed.id) {
-                    data.lastTestScore = totalScore
-                    return@forEach
-                }
-            }
-
-            val allTestSolutionBySolutionFileId = mutableMapOf<Long, Solution>()
-            task.data.solutionFileDataById.forEach { (solutionFileId, data) ->
-                val solution = solutionService.findById(data.lastSolutionId!!)!!
-                allTestSolutionBySolutionFileId[solutionFileId] = solution
-            }
-
-            val anyInProgress = allTestSolutionBySolutionFileId.asSequence()
-                .any { it.value.status == Solution.Status.IN_PROGRESS || it.value.status == Solution.Status.NOT_STARTED }
-            if (anyInProgress) {
-                taskService.save(task)
-                return
-            }
-
-            val scoreBySolutionId = allTestSolutionBySolutionFileId.mapNotNull {
-                val verdictId = it.value.relevantVerdictId!!
-                val verdict = verdictService.findById(verdictId)!!
-
-                it.value.id!! to verdict.value
-            }.toMap()
-
-            val allScoreMatched = allTestSolutionBySolutionFileId.asSequence()
-                .all { task.data.solutionFileDataById[it.key]?.score == scoreBySolutionId[it.value.id] }
-
-            // Determine if all test solutions for this task have finished
-            if (allScoreMatched) {
-                task.testingStatus = Task.TestingStatus.PASSED
-            } else {
-                task.testingStatus = Task.TestingStatus.FAILED
-            }
-            taskService.save(task)
-        }
-
     }
-
-//    private fun changeTaskTestingResult(solution: Solution) {
-//        if (solution.status == Solution.Status.PASSED || !solution.task.hasExercise || !solution.task.hasSolution || solution.task.polygonsCount == 0L) {
-//            solution.task.fail()
-//
-//            solution.task.contests.forEach {
-//                it.tasks.remove(solution.task)
-//                contestService.save(it)
-//            }
-//            solution.task.contests.clear()
-//        }
-//
-//        if (solution.status == Solution.Status.PASSED && solution.task.hasExercise && solution.task.hasSolution && solution.task.polygonsCount > 0L) {
-//            solution.task.pass()
-//        }
-//        taskService.save(solution.task)
-//    }
 
     private fun ObjectMapper.readVerdictElements(verdict: File): List<VerdictElement>? = try {
         readValue(verdict, object : TypeReference<List<VerdictElement>>() {}) ?: run {
@@ -298,11 +238,6 @@ class GraderInitializer(
         verdictService.createNewForSolution(managed, 0)
         solutionService.save(managed)
 
-        if (managed.contest == null) {
-            val task = managed.task
-            task.testingStatus = Task.TestingStatus.FAILED
-            taskService.save(task)
-        }
     }
     
     companion object {

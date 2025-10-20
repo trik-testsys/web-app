@@ -16,10 +16,6 @@ class TaskServiceImpl :
     AbstractService<Task, TaskRepository>(),
     TaskService {
 
-//    override fun findByTaskTemplate(taskTemplate: TaskTemplate): Set<Task> {
-//        return repository.findByCreatedFrom(taskTemplate)
-//    }
-
     override fun findByDeveloper(developer: User): Set<Task> {
         return repository.findByDeveloper(developer)
     }
@@ -28,5 +24,10 @@ class TaskServiceImpl :
         val ownedByUser = repository.findByDeveloper(user)
         val viaGroups = if (user.memberedGroups.isEmpty()) emptySet() else repository.findDistinctByUserGroupsIn(user.memberedGroups)
         return (ownedByUser + viaGroups).toSet()
+    }
+
+    override fun findAllTesting(): List<Task> {
+        val allTesting = repository.findByTestingStatus(Task.TestingStatus.TESTING)
+        return allTesting
     }
 }
