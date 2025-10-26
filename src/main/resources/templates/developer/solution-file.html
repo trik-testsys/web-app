@@ -4,6 +4,76 @@
     <th:block th:include="fragments/layout :: head('Файл')"></th:block>
     <style>
         .kv-wide { display: grid; grid-template-columns: 220px 1fr; gap: 10px 20px; }
+
+        /* --- Попап подтверждения (GitHub стиль) --- */
+        .popup-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .popup {
+            background: #fff;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+            width: 420px;
+            max-width: 90%;
+            font-family: system-ui, sans-serif;
+            animation: popupShow 0.2s ease-out;
+        }
+        @keyframes popupShow {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .popup h3 {
+            margin-top: 0;
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+        .popup .warning {
+            color: #a33;
+            font-size: 14px;
+            margin-bottom: 14px;
+        }
+        .popup .entity-name {
+            font-weight: bold;
+        }
+        .popup input {
+            width: 100%;
+            padding: 8px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            margin-bottom: 16px;
+        }
+        .popup-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+        .button--secondary {
+            background: #e5e7eb;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .button--danger {
+            background: #d73a49;
+            color: #fff;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .button--danger:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -15,11 +85,24 @@
         <h2 class="card-title" style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
             <span><a th:href="@{/user/developer/task-files}">Файлы</a> / [Эталонное решение] <span th:text="${taskFile.name}"></span></span>
             <span style="display:flex; align-items:center; gap:8px;">
-                <form th:action="@{'/user/developer/task-files/solution/' + ${taskFile.id} + '/delete'}" method="post" onsubmit="return confirm('Удалить файл? Это действие нельзя отменить.');">
-                    <button type="submit" class="button button--danger" th:disabled="${!#lists.isEmpty(taskFile.taskIds)}" th:title="${!#lists.isEmpty(taskFile.taskIds)} ? 'Нельзя удалить: файл прикреплён к задаче' : null"><i class="fa fa-trash"></i>Удалить</button>
-                </form>
+                <!-- Кастомное удаление с popup -->
+                <button type="button"
+                        class="button button--danger"
+                        th:data-id="${taskFile.id}"
+                        th:data-name="${taskFile.name}"
+                        onclick="openDeletePopup(this.dataset.id, this.dataset.name, this)"
+                        th:disabled="${!#lists.isEmpty(taskFile.taskIds)}"
+                        th:title="${!#lists.isEmpty(taskFile.taskIds)} ? 'Нельзя удалить: файл прикреплён к задаче' : null">
+                    <i class="fa fa-trash"></i> Удалить
+                </button>
+
+                <form th:action="@{'/user/developer/task-files/solution/' + ${taskFile.id} + '/delete'}"
+                      method="post"
+                      class="delete-form"
+                      style="display:none;"></form>
             </span>
         </h2>
+
         <div class="card-body">
             <h3 style="margin-top:0;">Основная информация</h3>
 
@@ -89,8 +172,54 @@
     </section>
 </main>
 
+<!-- Попап подтверждения удаления -->
+<div id="deletePopup" class="popup-backdrop">
+    <div class="popup">
+        <h3>Удалить Эталонное решение <span id="popup-entity-name" class="entity-name"></span>?</h3>
+        <p class="warning">
+            Это действие <strong>необратимо</strong>.<br>
+            Чтобы подтвердить, введите точное имя файла:
+        </p>
+
+        <input type="text" id="confirmInput" placeholder="Введите имя файла..." />
+        <div class="popup-buttons">
+            <button type="button" class="button button--secondary" onclick="closeDeletePopup()">Отмена</button>
+            <button type="button" id="confirmButton" class="button button--danger" disabled>Подтвердить</button>
+        </div>
+    </div>
+</div>
+
 <footer th:replace="fragments/layout :: footer"></footer>
+
+<script>
+    let currentForm = null;
+    let expectedName = '';
+
+    function openDeletePopup(fileId, fileName, button) {
+        currentForm = button.nextElementSibling;
+        expectedName = (fileName || '').toString();
+
+        document.getElementById('popup-entity-name').textContent = expectedName || '(без имени)';
+        document.getElementById('confirmInput').value = '';
+        document.getElementById('confirmButton').disabled = true;
+        document.getElementById('deletePopup').style.display = 'flex';
+
+        const input = document.getElementById('confirmInput');
+        input.oninput = function() {
+            document.getElementById('confirmButton').disabled = input.value.trim() !== expectedName;
+        };
+
+        document.getElementById('confirmButton').onclick = function() {
+            if (currentForm) {
+                currentForm.submit();
+                closeDeletePopup();
+            }
+        };
+    }
+
+    function closeDeletePopup() {
+        document.getElementById('deletePopup').style.display = 'none';
+    }
+</script>
 </body>
 </html>
-
-

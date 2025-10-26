@@ -27,6 +27,91 @@
             display: inline-block;
         }
     </style>
+    <style>
+        .two-column-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 1600px) {
+            .two-column-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .score-input {
+            width: 80px;
+            padding: 4px 8px;
+            border: 1px solid #dde3ea;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .score-form {
+            display: inline-block;
+        }
+
+        /* ==== Popup в стиле GitHub ==== */
+        .popup-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .popup {
+            background: #fff;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+            width: 420px;
+            max-width: 90%;
+            font-family: system-ui, sans-serif;
+            animation: popupShow 0.2s ease-out;
+        }
+        @keyframes popupShow {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .popup h3 { margin-top: 0; font-size: 18px; margin-bottom: 8px; }
+        .popup .warning { color: #a33; font-size: 14px; margin-bottom: 14px; }
+        .popup .entity-name { font-weight: bold; }
+        .popup input {
+            width: 100%;
+            padding: 8px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            margin-bottom: 16px;
+        }
+        .popup-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+        .button--secondary {
+            background: #e5e7eb;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .button--danger {
+            background: #d73a49;
+            color: #fff;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .button--danger:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    </style>
 </head>
 <body>
 <header th:replace="fragments/layout :: header(userName=${user.name})"></header>
@@ -36,10 +121,20 @@
     <section class="card">
         <h2 class="card-title" style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
             <span><a th:href="@{/user/developer/tasks}">Задачи</a> / <span th:text="${task.name}"></span></span>
-            <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/delete'}" method="post" onsubmit="return confirm('Удалить Задачу? Это действие необратимо.');">
-                <button class="button button--danger" type="submit" th:disabled="${(isUsedInAnyContest == true) or (hasAnySolutions == true)}" th:title="${(isUsedInAnyContest == true)} ? 'Нельзя удалить: Задача прикреплена к Туру' : ((hasAnySolutions == true) ? 'Нельзя удалить: по Задаче есть Решения' : null)"><i class="fa fa-trash"></i>Удалить</button>
-            </form>
+
+            <button type="button"
+                    class="button button--danger"
+                    th:data-id="${task.id}"
+                    th:data-name="${task.name}"
+                    onclick="openDeletePopup(this.dataset.id, this.dataset.name, this)"
+                    th:disabled="${(isUsedInAnyContest == true) or (hasAnySolutions == true)}"
+                    th:title="${(isUsedInAnyContest == true)} ? 'Нельзя удалить: Задача прикреплена к Туру' : ((hasAnySolutions == true) ? 'Нельзя удалить: по Задаче есть Решения' : null)">
+                <i class="fa fa-trash"></i> Удалить
+            </button>
+
+            <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/delete'}" method="post" class="delete-form" style="display:none;"></form>
         </h2>
+
         <div class="card-body">
             <div class="alert" th:if="${message}" th:text="${message}"></div>
             <form id="task-form" data-readonly-toggle th:action="@{'/user/developer/tasks/' + ${task.id} + '/update'}" method="post" class="form" style="display:grid; gap:12px; max-width:720px;">
@@ -415,7 +510,55 @@
     </section>
 </main>
 
+<!-- Popup подтверждения удаления -->
+<div id="deletePopup" class="popup-backdrop">
+    <div class="popup">
+        <h3>Удалить Задачу <span id="popup-entity-name" class="entity-name"></span>?</h3>
+        <p class="warning">
+            Это действие <strong>необратимо</strong>.<br>
+            Чтобы подтвердить, введите точное имя задачи:
+        </p>
+
+        <input type="text" id="confirmInput" placeholder="Введите имя задачи...">
+        <div class="popup-buttons">
+            <button type="button" class="button button--secondary" onclick="closeDeletePopup()">Отмена</button>
+            <button type="button" id="confirmButton" class="button button--danger" disabled>Подтвердить</button>
+        </div>
+    </div>
+</div>
+
 <footer th:replace="fragments/layout :: footer"></footer>
+
+<script>
+    let currentForm = null;
+    let expectedName = '';
+
+    function openDeletePopup(entityId, entityName, button) {
+        currentForm = button.nextElementSibling;
+        expectedName = (entityName || '').toString();
+
+        document.getElementById('popup-entity-name').textContent = expectedName || '(без имени)';
+        document.getElementById('confirmInput').value = '';
+        document.getElementById('confirmButton').disabled = true;
+        document.getElementById('deletePopup').style.display = 'flex';
+
+        const input = document.getElementById('confirmInput');
+        input.oninput = function() {
+            document.getElementById('confirmButton').disabled = input.value.trim() !== expectedName;
+        };
+
+        document.getElementById('confirmButton').onclick = function() {
+            if (currentForm) {
+                currentForm.submit();
+                closeDeletePopup();
+            }
+        };
+    }
+
+    function closeDeletePopup() {
+        document.getElementById('deletePopup').style.display = 'none';
+    }
+</script>
 </body>
 </html>
 
