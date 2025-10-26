@@ -17,7 +17,7 @@ import trik.testsys.webapp.core.data.entity.AbstractEntity.Companion.TABLE_PREFI
 @Table(name = "${TABLE_PREFIX}solution_file")
 class SolutionFile : AbstractFile() {
 
-    override fun getFileName(version: Long) = "$FILE_NAME_PREFIX-$id-$fileVersion${type?.extension}"
+    override fun getFileName(version: Long) = "$FILE_NAME_PREFIX-$id-$version${type?.extension}"
 
     @Convert(converter = Solution.SolutionType.Companion.SolutionTypeConverter::class)
     @Column(name = "solution_type", nullable = false)

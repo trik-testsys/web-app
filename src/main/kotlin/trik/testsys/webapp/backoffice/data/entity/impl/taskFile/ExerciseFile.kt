@@ -14,7 +14,7 @@ import trik.testsys.webapp.core.data.entity.AbstractEntity.Companion.TABLE_PREFI
 @Table(name = "${TABLE_PREFIX}exercise_file")
 class ExerciseFile : AbstractFile() {
 
-    override fun getFileName(version: Long) = "$FILE_NAME_PREFIX-$id-$fileVersion${type?.extension}"
+    override fun getFileName(version: Long) = "$FILE_NAME_PREFIX-$id-$version${type?.extension}"
 
     companion object {
 

@@ -14,7 +14,7 @@ import trik.testsys.webapp.core.data.entity.AbstractEntity.Companion.TABLE_PREFI
 @Table(name = "${TABLE_PREFIX}condition_file")
 class ConditionFile : AbstractFile() {
 
-    override fun getFileName(version: Long) = "$FILE_NAME_PREFIX-$id-$fileVersion${type?.extension}"
+    override fun getFileName(version: Long) = "$FILE_NAME_PREFIX-$id-$version${type?.extension}"
 
     companion object {
 
