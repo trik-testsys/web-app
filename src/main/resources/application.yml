@@ -88,3 +88,8 @@ trik:
           username: "${EMAIL_USERNAME:}"
           password: "${EMAIL_PASSWORD:}"
         receivers: "${EMAIL_RECEIVERS:}"
+    diagnostics-availability:
+      polygon:
+        timelimit: ${TL_DIAG:false}
+        score-output: ${SO_DIAG:false}
+        invalid-event-id: ${IEI_DIAG:false}

@@ -50,6 +50,36 @@
     </section>
 
     <section class="card">
+        <h2 class="card-title">Диагностика</h2>
+
+        <div class="card-body">
+            <div style="margin-bottom:10px;">
+                <strong>Статус:</strong>
+                <span th:text="${taskFile.analysisStatus.locale}"></span>
+            </div>
+
+            <h3 th:if="${taskFile.analysisStatus.dbKey == 'F'}"  style="margin-top:0;">Список результатов</h3>
+            <table th:if="${taskFile.analysisStatus.dbKey == 'F'}" class="table">
+                <thead>
+                <tr>
+                    <th>Уровень</th>
+                    <th>Описание</th>
+                    <th>Путь до тега</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="report : ${reports}">
+                    <td th:text="${report.level.locale}"></td>
+                    <td th:text="${report.description}"></td>
+                    <td th:if="${report.location != null}" th:text="${report.location}"></td>
+                    <td th:if="${report.location == null}">–</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="card">
         <h2 class="card-title">История изменений</h2>
 
         <div class="card-body">

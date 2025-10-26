@@ -161,8 +161,7 @@
                 <tr>
                     <th class="id-cell">ID</th>
                     <th>Название</th>
-                    <th style="width: 10%">Тип</th>
-                    <th class="date-cell">Дата создания</th>
+                    <th style="width: 25%">Статус анализа</th>
                     <th style="width: 20%"></th>
                 </tr>
                 </thead>
@@ -170,8 +169,7 @@
                 <tr th:each="f : ${attachedPolygons}">
                     <td class="id-cell" th:text="${f.id}"></td>
                     <td><a th:href="@{'/user/developer/task-files/polygon/' + ${f.id}}" th:text="${f.name}"></a></td>
-                    <td style="width: 10%" th:text="${f.type}"></td>
-                    <td class="date-cell" data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td style="width: 25%" th:text="${f.analysisStatus.locale}"></td>
                     <td style="width: 20%">
                         <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/files/polygon/' + ${f.id} + '/detach'}" method="post" onsubmit="return confirm('Открепить файл?');">
                             <button class="button" type="submit" th:disabled="${isTesting || isUsedInAnyContest}">Открепить</button>
@@ -190,8 +188,7 @@
                 <tr>
                     <th class="id-cell">ID</th>
                     <th>Название</th>
-                    <th style="width: 10%">Тип</th>
-                    <th class="date-cell">Дата создания</th>
+                    <th style="width: 25%">Статус анализа</th>
                     <th style="width: 20%"></th>
                 </tr>
                 </thead>
@@ -199,12 +196,11 @@
                 <tr th:each="f : ${availablePolygons}">
                     <td class="id-cell" th:text="${f.id}"></td>
                     <td><a th:href="@{'/user/developer/task-files/polygon/' + ${f.id}}" th:text="${f.name}"></a></td>
-                    <td style="width: 10%" th:text="${f.type}"></td>
-                    <td class="date-cell" data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td style="width: 25%" th:text="${f.analysisStatus.locale}"></td>
                     <td style="width: 20%">
                         <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/files/polygon/attach'}" method="post">
                             <input type="hidden" name="polygonId" th:value="${f.id}">
-                            <button class="button" type="submit" th:disabled="${isTesting || isUsedInAnyContest}">Прикрепить</button>
+                            <button class="button" type="submit" th:disabled="${isTesting || isUsedInAnyContest || f.analysisStatus.dbKey != 'S'}">Прикрепить</button>
                         </form>
                     </td>
                 </tr>
@@ -224,8 +220,7 @@
                 <tr>
                     <th class="id-cell">ID</th>
                     <th>Название</th>
-                    <th style="width: 10%">Тип</th>
-                    <th class="date-cell">Дата создания</th>
+                    <th style="width: 20%">Тип</th>
                     <th style="width: 20%"></th>
                 </tr>
                 </thead>
@@ -233,8 +228,7 @@
                 <tr th:each="f : ${attachedSolutions}">
                     <td class="id-cell" th:text="${f.id}"></td>
                     <td><a th:href="@{'/user/developer/task-files/solution/' + ${f.id}}" th:text="${f.name}"></a></td>
-                    <td style="width: 10%" th:text="${f.type}"></td>
-                    <td class="date-cell" data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td style="width: 20%" th:text="${f.type}"></td>
                     <td style="width: 20%">
                         <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/files/solution/' + ${f.id} + '/detach'}" method="post" onsubmit="return confirm('Открепить файл?');">
                             <button class="button" type="submit" th:disabled="${isTesting || isUsedInAnyContest}">Открепить</button>
@@ -253,8 +247,7 @@
                 <tr>
                     <th class="id-cell">ID</th>
                     <th>Название</th>
-                    <th style="width: 10%">Тип</th>
-                    <th class="date-cell">Дата создания</th>
+                    <th style="width: 20%">Тип</th>
                     <th style="width: 20%"></th>
                 </tr>
                 </thead>
@@ -262,8 +255,7 @@
                 <tr th:each="f : ${availableSolutions}">
                     <td class="id-cell" th:text="${f.id}"></td>
                     <td><a th:href="@{'/user/developer/task-files/solution/' + ${f.id}}" th:text="${f.name}"></a></td>
-                    <td style="width: 10%" th:text="${f.type}"></td>
-                    <td class="date-cell" data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td style="width: 20%" th:text="${f.type}"></td>
                     <td style="width: 20%">
                         <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/files/solution/attach'}" method="post">
                             <input type="hidden" name="solutionId" th:value="${f.id}">
@@ -289,8 +281,7 @@
                 <tr>
                     <th class="id-cell">ID</th>
                     <th>Название</th>
-                    <th style="width: 10%">Тип</th>
-                    <th class="date-cell">Дата создания</th>
+                    <th style="width: 20%">Тип</th>
                     <th style="width: 20%"></th>
                 </tr>
                 </thead>
@@ -298,8 +289,7 @@
                 <tr th:each="f : ${attachedExercises}">
                     <td class="id-cell" th:text="${f.id}"></td>
                     <td><a th:href="@{'/user/developer/task-files/exercise/' + ${f.id}}" th:text="${f.name}"></a></td>
-                    <td style="width: 10%" th:text="${f.type}"></td>
-                    <td class="date-cell" data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td style="width: 20%" th:text="${f.type}"></td>
                     <td style="width: 20%">
                         <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/files/exercise/' + ${f.id} + '/detach'}" method="post" onsubmit="return confirm('Открепить файл?');">
                             <button class="button" type="submit">Открепить</button>
@@ -318,8 +308,7 @@
                 <tr>
                     <th class="id-cell">ID</th>
                     <th>Название</th>
-                    <th style="width: 10%">Тип</th>
-                    <th class="date-cell">Дата создания</th>
+                    <th style="width: 20%">Тип</th>
                     <th style="width: 20%"></th>
                 </tr>
                 </thead>
@@ -327,8 +316,7 @@
                 <tr th:each="f : ${availableExercises}">
                     <td class="id-cell" th:text="${f.id}"></td>
                     <td><a th:href="@{'/user/developer/task-files/exercise/' + ${f.id}}" th:text="${f.name}"></a></td>
-                    <td style="width: 10%" th:text="${f.type}"></td>
-                    <td class="date-cell" data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td style="width: 20%" th:text="${f.type}"></td>
                     <td style="width: 20%">
                         <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/files/exercise/attach'}" method="post">
                             <input type="hidden" name="exerciseId" th:value="${f.id}">
@@ -352,8 +340,7 @@
                 <tr>
                     <th class="id-cell">ID</th>
                     <th>Название</th>
-                    <th style="width: 10%">Тип</th>
-                    <th class="date-cell">Дата создания</th>
+                    <th style="width: 20%">Тип</th>
                     <th style="width: 20%"></th>
                 </tr>
                 </thead>
@@ -361,8 +348,7 @@
                 <tr th:each="f : ${attachedConditions}">
                     <td class="id-cell" th:text="${f.id}"></td>
                     <td><a th:href="@{'/user/developer/task-files/condition/' + ${f.id}}" th:text="${f.name}"></a></td>
-                    <td style="width: 10%" th:text="${f.type}"></td>
-                    <td class="date-cell" data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td style="width: 20%" th:text="${f.type}"></td>
                     <td style="width: 20%">
                         <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/files/condition/' + ${f.id} + '/detach'}" method="post" onsubmit="return confirm('Открепить файл?');">
                             <button class="button" type="submit">Открепить</button>
@@ -381,8 +367,7 @@
                 <tr>
                     <th class="id-cell">ID</th>
                     <th>Название</th>
-                    <th style="width: 10%">Тип</th>
-                    <th class="date-cell">Дата создания</th>
+                    <th style="width: 20%">Тип</th>
                     <th style="width: 20%"></th>
                 </tr>
                 </thead>
@@ -390,8 +375,7 @@
                 <tr th:each="f : ${availableConditions}">
                     <td class="id-cell" th:text="${f.id}"></td>
                     <td><a th:href="@{'/user/developer/task-files/condition/' + ${f.id}}" th:text="${f.name}"></a></td>
-                    <td style="width: 10%" th:text="${f.type}"></td>
-                    <td class="date-cell" data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td style="width: 20%" th:text="${f.type}"></td>
                     <td style="width: 20%">
                         <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/files/condition/attach'}" method="post">
                             <input type="hidden" name="conditionId" th:value="${f.id}">

@@ -23,6 +23,7 @@ import trik.testsys.webapp.backoffice.data.entity.impl.taskFile.ExerciseFile
 import trik.testsys.webapp.backoffice.data.entity.impl.taskFile.PolygonFile
 import trik.testsys.webapp.backoffice.data.entity.impl.taskFile.SolutionFile
 import trik.testsys.webapp.backoffice.data.enums.FileType
+import trik.testsys.webapp.backoffice.data.service.PolygonDiagnosticReportEntityService
 import trik.testsys.webapp.backoffice.data.service.impl.taskFile.ConditionFileService
 import trik.testsys.webapp.backoffice.data.service.impl.taskFile.ExerciseFileService
 import trik.testsys.webapp.backoffice.data.service.impl.taskFile.PolygonFileService
@@ -39,7 +40,8 @@ class DeveloperTaskFileController(
     private val conditionFileService: ConditionFileService,
     private val exerciseFileService: ExerciseFileService,
     private val polygonFileService: PolygonFileService,
-    private val solutionFileService: SolutionFileService
+    private val solutionFileService: SolutionFileService,
+    private val polygonDiagnosticReportEntityService: PolygonDiagnosticReportEntityService
 ) : AbstractUserController() {
 
     @GetMapping("/task-files")
@@ -443,9 +445,12 @@ class DeveloperTaskFileController(
 
         val versions = fileManager.listFileVersions(polygonFile)
 
+        val activeReports = polygonDiagnosticReportEntityService.findActiveByPolygonFileId(id)
+
         setupModel(model, session, developer)
         model.addAttribute("taskFile", polygonFile)
         model.addAttribute("versions", versions)
+        model.addAttribute("reports", activeReports)
 
         return "developer/polygon-file"
     }
@@ -595,11 +600,15 @@ class DeveloperTaskFileController(
         }
         if (polygonFile.developerId != developer.id) {
             redirectAttributes.addMessage("Редактирование доступно только владельцу.")
-            return "redirect:/user/developer/task-files/polygon/$id"
+            return "redirect:/user/developer/task-files"
         }
         if (polygonFile.isRemoved) {
             redirectAttributes.addMessage("Файл удалён и недоступен для обновления.")
             return "redirect:/user/developer/task-files"
+        }
+        if (polygonFile.analysisStatus == PolygonFile.AnalysisStatus.ANALYZING) {
+            redirectAttributes.addMessage("Полигон нельзя изменять, пока производится его диагностика.")
+            return "redirect:/user/developer/task-files/polygon/$id"
         }
 
         polygonFile.fileVersion++
@@ -612,6 +621,7 @@ class DeveloperTaskFileController(
             return "redirect:/user/developer/task-files/polygon/$id"
         }
 
+        polygonFile.analysisStatus = PolygonFile.AnalysisStatus.NOT_ANALYZED
         polygonFileService.save(saved)
         redirectAttributes.addMessage("Файл обновлён.")
         return "redirect:/user/developer/task-files/polygon/$id"
@@ -927,6 +937,11 @@ class DeveloperTaskFileController(
 
         if (polygonFile.taskIds.isNotEmpty()) {
             redirectAttributes.addMessage("Нельзя удалить Файл, прикреплённый к Задаче.")
+            return "redirect:/user/developer/task-files/polygon/$id"
+        }
+
+        if (polygonFile.analysisStatus == PolygonFile.AnalysisStatus.ANALYZING) {
+            redirectAttributes.addMessage("Полигон нельзя удалять, пока производится его диагностика.")
             return "redirect:/user/developer/task-files/polygon/$id"
         }
 

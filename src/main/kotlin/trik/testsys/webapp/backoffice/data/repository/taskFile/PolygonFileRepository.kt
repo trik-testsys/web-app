@@ -1,7 +1,6 @@
 package trik.testsys.webapp.backoffice.data.repository.taskFile
 
 import org.springframework.stereotype.Repository
-import trik.testsys.webapp.backoffice.data.entity.impl.taskFile.ExerciseFile
 import trik.testsys.webapp.backoffice.data.entity.impl.taskFile.PolygonFile
 import trik.testsys.webapp.core.data.repository.EntityRepository
 
@@ -13,4 +12,6 @@ import trik.testsys.webapp.core.data.repository.EntityRepository
 interface PolygonFileRepository : EntityRepository<PolygonFile> {
 
     fun findByDeveloperId(developerId: Long): Set<PolygonFile>
+
+    fun findByAnalysisStatus(analysisStatus: PolygonFile.AnalysisStatus): List<PolygonFile>
 }

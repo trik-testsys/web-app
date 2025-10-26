@@ -34,6 +34,7 @@
                             <th>Название</th>
                             <th>Описание</th>
                             <th>Тип</th>
+                            <th>Результат анализа</th>
                             <th class="date-cell">Дата создания</th>
                         </tr>
                     </thead>
@@ -43,6 +44,7 @@
                             <td><a th:href="@{'/user/developer/task-files/polygon/' + ${f.id}}" th:text="${f.name}"></a></td>
                             <td th:text="${f.info ?: '—'}"></td>
                             <td th:text="${f.type}"></td>
+                            <td th:text="${f.analysisStatus.locale}"></td>
                             <td class="date-cell" data-utc th:attr="data-utc=${f.createdAt}" th:text="${f.createdAt != null ? #temporals.format(f.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                         </tr>
                     </tbody>

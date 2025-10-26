@@ -18,6 +18,7 @@ import trik.testsys.webapp.backoffice.controller.AbstractUserController
 import trik.testsys.webapp.backoffice.data.entity.impl.Solution
 import trik.testsys.webapp.backoffice.data.entity.impl.Task
 import trik.testsys.webapp.backoffice.data.entity.impl.User
+import trik.testsys.webapp.backoffice.data.entity.impl.taskFile.PolygonFile
 import trik.testsys.webapp.backoffice.data.service.ContestService
 import trik.testsys.webapp.backoffice.data.service.SolutionService
 import trik.testsys.webapp.backoffice.data.service.TaskService
@@ -506,6 +507,10 @@ class DeveloperTaskController(
             redirectAttributes.addMessage("Можно прикреплять только свои файлы.")
             return "redirect:/user/developer/tasks/$id"
         }
+        if (polygonFile.analysisStatus != PolygonFile.AnalysisStatus.SUCCESS) {
+            redirectAttributes.addMessage("Нельзя прикреплять полигоны, которые не прошли диагностику успешно")
+            return "redirect:/user/developer/tasks/$id"
+        }
 
         if (task.testingStatus == Task.TestingStatus.TESTING) {
             redirectAttributes.addMessage("Нельзя изменять Полигоны во время тестирования.")
@@ -978,14 +983,6 @@ class DeveloperTaskController(
         redirectAttributes.addMessage("Балл для решения обновлён.")
         return "redirect:/user/developer/tasks/$id"
     }
-
-    private data class TaskFileListItem(
-        val id: Long,
-        val name: String?,
-        val info: String?,
-        val createdAt: Instant?,
-        val localizedType: String,
-    )
 
     companion object {
 

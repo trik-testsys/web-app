@@ -16,4 +16,14 @@ class PolygonFileService : AbstractService<PolygonFile, PolygonFileRepository>()
         val result = repository.findByDeveloperId(developerId).filter { it.isRemoved == isRemoved }
         return result.toSet()
     }
+
+    fun findNotAnalyzed(): List<PolygonFile> {
+        val result = repository.findByAnalysisStatus(PolygonFile.AnalysisStatus.NOT_ANALYZED)
+        return result
+    }
+
+    fun findAnalyzing(): List<PolygonFile> {
+        val result = repository.findByAnalysisStatus(PolygonFile.AnalysisStatus.ANALYZING)
+        return result
+    }
 }
