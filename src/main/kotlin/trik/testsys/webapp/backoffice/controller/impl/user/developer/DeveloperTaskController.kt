@@ -1,6 +1,7 @@
 package trik.testsys.webapp.backoffice.controller.impl.user.developer
 
 import jakarta.servlet.http.HttpSession
+import org.slf4j.LoggerFactory
 import java.time.Instant
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Controller
@@ -831,6 +832,8 @@ class DeveloperTaskController(
                 it.type = solutionTf.solutionType
                 it.info = "Тестирование Эталонного решения (id=${solutionTf.id}, type=${it.type}) для Задачи (id=${task.id})."
             }
+
+            logger.debug("Calling solutionService.save(id=${solution.id}) in DeveloperTaskController.testTask")
             val saved = solutionService.save(solution)
 
             val solutionSource = fileManager.getSolutionFile(solutionTf)
@@ -983,4 +986,9 @@ class DeveloperTaskController(
         val createdAt: Instant?,
         val localizedType: String,
     )
+
+    companion object {
+
+        private val logger = LoggerFactory.getLogger(DeveloperTaskController::class.java)
+    }
 }

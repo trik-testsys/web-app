@@ -13,4 +13,6 @@ interface SolutionService : EntityService<Solution> {
     fun findAllTestingSolutions(task: Task): List<Solution> = findAllTestingSolutions(listOf(task))
 
     fun findAllTestingSolutions(tasks: List<Task>): List<Solution>
+
+    fun updateStatus(solutionId: Long, newStatus: Solution.Status)
 }

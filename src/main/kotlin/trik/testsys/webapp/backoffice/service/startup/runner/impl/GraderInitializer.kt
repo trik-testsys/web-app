@@ -66,6 +66,8 @@ class GraderInitializer(
                     verdictService.createNewForSolution(managed, 0)
 
 //                    if (managed.isLastTaskTest()) changeTaskTestingResult(managed)
+
+                    logger.debug("Calling solutionService.save(id=${managed.id}) in GraderInitializer.sendToGradeUngradedSolutions")
                     solutionService.save(managed)
 
                     false
@@ -141,6 +143,7 @@ class GraderInitializer(
 
             verdictService.createNewForSolution(managed, 0)
 
+            logger.debug("Calling solutionService.save(id=${solution.id}) in GraderInitializer.afterCatchException")
             solutionService.save(managed)
         } catch (e: Exception) {
             logger.error("Failed to handle exception.", e)
@@ -183,6 +186,8 @@ class GraderInitializer(
         val managed = solutionService.getById(requireNotNull(solution.id))
         managed.status = Solution.Status.PASSED
         verdictService.createNewForSolution(managed, totalScore)
+
+        logger.debug("Calling solutionService.save(id=${solution.id}) in Grader.GradingInfo.Ok.parse")
         solutionService.save(managed)
 
     }
@@ -236,6 +241,8 @@ class GraderInitializer(
         }
 
         verdictService.createNewForSolution(managed, 0)
+
+        logger.debug("Calling solutionService.save(id=${solution.id}) in Grader.GradingInfo.Error.parse")
         solutionService.save(managed)
 
     }

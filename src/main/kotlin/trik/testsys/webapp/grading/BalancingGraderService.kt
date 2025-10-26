@@ -4,6 +4,7 @@ import io.grpc.StatusException
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Primary
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import trik.testsys.grading.GradingNodeOuterClass.Submission
 import trik.testsys.webapp.grading.communication.GradingNodeManager
@@ -45,9 +46,7 @@ class BalancingGraderService(
         nodeManager,
         configuration,
         onSent = { submission ->
-            val solution = submission.solution
-            solution.status = Solution.Status.IN_PROGRESS
-            solutionService.save(solution)
+            solutionService.updateStatus(requireNotNull(submission.solution.id), Solution.Status.IN_PROGRESS)
         }
     )
     private val log = LoggerFactory.getLogger(this.javaClass)
@@ -81,6 +80,7 @@ class BalancingGraderService(
         gradingManager.enqueueSubmission(SubmissionInfo(managedSolution, submission, LocalDateTime.now()))
     }
 
+//    @Transactional(propagation = Propagation.REQUIRES_NEW)
     override fun subscribeOnGraded(onGraded: (Grader.GradingInfo) -> Unit) {
         nodeManager.subscribeOnGraded(onGraded)
     }

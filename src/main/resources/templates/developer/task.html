@@ -138,10 +138,10 @@
                     </td>
                     <td th:text="${solutionFileEntry.value.lastTestScore ?: '—'}"></td>
                     <td>
-                        <a th:if="${solutionFileEntry.value.lastSolutionId != null && resultsAvailable[solutionFileEntry.value.lastSolutionId]}"
+                        <a th:if="${task.testingStatus == 'PASSED' &&  solutionFileEntry.value.lastSolutionId != null && resultsAvailable[solutionFileEntry.value.lastSolutionId]}"
                            th:href="@{'/user/developer/tasks/' + ${task.id} + '/tests/' + ${solutionFileEntry.value.lastSolutionId} + '/download'}"
                            class="button button--small">Скачать</a>
-                        <span th:if="${solutionFileEntry.value.lastSolutionId == null || !resultsAvailable[solutionFileEntry.value.lastSolutionId]}" style="color: var(--color-text-muted);">—</span>
+                        <span th:if="${(solutionFileEntry.value.lastSolutionId == null || !resultsAvailable[solutionFileEntry.value.lastSolutionId])}" style="color: var(--color-text-muted);">—</span>
                     </td>
                 </tr>
                 </tbody>
