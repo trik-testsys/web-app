@@ -36,7 +36,7 @@ data class PlainConstraint(
 
 data class EventConstraint(
     val dropsOnFire: Boolean,
-    val identifier: String,
+    val identifier: String?,
     val settedUpInitially: Boolean,
     val condition: PolygonCondition,
     val trigger: PolygonTrigger,

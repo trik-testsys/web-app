@@ -29,7 +29,7 @@ class PolygonDiagnosticReportEntity(
     val level: Level,
     @Column(name = "description", nullable = false)
     val description: String,
-    @Column(name = "location", nullable = true)
+    @Column(name = "location", nullable = true, length = 4000)
     val location: String? = null
 ) : AbstractEntity() {
 

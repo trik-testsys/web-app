@@ -24,13 +24,13 @@ class PolygonFileScheduleAnalyzer(
 ) {
 
     @Scheduled(fixedRate = 10_000)
-    fun analyzeNotAnalyzedPolygonFiles() {
-        logger.debug("Started analyzeNotAnalyzedPolygonFiles")
+    fun analyzePolygonFiles() {
+        logger.debug("Started analyzePolygonFiles")
         val notAnalyzed = polygonFileService.findNotAnalyzed()
 
         logger.debug("Found ${notAnalyzed.size} polygonFiles to analyze")
         notAnalyzed.forEach { polygonFile ->
-            logger.debug("Started analyzeNotAnalyzedPolygonFiles for polygonFile(id=${polygonFile.id})")
+            logger.debug("Started analyzePolygonFiles for polygonFile(id=${polygonFile.id})")
 
             polygonFile.analysisStatus = PolygonFile.AnalysisStatus.ANALYZING
             polygonFileService.save(polygonFile)
@@ -42,7 +42,7 @@ class PolygonFileScheduleAnalyzer(
             performAnalysis(requireNotNull(polygonFile.id))
         }
 
-        logger.debug("Finished analyzeNotAnalyzedPolygonFiles")
+        logger.debug("Finished analyzePolygonFiles")
     }
 
     private fun performAnalysis(polygonFileId: Long) = transactionTemplate.execute {
@@ -52,14 +52,14 @@ class PolygonFileScheduleAnalyzer(
             }
 
         val results = polygonAnalyzer.analyze(polygonFile).ifEmpty {
-            logger.debug("Finished analyzeNotAnalyzedPolygonFiles for polygonFile(id=${polygonFile.id}), setting analysisStatus to 'SUCCESS'. No reports where generated.")
+            logger.debug("Finished analyzePolygonFiles for polygonFile(id=${polygonFile.id}), setting analysisStatus to 'SUCCESS'. No reports where generated.")
 
             polygonFile.analysisStatus = PolygonFile.AnalysisStatus.SUCCESS
             polygonFileService.save(polygonFile)
             return@execute
         }
 
-        logger.debug("Finished analyzeNotAnalyzedPolygonFiles for polygonFile(id=${polygonFile.id}), setting analysisStatus to 'FAILED'. ${results.size} reports where generated: $results")
+        logger.debug("Finished analyzePolygonFiles for polygonFile(id=${polygonFile.id}), setting analysisStatus to 'FAILED'. ${results.size} reports where generated: $results")
 
         val analyzeEntities = results.map { result ->
             PolygonDiagnosticReportEntity
