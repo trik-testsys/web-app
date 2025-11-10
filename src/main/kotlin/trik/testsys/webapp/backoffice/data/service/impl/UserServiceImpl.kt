@@ -34,6 +34,14 @@ class UserServiceImpl(
         return save(user)
     }
 
+    override fun updateEmail(user: User, newEmail: String?): User {
+        user.email = newEmail
+        user.emailVerifiedAt = null
+        user.requestedEmailDetach = false
+
+        return save(user)
+    }
+
     override fun updateLastLoginAt(user: User, lastLoginAt: Instant?): User {
         lastLoginAt?.let {
             user.lastLoginAt = it
@@ -274,6 +282,12 @@ class UserServiceImpl(
 
             cb.and(*predicates.toTypedArray())
         }.toSet()
+    }
+
+    override fun findByEmail(email: String): User? {
+        val user = repository.findByEmailAndEmailVerifiedAtNotNull(email)
+
+        return user
     }
 
     companion object {

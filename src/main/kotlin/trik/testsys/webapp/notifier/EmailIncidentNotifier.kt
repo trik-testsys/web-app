@@ -3,6 +3,7 @@ package trik.testsys.webapp.notifier
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
+import trik.testsys.webapp.backoffice.service.impl.EmailClient
 import javax.annotation.PostConstruct
 
 /**
@@ -31,6 +32,7 @@ class EmailIncidentNotifier(
 
     private fun sendMessage(body: String) {
         val message = EmailClient.Email(
+            from = FROM,
             to = mails,
             subject = subject,
             body = body
@@ -50,5 +52,7 @@ class EmailIncidentNotifier(
     companion object {
 
         private val logger = LoggerFactory.getLogger(EmailIncidentNotifier::class.java)
+
+        private const val FROM = "incident-notifier"
     }
 }

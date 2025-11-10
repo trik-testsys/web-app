@@ -2,6 +2,35 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
 <head>
     <th:block th:include="fragments/layout :: head('Обзор')"></th:block>
+    <style>
+        .email-box.verified {
+            width: 550px;
+            border: 1px solid #4CAF50;
+            border-radius: 6px;
+            padding: 4px 8px;
+        }
+        .email-box.unverified {
+            width: 550px;
+            border: 1px solid #F44336;
+            border-radius: 6px;
+            padding: 4px 8px;
+        }
+    </style>
+
+    <script>
+        function toggleEmailEdit(show) {
+            const view = document.getElementById('email-view');
+            const form = document.getElementById('email-form');
+            if (show) {
+                view.style.display = 'none';
+                form.style.display = 'flex';
+            } else {
+                form.style.display = 'none';
+                view.style.display = 'flex';
+            }
+        }
+    </script>
+
 </head>
 <body>
 
@@ -15,7 +44,9 @@
             <a class="button button--info" target="_blank" href="https://trik-testsys.github.io/navigation.html" title="Информация о странице"><i class="fa fa-info-circle"></i>Справка</a>
         </h2>
         <div class="card-body">
-            <div class="alert" th:if="${message}" th:text="${message}"></div>
+            <div th:class="${isWarning} ? 'warningAlert' : 'alert'"
+                 th:if="${message}"
+                 th:text="${message}"></div>
             <h3 style="margin: 0 0 8px 0;">Основная информация</h3>
             <dl class="kv">
                 <dt>ID</dt>
@@ -33,6 +64,44 @@
                 </dd>
                 <dt>Код-доступа</dt>
                 <dd><span class="token" th:text="${user.accessToken.value}"></span></dd>
+                <dt>Почта</dt>
+                <dd>
+                    <!-- Просмотр почты -->
+                    <div id="email-view"
+                         th:class="'email-box ' + (${user.emailVerifiedAt != null} ? 'verified' : 'unverified')"
+                         style="display:flex; align-items:center; gap:8px;">
+                        <span th:text="${user.email}"></span>
+
+                        <!-- Кнопки действий -->
+                        <button th:if="${user.email != null}" type="button" class="button" onclick="toggleEmailEdit(true)">Изменить</button>
+                        <button th:if="${user.email == null}" type="button" class="button" onclick="toggleEmailEdit(true)">Прикрепить</button>
+                        <form th:if="${user.email != null && user.requestedEmailDetach == false}"
+                              th:action="@{/user/mail/remove}" method="post" style="margin:0;">
+                            <button type="submit" class="button button--danger">Открепить</button>
+                        </form>
+                    </div>
+
+                    <!-- Редактирование почты -->
+                    <form id="email-form" th:action="@{/user/mail/update}" method="post"
+                          style="display:none; align-items:center; gap:6px; margin-top:6px;">
+                        <input type="email" name="email" th:value="${user.email}" placeholder="Новая почта"
+                               style="width:300px; padding:6px 8px; border-radius:6px; border:1px solid #dde3ea; font-size:14px;">
+                        <button type="submit" class="button button--primary" style="padding:6px 10px;">Сохранить</button>
+                        <button type="button" class="button" style="padding:6px 10px;" onclick="toggleEmailEdit(false)">Отмена</button>
+                    </form>
+
+                    <!-- Ввод кода подтверждения (если почта не подтверждена) -->
+                    <form th:if="${user.emailVerifiedAt == null && user.email != null || user.requestedEmailDetach == true}" th:action="@{/user/mail/verify}" method="post"
+                          style="margin-top:6px; display:flex; gap:6px; align-items:center;">
+                        <input type="text" name="verificationToken" placeholder="Код"
+                               style="width:300px; padding:6px 8px; border-radius:6px; border:1px solid #dde3ea; font-size:14px;">
+                        <button type="submit" class="button button--primary" style="padding:6px 10px;">Подтвердить</button>
+                    </form>
+                    <form th:if="${user.emailVerifiedAt == null && user.email != null || user.requestedEmailDetach == true}" id="-form" th:action="@{/user/mail/resend}" method="post" style="gap:8px; align-items:center;">
+                        <button type="submit" class="button button--primary">Отправить код повторно</button>
+                    </form>
+                </dd>
+
                 <dt>Последний вход</dt>
                 <dd data-utc data-include-seconds th:attr="data-utc=${user.lastLoginAt}" th:text="${user.lastLoginAt != null ? #temporals.format(user.lastLoginAt, 'dd.MM.yyyy HH:mm:ss') : '—'}"></dd>
             </dl>

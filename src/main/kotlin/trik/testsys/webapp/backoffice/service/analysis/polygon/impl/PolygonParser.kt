@@ -504,7 +504,7 @@ class PolygonParser {
 
     private fun parseEventConstraint(e: XmlElement): EventConstraint {
         assertChildrenCount(e, 2)
-        val identifier = e.getRequiredAttribute<String>("id")
+        val identifier = e.getOptionalAttribute<String>("id")
         val dropsOnFire = e.getOptionalAttribute<Boolean>("dropsOnFire") ?: true
         val settedUpInitially = e.getOptionalAttribute<Boolean>("settedUpInitially") ?: false
 

@@ -18,6 +18,7 @@
     <properties>
         <protos.version>1.1.0-SNAPSHOT</protos.version>
         <grpc.version>1.56.1</grpc.version>
+        <kotlin.mail.version>1.4.0</kotlin.mail.version>
     </properties>
 
     <repositories>
@@ -116,6 +117,17 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>net.axay</groupId>
+            <artifactId>simplekotlinmail-core</artifactId>
+            <version>${kotlin.mail.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.axay</groupId>
+            <artifactId>simplekotlinmail-client</artifactId>
+            <version>${kotlin.mail.version}</version>
         </dependency>
     </dependencies>
 

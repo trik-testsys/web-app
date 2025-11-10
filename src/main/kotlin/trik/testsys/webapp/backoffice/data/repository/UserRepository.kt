@@ -14,4 +14,6 @@ interface UserRepository: EntityRepository<User> {
     fun findAllBySuperUser(superUser: User): Set<User>
 
     fun findByViewer(viewer: User): Set<User>
+
+    fun findByEmailAndEmailVerifiedAtNotNull(email: String): User?
 }

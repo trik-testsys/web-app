@@ -17,6 +17,9 @@ interface UserService : EntityService<User> {
     fun updateName(user: User, newName: String): User
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
+    fun updateEmail(user: User, newEmail: String?): User
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     fun updateLastLoginAt(user: User, lastLoginAt: Instant? = null): User
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
@@ -34,4 +37,6 @@ interface UserService : EntityService<User> {
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     fun findCandidatesFor(userGroup: UserGroup): Set<User>
+
+    fun findByEmail(email: String): User?
 }

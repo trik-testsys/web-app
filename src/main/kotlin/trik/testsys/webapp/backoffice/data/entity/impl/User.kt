@@ -90,6 +90,15 @@ class User() : AbstractEntity() {
     @OneToMany(mappedBy = "createdBy", orphanRemoval = true)
     var solutions: MutableSet<Solution> = mutableSetOf()
 
+    @Column(name = "email", nullable = true, unique = true)
+    var email: String? = null
+
+    @Column(name = "email_verified_at", nullable = true)
+    var emailVerifiedAt: Instant? = null
+
+    @Column(name = "requested_email_detach", nullable = false)
+    var requestedEmailDetach: Boolean = false
+
     fun hasAnyOf(privileges: Collection<Privilege>): Boolean {
         privileges.forEach { privilege ->
             if (this.privileges.contains(privilege)) return true

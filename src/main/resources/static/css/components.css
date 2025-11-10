@@ -32,7 +32,8 @@
 .token { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; filter: blur(5px); transition: filter .25s ease; }
 .token:hover { filter: blur(0); }
 
-.alert { padding: 10px 12px; border-radius: 10px; background: #eef5ff; color: #245ea6; margin-bottom: 12px; }
+.alert { font-size: 18px; padding: 10px 12px; border-radius: 10px; background: #eef5ff; color: #245ea6; margin-bottom: 12px; }
+.warningAlert { font-size: 18px; padding: 10px 12px; border-radius: 10px; background: var(--color-danger); color: #fff; margin-bottom: 12px; }
 
 /* Small inline help note */
 .help-note { color: var(--color-text-muted); font-size: 12px; margin-top: 6px; }

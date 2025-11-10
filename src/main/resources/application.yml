@@ -81,15 +81,17 @@ trik:
         results: "${PWD}/data/files/results/"
     notifier:
       email:
-        smtp:
-          host: "${SMTP_HOST:}"
-          port: "${SMTP_PORT:}"
-        credential:
-          username: "${EMAIL_USERNAME:}"
-          password: "${EMAIL_PASSWORD:}"
-        receivers: "${EMAIL_RECEIVERS:}"
+        receivers: "${NTF_RECEIVERS:}"
     diagnostics-availability:
       polygon:
         timelimit: ${TL_DIAG:false}
         score-output: ${SO_DIAG:false}
         invalid-event-id: ${IEI_DIAG:false}
+    email-client:
+      domain: "${EC_DOMAIN:}"
+      credentials:
+        username: "${EC_USERNAME:}"
+        password: "${EC_PASSWORD:}"
+      smtp:
+        host: "${SMTP_HOST:}"
+        port: "${SMTP_PORT:}"
