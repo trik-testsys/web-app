@@ -1,4 +1,4 @@
-FROM openjdk:17-alpine
+FROM eclipse-temurin:17
 MAINTAINER Roman Shishkin <romashkin.2001@yandex.ru>
 
 #Setting directories args

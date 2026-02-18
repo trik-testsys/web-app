@@ -1,7 +1,11 @@
 package trik.testsys.webapp.backoffice.controller
 
+import jakarta.annotation.PostConstruct
 import jakarta.servlet.http.HttpSession
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.ui.Model
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import trik.testsys.webapp.backoffice.data.entity.impl.AccessToken
@@ -28,6 +32,16 @@ abstract class AbstractUserController {
 
     @Autowired
     protected lateinit var menuBuilder: MenuBuilder
+
+    @Value("\${trik.testsys.display-app-name}")
+    private lateinit var displayAppName: String
+
+    protected val logger: Logger = LoggerFactory.getLogger(AbstractUserController::class.java)
+
+    @PostConstruct
+    fun postConstruct() {
+        logger.debug("Display application name = '$displayAppName'")
+    }
 
     protected fun getAccessToken(session: HttpSession, redirectAttributes: RedirectAttributes): AccessToken? {
         val accessToken = (session.getAttribute(ACCESS_TOKEN) as? String)?.let {
@@ -60,6 +74,7 @@ abstract class AbstractUserController {
      */
     protected fun setupModel(model: Model, session: HttpSession, user: User) {
         model.apply {
+            addAttribute(APPLICATION_NAME_ATTR, displayAppName.ifBlank { null })
             addHasActiveSession(session)
             addUser(user)
             addSections(menuBuilder.buildFor(user))
@@ -69,5 +84,6 @@ abstract class AbstractUserController {
     companion object {
 
         const val ACCESS_TOKEN = "accessToken"
+        const val APPLICATION_NAME_ATTR = "appName"
     }
 }

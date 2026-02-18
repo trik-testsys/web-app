@@ -26,6 +26,7 @@
     <a href="/" class="brand">
         <img th:src="@{/img/trik_testsys_logo.svg}" alt="Лого" aria-hidden="true"/>
         <span class="brand-title">TRIK TestSys</span>
+        <span th:if="${appName != null}" th:text="'(' + ${appName} + ')'"></span>
     </a>
     <div class="header-actions">
         <a class="icon-button" target="_blank" rel="noopener noreferrer" href="https://trik-testsys.github.io" title="Документация" aria-label="Документация"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
@@ -51,7 +52,7 @@
         </div>
     </nav>
     <div style="margin-top: 16px;">
-        <a href="/logout" class="menu-logout">Выход</a>
+        <a th:href="@{/logout}" class="menu-logout">Выход</a>
     </div>
     
 </aside>

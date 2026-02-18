@@ -95,3 +95,4 @@ trik:
       smtp:
         host: "${SMTP_HOST:}"
         port: "${SMTP_PORT:}"
+    display-app-name: "${DISPLAY_APP_NANE:}"
