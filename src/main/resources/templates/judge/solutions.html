@@ -4,6 +4,12 @@
     <th:block th:include="fragments/layout :: head('Решения')"></th:block>
     <style>
         .actions { display: flex; gap: 8px; align-items: center; }
+        .filter-form { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin-bottom: 16px; }
+        .filter-field { display: flex; flex-direction: column; gap: 4px; }
+        .filter-field label { font-size: 12px; font-weight: 600; color: var(--color-text-muted); }
+        .filter-field input { padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; width: 140px; }
+        .pagination { display: flex; gap: 8px; align-items: center; margin-top: 12px; }
+        .page-info { color: var(--color-text-muted); font-size: 14px; }
     </style>
     <script>
         function attachUploadHandlers() {
@@ -25,9 +31,62 @@
             <a class="button button--info" target="_blank" href="https://trik-testsys.github.io/judge.html" title="Информация о странице"><i class="fa fa-info-circle"></i>Справка</a>
         </h2>
         <div class="card-body">
-            <h3 style="margin: 0 0 8px 0;">Посылки Участников</h3>
-            <div th:if="${#lists.isEmpty(studentSolutions)}" style="color: var(--color-text-muted);">Пока нет посылок Участников.</div>
-            <table th:if="${!#lists.isEmpty(studentSolutions)}" class="table">
+            <h3 style="margin: 0 0 12px 0;">Посылки Участников</h3>
+
+            <!-- Filter form -->
+            <form method="get" th:action="@{/user/judge/solutions}" class="filter-form">
+                <div class="filter-field">
+                    <label for="studentId">ID Участника</label>
+                    <input id="studentId" name="studentId" type="number" min="1"
+                           th:value="${filterStudentId}" placeholder="напр. 42"/>
+                </div>
+                <div class="filter-field">
+                    <label for="groupId">ID Группы</label>
+                    <input id="groupId" name="groupId" type="number" min="1"
+                           th:value="${filterGroupId}" placeholder="напр. 5"/>
+                </div>
+                <div class="filter-field">
+                    <label for="adminId">ID Организатора</label>
+                    <input id="adminId" name="adminId" type="number" min="1"
+                           th:value="${filterAdminId}" placeholder="напр. 10"/>
+                </div>
+                <div class="filter-field">
+                    <label for="viewerId">ID Наблюдателя</label>
+                    <input id="viewerId" name="viewerId" type="number" min="1"
+                           th:value="${filterViewerId}" placeholder="напр. 3"/>
+                </div>
+                <div class="filter-field">
+                    <label for="fromDate">С даты</label>
+                    <input id="fromDate" name="fromDate" type="date"
+                           th:value="${filterFromDate}" style="width:160px;"/>
+                </div>
+                <div class="filter-field">
+                    <label for="toDate">По дату</label>
+                    <input id="toDate" name="toDate" type="date"
+                           th:value="${filterToDate}" style="width:160px;"/>
+                </div>
+                <div class="filter-field">
+                    <label>&nbsp;</label>
+                    <div style="display:flex; gap:8px;">
+                        <button type="submit" class="button button--primary">Найти</button>
+                        <a th:href="@{/user/judge/solutions}" class="button">Сбросить</a>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Empty state before first search -->
+            <div th:if="${!hasSearched}" style="color: var(--color-text-muted); padding: 8px 0;">
+                Заполните фильтры и нажмите «Найти» для отображения посылок.
+            </div>
+
+            <!-- No results after search -->
+            <div th:if="${hasSearched and #lists.isEmpty(studentSolutions)}"
+                 style="color: var(--color-text-muted); padding: 8px 0;">
+                Посылки не найдены по заданным фильтрам.
+            </div>
+
+            <!-- Results table -->
+            <table th:if="${hasSearched and !#lists.isEmpty(studentSolutions)}" class="table">
                 <thead>
                 <tr>
                     <th class="id-cell">ID</th>
@@ -49,7 +108,8 @@
                     <td th:text="${adminBySolutionId[s.id]} ?: '—'"></td>
                     <td th:text="${groupBySolutionId[s.id]} ?: '—'"></td>
                     <td th:text="${s.createdBy.id}"></td>
-                    <td class="date-cell" data-utc th:attr="data-utc=${s.createdAt}" th:text="${#temporals.format(s.createdAt, 'dd.MM.yyyy HH:mm')}"></td>
+                    <td class="date-cell" data-utc th:attr="data-utc=${s.createdAt}"
+                        th:text="${#temporals.format(s.createdAt, 'dd.MM.yyyy HH:mm')}"></td>
                     <td th:text="${verdicts != null and #maps.containsKey(verdicts, s.id) ? verdicts[s.id].value : '—'}"></td>
                     <td style="width: 300px">
                         <div class="actions">
@@ -68,6 +128,19 @@
                 </tr>
                 </tbody>
             </table>
+
+            <!-- Pagination controls -->
+            <div th:if="${studentSolutionsPage != null and studentSolutionsPage.totalPages > 1}"
+                 class="pagination">
+                <a th:if="${!studentSolutionsPage.first}"
+                   th:href="@{/user/judge/solutions(studentId=${filterStudentId},groupId=${filterGroupId},adminId=${filterAdminId},viewerId=${filterViewerId},fromDate=${filterFromDate},toDate=${filterToDate},page=${studentSolutionsPage.number - 1})}"
+                   class="button button--small">← Назад</a>
+                <span class="page-info"
+                      th:text="'Страница ' + (${studentSolutionsPage.number + 1}) + ' из ' + ${studentSolutionsPage.totalPages} + ' (' + ${studentSolutionsPage.totalElements} + ' посылок)'"></span>
+                <a th:if="${!studentSolutionsPage.last}"
+                   th:href="@{/user/judge/solutions(studentId=${filterStudentId},groupId=${filterGroupId},adminId=${filterAdminId},viewerId=${filterViewerId},fromDate=${filterFromDate},toDate=${filterToDate},page=${studentSolutionsPage.number + 1})}"
+                   class="button button--small">Вперёд →</a>
+            </div>
 
             <hr class="separator">
 
@@ -89,17 +162,18 @@
                         <a th:href="@{'/user/judge/solutions/' + ${s.id}}" th:text="${s.id}"></a>
                     </td>
                     <td th:text="${@solutionI18n.toRu(s.status)}"></td>
-                    <td th:text="${verdicts != null and #maps.containsKey(verdicts, s.id) ? verdicts[s.id].value : '—'}"></td>
-                    <td class="date-cell" data-utc th:attr="data-utc=${s.createdAt}" th:text="${s.createdAt != null ? #temporals.format(s.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td th:text="${judgeVerdicts != null and #maps.containsKey(judgeVerdicts, s.id) ? judgeVerdicts[s.id].value : '—'}"></td>
+                    <td class="date-cell" data-utc th:attr="data-utc=${s.createdAt}"
+                        th:text="${s.createdAt != null ? #temporals.format(s.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                     <td style="width: 300px">
                         <div class="actions">
-                            <a th:if="${solutionFileAvailable[s.id]}"
+                            <a th:if="${judgeSolutionFileAvailable[s.id]}"
                                th:href="@{'/user/judge/solutions/' + ${s.id} + '/file'}"
                                class="button button--small">Скачать посылку</a>
-                            <a th:if="${resultsAvailable[s.id]}"
+                            <a th:if="${judgeResultsAvailable[s.id]}"
                                th:href="@{'/user/judge/solutions/' + ${s.id} + '/download'}"
                                class="button button--small">Скачать zip</a>
-                            <span th:if="${!resultsAvailable[s.id]}" style="color: var(--color-text-muted);">—</span>
+                            <span th:if="${!judgeResultsAvailable[s.id]}" style="color: var(--color-text-muted);">—</span>
                             <form th:action="@{'/user/judge/solutions/' + ${s.id} + '/resubmit'}" method="post" style="display:inline;">
                                 <button class="button button--small" type="submit">Перезапустить</button>
                             </form>
@@ -115,5 +189,3 @@
 <footer th:replace="fragments/layout :: footer"></footer>
 </body>
 </html>
-
-
