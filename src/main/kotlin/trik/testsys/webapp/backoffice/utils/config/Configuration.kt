@@ -41,8 +41,11 @@ class Configuration(
             "classpath:/static/assets/",
         )
 
+        val sponsorshipLocation = if (sponsorshipDirPath.endsWith("/")) "file:$sponsorshipDirPath"
+                          else "file:$sponsorshipDirPath/"
         registry.addResourceHandler("/sponsorship/**")
-            .addResourceLocations("file:$sponsorshipDirPath")
+            .addResourceLocations(sponsorshipLocation)
+            .resourceChain(true)
     }
 
     @Bean

@@ -15,10 +15,10 @@ import trik.testsys.webapp.backoffice.data.service.impl.RegTokenService
 import trik.testsys.webapp.backoffice.data.service.impl.StudentGroupTokenService
 import trik.testsys.webapp.backoffice.data.service.StudentGroupService
 import trik.testsys.webapp.backoffice.data.entity.impl.User
+import trik.testsys.webapp.backoffice.service.SponsorshipService
 import trik.testsys.webapp.backoffice.utils.SESSION_ACCESS_TOKEN
 import trik.testsys.webapp.backoffice.utils.addHasActiveSession
 import trik.testsys.webapp.backoffice.utils.addMessage
-import trik.testsys.webapp.backoffice.service.SponsorshipService
 
 @Controller
 class MainController(
