@@ -18,6 +18,7 @@ import trik.testsys.webapp.backoffice.data.entity.impl.User
 import trik.testsys.webapp.backoffice.utils.SESSION_ACCESS_TOKEN
 import trik.testsys.webapp.backoffice.utils.addHasActiveSession
 import trik.testsys.webapp.backoffice.utils.addMessage
+import trik.testsys.webapp.backoffice.service.SponsorshipService
 
 @Controller
 class MainController(
@@ -26,24 +27,28 @@ class MainController(
     private val viewerService: ViewerService,
     private val userService: UserService,
     private val studentGroupTokenService: StudentGroupTokenService,
-    private val studentGroupService: StudentGroupService
+    private val studentGroupService: StudentGroupService,
+    private val sponsorshipService: SponsorshipService
 ) {
 
     @GetMapping("/")
     fun mainPage(model: Model, session: HttpSession): String {
         model.addHasActiveSession(session)
+        model.addAttribute("sponsorshipImages", sponsorshipService.getImageNames())
         return "main"
     }
 
     @GetMapping("/login")
     fun loginPage(model: Model, session: HttpSession): String {
         model.addHasActiveSession(session)
+        model.addAttribute("sponsorshipImages", sponsorshipService.getImageNames())
         return "login"
     }
 
     @GetMapping("/reg")
     fun regPage(model: Model, session: HttpSession): String {
         model.addHasActiveSession(session)
+        model.addAttribute("sponsorshipImages", sponsorshipService.getImageNames())
         return "reg"
     }
 
