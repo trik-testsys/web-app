@@ -101,3 +101,10 @@
     object-fit: contain;
     margin: auto;
 }
+
+.sponsorship-block {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 10;
+}
