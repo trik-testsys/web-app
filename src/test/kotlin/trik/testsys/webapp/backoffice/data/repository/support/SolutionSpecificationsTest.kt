@@ -1,4 +1,4 @@
-package trik.testsys.backoffice.data
+package trik.testsys.webapp.backoffice.data.repository.support
 
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
