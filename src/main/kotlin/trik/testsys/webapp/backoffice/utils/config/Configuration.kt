@@ -24,7 +24,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 @EnableScheduling
 @EnableAspectJAutoProxy
 @EnableWebMvc
-class Configuration : WebMvcConfigurer {
+class Configuration(
+    @Value("\${trik.testsys.paths.sponsorship}") private val sponsorshipDirPath: String
+) : WebMvcConfigurer {
 
     override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
         registry.addResourceHandler(
@@ -38,6 +40,9 @@ class Configuration : WebMvcConfigurer {
             "classpath:/static/js/",
             "classpath:/static/assets/",
         )
+
+        registry.addResourceHandler("/sponsorship/**")
+            .addResourceLocations("file:$sponsorshipDirPath")
     }
 
     @Bean
