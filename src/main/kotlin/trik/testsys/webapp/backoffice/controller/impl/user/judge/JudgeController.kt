@@ -2,6 +2,9 @@ package trik.testsys.webapp.backoffice.controller.impl.user.judge
 
 import jakarta.servlet.http.HttpSession
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
@@ -12,6 +15,8 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
+import java.time.LocalDate
+import java.time.ZoneOffset
 import trik.testsys.webapp.backoffice.controller.AbstractUserController
 import trik.testsys.webapp.backoffice.data.entity.impl.Solution
 import trik.testsys.webapp.backoffice.data.entity.impl.User
@@ -32,7 +37,19 @@ class JudgeController(
 ) : AbstractUserController() {
 
     @GetMapping("/solutions")
-    fun solutionsPage(model: Model, session: HttpSession, redirectAttributes: RedirectAttributes): String {
+    fun solutionsPage(
+        model: Model,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes,
+        @RequestParam("studentId", required = false) studentId: Long?,
+        @RequestParam("groupId", required = false) groupId: Long?,
+        @RequestParam("adminId", required = false) adminId: Long?,
+        @RequestParam("viewerId", required = false) viewerId: Long?,
+        @RequestParam("fromDate", required = false) fromDate: String?,
+        @RequestParam("toDate", required = false) toDate: String?,
+        @RequestParam("page", defaultValue = "0") page: Int,
+        @RequestParam("size", defaultValue = "20") size: Int,
+    ): String {
         val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
         val judge = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
 
@@ -41,15 +58,61 @@ class JudgeController(
             return "redirect:/user"
         }
 
-        val allSolutions = solutionService.findAll().sortedByDescending { it.id }
+        // Judge's own resubmits — always shown (small set, no pagination needed)
+        val judgeSolutions = solutionService.findAll()
+            .filter { it.createdBy.id == judge.id }
+            .sortedByDescending { it.id }
+        val judgeVerdicts = verdictService.findAllBySolutions(judgeSolutions)
+        val judgeVerdictsBySolutionId = judgeVerdicts.associateBy { it.solutionId }
+        val judgeResultsAvailable = judgeSolutions.associate { s ->
+            (s.id!!) to (fileManager.hasAnyVerdict(s) || fileManager.hasAnyRecording(s))
+        }
+        val judgeSolutionFileAvailable = judgeSolutions.associate { s ->
+            (s.id!!) to fileManager.hasSolution(s)
+        }
 
-        val studentSolutions = allSolutions.filter { it.createdBy.privileges.contains(User.Privilege.STUDENT) }
-        val judgeSolutions = allSolutions.filter { it.createdBy.id == judge.id }
+        setupModel(model, session, judge)
+        model.addAttribute("judgeSolutions", judgeSolutions)
+        model.addAttribute("judgeVerdicts", judgeVerdictsBySolutionId)
+        model.addAttribute("judgeResultsAvailable", judgeResultsAvailable)
+        model.addAttribute("judgeSolutionFileAvailable", judgeSolutionFileAvailable)
 
-        val verdicts = verdictService.findAllBySolutions(studentSolutions + judgeSolutions)
+        // Filter params — passed back to template to repopulate the form
+        model.addAttribute("filterStudentId", studentId)
+        model.addAttribute("filterGroupId", groupId)
+        model.addAttribute("filterAdminId", adminId)
+        model.addAttribute("filterViewerId", viewerId)
+        model.addAttribute("filterFromDate", fromDate)
+        model.addAttribute("filterToDate", toDate)
+
+        val hasFilters = listOf(studentId, groupId, adminId, viewerId, fromDate, toDate).any { it != null }
+        if (!hasFilters) {
+            model.addAttribute("hasSearched", false)
+            model.addAttribute("studentSolutionsPage", null)
+            model.addAttribute("studentSolutions", emptyList<Solution>())
+            model.addAttribute("verdicts", emptyMap<Long, Any>())
+            model.addAttribute("viewerBySolutionId", emptyMap<Long, Long?>())
+            model.addAttribute("adminBySolutionId", emptyMap<Long, Long?>())
+            model.addAttribute("groupBySolutionId", emptyMap<Long, Long?>())
+            model.addAttribute("resultsAvailable", emptyMap<Long, Boolean>())
+            model.addAttribute("solutionFileAvailable", emptyMap<Long, Boolean>())
+            return "judge/solutions"
+        }
+
+        val fromInstant = fromDate?.takeIf { it.isNotBlank() }
+            ?.let { LocalDate.parse(it).atStartOfDay(ZoneOffset.UTC).toInstant() }
+        val toInstant = toDate?.takeIf { it.isNotBlank() }
+            ?.let { LocalDate.parse(it).atTime(23, 59, 59).atOffset(ZoneOffset.UTC).toInstant() }
+
+        val pageable = PageRequest.of(page, size, Sort.by("id").descending())
+        val studentSolutionsPage: Page<Solution> = solutionService.findStudentSolutionsPage(
+            studentId, groupId, adminId, viewerId, fromInstant, toInstant, pageable
+        )
+        val studentSolutions = studentSolutionsPage.content
+
+        val verdicts = verdictService.findAllBySolutions(studentSolutions)
         val verdictsBySolutionId = verdicts.associateBy { it.solutionId }
 
-        // Compute viewer/admin/group for student solutions only
         val viewerBySolutionId = mutableMapOf<Long, Long?>()
         val adminBySolutionId = mutableMapOf<Long, Long?>()
         val groupBySolutionId = mutableMapOf<Long, Long?>()
@@ -67,19 +130,16 @@ class JudgeController(
             viewerBySolutionId[sid] = viewer?.id
         }
 
-        val resultsAvailability = (studentSolutions + judgeSolutions).associate { s ->
-            val hasVerdicts = fileManager.hasAnyVerdict(s)
-            val hasRecordings = fileManager.hasAnyRecording(s)
-            (s.id!!) to (hasVerdicts || hasRecordings)
+        val resultsAvailability = studentSolutions.associate { s ->
+            (s.id!!) to (fileManager.hasAnyVerdict(s) || fileManager.hasAnyRecording(s))
         }
-
-        val solutionFileAvailability = (studentSolutions + judgeSolutions).associate { s ->
+        val solutionFileAvailability = studentSolutions.associate { s ->
             (s.id!!) to fileManager.hasSolution(s)
         }
 
-        setupModel(model, session, judge)
+        model.addAttribute("hasSearched", true)
+        model.addAttribute("studentSolutionsPage", studentSolutionsPage)
         model.addAttribute("studentSolutions", studentSolutions)
-        model.addAttribute("judgeSolutions", judgeSolutions)
         model.addAttribute("verdicts", verdictsBySolutionId)
         model.addAttribute("viewerBySolutionId", viewerBySolutionId)
         model.addAttribute("adminBySolutionId", adminBySolutionId)
