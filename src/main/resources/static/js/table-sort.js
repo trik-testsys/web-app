@@ -170,6 +170,7 @@
   function insertFilterToggle(table) {
     // Do not add toggle if no filters for this table
     if (!table.tHead || !table.tHead.querySelector('tr.table-filter-row')) return;
+    if (table.classList.contains('no-filter')) return;
     const container = document.createElement('div');
     container.className = 'table-tools';
 

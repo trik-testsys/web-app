@@ -41,7 +41,7 @@
                            th:value="${filterStudentId}" placeholder="напр. 42"/>
                 </div>
                 <div class="filter-field">
-                    <label for="groupId">ID Группы</label>
+                    <label for="groupId">ID Группы Участников</label>
                     <input id="groupId" name="groupId" type="number" min="1"
                            th:value="${filterGroupId}" placeholder="напр. 5"/>
                 </div>
@@ -86,7 +86,7 @@
             </div>
 
             <!-- Results table -->
-            <table th:if="${hasSearched and !#lists.isEmpty(studentSolutions)}" class="table">
+            <table th:if="${hasSearched and !#lists.isEmpty(studentSolutions)}" class="table no-filter">
                 <thead>
                 <tr>
                     <th class="id-cell">ID</th>
