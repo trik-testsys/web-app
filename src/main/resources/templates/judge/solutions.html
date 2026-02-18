@@ -8,8 +8,9 @@
         .filter-field { display: flex; flex-direction: column; gap: 4px; }
         .filter-field label { font-size: 12px; font-weight: 600; color: var(--color-text-muted); }
         .filter-field input { padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; width: 140px; }
-        .pagination { display: flex; gap: 8px; align-items: center; margin-top: 12px; }
-        .page-info { color: var(--color-text-muted); font-size: 14px; }
+        .pagination { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 12px; }
+        .pagination .page-ellipsis { padding: 0 4px; color: var(--color-text-muted); line-height: 1; align-self: flex-end; }
+        .page-info { color: var(--color-text-muted); font-size: 14px; margin-left: 4px; }
     </style>
     <script>
         function attachUploadHandlers() {
@@ -132,14 +133,44 @@
             <!-- Pagination controls -->
             <div th:if="${studentSolutionsPage != null and studentSolutionsPage.totalPages > 1}"
                  class="pagination">
+                <!-- To first -->
+                <a th:if="${!studentSolutionsPage.first}"
+                   th:href="@{/user/judge/solutions(studentId=${filterStudentId},groupId=${filterGroupId},adminId=${filterAdminId},viewerId=${filterViewerId},fromDate=${filterFromDate},toDate=${filterToDate},page=0)}"
+                   class="button button--small" title="Первая страница">«</a>
+                <span th:if="${studentSolutionsPage.first}"
+                      class="button button--small" style="opacity:0.4;cursor:default;" title="Первая страница">«</span>
+                <!-- To previous -->
                 <a th:if="${!studentSolutionsPage.first}"
                    th:href="@{/user/judge/solutions(studentId=${filterStudentId},groupId=${filterGroupId},adminId=${filterAdminId},viewerId=${filterViewerId},fromDate=${filterFromDate},toDate=${filterToDate},page=${studentSolutionsPage.number - 1})}"
-                   class="button button--small">← Назад</a>
-                <span class="page-info"
-                      th:text="'Страница ' + (${studentSolutionsPage.number + 1}) + ' из ' + ${studentSolutionsPage.totalPages} + ' (' + ${studentSolutionsPage.totalElements} + ' посылок)'"></span>
+                   class="button button--small" title="Предыдущая страница">‹</a>
+                <span th:if="${studentSolutionsPage.first}"
+                      class="button button--small" style="opacity:0.4;cursor:default;" title="Предыдущая страница">‹</span>
+                <!-- Numbered pages with ellipsis -->
+                <th:block th:each="p : ${paginationPages}">
+                    <span th:if="${p == -1}" class="page-ellipsis">…</span>
+                    <span th:if="${p != -1 and p == studentSolutionsPage.number}"
+                          class="button button--small button--primary"
+                          th:text="${p + 1}"></span>
+                    <a th:if="${p != -1 and p != studentSolutionsPage.number}"
+                       th:href="@{/user/judge/solutions(studentId=${filterStudentId},groupId=${filterGroupId},adminId=${filterAdminId},viewerId=${filterViewerId},fromDate=${filterFromDate},toDate=${filterToDate},page=${p})}"
+                       class="button button--small"
+                       th:text="${p + 1}"></a>
+                </th:block>
+                <!-- To next -->
                 <a th:if="${!studentSolutionsPage.last}"
                    th:href="@{/user/judge/solutions(studentId=${filterStudentId},groupId=${filterGroupId},adminId=${filterAdminId},viewerId=${filterViewerId},fromDate=${filterFromDate},toDate=${filterToDate},page=${studentSolutionsPage.number + 1})}"
-                   class="button button--small">Вперёд →</a>
+                   class="button button--small" title="Следующая страница">›</a>
+                <span th:if="${studentSolutionsPage.last}"
+                      class="button button--small" style="opacity:0.4;cursor:default;" title="Следующая страница">›</span>
+                <!-- To last -->
+                <a th:if="${!studentSolutionsPage.last}"
+                   th:href="@{/user/judge/solutions(studentId=${filterStudentId},groupId=${filterGroupId},adminId=${filterAdminId},viewerId=${filterViewerId},fromDate=${filterFromDate},toDate=${filterToDate},page=${studentSolutionsPage.totalPages - 1})}"
+                   class="button button--small" title="Последняя страница">»</a>
+                <span th:if="${studentSolutionsPage.last}"
+                      class="button button--small" style="opacity:0.4;cursor:default;" title="Последняя страница">»</span>
+                <!-- Page info -->
+                <span class="page-info"
+                      th:text="'Страница ' + (${studentSolutionsPage.number + 1}) + ' из ' + ${studentSolutionsPage.totalPages} + ' (' + ${studentSolutionsPage.totalElements} + ' посылок)'"></span>
             </div>
 
             <hr class="separator">

@@ -95,6 +95,7 @@ class JudgeController(
             model.addAttribute("groupBySolutionId", emptyMap<Long, Long?>())
             model.addAttribute("resultsAvailable", emptyMap<Long, Boolean>())
             model.addAttribute("solutionFileAvailable", emptyMap<Long, Boolean>())
+            model.addAttribute("paginationPages", emptyList<Int>())
             return "judge/solutions"
         }
 
@@ -138,6 +139,7 @@ class JudgeController(
 
         model.addAttribute("hasSearched", true)
         model.addAttribute("studentSolutionsPage", studentSolutionsPage)
+        model.addAttribute("paginationPages", buildPaginationPages(studentSolutionsPage.number, studentSolutionsPage.totalPages))
         model.addAttribute("studentSolutions", studentSolutions)
         model.addAttribute("verdicts", verdictsBySolutionId)
         model.addAttribute("viewerBySolutionId", viewerBySolutionId)
@@ -341,6 +343,25 @@ class JudgeController(
             redirectAttributes.addMessage("Не удалось отправить на проверку: ${e.message}")
             "redirect:/user/judge/solutions"
         }
+    }
+
+    private fun buildPaginationPages(current: Int, total: Int): List<Int> {
+        if (total <= 1) return emptyList()
+        val shown = sortedSetOf<Int>()
+        shown.add(0)
+        if (1 < total) shown.add(1)
+        if (total - 2 >= 0) shown.add(total - 2)
+        shown.add(total - 1)
+        if (current - 1 >= 0) shown.add(current - 1)
+        shown.add(current)
+        if (current + 1 < total) shown.add(current + 1)
+        val result = mutableListOf<Int>()
+        val sorted = shown.toList()
+        for (i in sorted.indices) {
+            if (i > 0 && sorted[i] - sorted[i - 1] > 1) result.add(-1)
+            result.add(sorted[i])
+        }
+        return result
     }
 
     companion object {
