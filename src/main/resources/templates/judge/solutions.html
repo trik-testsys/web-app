@@ -107,9 +107,9 @@
                     <td th:text="${viewerBySolutionId[s.id]} ?: '—'"></td>
                     <td th:text="${adminBySolutionId[s.id]} ?: '—'"></td>
                     <td th:text="${groupBySolutionId[s.id]} ?: '—'"></td>
-                    <td th:text="${s.createdBy.id}"></td>
+                    <td th:text="${s.createdBy != null ? s.createdBy.id : '—'}"></td>
                     <td class="date-cell" data-utc th:attr="data-utc=${s.createdAt}"
-                        th:text="${#temporals.format(s.createdAt, 'dd.MM.yyyy HH:mm')}"></td>
+                        th:text="${s.createdAt != null ? #temporals.format(s.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
                     <td th:text="${verdicts != null and #maps.containsKey(verdicts, s.id) ? verdicts[s.id].value : '—'}"></td>
                     <td style="width: 300px">
                         <div class="actions">
