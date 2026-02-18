@@ -79,6 +79,7 @@ trik:
         verdicts: "${PWD}/data/files/verdicts/"
         recordings: "${PWD}/data/files/recordings/"
         results: "${PWD}/data/files/results/"
+      sponsorship: "${PWD}/data/sponsorship/"
     notifier:
       email:
         receivers: "${NTF_RECEIVERS:}"
