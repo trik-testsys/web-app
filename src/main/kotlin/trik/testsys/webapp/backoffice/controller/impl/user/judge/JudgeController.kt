@@ -24,6 +24,7 @@ import trik.testsys.webapp.backoffice.data.service.SolutionService
 import trik.testsys.webapp.backoffice.data.service.VerdictService
 import trik.testsys.webapp.backoffice.service.FileManager
 import trik.testsys.webapp.backoffice.service.Grader
+import trik.testsys.webapp.backoffice.data.repository.support.SolutionSpecifications
 import trik.testsys.webapp.backoffice.utils.addMessage
 
 @Controller
@@ -48,7 +49,6 @@ class JudgeController(
         @RequestParam("fromDate", required = false) fromDate: String?,
         @RequestParam("toDate", required = false) toDate: String?,
         @RequestParam("page", defaultValue = "0") page: Int,
-        @RequestParam("size", defaultValue = "20") size: Int,
     ): String {
         val accessToken = getAccessToken(session, redirectAttributes) ?: return "redirect:/login"
         val judge = getUser(accessToken, redirectAttributes) ?: return "redirect:/login"
@@ -59,8 +59,7 @@ class JudgeController(
         }
 
         // Judge's own resubmits — always shown (small set, no pagination needed)
-        val judgeSolutions = solutionService.findAll()
-            .filter { it.createdBy.id == judge.id }
+        val judgeSolutions = solutionService.findAll(SolutionSpecifications.createdBy(judge.id!!))
             .sortedByDescending { it.id }
         val judgeVerdicts = verdictService.findAllBySolutions(judgeSolutions)
         val judgeVerdictsBySolutionId = judgeVerdicts.associateBy { it.solutionId }
@@ -104,7 +103,7 @@ class JudgeController(
         val toInstant = toDate?.takeIf { it.isNotBlank() }
             ?.let { LocalDate.parse(it).atTime(23, 59, 59).atOffset(ZoneOffset.UTC).toInstant() }
 
-        val pageable = PageRequest.of(page, size, Sort.by("id").descending())
+        val pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("id").descending())
         val studentSolutionsPage: Page<Solution> = solutionService.findStudentSolutionsPage(
             studentId, groupId, adminId, viewerId, fromInstant, toInstant, pageable
         )
@@ -342,6 +341,10 @@ class JudgeController(
             redirectAttributes.addMessage("Не удалось отправить на проверку: ${e.message}")
             "redirect:/user/judge/solutions"
         }
+    }
+
+    companion object {
+        private const val PAGE_SIZE = 20
     }
 }
 
