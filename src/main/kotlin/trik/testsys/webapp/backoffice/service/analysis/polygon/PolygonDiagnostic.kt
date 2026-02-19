@@ -3,7 +3,7 @@ package trik.testsys.webapp.backoffice.service.analysis.polygon
 
 /**
  * @author Viktor Karasev
- * @since %CURRENT_VERSION%
+ * @since 3.12.0
  */
 interface PolygonDiagnostic {
 

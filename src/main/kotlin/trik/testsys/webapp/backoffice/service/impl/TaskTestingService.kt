@@ -12,7 +12,7 @@ import trik.testsys.webapp.backoffice.data.service.VerdictService
 
 /**
  * @author Roman Shishkin
- * @since %CURRENT_VERSION%
+ * @since 3.12.0
  */
 @Service
 class TaskTestingService(

@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity
 
 /**
  * @author Roman Shishkin
- * @since %CURRENT_VERSION%
+ * @since 3.12.0
  */
 fun <T : Any> getRedirection(httpStatus: HttpStatus, location: String): ResponseEntity<T> {
     return ResponseEntity.status(httpStatus)

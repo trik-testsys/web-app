@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement
  * if used) are populated automatically by the persistence layer.
  *
  * @author Roman Shishkin
- * @since %CURRENT_VERSION%
+ * @since 3.12.0
  */
 @Configuration
 @EnableJpaAuditing(modifyOnCreate = true)

@@ -10,7 +10,7 @@ import java.lang.reflect.ParameterizedType
  * to their dbkey representation and back.
  *
  * @author Roman Shishkin
- * @since %CURRENT_VERSION%
+ * @since 3.12.0
  */
 @Suppress("unused")
 abstract class AbstractPersistableEnumConverter<E> : AttributeConverter<E, String>

@@ -10,7 +10,7 @@ import java.io.File
 
 /**
  * @author Vyacheslav Buchin
- * @since %CURRENT_VERSION%
+ * @since 3.12.0
  */
 class SubmissionBuilder private constructor() {
     lateinit var solution: Solution

@@ -6,7 +6,7 @@ import org.springframework.scheduling.annotation.EnableScheduling
 
 /**
  * @author Roman Shishkin
- * @since %CURRENT_VERSION%
+ * @since 3.12.0
  */
 @EnableScheduling
 @SpringBootApplication(scanBasePackages = ["trik.testsys.webapp.**"])
@@ -16,7 +16,7 @@ class Application {
 
         /**
          * @author Roman Shishkin
-         * @since %CURRENT_VERSION%
+         * @since 3.12.0
          */
         @JvmStatic
         fun main(args: Array<String>) {

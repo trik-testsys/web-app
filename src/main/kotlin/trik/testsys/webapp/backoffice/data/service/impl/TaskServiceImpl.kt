@@ -9,7 +9,7 @@ import trik.testsys.webapp.core.data.service.AbstractService
 
 /**
  * @author Roman Shishkin
- * @since %CURRENT_VERSION%
+ * @since 3.12.0
  */
 @Service
 class TaskServiceImpl :

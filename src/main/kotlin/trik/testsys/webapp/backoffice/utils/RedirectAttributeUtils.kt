@@ -6,6 +6,6 @@ const val MESSAGE = "message"
 
 /**
  * @author Roman Shishkin
- * @since %CURRENT_VERSION%
+ * @since 3.12.0
  */
 fun RedirectAttributes.addMessage(message: String) = addFlashAttribute(MESSAGE, message)

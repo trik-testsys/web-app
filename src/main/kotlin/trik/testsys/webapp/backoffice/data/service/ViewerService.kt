@@ -6,7 +6,7 @@ import trik.testsys.webapp.backoffice.data.entity.impl.User
 
 /**
  * @author Roman Shishkin
- * @since %CURRENT_VERSION%
+ * @since 3.12.0
  */
 interface ViewerService {
 

@@ -15,7 +15,7 @@ import trik.testsys.webapp.backoffice.utils.addMessage
 
 /**
  * @author Roman Shishkin
- * @since %CURRENT_VERSION%
+ * @since 3.12.0
  */
 @Controller
 @RequestMapping("/user/mail")

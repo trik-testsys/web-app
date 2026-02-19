@@ -28,7 +28,7 @@ import java.time.Instant
  * @property info optional free-form text for notes or metadata
  *
  * @author Roman Shishkin
- * @since %CURRENT_VERSION%
+ * @since 3.12.0
  */
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener::class)
@@ -38,7 +38,7 @@ abstract class AbstractEntity : Persistable<Long> {
      * Database primary key.
      *
      * @author Roman Shishkin
-     * @since %CURRENT_VERSION%
+     * @since 3.12.0
      */
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "${TABLE_PREFIX}entity_seq")
@@ -51,7 +51,7 @@ abstract class AbstractEntity : Persistable<Long> {
      * which triggers auditing callbacks for lastModified* fields.
      *
      * @author Roman Shishkin
-     * @since %CURRENT_VERSION%
+     * @since 3.12.0
      */
     @Version
     @Column(name = "version")
@@ -62,7 +62,7 @@ abstract class AbstractEntity : Persistable<Long> {
      * Setter for testing and framework usage.
      *
      * @author Roman Shishkin
-     * @since %CURRENT_VERSION%
+     * @since 3.12.0
      */
     @Suppress("unused")
     fun setId(id: Long?) {
@@ -77,7 +77,7 @@ abstract class AbstractEntity : Persistable<Long> {
      * Entity creation date-time in UTC, set by auditing.
      *
      * @author Roman Shishkin
-     * @since %CURRENT_VERSION%
+     * @since 3.12.0
      */
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -87,7 +87,7 @@ abstract class AbstractEntity : Persistable<Long> {
      * Optional free-form text for notes or metadata.
      *
      * @author Roman Shishkin
-     * @since %CURRENT_VERSION%
+     * @since 3.12.0
      */
     @Column(name = "info", columnDefinition = "TEXT")
     var info: String? = null

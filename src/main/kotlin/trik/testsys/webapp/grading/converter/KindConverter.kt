@@ -4,7 +4,7 @@ import trik.testsys.webapp.backoffice.service.Grader
 
 /**
  * @author Vyacheslav Buchin
- * @since %CURRENT_VERSION%
+ * @since 3.12.0
  */
 object KindConverter {
     fun convert(kind: Int, description: String): Grader.ErrorKind {

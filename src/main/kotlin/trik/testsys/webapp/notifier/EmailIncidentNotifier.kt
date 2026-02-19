@@ -8,7 +8,7 @@ import javax.annotation.PostConstruct
 
 /**
  * @author Viktor Karasev
- * @since %CURRENT_VERSION%
+ * @since 3.12.0
  */
 @Component
 class EmailIncidentNotifier(

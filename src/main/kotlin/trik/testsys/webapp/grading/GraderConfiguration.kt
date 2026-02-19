@@ -8,7 +8,7 @@ import kotlin.time.times
 
 /**
  * @author Vyacheslav Buchin
- * @since %CURRENT_VERSION%
+ * @since 3.12.0
  */
 interface GraderConfiguration {
     val statusResponseTimeout: Duration
@@ -19,7 +19,7 @@ interface GraderConfiguration {
 
 /**
  * @author Vyacheslav Buchin
- * @since %CURRENT_VERSION%
+ * @since 3.12.0
  */
 @Component
 object DefaultGraderConfiguration : GraderConfiguration {

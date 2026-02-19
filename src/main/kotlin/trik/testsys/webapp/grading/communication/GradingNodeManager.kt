@@ -12,7 +12,7 @@ import kotlin.collections.mapKeys
 
 /**
  * @author Vyacheslav Buchin
- * @since %CURRENT_VERSION%
+ * @since 3.12.0
  */
 class GradingNodeManager(
     private val configuration: GraderConfiguration,

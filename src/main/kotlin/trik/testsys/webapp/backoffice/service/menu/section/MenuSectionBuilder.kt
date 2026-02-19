@@ -5,7 +5,7 @@ import trik.testsys.webapp.backoffice.service.menu.MenuBuilder
 
 /**
  * @author Roman Shishkin
- * @since %CURRENT_VERSION%
+ * @since 3.12.0
  */
 interface MenuSectionBuilder {
 

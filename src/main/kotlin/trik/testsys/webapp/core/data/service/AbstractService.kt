@@ -22,7 +22,7 @@ import trik.testsys.webapp.core.data.repository.EntityRepository
  * - [R]: repository type extending [EntityRepository] for [E]
  *
  * @author Roman Shishkin
- * @since %CURRENT_VERSION%
+ * @since 3.12.0
  */
 @Transactional(readOnly = true)
 abstract class AbstractService<E, R> : EntityService<E>

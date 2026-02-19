@@ -26,7 +26,7 @@ import java.util.concurrent.LinkedBlockingQueue
 
 /**
  * @author Vyacheslav Buchin
- * @since %CURRENT_VERSION%
+ * @since 3.12.0
  */
 class GraderClient(
     val address: String,

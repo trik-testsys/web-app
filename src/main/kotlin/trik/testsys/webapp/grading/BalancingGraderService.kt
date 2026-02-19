@@ -18,7 +18,7 @@ import java.time.LocalDateTime
 
 /**
  * @author Vyacheslav Buchin
- * @since %CURRENT_VERSION%
+ * @since 3.12.0
  */
 data class SubmissionInfo(
     val solution: Solution,
@@ -28,7 +28,7 @@ data class SubmissionInfo(
 
 /**
  * @author Vyacheslav Buchin
- * @since %CURRENT_VERSION%
+ * @since 3.12.0
  */
 @Primary
 @Service

@@ -16,7 +16,7 @@ import trik.testsys.webapp.core.data.entity.AbstractEntity
  * if they need to implement custom shared behavior. It's safe to keep unused.
  *
  * @author Roman Shishkin
- * @since %CURRENT_VERSION%
+ * @since 3.12.0
  */
 class ExtendedJpaRepository<T : AbstractEntity>(
     domainClass: Class<T>,

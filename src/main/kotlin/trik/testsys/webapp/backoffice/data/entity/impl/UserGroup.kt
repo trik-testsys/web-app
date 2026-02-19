@@ -14,7 +14,7 @@ import trik.testsys.webapp.core.data.entity.AbstractEntity
 
 /**
  * @author Roman Shishkin
- * @since %CURRENT_VERSION%
+ * @since 3.12.0
  */
 @Entity
 @Table(name = "user_group")

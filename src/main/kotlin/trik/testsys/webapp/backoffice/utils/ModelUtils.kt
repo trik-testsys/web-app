@@ -12,7 +12,7 @@ const val SECTIONS = "menuSections"
 
 /**
  * @author Roman Shishkin
- * @since %CURRENT_VERSION%
+ * @since 3.12.0
  */
 fun Model.addHasActiveSession(session: HttpSession) {
     val hasActiveSession = session.getAttribute(SESSION_ACCESS_TOKEN) != null
@@ -21,7 +21,7 @@ fun Model.addHasActiveSession(session: HttpSession) {
 
 /**
  * @author Roman Shishkin
- * @since %CURRENT_VERSION%
+ * @since 3.12.0
  */
 fun Model.addUser(user: User) {
     addAttribute(USER, user)
@@ -29,7 +29,7 @@ fun Model.addUser(user: User) {
 
 /**
  * @author Roman Shishkin
- * @since %CURRENT_VERSION%
+ * @since 3.12.0
  */
 fun Model.addSections(sections: Collection<MenuBuilder.MenuSection>) {
     addAttribute(SECTIONS, sections)

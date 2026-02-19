@@ -7,7 +7,7 @@ import trik.testsys.webapp.backoffice.service.Grader
 
 /**
  * @author Vyacheslav Buchin
- * @since %CURRENT_VERSION%
+ * @since 3.12.0
  */
 object BalancingUtils {
     private val log = LoggerFactory.getLogger(BalancingUtils::class.java)

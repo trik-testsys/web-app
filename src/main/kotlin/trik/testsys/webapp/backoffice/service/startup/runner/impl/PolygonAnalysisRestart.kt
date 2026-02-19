@@ -7,7 +7,7 @@ import trik.testsys.webapp.core.service.startup.AbstractStartupRunner
 
 /**
  * @author Roman Shishkin
- * @since %CURRENT_VERSION%
+ * @since 3.12.0
  */
 @Service
 class PolygonAnalysisRestart(

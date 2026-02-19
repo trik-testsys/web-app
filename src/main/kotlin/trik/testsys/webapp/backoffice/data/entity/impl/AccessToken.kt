@@ -9,7 +9,7 @@ import trik.testsys.webapp.core.data.entity.AbstractEntity.Companion.TABLE_PREFI
 
 /**
  * @author Roman Shishkin
- * @since %CURRENT_VERSION%
+ * @since 3.12.0
  */
 @Entity
 @Table(name = "${TABLE_PREFIX}token",  uniqueConstraints = [

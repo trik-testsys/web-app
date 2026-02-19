@@ -6,7 +6,7 @@ import trik.testsys.webapp.backoffice.service.Grader
 
 /**
  * @author Vyacheslav Buchin
- * @since %CURRENT_VERSION%
+ * @since 3.12.0
  */
 class FieldResultConverter(private val fileConverter: FileConverter) {
     fun convert(fieldResult: FieldResult): Grader.GradingInfo.FieldResult {

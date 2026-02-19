@@ -20,7 +20,7 @@ import trik.testsys.webapp.backoffice.utils.addUser
 
 /**
  * @author Roman Shishkin
- * @since %CURRENT_VERSION%
+ * @since 3.12.0
  */
 abstract class AbstractUserController {
 

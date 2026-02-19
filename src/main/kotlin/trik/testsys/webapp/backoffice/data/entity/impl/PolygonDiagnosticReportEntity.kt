@@ -15,7 +15,7 @@ import trik.testsys.webapp.core.utils.enums.converter.AbstractPersistableEnumCon
 
 /**
  * @author Roman Shishkin
- * @since %CURRENT_VERSION%
+ * @since 3.12.0
  */
 @Entity
 @Table(name = "${TABLE_PREFIX}polygon_diagnostic_report")

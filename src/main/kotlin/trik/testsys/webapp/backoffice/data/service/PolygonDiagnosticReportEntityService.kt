@@ -5,7 +5,7 @@ import trik.testsys.webapp.core.data.service.EntityService
 
 /**
  * @author Roman Shishkin
- * @since %CURRENT_VERSION%
+ * @since 3.12.0
  */
 interface PolygonDiagnosticReportEntityService : EntityService<PolygonDiagnosticReportEntity> {
 

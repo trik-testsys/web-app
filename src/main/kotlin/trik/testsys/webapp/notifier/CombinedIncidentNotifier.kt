@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component
 
 /**
  * @author Viktor Karasev
- * @since %CURRENT_VERSION%
+ * @since 3.12.0
  */
 @Component
 class CombinedIncidentNotifier(

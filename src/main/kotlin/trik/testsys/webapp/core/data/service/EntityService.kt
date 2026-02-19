@@ -15,7 +15,7 @@ import trik.testsys.webapp.core.data.entity.AbstractEntity
  * - [E]: entity type extending [AbstractEntity]
  *
  * @author Roman Shishkin
- * @since %CURRENT_VERSION%
+ * @since 3.12.0
  */
 interface EntityService<E : AbstractEntity> {
 
@@ -23,7 +23,7 @@ interface EntityService<E : AbstractEntity> {
      * Returns the existing entity by id or throws [NoSuchElementException] if not found.
      *
      * @author Roman Shishkin
-     * @since %CURRENT_VERSION%
+     * @since 3.12.0
      */
     fun getById(id: Long): E
 
@@ -31,7 +31,7 @@ interface EntityService<E : AbstractEntity> {
      * Returns the entity by id or null if it does not exist.
      *
      * @author Roman Shishkin
-     * @since %CURRENT_VERSION%
+     * @since 3.12.0
      */
     fun findById(id: Long): E?
 
@@ -39,7 +39,7 @@ interface EntityService<E : AbstractEntity> {
      * Checks whether an entity with the given id exists.
      *
      * @author Roman Shishkin
-     * @since %CURRENT_VERSION%
+     * @since 3.12.0
      */
     fun existsById(id: Long): Boolean
 
@@ -47,7 +47,7 @@ interface EntityService<E : AbstractEntity> {
      * Returns all entities.
      *
      * @author Roman Shishkin
-     * @since %CURRENT_VERSION%
+     * @since 3.12.0
      */
     fun findAll(): List<E>
 
@@ -55,7 +55,7 @@ interface EntityService<E : AbstractEntity> {
      * Returns all entities matching the given ids.
      *
      * @author Roman Shishkin
-     * @since %CURRENT_VERSION%
+     * @since 3.12.0
      */
     fun findAllById(ids: Iterable<Long>): List<E>
 
@@ -63,7 +63,7 @@ interface EntityService<E : AbstractEntity> {
      * Returns all entities matching the optional JPA [Specification].
      *
      * @author Roman Shishkin
-     * @since %CURRENT_VERSION%
+     * @since 3.12.0
      */
     fun findAll(specification: Specification<E>?): List<E>
 
@@ -71,7 +71,7 @@ interface EntityService<E : AbstractEntity> {
      * Returns a page of entities matching the optional JPA [Specification] and [Pageable].
      *
      * @author Roman Shishkin
-     * @since %CURRENT_VERSION%
+     * @since 3.12.0
      */
     fun findAll(specification: Specification<E>?, pageable: Pageable): Page<E>
 
@@ -79,7 +79,7 @@ interface EntityService<E : AbstractEntity> {
      * Returns the total number of entities.
      *
      * @author Roman Shishkin
-     * @since %CURRENT_VERSION%
+     * @since 3.12.0
      */
     fun count(): Long
 
@@ -87,7 +87,7 @@ interface EntityService<E : AbstractEntity> {
      * Saves the given entity and returns the persisted instance.
      *
      * @author Roman Shishkin
-     * @since %CURRENT_VERSION%
+     * @since 3.12.0
      */
     fun save(entity: E): E
 
@@ -95,7 +95,7 @@ interface EntityService<E : AbstractEntity> {
      * Saves all the given entities and returns persisted instances.
      *
      * @author Roman Shishkin
-     * @since %CURRENT_VERSION%
+     * @since 3.12.0
      */
     fun saveAll(entities: Iterable<E>): List<E>
 
@@ -103,7 +103,7 @@ interface EntityService<E : AbstractEntity> {
      * Deletes an entity by its id.
      *
      * @author Roman Shishkin
-     * @since %CURRENT_VERSION%
+     * @since 3.12.0
      */
     fun deleteById(id: Long)
 
@@ -111,7 +111,7 @@ interface EntityService<E : AbstractEntity> {
      * Deletes an entity.
      *
      * @author Roman Shishkin
-     * @since %CURRENT_VERSION%
+     * @since 3.12.0
      */
     fun delete(entity: E)
 }

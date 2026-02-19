@@ -15,7 +15,7 @@ import javax.mail.internet.MimeMessage
 
 /**
  * @author Viktor Karasev
- * @since %CURRENT_VERSION%
+ * @since 3.12.0
  */
 @Service
 class EmailClient(

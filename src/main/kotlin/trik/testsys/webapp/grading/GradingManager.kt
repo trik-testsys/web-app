@@ -14,7 +14,7 @@ import kotlin.collections.iterator
 
 /**
  * @author Vyacheslav Buchin
- * @since %CURRENT_VERSION%
+ * @since 3.12.0
  */
 @Suppress("UNUSED")
 class GradingManager(

@@ -10,7 +10,7 @@ import org.springframework.context.ApplicationListener
  * Interface for services, which should be executed exactly when application is ready.
  *
  * @author Roman Shishkin
- * @since %CURRENT_VERSION%
+ * @since 3.12.0
  **/
 abstract class AbstractStartupRunner : ApplicationListener<ApplicationReadyEvent> {
 
@@ -29,7 +29,7 @@ abstract class AbstractStartupRunner : ApplicationListener<ApplicationReadyEvent
      * Entry point to execute [AbstractStartupRunner] (suspend).
      *
      * @author Roman Shishkin
-     * @since %CURRENT_VERSION%
+     * @since 3.12.0
      */
     abstract suspend fun execute()
 
@@ -37,7 +37,7 @@ abstract class AbstractStartupRunner : ApplicationListener<ApplicationReadyEvent
      * Entry point to execute [AbstractStartupRunner].
      *
      * @author Roman Shishkin
-     * @since %CURRENT_VERSION%
+     * @since 3.12.0
      */
     fun executeBlocking() = runBlocking { execute() }
 }

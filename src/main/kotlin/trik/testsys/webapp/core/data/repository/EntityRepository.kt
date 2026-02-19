@@ -16,7 +16,7 @@ import trik.testsys.webapp.core.data.entity.AbstractEntity
  * `interface ProjectRepository : BaseRepository<ProjectEntity>`
  *
  * @author Roman Shishkin
- * @since %CURRENT_VERSION%
+ * @since 3.12.0
  */
 @NoRepositoryBean
 interface EntityRepository<T : AbstractEntity> : JpaRepository<T, Long>, JpaSpecificationExecutor<T>
