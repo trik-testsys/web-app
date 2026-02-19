@@ -20,7 +20,7 @@ class Solution() : AbstractEntity() {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    var status: Status = Status.NOT_STARTED
+    var status: Status = Status.IN_PROGRESS
 
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "contest_id", nullable = true)
