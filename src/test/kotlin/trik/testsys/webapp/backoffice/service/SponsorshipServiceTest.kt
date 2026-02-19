@@ -38,4 +38,14 @@ class SponsorshipServiceTest {
         val service = SponsorshipService(dir.toString())
         assertEquals(listOf("a.png", "b.jpg", "c.jpeg", "d.svg", "e.gif", "f.webp"), service.getImageNames())
     }
+
+    @Test
+    fun `returns image files with uppercase extensions`(@TempDir dir: Path) {
+        dir.resolve("logo.PNG").toFile().createNewFile()
+        dir.resolve("banner.JPG").toFile().createNewFile()
+        dir.resolve("icon.SVG").toFile().createNewFile()
+
+        val service = SponsorshipService(dir.toString())
+        assertEquals(listOf("banner.JPG", "icon.SVG", "logo.PNG"), service.getImageNames())
+    }
 }
