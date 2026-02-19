@@ -63,10 +63,10 @@ runs:
 #        tags:
 #        sep-tags: ','
 
-    - name: Build bootJar
-      uses: ./.github/actions/execute-gradle
+    - name: Build package
+      uses: ./.github/actions/execute-maven
       with:
-        gradle-commands: ':bootJar'
+        maven-commands: 'clean package -DskipTests'
 
     - name: Build and push Docker image
       id: build-and-push
@@ -74,6 +74,7 @@ runs:
       with:
         context: .
         push: 'true'
+        build-args: VERSION=${{ env.VERSION }}-release
         tags: |
           ${{ inputs.registry }}/${{ inputs.image-name }}:${{ env.VERSION }}
           ${{ inputs.registry }}/${{ inputs.image-name }}:${{ env.LATEST_TAG }}

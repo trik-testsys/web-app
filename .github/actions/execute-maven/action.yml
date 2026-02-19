@@ -1,5 +1,5 @@
-name: Execute Gradle
-description: Executes Gradle commands
+name: Execute Maven
+description: Executes Maven commands
 inputs:
   distribution:
     description: 'The distribution of Java to use'
@@ -13,10 +13,10 @@ inputs:
     description: 'The architecture of the Java version'
     required: false
     default: 'x64'
-  gradle-commands:
-    description: 'The Gradle commands to run'
+  maven-commands:
+    description: 'The Maven commands to run'
     required: false
-    default: 'build test'
+    default: 'verify'
 
 runs:
   using: 'composite'
@@ -28,22 +28,14 @@ runs:
         java-version: '${{ inputs.java-version }}'
         architecture: '${{ inputs.architecture }}'
 
-    - name: Cache Gradle packages
+    - name: Cache Maven packages
       uses: actions/cache@v4
       with:
-        path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
-          ${{ runner.os }}-gradle
+          ${{ runner.os }}-maven
 
-    - name: Execute Gradle commands
+    - name: Execute Maven commands
       shell: bash
-      run: ./gradlew ${{ inputs.gradle-commands }}
-
-    - name: Cleanup Gradle Cache
-      shell: bash
-      run: |
-        rm -f ~/.gradle/caches/modules-2/modules-2.lock
-        rm -f ~/.gradle/caches/modules-2/gc.properties
+      run: ./mvnw --no-transfer-progress ${{ inputs.maven-commands }}
