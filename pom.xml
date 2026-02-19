@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>web-app</artifactId>
-    <version>3.12-patch</version>
+    <version>3.12.0-release</version>
 
     <name>Web Application</name>
     <description>TestSys Web Application</description>
