@@ -26,16 +26,16 @@ runs:
     - name: Replace version
       if: steps.get-files.outputs.exit_code == 0
       shell: bash
-      run: find ./src -type f -exec sed -i "s/%CURRENT_VERSION%/${{ env.VERSION }}/g" {} +
+      run: find ./src -type f -exec sed -i "s/%CURRENT_VERSION%/$VERSION/g" {} +
 
     - name: Commit and push changes
       if: steps.get-files.outputs.exit_code == 0
       shell: bash
       run: |
-        git checkout ${{ env.BRANCH_NAME }}
+        git checkout "$BRANCH_NAME"
         git add ./src
-        git commit -m "release: Update version to ${{ env.VERSION }}"
-        git push https://x-access-token:${{ inputs.github-token }}@github.com/${{ github.repository }}.git ${{ env.BRANCH_NAME }}
+        git commit -m "release: Update version to $VERSION"
+        git push https://x-access-token:${{ inputs.github-token }}@github.com/${{ github.repository }}.git "$BRANCH_NAME"
 
     - name: Log change files
       shell: bash

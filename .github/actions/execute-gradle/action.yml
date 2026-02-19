@@ -4,7 +4,7 @@ inputs:
   distribution:
     description: 'The distribution of Java to use'
     required: false
-    default: 'adopt-openj9'
+    default: 'semeru'
   java-version:
     description: 'The version of Java to use'
     required: false
@@ -29,7 +29,7 @@ runs:
         architecture: '${{ inputs.architecture }}'
 
     - name: Cache Gradle packages
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ~/.gradle/caches
