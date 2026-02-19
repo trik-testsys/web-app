@@ -19,9 +19,9 @@ jobs:
           submodules: recursive
 
       - name: Build
-        uses: ./.github/actions/execute-gradle
+        uses: ./.github/actions/execute-maven
         with:
-          gradle-commands: 'build'
+          maven-commands: 'clean package -DskipTests'
 
       - name: Rollback release
         if: ${{ failure() || cancelled() }}
@@ -38,9 +38,9 @@ jobs:
           submodules: recursive
 
       - name: Test
-        uses: ./.github/actions/execute-gradle
+        uses: ./.github/actions/execute-maven
         with:
-          gradle-commands: 'test'
+          maven-commands: 'test'
 
       - name: Rollback release
         if: ${{ failure() || cancelled() }}

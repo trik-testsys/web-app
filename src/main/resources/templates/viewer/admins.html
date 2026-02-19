@@ -1,79 +1,64 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
 <head>
-    <th:block th:include="fragments/main :: head('Кабинет Районного Наблюдателя')"></th:block>
-
-    <link rel="stylesheet" th:href="@{/css/block.css}">
-    <link rel="stylesheet" th:href="@{/css/table.css}">
-
-    <th:block th:include="fragments/popup :: head"></th:block>
-    <th:block th:include="fragments/form :: head"></th:block>
-    <th:block th:include="fragments/menu :: head"></th:block>
+    <th:block th:include="fragments/layout :: head('Организаторы')"></th:block>
+    <style>
+    </style>
 </head>
-
-<div th:replace="fragments/table :: table-sort"></div>
-
 <body>
+<header th:replace="fragments/layout :: header(userName=${user.name})"></header>
+<aside th:replace="fragments/layout :: sidebar(sections=${menuSections})"></aside>
 
-<div th:replace="fragments/main :: background"></div>
-
-<div th:replace="fragments/popup :: popup"></div>
-
-<div th:replace="fragments/popup :: emergencyPopup"></div>
-
-<div th:replace="fragments/entity/viewer
-    :: viewerHeader(breadCrumbNames=${ { 'Организаторы' } },
-                    breadCrumbLinks=${ { '/viewer/admins' } })"></div>
-
-<div th:replace="fragments/entity/viewer :: viewerMenu"></div>
-
-<div class="container">
-    <!-- Первый блок -->
-    <div class="block">
-        <div class="block-title">Организаторы</div>
-
-        <div class="table admins-table">
-            <div class="form-header">
-                <h1>Список Организаторов</h1>
+<main class="app-main">
+    <section class="card">
+        <h2 class="card-title" style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+            <span>Организаторы</span>
+            <a class="button button--info" target="_blank" href="https://trik-testsys.github.io/watcher.html#watcher-chapter-invite-managers" title="Информация о странице"><i class="fa fa-info-circle"></i>Справка</a>
+        </h2>
+        <div class="card-body">
+            <div style="margin-bottom: 12px;">
+                <div class="token-box" th:if="${user.adminRegToken != null}">
+                    <span class="token-label">Код-регистрации</span>
+                    <span class="token" th:text="${user.adminRegToken.value}"></span>
+                </div>
+                <div th:if="${user.adminRegToken == null}">
+                    <span class="pill">Токен не выдан</span>
+                </div>
+                <div class="help-note">
+                    Этот токен нужно выдать будущему Организатору. Он сможет зарегистрироваться в системе, указав этот токен на странице регистрации.
+                </div>
+                <div class="separator" role="separator" aria-hidden="true"></div>
             </div>
-            <div class="table-container">
-                <table>
+
+            <h3 style="margin: 0 0 8px 0;">Список Организаторов</h3>
+
+            <div th:if="${#lists.isEmpty(admins)}">
+                <p style="margin:0 0 8px 0; color: var(--color-text-muted);">У вас пока нет Организаторов.</p>
+            </div>
+
+            <div th:if="${!#lists.isEmpty(admins)}">
+                <table class="table">
                     <thead>
-                    <tr>
-                        <th style="width: 10%">
-                            ID
-                        </th>
-                        <th style="width: 20%">
-                            Псевдоним
-                        </th>
-                        <th>Дополнительная информация</th>
-                        <th>Дата регистрации</th>
-                    </tr>
+                        <tr>
+                            <th class="id-cell" style="text-align:left; padding:8px;">ID</th>
+                            <th style="text-align:left; padding:8px;">Псевдоним</th>
+                            <th class="date-cell" style="text-align:left; padding:8px;">Дата создания</th>
+                        </tr>
                     </thead>
-                    <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.AdminView"*/-->
-                    <tr th:each="admin : ${admins}">
-                        <td th:text="${admin.id}"></td>
-                        <td th:text="${admin.name}"></td>
-                        <td th:text="${admin.additionalInfo}"></td>
-                        <td th:text="${admin.creationDate}"></td>
-                    </tr>
+                    <tbody>
+                        <tr th:each="a : ${admins}">
+                            <td class="id-cell" style="padding:8px;" th:text="${a.id}"></td>
+                            <td style="padding:8px;" th:text="${a.name}"></td>
+                            <td class="date-cell" style="padding:8px;" data-utc th:attr="data-utc=${a.createdAt}" th:text="${a.createdAt != null ? #temporals.format(a.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
         </div>
+    </section>
+    
+</main>
 
-        <a class="button" th:href="@{/viewer/admins/export}"
-           title="Экспорт в стандартной кодировке"
-           target="_self">
-            Экспорт результатов (UTF-8)
-        </a>
-<!--        TODO(remove later)-->
-        <a class="button" th:href="@{'/viewer/admins/export?Windows'}"
-           title="Экспорт в кодировке для Windows до версии 8.1 (включительно)"
-           target="_self">
-            Экспорт результатов (Windows-1251)
-        </a>
-    </div>
-</div>
-
+<footer th:replace="fragments/layout :: footer"></footer>
 </body>
 </html>

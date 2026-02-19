@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+<head>
+    <th:block th:include="fragments/layout :: head('Обзор')"></th:block>
+    <style>
+        .email-box.verified {
+            width: 550px;
+            border: 1px solid #4CAF50;
+            border-radius: 6px;
+            padding: 4px 8px;
+        }
+        .email-box.unverified {
+            width: 550px;
+            border: 1px solid #F44336;
+            border-radius: 6px;
+            padding: 4px 8px;
+        }
+    </style>
+
+    <script>
+        function toggleEmailEdit(show) {
+            const view = document.getElementById('email-view');
+            const form = document.getElementById('email-form');
+            if (show) {
+                view.style.display = 'none';
+                form.style.display = 'flex';
+            } else {
+                form.style.display = 'none';
+                view.style.display = 'flex';
+            }
+        }
+    </script>
+
+</head>
+<body>
+
+<header th:replace="fragments/layout :: header(userName=${user.name})"></header>
+<aside th:replace="fragments/layout :: sidebar(sections=${menuSections})"></aside>
+
+<main class="app-main">
+    <section class="card">
+        <h2 class="card-title" style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+            <span>Обзор</span>
+            <a class="button button--info" target="_blank" href="https://trik-testsys.github.io/navigation.html" title="Информация о странице"><i class="fa fa-info-circle"></i>Справка</a>
+        </h2>
+        <div class="card-body">
+            <div th:class="${isWarning} ? 'warningAlert' : 'alert'"
+                 th:if="${message}"
+                 th:text="${message}"></div>
+            <h3 style="margin: 0 0 8px 0;">Основная информация</h3>
+            <dl class="kv">
+                <dt>ID</dt>
+                <dd th:text="${user.id}"></dd>
+                <dt>Псевдоним</dt>
+                <dd>
+                    <div id="name-view" style="display:flex; gap:8px; align-items:center;">
+                        <span th:text="${user.name}"></span>
+                        <button type="button" class="button" onclick="window.App.toggleEdit('name')">Изменить</button>
+                    </div>
+                    <form id="name-form" th:action="@{/user/name}" method="post" style="display:none; gap:8px; align-items:center;">
+                        <input type="text" name="name" th:value="${user.name}" placeholder="Введите Псевдоним" style="flex:1; padding:8px 10px; border-radius:8px; border:1px solid #dde3ea;">
+                        <button type="submit" class="button button--primary">Сохранить</button>
+                    </form>
+                </dd>
+                <dt>Код-доступа</dt>
+                <dd><span class="token" th:text="${user.accessToken.value}"></span></dd>
+                <dt>Почта</dt>
+                <dd>
+                    <!-- Просмотр почты -->
+                    <div id="email-view"
+                         th:class="'email-box ' + (${user.emailVerifiedAt != null} ? 'verified' : 'unverified')"
+                         style="display:flex; align-items:center; gap:8px;">
+                        <span th:text="${user.email}"></span>
+
+                        <!-- Кнопки действий -->
+                        <button th:if="${user.email != null}" type="button" class="button" onclick="toggleEmailEdit(true)">Изменить</button>
+                        <button th:if="${user.email == null}" type="button" class="button" onclick="toggleEmailEdit(true)">Прикрепить</button>
+                        <form th:if="${user.email != null && user.requestedEmailDetach == false}"
+                              th:action="@{/user/mail/remove}" method="post" style="margin:0;">
+                            <button type="submit" class="button button--danger">Открепить</button>
+                        </form>
+                    </div>
+
+                    <!-- Редактирование почты -->
+                    <form id="email-form" th:action="@{/user/mail/update}" method="post"
+                          style="display:none; align-items:center; gap:6px; margin-top:6px;">
+                        <input type="email" name="email" th:value="${user.email}" placeholder="Новая почта"
+                               style="width:300px; padding:6px 8px; border-radius:6px; border:1px solid #dde3ea; font-size:14px;">
+                        <button type="submit" class="button button--primary" style="padding:6px 10px;">Сохранить</button>
+                        <button type="button" class="button" style="padding:6px 10px;" onclick="toggleEmailEdit(false)">Отмена</button>
+                    </form>
+
+                    <!-- Ввод кода подтверждения (если почта не подтверждена) -->
+                    <form th:if="${user.emailVerifiedAt == null && user.email != null || user.requestedEmailDetach == true}" th:action="@{/user/mail/verify}" method="post"
+                          style="margin-top:6px; display:flex; gap:6px; align-items:center;">
+                        <input type="text" name="verificationToken" placeholder="Код"
+                               style="width:300px; padding:6px 8px; border-radius:6px; border:1px solid #dde3ea; font-size:14px;">
+                        <button type="submit" class="button button--primary" style="padding:6px 10px;">Подтвердить</button>
+                    </form>
+                    <form th:if="${user.emailVerifiedAt == null && user.email != null || user.requestedEmailDetach == true}" id="-form" th:action="@{/user/mail/resend}" method="post" style="gap:8px; align-items:center;">
+                        <button type="submit" class="button button--primary">Отправить код повторно</button>
+                    </form>
+                </dd>
+
+                <dt>Последний вход</dt>
+                <dd data-utc data-include-seconds th:attr="data-utc=${user.lastLoginAt}" th:text="${user.lastLoginAt != null ? #temporals.format(user.lastLoginAt, 'dd.MM.yyyy HH:mm:ss') : '—'}"></dd>
+            </dl>
+            <hr class="separator">
+            <div style="margin-top: 10px;">
+                <h3 style="margin: 0 0 8px 0;">Роли</h3>
+                <ul class="pill-list">
+                    <li class="pill" th:each="p : ${privilegesRu}" th:text="${p}"></li>
+                </ul>
+            </div>
+            <hr class="separator">
+            <div style="margin-top: 16px;">
+                <h3 style="margin: 0 0 8px 0;">Группы пользователей</h3>
+                <div class="alert" th:if="${groupsMessage}" th:text="${groupsMessage}"></div>
+                <div th:if="${#lists.isEmpty(groups)}" style="color: var(--color-text-muted);">Нет групп.</div>
+                <ul th:if="${!#lists.isEmpty(groups)}" class="pill-list" style="margin-top: 8px;">
+                    <li class="pill" th:each="g : ${groups}">
+                        <span th:text="${(g.name ?: 'Без названия') + ' (#' + g.id + ')'}"></span>
+                        <span th:if="${g.info != null and !#strings.isEmpty(#strings.trim(g.info))}" style="color: var(--color-text-muted);"> — <span th:text="${g.info}"></span></span>
+                        <span th:if="${g.owner?.id == user.id}" style="color: var(--color-text-muted); margin-left: 6px;">(Владелец)</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="fragments/layout :: footer"></footer>
+
+</body>
+</html>
+
+

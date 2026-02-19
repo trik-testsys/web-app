@@ -1,0 +1,41 @@
+name: Execute Maven
+description: Executes Maven commands
+inputs:
+  distribution:
+    description: 'The distribution of Java to use'
+    required: false
+    default: 'semeru'
+  java-version:
+    description: 'The version of Java to use'
+    required: false
+    default: '17'
+  architecture:
+    description: 'The architecture of the Java version'
+    required: false
+    default: 'x64'
+  maven-commands:
+    description: 'The Maven commands to run'
+    required: false
+    default: 'verify'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: '${{ inputs.distribution }}'
+        java-version: '${{ inputs.java-version }}'
+        architecture: '${{ inputs.architecture }}'
+
+    - name: Cache Maven packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven
+
+    - name: Execute Maven commands
+      shell: bash
+      run: ./mvnw --no-transfer-progress ${{ inputs.maven-commands }}

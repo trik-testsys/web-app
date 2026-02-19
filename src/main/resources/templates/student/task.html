@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+<head>
+    <th:block th:include="fragments/layout :: head('Задача')"></th:block>
+</head>
+<body>
+<header th:replace="fragments/layout :: header(userName=${user.name})"></header>
+<aside th:replace="fragments/layout :: sidebar(sections=${menuSections})"></aside>
+
+<main class="app-main">
+    <section class="card">
+        <h2 class="card-title"><a th:href="@{/user/student/contests}">Туры</a> / <a th:href="@{'/user/student/contests/' + ${contest.id}}" th:text="${contest.name}">Тур</a> / <span th:text="${task.name}">Задача</span></h2>
+        <div class="card-body">
+            <h3 style="margin: 16px 0 8px 0;">Основная информация</h3>
+            <div class="grid grid-2">
+                <div>
+                    <div><b>ID:</b> <span th:text="${task.id}"></span></div>
+                    <div><b>Название:</b> <span th:text="${task.name}"></span></div>
+                    <div><b>Инфо:</b> <span th:text="${task.info ?: '—'}"></span></div>
+                    <div><b>Максимальный балл:</b> <span th:text="${maxScore}"></span></div>
+                </div>
+            </div>
+
+            <hr class="separator">
+
+            <h3 style="margin: 16px 0 8px 0;">Файлы Задачи</h3>
+            <div style="display:flex; gap:8px; align-items:center; margin-top:4px;">
+                <a th:if="${hasExercise}" class="button" th:href="@{'/user/student/contests/' + ${contest.id} + '/tasks/' + ${task.id} + '/download/exercise'}">Скачать упражнение</a>
+                <a th:if="${hasCondition}" class="button" th:href="@{'/user/student/contests/' + ${contest.id} + '/tasks/' + ${task.id} + '/download/condition'}">Скачать условие</a>
+                <span th:if="${!hasExercise && !hasCondition}" style="color: var(--color-text-muted);">—</span>
+            </div>
+
+            <hr class="separator">
+
+            <h3 style="margin: 16px 0 8px 0;">Загрузить решение</h3>
+            <form th:action="@{'/user/student/contests/' + ${contest.id} + '/tasks/' + ${task.id}}" method="post" enctype="multipart/form-data" class="form" style="display:grid; grid-template-columns: 160px max-content; gap:8px; width: fit-content; padding:12px; border:1px solid #dde3ea; border-radius:10px; background:white;">
+                <label for="solutionFile" style="color: var(--color-text); align-self:center;">Файл</label>
+                <input id="solutionFile" type="file" name="file" accept=".qrs" required style="width:200px; padding:8px; border:1px solid #dde3ea; border-radius:8px; background:white;">
+
+                <label for="solutionType" style="color: var(--color-text); align-self:center;">Тип решения</label>
+                <select name="solutionType" id="solutionType" style="padding:8px; width:200px; border:1px solid #dde3ea; border-radius:8px; background:white;">
+                    <option th:each="type : ${task.allowedSolutionTypes}"
+                            th:value="${type}"
+                            th:text="${type == T(trik.testsys.webapp.backoffice.data.entity.impl.Solution.SolutionType).QRS ? 'TRIK Studio (.qrs)' :
+                                     type == T(trik.testsys.webapp.backoffice.data.entity.impl.Solution.SolutionType).PYTHON ? 'Python (.py)' :
+                                     'JavaScript (.js)'}"
+                            th:selected="${type == T(trik.testsys.webapp.backoffice.data.entity.impl.Solution.SolutionType).QRS}">
+                    </option>
+                </select>
+
+                <div></div>
+                <div class="form-buttons" style="grid-column: 2; margin-top:4px; width:200px; display:flex; justify-content:flex-end;">
+                    <button class="button button--primary" type="submit">Отправить</button>
+                </div>
+            </form>
+            <script>
+            (function() {
+                var select = document.getElementById('solutionType');
+                var fileInput = document.getElementById('solutionFile');
+                var acceptByType = { QRS: '.qrs', PYTHON: '.py', JAVA_SCRIPT: '.js' };
+                function applyAccept() {
+                    var ext = acceptByType[select.value] || '.qrs';
+                    fileInput.setAttribute('accept', ext);
+                    if (fileInput.value) fileInput.value = '';
+                }
+                select.addEventListener('change', applyAccept);
+                applyAccept();
+            })();
+            </script>
+
+            <hr class="separator">
+
+            <h3 style="margin: 16px 0 8px 0;">Мои решения</h3>
+            <div th:if="${#lists.isEmpty(solutions)}" style="color: var(--color-text-muted);">Пока нет загруженных решений.</div>
+            <table th:if="${!#lists.isEmpty(solutions)}" class="table">
+                <thead>
+                <tr>
+                    <th class="id-cell">ID</th>
+                    <th>Статус</th>
+                    <th>Результат</th>
+                    <th class="date-cell">Создано</th>
+<!--                    <th>Результаты</th>-->
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="s : ${solutions}">
+                    <td class="id-cell" th:text="${s.id}"></td>
+                    <td th:text="${@solutionI18n.toRu(s.status)}"></td>
+                    <td th:text="${verdicts != null and #maps.containsKey(verdicts, s.id) ? verdicts[s.id].value : '—'}"></td>
+                    <td class="date-cell" data-utc th:attr="data-utc=${s.createdAt}" th:text="${#temporals.format(s.createdAt, 'dd.MM.yyyy HH:mm')}"></td>
+<!--                    <td>-->
+<!--                        <a th:if="${resultsAvailable[s.id]}"-->
+<!--                           th:href="@{'/user/student/contests/' + ${contest.id} + '/tasks/' + ${task.id} + '/results/' + ${s.id} + '/download'}"-->
+<!--                           class="button button&#45;&#45;small">Скачать</a>-->
+<!--                        <span th:if="${!resultsAvailable[s.id]}" style="color: var(&#45;&#45;color-text-muted);">—</span>-->
+<!--                    </td>-->
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="fragments/layout :: footer"></footer>
+</body>
+</html>
+
+

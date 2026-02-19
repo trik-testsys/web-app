@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+<head>
+    <th:block th:include="fragments/layout :: head('Код-регистрации')"></th:block>
+</head>
+<body>
+<header th:replace="fragments/layout :: header(userName=${user.name})"></header>
+<aside th:replace="fragments/layout :: sidebar(sections=${menuSections})"></aside>
+
+<main class="app-main">
+    <section class="card">
+        <h2 class="card-title">Код-регистрации</h2>
+        <div class="card-body">
+            <div th:if="${user.adminRegToken != null}">
+                <div class="kv">
+                    <div>Значение</div>
+                    <div><span class="token" th:text="${user.adminRegToken.value}"></span></div>
+                </div>
+            </div>
+            <hr class="separator">
+            <div th:if="${user.adminRegToken == null}">
+                <span class="pill">Токен не выдан</span>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="fragments/layout :: footer"></footer>
+</body>
+</html>
+
+

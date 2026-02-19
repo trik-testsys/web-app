@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+<head>
+    <th:block th:include="fragments/layout :: head('Создать Файл')"></th:block>
+    <style>
+        .form-row { display: grid; grid-template-columns: 1fr; gap: 12px; }
+        @media (min-width: 768px) { .form-row { grid-template-columns: 1fr 1fr; } }
+        .req { color: var(--trik-red); margin-left: 4px; }
+    </style>
+</head>
+<body>
+<header th:replace="fragments/layout :: header(userName=${user.name})"></header>
+<aside th:replace="fragments/layout :: sidebar(sections=${menuSections})"></aside>
+
+<main class="app-main">
+    <section class="card">
+        <h2 class="card-title"><a th:href="@{/user/developer/task-files}">Файлы</a> / Создание Файла</h2>
+        <div class="card-body">
+            <form id="task-file-create-form" th:action="@{/user/developer/task-files/solution/create}" method="post" enctype="multipart/form-data" class="form" style="gap:12px; max-width: 720px;">
+                <label>
+                    <div style="margin-bottom:4px;">Название<span class="req">*</span></div>
+                    <input name="name" type="text" placeholder="Введите название" required style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
+                </label>
+                <label>
+                    <div style="margin-bottom:4px;">Описание</div>
+                    <textarea name="info" placeholder="Краткое описание" rows="3" style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;"></textarea>
+                </label>
+                <label>
+                    <div style="margin-bottom:4px;">Тип<span class="req">*</span></div>
+                    <select id="task-file-type" name="type" required style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
+                        <option value="QRS">TRIK Studio (.qrs)</option>
+                        <option value="PYTHON">Python (.py)</option>
+                        <option value="JAVASCRIPT">JavaScript (.js)</option>
+                    </select>
+                </label>
+                <label>
+                    <div style="margin-bottom:4px;">Файл<span class="req">*</span></div>
+                    <input id="task-file-input" name="file" type="file" required style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px; background:white;">
+                </label>
+                <hr class="separator">
+                <div class="form-buttons">
+                    <button type="submit" class="button button--primary">Создать</button>
+                    <a class="button" th:href="@{/user/developer/task-files}">Отмена</a>
+                </div>
+            </form>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="fragments/layout :: footer"></footer>
+<script>
+    (function() {
+        const typeSelect = document.getElementById('task-file-type');
+        const fileInput = document.getElementById('task-file-input');
+        const form = document.getElementById('task-file-create-form');
+
+        const acceptByType = {
+            'QRS': '.qrs',
+            'PYTHON': '.py',
+            'JAVASCRIPT': '.js'
+        };
+
+        function updateAccept() {
+            const type = typeSelect.value;
+            const accept = acceptByType[type] || '';
+            fileInput.setAttribute('accept', accept);
+            // Clear file if extension no longer matches
+            if (fileInput.files && fileInput.files[0]) {
+                const name = fileInput.files[0].name.toLowerCase();
+                if (accept && !name.endsWith(accept)) {
+                    fileInput.value = '';
+                }
+            }
+        }
+
+        function validateFileExtension() {
+            const type = typeSelect.value;
+            const requiredExt = (acceptByType[type] || '').toLowerCase();
+            const file = fileInput.files && fileInput.files[0];
+            if (!file || !requiredExt) return true;
+            const name = file.name.toLowerCase();
+            if (!name.endsWith(requiredExt)) {
+                alert('Недопустимое расширение файла. Ожидается ' + requiredExt + ' для выбранного типа.');
+                return false;
+            }
+            return true;
+        }
+
+        typeSelect.addEventListener('change', updateAccept);
+        form.addEventListener('submit', function(e) {
+            if (!validateFileExtension()) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        });
+
+        // init on load
+        updateAccept();
+    })();
+</script>
+</body>
+</html>
+
+

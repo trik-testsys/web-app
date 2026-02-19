@@ -1,14 +1,14 @@
-FROM openjdk:17-alpine
+FROM eclipse-temurin:17
 MAINTAINER Roman Shishkin <romashkin.2001@yandex.ru>
 
 #Setting directories args
 ARG APP_DIR=web-app
-ARG VERSION=2.7.0-snapshot
+ARG VERSION
+ARG JAR_FILE=target/web-app-${VERSION}.jar
+ARG APP=app.jar
 
 #Copying application
 WORKDIR /$APP_DIR
-ARG JAR_FILE=build/libs/web-app-$VERSION.jar
-ARG APP=app.jar
 COPY $JAR_FILE $APP
 
 #Running application

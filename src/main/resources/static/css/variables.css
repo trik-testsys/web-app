@@ -1,0 +1,21 @@
+:root {
+  --color-bg: #0f1a2b;
+  --color-surface: #ffffff;
+  --color-muted: #f4f5f7;
+  --color-text: #13233a;
+  --color-text-muted: #516175;
+  --color-primary: #2f80ed;
+  --color-accent: #99CC00;
+  --color-danger: #e53935;
+  --radius: 12px;
+  --shadow: 0 8px 24px rgba(0,0,0,.08);
+
+  /* Table theme */
+  --table-header-bg: var(--color-primary);
+  --table-header-fg: #ffffff;
+  --table-border: #e6ebf2;
+  --table-zebra: #fbfdff;
+  --table-hover: #f6f8fe;
+  --table-hover-accent: var(--trik-blue);
+}
+

@@ -1,234 +1,444 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
 <head>
-    <th:block th:include="fragments/main :: head('Кабинет Разработчика')"></th:block>
+    <th:block th:include="fragments/layout :: head('Тур')"></th:block>
+    <style>
+        .kv-wide { display: grid; grid-template-columns: 220px 1fr; gap: 10px 20px; }
+        .req { color: var(--trik-red); margin-left: 4px; }
+        .field-note { color: var(--color-text-muted); font-size: 13px; }
+        .form-row { display: grid; grid-template-columns: 1fr; gap: 12px; }
+        @media (min-width: 768px) { .form-row { grid-template-columns: 1fr 1fr; } }
+    </style>
+    <style>
+        .drag-handle { cursor: grab; color: var(--color-text-muted); }
+        tr.dragging { background: #f5f7fb; }
+        .order-cell { width: 100px; white-space: nowrap; }
+        .order-actions { display: inline-flex; gap: 4px; vertical-align: middle; }
+        .order-actions .button { padding: 2px 6px; font-size: 12px; }
+    </style>
+    <style>
+        .kv-wide { display: grid; grid-template-columns: 220px 1fr; gap: 10px 20px; }
+        .req { color: var(--trik-red); margin-left: 4px; }
+        .field-note { color: var(--color-text-muted); font-size: 13px; }
+        .form-row { display: grid; grid-template-columns: 1fr; gap: 12px; }
+        @media (min-width: 768px) { .form-row { grid-template-columns: 1fr 1fr; } }
 
-    <link rel="stylesheet" th:href="@{/css/block.css}">
-    <link rel="stylesheet" th:href="@{/css/table.css}">
+        .drag-handle { cursor: grab; color: var(--color-text-muted); }
+        tr.dragging { background: #f5f7fb; }
+        .order-cell { width: 100px; white-space: nowrap; }
+        .order-actions { display: inline-flex; gap: 4px; vertical-align: middle; }
+        .order-actions .button { padding: 2px 6px; font-size: 12px; }
 
-    <th:block th:include="fragments/popup :: head"></th:block>
-    <th:block th:include="fragments/form :: head"></th:block>
-    <th:block th:include="fragments/menu :: head"></th:block>
-</head>
-
-<div th:replace="fragments/table :: table-sort"></div>
-
+        /* ==== Popup в стиле GitHub ==== */
+        .popup-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .popup {
+            background: #fff;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+            width: 420px;
+            max-width: 90%;
+            font-family: system-ui, sans-serif;
+            animation: popupShow 0.2s ease-out;
+        }
+        @keyframes popupShow {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .popup h3 { margin-top: 0; font-size: 18px; margin-bottom: 8px; }
+        .popup .warning { color: #a33; font-size: 14px; margin-bottom: 14px; }
+        .popup .entity-name { font-weight: bold; }
+        .popup input {
+            width: 100%;
+            padding: 8px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            margin-bottom: 16px;
+        }
+        .popup-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+        .button--secondary {
+            background: #e5e7eb;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .button--danger {
+            background: #d73a49;
+            color: #fff;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .button--danger:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    </style>
+    </head>
 <body>
+<header th:replace="fragments/layout :: header(userName=${user.name})"></header>
+<aside th:replace="fragments/layout :: sidebar(sections=${menuSections})"></aside>
 
-<div th:replace="fragments/main :: background"></div>
+<main class="app-main">
+    <section class="card">
+        <h2 class="card-title" style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+            <span><a th:href="@{/user/developer/contests}">Туры</a> / <span th:text="${contest.name ?: 'Тур'}"></span></span>
 
-<div th:replace="fragments/popup :: popup"></div>
+            <button th:if="${isOwner}"
+                    type="button"
+                    class="button button--danger"
+                    th:data-id="${contest.id}"
+                    th:data-name="${contest.name}"
+                    onclick="openDeletePopup(this.dataset.id, this.dataset.name, this)"
+                    th:disabled="${(isAttachedToAnyStudentGroup == true) or (hasAnySolutions == true)}"
+                    th:title="${(isAttachedToAnyStudentGroup == true)} ? 'Нельзя удалить: Тур прикреплён Группе Участников' : ((hasAnySolutions == true) ? 'Нельзя удалить: по Туру есть Решения' : null)">
+                <i class="fa fa-trash"></i> Удалить
+            </button>
 
-<div th:replace="fragments/popup :: emergencyPopup"></div>
+            <form th:if="${isOwner}" th:action="@{'/user/developer/contests/' + ${contest.id} + '/delete'}" method="post" class="delete-form" style="display:none;"></form>
+        </h2>
 
-<div th:replace="fragments/popup :: emergencyPopup"></div>
+        <div class="card-body">
+            <div class="alert" th:if="${message}" th:text="${message}"></div>
 
-<div th:replace="fragments/entity/developer
-    :: developerHeader(breadCrumbNames=${ { 'Туры', 'Тур' } },
-                       breadCrumbLinks=${ { '/developer/contests', '|/developer/contests/contest/${contest.id}|' } })"></div>
+            <h3 style="margin: 16px 0 8px 0;">Основная информация</h3>
 
-<div th:replace="fragments/entity/developer :: developerMenu"></div>
-
-<div class="container">
-    <!-- Первый блок -->
-    <div class="block">
-        <div class="block-title">Тур</div>
-
-        <div class="form-container">
-            <div class="form-header">
-                <h1>Информация о Туре</h1>
+            <div th:if="${isOwner}">
+                <form id="contest-form" data-readonly-toggle th:action="@{'/user/developer/contests/' + ${contest.id} + '/update'}" method="post" class="form" style="display:grid; gap:12px; max-width:720px;">
+                    <label>
+                        <div style="margin-bottom:4px;">Название<span class="req">*</span></div>
+                        <input id="contest-name" name="name" type="text" th:value="${contest.name}" required disabled style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
+                    </label>
+                    <label>
+                        <div style="margin-bottom:4px;">Описание</div>
+                        <textarea id="contest-info" name="info" rows="3" th:text="${contest.info}" disabled style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;"></textarea>
+                    </label>
+                    <label>
+                        <div style="margin-bottom:4px;">Дата и время начала<span class="req">*</span></div>
+                        <input id="contest-starts" name="startsAt" type="datetime-local" data-utc th:attr="data-utc=${contest.startsAt}" th:value="${contest.startsAt != null ? #temporals.format(contest.startsAt, 'yyyy-MM-dd''T''HH:mm') : ''}" required disabled style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
+                    </label>
+                    <label>
+                        <div style="margin-bottom:4px;">Дата и время окончания</div>
+                        <input id="contest-ends" name="endsAt" type="datetime-local" data-utc th:attr="data-utc=${contest.endsAt}" th:value="${contest.endsAt != null ? #temporals.format(contest.endsAt, 'yyyy-MM-dd''T''HH:mm') : ''}" disabled style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
+                    </label>
+                    <label>
+                        <div style="margin-bottom:4px;">Время на прохождение (мин)</div>
+                        <input id="contest-duration" name="duration" type="number" min="1" step="1" th:value="${contest.duration}" disabled style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
+                        <div class="field-note">Необязательно. Если не указано, используется безлимитное время в рамках дат.</div>
+                    </label>
+                    <div class="form-buttons">
+                        <button type="button" class="button edit-button" onclick="window.App.enableForm('contest-form')">Редактировать</button>
+                        <button type="submit" class="button button--primary save-button" style="display:none;">Сохранить</button>
+                        <button type="button" class="button cancel-button" style="display:none;" onclick="window.App.disableForm('contest-form')">Отмена</button>
+                    </div>
+                    <input type="hidden" name="timezone" value="">
+                </form>
             </div>
 
-            <!--/*@thymesVar id="webUser" type="trik.testsys.webclient.view.impl.ContestView"*/-->
-            <form id="contest-info" action="#"
-                  th:action="@{/developer/contests/contest/update/{contestId}(contestId=${contest.id})}"
-                  th:object="${contest}" method="post">
-                <div th:replace="fragments/form.html
-                    :: formField(id='contest.id', type='text',
-                                 labelName='ID', labelSize='20',
-                                 fieldName='id', fieldSize='80',
-                                 size='50',
-                                 isReadonly='true', isRequired='false', isAccessToken='false')">
-                </div>
-                <div th:replace="fragments/form.html
-                    :: formField(id='contest.creationDate', type='text',
-                                 labelName='Дата и время создания', labelSize='25',
-                                 fieldName='creationDate', fieldSize='75',
-                                 size='50',
-                                 isReadonly='true', isRequired='false', isAccessToken='false')">
-                </div>
-                <div th:replace="fragments/form.html
-                    :: formField(id='contest.name', type='text',
-                                 labelName='Название', labelSize='20',
-                                 fieldName='name', fieldSize='80',
-                                 size='50',
-                                 isReadonly='false', isRequired='true', isAccessToken='false')">
-                </div>
-                <div th:replace="fragments/form.html
-                    :: formField(id='contest.visibility', type='text',
-                                 labelName='Видимость', labelSize='25',
-                                 fieldName='visibility', fieldSize='75',
-                                 size='50',
-                                 isReadonly='true', isRequired='true', isAccessToken='false')">
-                </div>
-                <div class="form-field" style="flex-basis: 35%">
-                    <div class="form-label" style="flex-basis: 57%">
-                        <label for="contest.startDate">Дата и время начала</label>
-                    </div>
-                    <div class="form-input" style="flex-basis: 43%">
-                        <input name="startDate"
-                               th:value="${contest.startDate}"
-                               type="datetime-local" id="contest.startDate" readonly required/>
-                    </div>
-                </div>
-                <div class="form-field" style="flex-basis: 35%">
-                    <div class="form-label" style="flex-basis: 57%">
-                        <label for="contest.endDate">Дата и время окончания</label>
-                    </div>
-                    <div class="form-input" style="flex-basis: 43%">
-                        <input name="endDate" th:value="${contest.endDate}"
-                               type="datetime-local" id="contest.endDate" readonly required/>
-                    </div>
-                </div>
-
-                <div class="form-field" style="flex-basis: 10%">
-                    <div class="form-label" style="flex-basis: 90%">
-                        <label for="contest.isOpenEnded">Бессрочный</label>
-                    </div>
-                    <div class="form-input" style="flex-basis: 10%">
-                        <input name="isOpenEnded" th:field="*{isOpenEnded}" th:checked="${contest.isOpenEnded}"
-                               onclick="toggleVisibility(this.id, 'contest.duration-label', 'contest.duration')"
-                               type="checkbox" id="contest.isOpenEnded" readonly/>
-                    </div>
-                </div>
-                <div class="form-field" style="flex-basis: 20%">
-                    <div class="form-label" style="flex-basis: 50%">
-                        <label for="contest.duration" id="contest.duration-label"
-                               th:hidden="${contest.isOpenEnded}">Время на прохождение</label>
-                    </div>
-                    <div class="form-input" style="flex-basis: 50%">
-                        <input name="duration" th:value="${contest.duration}"
-                               placeholder="01:00"
-                               th:hidden="${contest.isOpenEnded}" th:required="${!contest.isOpenEnded}"
-                               type="text" id="contest.duration" readonly/>
-                    </div>
-                </div>
-                <div th:replace="fragments/form.html
-                    :: formField(id='contest.additionalInfo', type='text',
-                                 labelName='Дополнительная информация', labelSize='20',
-                                 fieldName='additionalInfo', fieldSize='80',
-                                 size='100',
-                                 isReadonly='false', isRequired='false', isAccessToken='false')">
-                </div>
-                <div th:replace="fragments/form.html
-                    :: formField(id='contest.note', type='text',
-                                 labelName='Заметка (видна только вам)', labelSize='20',
-                                 fieldName='note', fieldSize='80',
-                                 size='100',
-                                 isReadonly='false', isRequired='false', isAccessToken='false')">
-                </div>
-                <!-- Кнопки редактирования, отправки и отмены -->
+            <dl th:if="${!isOwner}" class="kv-wide">
+                <dt>ID</dt>
+                <dd th:text="${contest.id}"></dd>
+                <dt>Название</dt>
+                <dd th:text="${contest.name}"></dd>
+                <dt>Описание</dt>
+                <dd th:text="${contest.info ?: '—'}"></dd>
+                <dt>Начало</dt>
+                <dd data-utc th:attr="data-utc=${contest.startsAt}" th:text="${contest.startsAt != null ? #temporals.format(contest.startsAt, 'dd.MM.yyyy HH:mm') : '—'}"></dd>
+                <dt>Окончание</dt>
+                <dd data-utc th:attr="data-utc=${contest.endsAt}" th:text="${contest.endsAt != null ? #temporals.format(contest.endsAt, 'dd.MM.yyyy HH:mm') : '—'}"></dd>
+                <dt>Время на прохождение</dt>
+                <dd th:text="${contest.duration != null ? contest.duration + ' мин' : '—'}"></dd>
+            </dl>
+        </div>
+    </section>
+    <section class="card">
+        <h2 class="card-title">Задачи</h2>
+        <div class="card-body">
+            <h3 style="margin: 16px 0 8px 0;">Прикрепленные Задачи</h3>
+            <div th:if="${#lists.isEmpty(attachedTasks)}" style="color: var(--color-text-muted);">Пока нет прикреплённых Задач.</div>
+            <form th:if="${!#lists.isEmpty(attachedTasks)}" th:id="'orderForm'" th:action="@{'/user/developer/contests/' + ${contest.id} + '/tasks/order'}" method="post" style="display:none;"></form>
+            <div th:if="${!#lists.isEmpty(attachedTasks)}">
+                <table class="table" id="attachedTasksTable" th:attr="data-is-owner=${isOwner}">
+                    <thead>
+                    <tr>
+                        <th class="order-cell">№</th>
+                        <th>ID</th>
+                        <th>Название</th>
+                        <th>Статус тестирования</th>
+                        <th class="date-cell">Дата создания</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="t : ${attachedTasks}" th:attr="data-task-id=${t.id}">
+                        <td class="order-cell">
+                            <span class="drag-handle"><i class="fa fa-grip-vertical"></i></span>
+                            <span class="order-index" style="margin: 0 6px;">1</span>
+                            <span class="order-actions" th:if="${isOwner}">
+                                <button type="button" class="button" data-move="up" title="Вверх">▲</button>
+                                <button type="button" class="button" data-move="down" title="Вниз">▼</button>
+                            </span>
+                        </td>
+                        <td th:text="${t.id}"></td>
+                        <td><a th:href="@{'/user/developer/tasks/' + ${t.id}}" th:text="${t.name}"></a></td>
+                        <td th:text="${
+                            t.testingStatus != null ? (
+                                t.testingStatus.name() == 'PASSED' ? 'Пройдено' : (
+                                t.testingStatus.name() == 'FAILED' ? 'Не пройдено' : (
+                                t.testingStatus.name() == 'TESTING' ? 'В процессе' : 'Не запускалось')
+                            )) : 'Не запускалось'
+                        }"></td>
+                        <td class="date-cell" th:text="${t.createdAt != null ? #temporals.format(t.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                        <td>
+                            <form th:action="@{'/user/developer/contests/' + ${contest.id} + '/tasks/' + ${t.id} + '/detach'}" method="post" onsubmit="return confirm('Открепить Задачу?');">
+                                <button class="button" type="submit">Открепить</button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
                 <div class="form-buttons">
-                    <button type="button" class="edit-button" id="contest-info-edit"
-                            onclick="enableForm('contest-info')">Редактировать
-                    </button>
-                    <button type="submit" class="save-button" id="contest-info-save">Сохранить</button>
-                    <button type="button" class="cancel-button" id="contest-info-cancel"
-                            onclick="disableForm('contest-info')">Отменить
-                    </button>
+                    <button class="button" type="submit" th:disabled="${!isOwner}" form="orderForm">Сохранить порядок</button>
                 </div>
-            </form>
+            </div>
+            <script>
+            (function(){
+                const table = document.getElementById('attachedTasksTable');
+                if (!table) return;
+                const tbody = table.querySelector('tbody');
+                const isOwner = table.getAttribute('data-is-owner') === 'true';
+                function refreshNumbers() {
+                    const rows = Array.from(tbody.querySelectorAll('tr[data-task-id]'));
+                    rows.forEach((row, idx) => {
+                        const idxEl = row.querySelector('.order-index');
+                        if (idxEl) idxEl.textContent = String(idx + 1);
+                    });
+                }
+                if (isOwner) {
+                    function onDragStart(e){
+                        e.dataTransfer.effectAllowed = 'move';
+                        e.currentTarget.classList.add('dragging');
+                    }
+                    function onDragEnd(e){
+                        e.currentTarget.classList.remove('dragging');
+                        refreshNumbers();
+                    }
+                    function onDragOver(e){
+                        e.preventDefault();
+                        const dragging = tbody.querySelector('tr.dragging');
+                        if (!dragging) return;
+                        const after = getAfterElement(tbody, e.clientY);
+                        if (after == null) tbody.appendChild(dragging); else tbody.insertBefore(dragging, after);
+                    }
+                    function getAfterElement(container, y){
+                        const els = Array.from(container.querySelectorAll('tr[data-task-id]:not(.dragging)'));
+                        let closest = {offset: Number.NEGATIVE_INFINITY, element: null};
+                        els.forEach(el => {
+                            const box = el.getBoundingClientRect();
+                            const offset = y - box.top - box.height / 2;
+                            if (offset < 0 && offset > closest.offset) closest = {offset, element: el};
+                        });
+                        return closest.element;
+                    }
+                    Array.from(tbody.querySelectorAll('tr[data-task-id]')).forEach(row => {
+                        row.draggable = true;
+                        row.addEventListener('dragstart', onDragStart);
+                        row.addEventListener('dragend', onDragEnd);
+                    });
+                    tbody.addEventListener('dragover', onDragOver);
+
+                    tbody.addEventListener('click', function(e){
+                        const btn = e.target.closest('[data-move]');
+                        if (!btn) return;
+                        const row = btn.closest('tr[data-task-id]');
+                        if (!row) return;
+                        if (btn.dataset.move === 'up') {
+                            const prev = row.previousElementSibling;
+                            if (prev) tbody.insertBefore(row, prev);
+                        } else if (btn.dataset.move === 'down') {
+                            const next = row.nextElementSibling;
+                            if (next) tbody.insertBefore(next, row);
+                        }
+                        refreshNumbers();
+                    });
+                }
+                refreshNumbers();
+
+                const form = document.getElementById('orderForm');
+                if (form) {
+                    form.addEventListener('submit', function(){
+                        while (form.firstChild) form.removeChild(form.firstChild);
+                        const rows = Array.from(tbody.querySelectorAll('tr[data-task-id]'));
+                        rows.forEach((row, idx) => {
+                            const t = document.createElement('input'); t.type = 'hidden'; t.name = 'taskId'; t.value = row.getAttribute('data-task-id'); form.appendChild(t);
+                            const o = document.createElement('input'); o.type = 'hidden'; o.name = 'order'; o.value = String(idx + 1); form.appendChild(o);
+                        });
+                    });
+                }
+            })();
+            </script>
+
+            <hr class="separator">
+
+            <h3 style="margin: 16px 0 8px 0;">Доступные к прикреплению</h3>
+            <div th:if="${#lists.isEmpty(availableTasks)}" style="color: var(--color-text-muted);">Нет Задач для прикрепления.</div>
+            <table th:if="${!#lists.isEmpty(availableTasks)}" class="table">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Название</th>
+                    <th>Статус тестирования</th>
+                    <th>Доступно из</th>
+                    <th class="date-cell">Дата создания</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="t : ${availableTasks}">
+                    <td th:text="${t.id}"></td>
+                    <td><a th:href="@{'/user/developer/tasks/' + ${t.id}}" th:text="${t.name}"></a></td>
+                    <td th:text="${
+                            t.testingStatus != null ? (
+                                t.testingStatus.name() == 'PASSED' ? 'Пройдено' : (
+                                t.testingStatus.name() == 'FAILED' ? 'Не пройдено' : (
+                                t.testingStatus.name() == 'TESTING' ? 'В процессе' : 'Не запускалось')
+                            )) : 'Не запускалось'
+                        }"></td>
+                    <td>
+                        <span th:if="${#sets.contains(ownedTaskIds, t.id)}" style="color: var(--color-text-muted);">—</span>
+                        <ul class="pill-list" th:if="${!#sets.contains(ownedTaskIds, t.id)}" style="margin:0; display:inline-flex; gap:6px;">
+                            <li class="pill" th:each="g : ${availableGroupsByTaskId[t.id]}" th:text="${(g.name ?: 'Без названия') + ' (#' + g.id + ')'}"></li>
+                            <li class="pill" th:if="${#lists.isEmpty(availableGroupsByTaskId[t.id])}">—</li>
+                        </ul>
+                    </td>
+                    <td class="date-cell" th:text="${t.createdAt != null ? #temporals.format(t.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td>
+                        <form th:action="@{'/user/developer/contests/' + ${contest.id} + '/tasks/attach'}" method="post">
+                            <input type="hidden" name="taskId" th:value="${t.id}">
+                            <button class="button" type="submit" th:disabled="${
+                                (t.testingStatus == null || t.testingStatus.name() != 'PASSED') ||
+                                #lists.isEmpty(t.data.polygonFileIds) ||
+                                #lists.isEmpty(t.data.exerciseFileIds) ||
+                                #lists.isEmpty(t.data.solutionFileDataById)
+                            }">Прикрепить</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+    <section class="card">
+        <h2 class="card-title">Доступ для Групп Пользователей</h2>
+        <div class="card-body">
+            <div th:if="${#lists.isEmpty(contest.userGroups)}" style="color: var(--color-text-muted);">Доступно только Вам</div>
+            <ul th:if="${!#lists.isEmpty(contest.userGroups)}" class="pill-list">
+                <li class="pill" th:each="g : ${contest.userGroups}">
+                    <span th:text="${(g.name ?: 'Без названия') + ' (#' + g.id + ')'}"></span>
+                </li>
+            </ul>
+
+            <div th:if="${isOwner}" style="margin-top:12px; display:flex; gap:8px; align-items:center;">
+                <form th:action="@{'/user/developer/contests/' + ${contest.id} + '/groups/add'}"
+                      method="post"
+                      style="display:flex; gap:8px; align-items:center;"
+                      onsubmit="openPublishPopup(event, this)">
+                    <select name="groupId" required style="min-width:240px; padding:6px; border:1px solid #dde3ea; border-radius:8px;">
+                        <option th:each="g : ${availableUserGroups}"
+                                th:value="${g.id}"
+                                th:text="${(g.name ?: 'Без названия') + ' (#' + g.id + ')'}">
+                        </option>
+                    </select>
+                    <button class="button" type="submit">Добавить группу</button>
+                </form>
+            </div>
+        </div>
+    </section>
+</main>
+
+
+<!-- Popup подтверждения удаления -->
+<div id="deletePopup" class="popup-backdrop">
+    <div class="popup">
+        <h3>Удалить Тур <span id="popup-entity-name" class="entity-name"></span>?</h3>
+        <p class="warning">
+            Это действие <strong>необратимо</strong>.<br>
+            Чтобы подтвердить, введите точное имя тура:
+        </p>
+
+        <input type="text" id="confirmInput" placeholder="Введите имя тура...">
+        <div class="popup-buttons">
+            <button type="button" class="button button--secondary" onclick="closeDeletePopup()">Отмена</button>
+            <button type="button" id="confirmButton" class="button button--danger" disabled>Подтвердить</button>
         </div>
     </div>
-
-    <div class="block">
-        <div class="block-title">Файлы</div>
-
-        <div class="table tasks-table">
-            <div class="table-header">
-                <h1>Список прикрепленных Заданий</h1>
-            </div>
-            <div class="table-container">
-                <table>
-                    <thead>
-                    <tr>
-                        <th style="width: 10%">
-                            ID
-                        </th>
-                        <th style="width: 20%">
-                            Название
-                        </th>
-                        <th>Дополнительная информация</th>
-                        <th>Заметка</th>
-                        <th style="width: 7%"></th>
-                    </tr>
-                    </thead>
-                    <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.TaskView"*/-->
-                    <tr th:each="task : ${linkedTasks}">
-                        <td th:text="${task.id}"></td>
-                        <td th:text="${task.name}"></td>
-                        <td th:text="${task.additionalInfo}"></td>
-                        <td th:text="${task.note}"></td>
-                        <td class="buttons">
-                            <form id="task-file-deAttach" action="#" th:action="@{/developer/contests/contest/unlinkTask/{id}(id=${contest.id})}" method="post">
-                                <input type="hidden" name="taskId" th:value="${task.id}">
-
-                                <button type="submit" title="Прикрепить"
-                                        class="button">
-                                    <i class="fa-solid fa-link-slash"></i>
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-
-        <div class="table tasks-table">
-            <div class="table-header">
-                <h1>Список доступных к прикреплению Заданий</h1>
-            </div>
-            <div class="table-container">
-                <table>
-                    <thead>
-                    <tr>
-                        <th style="width: 10%">
-                            ID
-                        </th>
-                        <th style="width: 20%">
-                            Название
-                        </th>
-                        <th>Дополнительная информация</th>
-                        <th>Заметка</th>
-                        <th>Результат тестирования</th>
-                        <th style="width: 7%"></th>
-                    </tr>
-                    </thead>
-                    <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.TaskView"*/-->
-                    <tr th:each="task : ${unlinkedTasks}">
-                        <td th:text="${task.id}"></td>
-                        <td th:text="${task.name}"></td>
-                        <td th:text="${task.additionalInfo}"></td>
-                        <td th:text="${task.note}"></td>
-                        <td th:text="${task.passedTest} == true ? 'Пройдено' : 'Не пройдено'"
-                            th:style="${task.passedTest} == true ? 'color: green' : 'color: red'"></td>
-                        <td class="buttons">
-                            <form id="task-file2-deAttach" action="#" th:action="@{/developer/contests/contest/linkTask/{id}(id=${contest.id})}" method="post">
-                                <input type="hidden" name="taskId" th:value="${task.id}">
-
-                                <button type="submit" title="Открепить"
-                                        class="button">
-                                    <i class="fa-solid fa-link"></i>
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-    </div>
-
 </div>
 
+<!-- Popup подтверждения публикации группы -->
+<div id="publishPopup" class="popup-backdrop">
+    <div class="popup">
+        <h3>Опубликовать Тур в Группу пользователей <span id="popup-group-name" class="entity-name"></span>?</h3>
+        <p class="warning">
+            Это действие <strong>необратимо</strong>.<br>
+            Чтобы подтвердить, введите точное название Группы:
+        </p>
+
+        <input type="text" id="publishConfirmInput" placeholder="Введите название группы...">
+        <div class="popup-buttons">
+            <button type="button" class="button button--secondary" onclick="closePublishPopup()">Отмена</button>
+            <button type="button" id="publishConfirmButton" class="button button--danger" disabled>Подтвердить</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentPublishForm = null;
+    let expectedGroupName = '';
+
+    function openPublishPopup(event, form) {
+        event.preventDefault();
+        currentPublishForm = form;
+
+        const select = form.querySelector('select[name="groupId"]');
+        const selectedOption = select.options[select.selectedIndex];
+        expectedGroupName = selectedOption.textContent.trim();
+
+        document.getElementById('popup-group-name').textContent = expectedGroupName;
+        const input = document.getElementById('publishConfirmInput');
+        input.value = '';
+        document.getElementById('publishConfirmButton').disabled = true;
+        document.getElementById('publishPopup').style.display = 'flex';
+
+        input.oninput = function() {
+            document.getElementById('publishConfirmButton').disabled = input.value.trim() !== expectedGroupName;
+        };
+
+        document.getElementById('publishConfirmButton').onclick = function() {
+            if (currentPublishForm) {
+                currentPublishForm.submit();
+                closePublishPopup();
+            }
+        };
+    }
+
+    function closePublishPopup() {
+        document.getElementById('publishPopup').style.display = 'none';
+    }
+</script>
 </body>
 </html>

@@ -1,0 +1,20 @@
+.date-cell {
+  white-space: nowrap;
+  width: 150px;
+}
+
+.id-cell {
+  width: 80px;
+  white-space: nowrap;
+}
+
+.token-cell {
+  min-width: 400px;
+  white-space: nowrap;
+}
+
+.version-cell {
+  width: 100px;
+}
+
+

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+<head>
+    <th:block th:include="fragments/layout :: head('Группы пользователей')"></th:block>
+    <script>
+        function confirmLeave(form) {
+            if (confirm('Вы уверены, что хотите покинуть эту группу?')) {
+                form.submit();
+            }
+            return false;
+        }
+    </script>
+</head>
+<body>
+
+<header th:replace="fragments/layout :: header(userName=${user.name})"></header>
+<aside th:replace="fragments/layout :: sidebar(sections=${menuSections})"></aside>
+
+<main class="app-main">
+    <section class="card">
+        <h2 class="card-title">Группы пользователей</h2>
+        <div class="card-body">
+            <div class="alert" th:if="${message}" th:text="${message}"></div>
+            <div th:if="${#lists.isEmpty(groups)}" style="color: var(--color-text-muted);">Нет групп.</div>
+            <table th:if="${!#lists.isEmpty(groups)}" class="table">
+                <thead>
+                    <tr>
+                        <th style="text-align:left; padding:8px;">ID</th>
+                        <th style="text-align:left; padding:8px;">Название</th>
+                        <th style="text-align:left; padding:8px;">Описание</th>
+                        <th class="date-cell" style="text-align:left; padding:8px;">Дата создания</th>
+                        <th style="text-align:left; padding:8px;">Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="g : ${groups}">
+                        <td style="padding:8px;" th:text="${g.id}"></td>
+                        <td style="padding:8px;" th:text="${g.name ?: 'Без названия'}"></td>
+                        <td style="padding:8px;" th:text="${g.info ?: '—'}"></td>
+                        <td class="date-cell" style="padding:8px;" data-utc th:attr="data-utc=${g.createdAt}" th:text="${g.createdAt != null ? #temporals.format(g.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                        <td style="padding:8px;">
+                            <form th:action="@{'/user/groups/' + ${g.id} + '/leave'}" method="post" onsubmit="return confirmLeave(this);">
+                                <button type="submit" class="button button--danger">Покинуть</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="fragments/layout :: footer"></footer>
+
+</body>
+</html>
+

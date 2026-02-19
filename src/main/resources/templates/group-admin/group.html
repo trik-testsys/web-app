@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+<head>
+    <th:block th:include="fragments/layout :: head('Группа пользователей')"></th:block>
+    <style>
+    </style>
+</head>
+<body>
+<header th:replace="fragments/layout :: header(userName=${user.name})"></header>
+<aside th:replace="fragments/layout :: sidebar(sections=${menuSections})"></aside>
+
+<main class="app-main">
+    <section class="card">
+        <h2 class="card-title"><a th:href="@{/user/group-admin/groups}">Группы Пользователей</a> / <span th:text="${group.name ?: 'Без названия'}"></span></h2>
+        <div class="card-body">
+            <div class="alert" th:if="${message}" th:text="${message}"></div>
+            <h3 style="margin: 0 0 8px 0;">Основная информация</h3>
+            <dl class="kv">
+                <dt>ID</dt>
+                <dd th:text="${group.id}"></dd>
+                <dt>Название</dt>
+                <dd th:text="${group.name ?: 'Без названия'}"></dd>
+                <dt>Описание</dt>
+                <dd>
+                    <span th:if="${group.defaultGroup}" class="pill" style="background:#eef6ff; color:#1e66f5;">Системная группа (PUBLIC)</span>
+                    <span th:text="${group.info ?: '—'}" th:if="${!group.defaultGroup}"></span>
+                </dd>
+            </dl>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2 class="card-title">Пользователи</h2>
+        <div class="card-body">
+            <div style="margin-bottom:10px;">
+                <a class="button" th:href="@{'/user/group-admin/groups/' + ${group.id} + '/users/create'}">Создать пользователя</a>
+            </div>
+            <h3 style="margin: 0 0 8px 0;">Список доступных к добавлению</h3>
+            <div style="margin-top:12px;">
+                <div th:if="${#lists.isEmpty(candidateUsers)}" style="color: var(--color-text-muted);">Нет пользователей для добавления.</div>
+                <table th:if="${!#lists.isEmpty(candidateUsers)}" class="table">
+                    <thead>
+                    <tr>
+                        <th class="id-cell" style="text-align:left; padding:8px;">ID</th>
+                        <th style="text-align:left; padding:8px;">Псевдоним</th>
+                        <th class="date-cell" style="text-align:left; padding:8px;">Дата создания</th>
+                        <th style="text-align:left; padding:8px;">Роли</th>
+                        <th style="text-align:left; padding:8px;">Действия</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="u : ${candidateUsers}">
+                        <td class="id-cell" style="padding:8px;" th:text="${u.id}"></td>
+                        <td style="padding:8px;" th:text="${#strings.isEmpty(u.name) ? ('User #' + u.id) : u.name}"></td>
+                        <td class="date-cell" style="padding:8px;" data-utc th:attr="data-utc=${u.createdAt}" th:text="${u.createdAt != null ? #temporals.format(u.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                        <td style="padding:8px;">
+                            <ul class="pill-list">
+                                <li class="pill" th:each="p : ${candidatePrivilegesRuByUserId[u.id]}" th:text="${p}"></li>
+                            </ul>
+                        </td>
+                        <td style="padding:8px;">
+                            <form th:action="@{'/user/group-admin/groups/' + ${group.id} + '/add-member'}" method="post">
+                                <input type="hidden" name="userId" th:value="${u.id}">
+                                <button type="submit" class="button button--primary">Добавить в Группу</button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <hr class="separator">
+            <div style="margin-top: 12px;">
+                <h3 style="margin: 0 0 8px 0;">Список добавленных</h3>
+                <div th:if="${#lists.isEmpty(group.members)}" style="color: var(--color-text-muted);">В группе пока нет участников.</div>
+                <table th:if="${!#lists.isEmpty(group.members)}" class="table">
+                    <thead>
+                    <tr>
+                        <th class="id-cell" style="text-align:left; padding:8px;">ID</th>
+                        <th style="text-align:left; padding:8px;">Псевдоним</th>
+                        <th class="date-cell" style="text-align:left; padding:8px;">Дата создания</th>
+                        <th class="token-cell" style="text-align:left; padding:8px;">Код-доступа</th>
+                        <th style="text-align:left; padding:8px;">Роли</th>
+                        <th style="text-align:left; padding:8px;">Действия</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="m : ${group.members}">
+                        <td class="id-cell" style="padding:8px;" th:text="${m.id}"></td>
+                        <td style="padding:8px;" th:text="${m.name}"></td>
+                        <td class="date-cell" style="padding:8px;" data-utc th:attr="data-utc=${m.createdAt}" th:text="${m.createdAt != null ? #temporals.format(m.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                        <td class="token-cell" style="padding:8px;">
+                            <span class="token" th:if="${m.superUser == null && m.hasOnly(allowedPrivileges)}" th:text="${m.accessToken.value}"></span>
+                        </td>
+                        <td style="padding:8px;">
+                            <ul class="pill-list">
+                                <li class="pill" th:each="p : ${memberPrivilegesRuByUserId[m.id]}" th:text="${p}"></li>
+                            </ul>
+                        </td>
+                        <td style="padding:8px;">
+                            <form th:if="${m.id != group.owner?.id and !group.defaultGroup}" th:action="@{'/user/group-admin/groups/' + ${group.id} + '/remove-member'}" method="post" onsubmit="return confirm('Удалить пользователя из группы?');">
+                                <input type="hidden" name="userId" th:value="${m.id}">
+                                <button type="submit" class="button button--danger">Удалить из Группы</button>
+                            </form>
+                            <span th:if="${m.id == group.owner?.id}" style="color: var(--color-text-muted);">Владелец</span>
+                            <span th:if="${group.defaultGroup}" style="color: var(--color-text-muted);">Нельзя удалить из PUBLIC</span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="fragments/layout :: footer"></footer>
+</body>
+</html>
+
+

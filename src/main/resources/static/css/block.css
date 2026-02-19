@@ -18,12 +18,12 @@
 
 /* Стили для заголовка блока */
 .block-title {
-    font-size: 24px;
+    font-size: 18px;
     font-weight: bold;
-    margin-bottom: 15px;
+    margin-bottom: 12px;
     color: var(--trik-blue);
     border-bottom: 2px solid var(--trik-grey);
-    padding-bottom: 10px;
+    padding-bottom: 8px;
 }
 
 /* Конфигурируемые параметры */
@@ -39,7 +39,7 @@
     }
 
     .block-title {
-        font-size: 20px;
+        font-size: 16px;
     }
 }
 
@@ -49,6 +49,6 @@
     }
 
     .block-title {
-        font-size: 18px;
+        font-size: 14px;
     }
 }

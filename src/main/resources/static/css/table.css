@@ -1,155 +1,50 @@
 table {
-    width: 100%;
-    background: #f5ffff;
-    border-collapse: collapse;
-    text-align: left;
+  width: 100%;
+}
+thead, tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+tbody {
+  display: block;
+  overflow-y: auto;
+  table-layout: fixed;
+  max-height: 350px;
 }
 
-/* top-left border-radius */
-table tr:first-child th:first-child {
-    border-top-left-radius: 6px;
+/* Filter row */
+tr.table-filter-row th {
+  background: var(--color-muted, #f4f5f7);
+  top: 42px; /* offset below sticky header row */
+}
+.table-filter-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 4px;
+  font-size: 0.9rem;
+  border: 1px solid var(--table-border, #e2e8f0);
+  border-radius: 4px;
+  background: #fff;
 }
 
-/* top-right border-radius */
-table tr:first-child th:last-child {
-    border-top-right-radius: 6px;
+.table-filter-input:focus {
+  outline: 0;
+  border-color: var(--color-primary, #2f80ed);
+  box-shadow: 0 0 0 3px rgba(47, 128, 237, .12);
 }
 
-/* bottom-left border-radius */
-table tr:last-child td:first-child {
-    border-bottom-left-radius: 6px;
+table.filter-empty tbody::after {
+  content: 'Нет совпадений по фильтру';
+  display: block;
+  padding: 12px;
+  color: var(--color-text-muted, #888);
 }
 
-/* bottom-right border-radius */
-table tr:last-child td:last-child {
-    border-bottom-right-radius: 6px;
-}
+/* Tools above table */
+.table-tools { display: flex; justify-content: flex-end; margin-bottom: 8px; }
+.table-tools .table-filter-toggle { background: var(--color-muted); color: var(--color-text); }
+.table-tools .table-filter-toggle:hover { background: #e9ebef; }
 
-table th {
-    background: var(--trik-blue);
-    color: white;
-    padding: 10px 15px;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-}
-
-table th:after {
-    content: "";
-    display: block;
-    position: absolute;
-    z-index: 0;
-    left: 0;
-    top: 25%;
-    height: 25%;
-    width: 100%;
-}
-
-table tr:nth-child(odd) {
-    background: #ebf3f9;
-}
-
-table td {
-    border: 1px solid #e3eef7;
-    padding: 10px 15px;
-    position: relative;
-    transition: all 0.5s ease;
-    word-break: break-all;
-}
-
-table tbody:hover td {
-    color: transparent;
-    text-shadow: 0 0 3px #a09f9d;
-}
-
-table tbody:hover tr:hover td {
-    color: #444444;
-    text-shadow: none;
-}
-
-/* Заголовок окна */
-.table-header h1 {
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--trik-white);
-}
-
-.table-header {
-    padding: 10px;
-    border-top-left-radius: 6px;
-    border-top-right-radius: 6px;
-    background-color: var(--trik-blue);
-    margin: -20px -20px 15px;
-}
-
-caption {
-    font-size: 24px;
-    font-weight: bold;
-    padding: 10px;
-    border-radius: 5px;
-}
-
-/*center table*/
-.table {
-    max-width: 100%;
-    margin: 40px auto;
-    padding: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 6px;
-}
-
-.table-container {
-    max-height: 400px;
-    overflow-y: auto;
-}
-
-.table-container::-webkit-scrollbar {
-    width: 10px;
-}
-
-.table-container::-webkit-scrollbar-thumb {
-    background-color: var(--trik-blue);
-    border-radius: 10px;
-}
-
-.table-container::-webkit-scrollbar-track {
-    background-color: var(--trik-white);
-}
-
-.table-container::-webkit-scrollbar-thumb:hover {
-    background-color: var(--trik-blue);
-}
-
-.table-container::-webkit-scrollbar-thumb:active {
-    background-color: var(--trik-blue);
-}
-
-.table-container::-webkit-scrollbar-button {
-    display: none;
-}
-
-.table-container::-webkit-scrollbar-corner {
-    background-color: var(--trik-white);
-}
-
-.table-container::-webkit-scrollbar-track-piece {
-    background-color: var(--trik-white);
-}
-
-.buttons {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-/*    Space between elements 6px*/
-    gap: 6px;
-}
-
-.table-button {
-    background: var(--trik-white);
-    border-radius: 25%;
-    width: 25px;
-    border: 1px solid var(--trik-blue);
-    outline: none;
-    cursor: pointer;
-    text-align: center;
-}
+/* Hide filter row when toggled */
+table.filters-hidden thead tr.table-filter-row { display: none; }

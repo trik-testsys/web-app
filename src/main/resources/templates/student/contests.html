@@ -1,139 +1,108 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
 <head>
-    <meta http-equiv="refresh" content="60">
-
-    <th:block th:include="fragments/main :: head('Кабинет Участника')"></th:block>
-
-    <link rel="stylesheet" th:href="@{/css/block.css}"/>
-    <link rel="stylesheet" th:href="@{/css/table.css}">
-
-    <th:block th:include="fragments/popup :: head"></th:block>
-    <th:block th:include="fragments/form :: head"></th:block>
-    <th:block th:include="fragments/menu :: head"></th:block>
+    <th:block th:include="fragments/layout :: head('Туры участника')"></th:block>
 </head>
-
-<div th:replace="fragments/table :: table-sort"></div>
-
 <body>
+<header th:replace="fragments/layout :: header(userName=${user.name})"></header>
+<aside th:replace="fragments/layout :: sidebar(sections=${menuSections})"></aside>
 
-<div th:replace="fragments/main :: background"></div>
+<main class="app-main">
+    <section class="card">
+        <h2 class="card-title" style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+            <span>Туры</span>
+            <a class="button button--info" target="_blank" href="https://trik-testsys.github.io/student.html" title="Информация о странице"><i class="fa fa-info-circle"></i>Справка</a>
+        </h2>
 
-<div th:replace="fragments/popup :: popup"></div>
+        <div class="card-body">
+            <h3 style="margin: 16px 0 8px 0;">Доступные к прохождению</h3>
+            <div th:if="${#lists.isEmpty(availableContests)}" style="color: var(--color-text-muted);">Пока нет доступных Туров.</div>
+            <table th:if="${!#lists.isEmpty(availableContests)}" class="table">
+                <thead>
+                <tr>
+                    <th class="id-cell">ID</th>
+                    <th>Название</th>
+                    <th class="date-cell">Начало</th>
+                    <th class="date-cell">Окончание</th>
+                    <th>Время на прохождение</th>
+                    <th>Осталось времени</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="c : ${availableContests}">
+                    <td class="id-cell" th:text="${c.id}"></td>
+                    <td>
+                        <a th:if="${startedByContestId[c.id]}" th:href="@{'/user/student/contests/' + ${c.id}}" th:text="${c.name}"></a>
+                        <a th:if="${!startedByContestId[c.id]}"
+                           th:href="@{'/user/student/contests/' + ${c.id} + '?start=true'}"
+                           th:attr="data-cname=${c.name}"
+                           onclick="return confirm('Начать Тур ' + '\'' + this.dataset.cname + '\'' + '? Время начнёт отсчитываться.')"
+                           th:text="${c.name}"></a>
+                    </td>
+                    <td class="date-cell" data-utc th:attr="data-utc=${c.startsAt}" th:text="${c.startsAt != null ? #temporals.format(c.startsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td class="date-cell" data-utc th:attr="data-utc=${c.endsAt}" th:text="${c.endsAt != null ? #temporals.format(c.endsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td th:text="${c.duration != null ? c.duration + ' мин' : '—'}"></td>
+                    <td th:text="${remainingByContestId[c.id]} ?: '—'"></td>
+                </tr>
+                </tbody>
+            </table>
 
-<div th:replace="fragments/popup :: emergencyPopup"></div>
+            <hr class="separator">
 
-<div th:replace="fragments/entity/student :: studentHeader(breadCrumbNames=${ { 'Туры' } },
-                                                           breadCrumbLinks=${ { '/student/contests' } })"></div>
+            <h3 style="margin: 16px 0 8px 0;">Предстоящие</h3>
+            <div th:if="${#lists.isEmpty(upcomingContests)}" style="color: var(--color-text-muted);">Пока нет предстоящих Туров.</div>
+            <table th:if="${!#lists.isEmpty(upcomingContests)}" class="table">
+                <thead>
+                <tr>
+                    <th class="id-cell">ID</th>
+                    <th>Название</th>
+                    <th class="date-cell">Начало</th>
+                    <th class="date-cell">Окончание</th>
+                    <th>Время на прохождение</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="c : ${upcomingContests}">
+                    <td class="id-cell" th:text="${c.id}"></td>
+                    <td th:text="${c.name}"></td>
+                    <td class="date-cell" data-utc th:attr="data-utc=${c.startsAt}" th:text="${c.startsAt != null ? #temporals.format(c.startsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td class="date-cell" data-utc th:attr="data-utc=${c.endsAt}" th:text="${c.endsAt != null ? #temporals.format(c.endsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td th:text="${c.duration != null ? c.duration + ' мин' : '—'}"></td>
+                </tr>
+                </tbody>
+            </table>
 
-<div th:replace="fragments/entity/student :: studentMenu"></div>
+            <hr class="separator">
 
-<!-- Контент -->
-<div class="container">
-    <!-- Первый блок -->
-    <div class="block">
-        <div class="block-title">Туры</div>
+            <h3 style="margin: 16px 0 8px 0;">Завершенные</h3>
+            <div th:if="${#lists.isEmpty(endedContests)}" style="color: var(--color-text-muted);">Пока нет завершенных Туров.</div>
+            <table th:if="${!#lists.isEmpty(endedContests)}" class="table">
+                <thead>
+                <tr>
+                    <th class="id-cell">ID</th>
+                    <th>Название</th>
+                    <th class="date-cell">Начало</th>
+                    <th class="date-cell">Окончание</th>
+                    <th>Время на прохождение</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="c : ${endedContests}">
+                    <td class="id-cell" th:text="${c.id}"></td>
+                    <td th:text="${c.name}"></td>
+                    <td class="date-cell" data-utc th:attr="data-utc=${c.startsAt}" th:text="${c.startsAt != null ? #temporals.format(c.startsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td class="date-cell" data-utc th:attr="data-utc=${c.endsAt}" th:text="${c.endsAt != null ? #temporals.format(c.endsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td th:text="${c.duration != null ? c.duration + ' мин' : '—'}"></td>
+                </tr>
+                </tbody>
+            </table>
 
-        <div class="table contests-table">
-            <div class="form-header">
-                <h1>Список доступных Туров</h1>
-            </div>
-            <div class="table-container">
-                <table>
-                    <thead>
-                    <tr>
-                        <th style="width: 20%">
-                            Название
-                        </th>
-                        <th>Дополнительная информация</th>
-                        <th style="width: 12%">
-                            Дата и время начала
-                        </th>
-                        <th style="width: 12%">
-                            Дата и время окончания
-                        </th>
-                        <th style="width: 12%">
-                            Время на выполнение
-                        </th>
-                        <th>
-                            Идет
-                        </th>
-                        <th style="width: 7%">
-                        </th>
-                    </tr>
-                    </thead>
-                    <!--/*@thymesVar id="contest" type="trik.testsys.webclient.view.impl.StudentContestView"*/-->
-                    <tr th:each="contest : ${contests}">
-                        <td th:text="${contest.name}"></td>
-                        <td th:text="${contest.additionalInfo}"></td>
-                        <td th:text="${contest.formattedStartDate}"></td>
-                        <td th:text="${contest.formattedEndDate}"></td>
-                        <td th:text="${contest.lastTime}"></td>
-                        <td th:text="${contest.isGoingOn} ? 'Да' : 'Нет'"></td>
-                        <td class="buttons">
-                            <form th:action="@{/student/contests/contest/start/{contestId}(contestId=${contest.id})}" method="get">
-                                <button type="submit" title="Приступить к выполнению" th:disabled="${!contest.isGoingOn || contest.lastTime == '00:00:00'}"
-                                        class="button">
-                                    <i class="fa-solid fa-play"></i>
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                </table>
-            </div>
         </div>
+    </section>
+</main>
 
-        <div class="table contests-table">
-            <div class="form-header">
-                <h1>Список оконченных Туров</h1>
-            </div>
-            <div class="table-container">
-                <table>
-                    <thead>
-                    <tr>
-                        <th style="width: 20%">
-                            Название
-                        </th>
-                        <th>Дополнительная информация</th>
-                        <th style="width: 12%">
-                            Дата и время начала
-                        </th>
-                        <th style="width: 12%">
-                            Дата и время окончания
-                        </th>
-                        <th style="width: 12%">
-                            Время на выполнение
-                        </th>
-                        <th>
-                            Идет
-                        </th>
-                        <th style="width: 7%">
-                        </th>
-                    </tr>
-                    </thead>
-                    <!--/*@thymesVar id="contest" type="trik.testsys.webclient.view.impl.StudentContestView"*/-->
-                    <tr th:each="contest : ${outdatedContests}">
-                        <td th:text="${contest.name}"></td>
-                        <td th:text="${contest.additionalInfo}"></td>
-                        <td th:text="${contest.formattedStartDate}"></td>
-                        <td th:text="${contest.formattedEndDate}"></td>
-                        <td th:text="${contest.lastTime}"></td>
-                        <td th:text="${contest.isGoingOn} ? 'Да' : 'Нет'"></td>
-                        <td class="buttons">
-                            <form th:action="@{/student/contests/contest/{contestId}(contestId=${contest.id})}" method="get">
-                                <input type="checkbox" name="outdated" th:checked="true" hidden>
-                                <button type="submit" title="Результаты выполнения"
-                                        class="button">
-                                    <i class="fa-solid fa-info"></i>
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-
+<footer th:replace="fragments/layout :: footer"></footer>
 </body>
 </html>
+
+

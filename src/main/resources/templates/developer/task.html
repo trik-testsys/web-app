@@ -1,257 +1,566 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
 <head>
-    <th:block th:include="fragments/main :: head('Кабинет Разработчика')"></th:block>
+    <th:block th:include="fragments/layout :: head('Задача')"></th:block>
+    <style>
+        .two-column-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
 
-    <link rel="stylesheet" th:href="@{/css/block.css}">
-    <link rel="stylesheet" th:href="@{/css/table.css}">
+        @media (max-width: 1600px) {
+            .two-column-grid {
+                grid-template-columns: 1fr;
+            }
+        }
 
-    <th:block th:include="fragments/popup :: head"></th:block>
-    <th:block th:include="fragments/form :: head"></th:block>
-    <th:block th:include="fragments/menu :: head"></th:block>
+        .score-input {
+            width: 80px;
+            padding: 4px 8px;
+            border: 1px solid #dde3ea;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .score-form {
+            display: inline-block;
+        }
+    </style>
+    <style>
+        .two-column-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 1600px) {
+            .two-column-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .score-input {
+            width: 80px;
+            padding: 4px 8px;
+            border: 1px solid #dde3ea;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .score-form {
+            display: inline-block;
+        }
+
+        /* ==== Popup в стиле GitHub ==== */
+        .popup-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .popup {
+            background: #fff;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+            width: 420px;
+            max-width: 90%;
+            font-family: system-ui, sans-serif;
+            animation: popupShow 0.2s ease-out;
+        }
+        @keyframes popupShow {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .popup h3 { margin-top: 0; font-size: 18px; margin-bottom: 8px; }
+        .popup .warning { color: #a33; font-size: 14px; margin-bottom: 14px; }
+        .popup .entity-name { font-weight: bold; }
+        .popup input {
+            width: 100%;
+            padding: 8px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            margin-bottom: 16px;
+        }
+        .popup-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+        .button--secondary {
+            background: #e5e7eb;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .button--danger {
+            background: #d73a49;
+            color: #fff;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .button--danger:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    </style>
 </head>
-
-<div th:replace="fragments/table :: table-sort"></div>
-
 <body>
+<header th:replace="fragments/layout :: header(userName=${user.name})"></header>
+<aside th:replace="fragments/layout :: sidebar(sections=${menuSections})"></aside>
 
-<div th:replace="fragments/main :: background"></div>
+<main class="app-main">
+    <section class="card">
+        <h2 class="card-title" style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+            <span><a th:href="@{/user/developer/tasks}">Задачи</a> / <span th:text="${task.name}"></span></span>
 
-<div th:replace="fragments/popup :: popup"></div>
+            <button type="button"
+                    class="button button--danger"
+                    th:data-id="${task.id}"
+                    th:data-name="${task.name}"
+                    onclick="openDeletePopup(this.dataset.id, this.dataset.name, this)"
+                    th:disabled="${(isUsedInAnyContest == true) or (hasAnySolutions == true)}"
+                    th:title="${(isUsedInAnyContest == true)} ? 'Нельзя удалить: Задача прикреплена к Туру' : ((hasAnySolutions == true) ? 'Нельзя удалить: по Задаче есть Решения' : null)">
+                <i class="fa fa-trash"></i> Удалить
+            </button>
 
-<div th:replace="fragments/popup :: emergencyPopup"></div>
+            <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/delete'}" method="post" class="delete-form" style="display:none;"></form>
+        </h2>
 
-<div th:replace="fragments/entity/developer
-    :: developerHeader(breadCrumbNames=${ { 'Задания', 'Задание' } },
-                       breadCrumbLinks=${ { '/developer/tasks', '|/developer/tasks/task/${task.id}|' } })"></div>
-
-<div th:replace="fragments/entity/developer :: developerMenu"></div>
-
-<div class="container">
-    <!-- Первый блок -->
-    <div class="block">
-        <div class="block-title">Задание</div>
-
-        <div class="form-container">
-            <div class="form-header">
-                <h1>Информация о Задании</h1>
-            </div>
-
-            <!--/*@thymesVar id="webUser" type="trik.testsys.webclient.view.impl.TaskView"*/-->
-            <form id="task-info" action="#" th:action="@{/developer/tasks/task/update/{taskId}(taskId=${task.id})}"
-                  th:object="${task}" method="post">
-                <div th:replace="fragments/form.html
-                    :: formField(id='task.id', type='text',
-                                 labelName='ID', labelSize='20',
-                                 fieldName='id', fieldSize='80',
-                                 size='50',
-                                 isReadonly='true', isRequired='false', isAccessToken='false')">
-                </div>
-                <div th:replace="fragments/form.html
-                    :: formField(id='task.creationDate', type='text',
-                                 labelName='Дата и время создания', labelSize='25',
-                                 fieldName='creationDate', fieldSize='75',
-                                 size='50',
-                                 isReadonly='true', isRequired='false', isAccessToken='false')">
-                </div>
-                <div th:replace="fragments/form.html
-                    :: formField(id='task.name', type='text',
-                                 labelName='Название', labelSize='20',
-                                 fieldName='name', fieldSize='80',
-                                 size='50',
-                                 isReadonly='false', isRequired='true', isAccessToken='false')">
-                </div>
-                <div class="form-field" style="flex-basis: 50%">
-                    <div class="form-label" style="flex-basis: 25%">
-                        <label for="task.passedTest">Результат тестирования</label>
-                    </div>
-                    <div class="form-input" style="flex-basis: 75%">
-                        <input type="text" id="task.passedTest" class="readonly"
-                               th:value="${task.passedTest} == true ? 'Пройдено' : 'Не пройдено'"
-                               th:style="${task.passedTest} == true ? 'color: green' : 'color: red'"
-                               readonly required/>
-                    </div>
-                </div>
-                <div th:replace="fragments/form.html
-                    :: formField(id='task.additionalInfo', type='text',
-                                 labelName='Дополнительная информация', labelSize='20',
-                                 fieldName='additionalInfo', fieldSize='80',
-                                 size='100',
-                                 isReadonly='false', isRequired='false', isAccessToken='false')">
-                </div>
-                <div th:replace="fragments/form.html
-                    :: formField(id='task.note', type='text',
-                                 labelName='Заметка (видна только вам)', labelSize='20',
-                                 fieldName='note', fieldSize='80',
-                                 size='100',
-                                 isReadonly='false', isRequired='false', isAccessToken='false')">
-                </div>
-                <!-- Кнопки редактирования, отправки и отмены -->
+        <div class="card-body">
+            <div class="alert" th:if="${message}" th:text="${message}"></div>
+            <form id="task-form" data-readonly-toggle th:action="@{'/user/developer/tasks/' + ${task.id} + '/update'}" method="post" class="form" style="display:grid; gap:12px; max-width:720px;">
+                <label>
+                    <div style="margin-bottom:4px;">Название<span class="req">*</span></div>
+                    <input name="name" type="text" th:value="${task.name}" required disabled style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
+                </label>
+                <label>
+                    <div style="margin-bottom:4px;">Описание</div>
+                    <textarea name="info" rows="3" th:text="${task.info}" disabled style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;"></textarea>
+                </label>
                 <div class="form-buttons">
-                    <button type="button" class="edit-button" id="task-info-edit" onclick="enableForm('task-info')">
-                        Редактировать
-                    </button>
-                    <button type="submit" class="save-button" id="task-info-save">Сохранить</button>
-                    <button type="button" class="cancel-button" id="task-info-cancel"
-                            onclick="disableForm('task-info')">Отменить
-                    </button>
+                    <button type="button" class="button edit-button" onclick="window.App.enableForm('task-form')">Редактировать</button>
+                    <button type="submit" class="button button--primary save-button" style="display:none;">Сохранить</button>
+                    <button type="button" class="button cancel-button" style="display:none;" onclick="window.App.disableForm('task-form')">Отмена</button>
                 </div>
             </form>
-            <div>
-                <form th:action="@{/developer/tasks/task/test/{taskId}(taskId=${task.id})}" method="post">
-                    <button class="button" type="submit">Тестировать</button>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2 class="card-title">Доступ для Групп Пользователей</h2>
+        <div class="card-body">
+            <div th:if="${#lists.isEmpty(task.userGroups)}" style="color: var(--color-text-muted);">Доступно только Вам</div>
+            <ul th:if="${!#lists.isEmpty(task.userGroups)}" class="pill-list">
+                <li class="pill" th:each="g : ${task.userGroups}">
+                    <span th:text="${(g.name ?: 'Без названия') + ' (#' + g.id + ')'}"></span>
+                </li>
+            </ul>
+
+            <div style="margin-top:12px; display:flex; gap:8px; align-items:center;">
+                <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/groups/add'}" method="post" style="display:flex; gap:8px; align-items:center;" onsubmit="return confirm('Данное действие нельзя будет отменить в будущем');">
+                    <select name="groupId" required style="min-width:240px; padding:6px; border:1px solid #dde3ea; border-radius:8px;">
+                        <option th:each="g : ${availableUserGroups}" th:value="${g.id}" th:text="${(g.name ?: 'Без названия') + ' (#' + g.id + ')'}"></option>
+                    </select>
+                    <button class="button" type="submit">Добавить группу</button>
                 </form>
             </div>
         </div>
+    </section>
+
+    <section class="card">
+        <h2 class="card-title">Тестирование</h2>
+        <div class="card-body">
+            <div style="margin-bottom:10px;">
+                <strong>Готовность к тестированию:</strong>
+                <span th:text="${testReady ? 'Готова' : 'Не готова'}"></span>
+                <span class="field-note">(Полигоны: <span th:text="${numPolygons}"></span>; Решения: <span th:text="${numSolutions}"></span>)</span>
+            </div>
+            <div style="margin-bottom:10px;">
+                <strong>Статус тестирования:</strong>
+                <span th:text="${testStatus}"></span>
+            </div>
+            <div style="display:flex; gap:8px; align-items:center; margin:8px 0;">
+                <a class="button" th:href="@{'/user/developer/tasks/' + ${task.id} + '/tests'}">Результаты тестирования</a>
+                <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/test'}" method="post" onsubmit="return confirm('Отправить Задачу на тестирование?');">
+                    <button class="button button--primary" type="submit" th:disabled="${!testReady || isTesting || isUsedInAnyContest}">Запустить тестирование</button>
+                </form>
+            </div>
+            <div class="field-note" style="margin-top:8px;">Для тестирования требуется минимум один Полигон и одно Эталонное Решение.</div>
+            <div class="field-note" style="margin-top:8px;">Для прикрепления к Туру требуется минимум один Полигон, одно Эталонное Решение и одно Упражнение.</div>
+
+            <hr class="separator" style="margin: 20px 0;">
+
+            <h3 style="margin: 0 0 12px 0;">Настройка баллов для Эталонных решений</h3>
+            <div th:if="${#maps.isEmpty(task.data.solutionFileDataById)}" style="color: var(--color-text-muted);">Нет прикреплённых решений для настройки.</div>
+            <table th:if="${!#maps.isEmpty(task.data.solutionFileDataById)}" class="table">
+                <thead>
+                <tr>
+                    <th class="id-cell">ID</th>
+                    <th>Название</th>
+                    <th>Тип решения</th>
+                    <th>Ожидаемый балл</th>
+                    <th>Полученный балл</th>
+                    <th>Результат</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="solutionFileEntry : ${task.data.solutionFileDataById}">
+                    <td class="id-cell" th:text="${solutionFileEntry.key}"></td>
+                    <td>
+                        <a th:href="@{'/user/developer/task-files/solution/' + ${solutionFileEntry.key}}">
+                            <span th:each="solutionFile : ${attachedSolutions}"
+                                  th:if="${solutionFile.id == solutionFileEntry.key}"
+                                  th:text="${solutionFile.name}">
+                            </span>
+                        </a>
+                    </td>
+                    <td th:text="${solutionFileEntry.value.type}"></td>
+                    <td>
+                        <form class="score-form" th:action="@{'/user/developer/tasks/' + ${task.id} + '/solution-score'}" method="post">
+                            <input type="hidden" name="solutionFileId" th:value="${solutionFileEntry.key}">
+                            <input type="number" name="score" class="score-input" th:value="${solutionFileEntry.value.score}" th:disabled="${isTesting || isUsedInAnyContest}">
+                            <button class="button" type="submit" th:disabled="${isTesting || isUsedInAnyContest}">Сохранить</button>
+                        </form>
+                    </td>
+                    <td th:text="${solutionFileEntry.value.lastTestScore ?: '—'}"></td>
+                    <td>
+                        <a th:if="${task.testingStatus == 'PASSED' &&  solutionFileEntry.value.lastSolutionId != null && resultsAvailable[solutionFileEntry.value.lastSolutionId]}"
+                           th:href="@{'/user/developer/tasks/' + ${task.id} + '/tests/' + ${solutionFileEntry.value.lastSolutionId} + '/download'}"
+                           class="button button--small">Скачать</a>
+                        <span th:if="${(solutionFileEntry.value.lastSolutionId == null || !resultsAvailable[solutionFileEntry.value.lastSolutionId])}" style="color: var(--color-text-muted);">—</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <div class="two-column-grid">
+    <section class="card">
+        <h2 class="card-title">Полигоны</h2>
+        <div class="card-body">
+
+            <h3 style="margin: 0 0 8px 0;">Прикрепленные</h3>
+            <div th:if="${#lists.isEmpty(attachedPolygons)}" style="color: var(--color-text-muted);">Пока нет прикреплённых Полигонов.</div>
+            <table th:if="${!#lists.isEmpty(attachedPolygons)}" class="table">
+                <thead>
+                <tr>
+                    <th class="id-cell">ID</th>
+                    <th>Название</th>
+                    <th style="width: 25%">Статус анализа</th>
+                    <th style="width: 20%"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="f : ${attachedPolygons}">
+                    <td class="id-cell" th:text="${f.id}"></td>
+                    <td><a th:href="@{'/user/developer/task-files/polygon/' + ${f.id}}" th:text="${f.name}"></a></td>
+                    <td style="width: 25%" th:text="${f.analysisStatus.locale}"></td>
+                    <td style="width: 20%">
+                        <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/files/polygon/' + ${f.id} + '/detach'}" method="post" onsubmit="return confirm('Открепить файл?');">
+                            <button class="button" type="submit" th:disabled="${isTesting || isUsedInAnyContest}">Открепить</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <hr class="separator">
+
+            <h3 style="margin: 0 0 8px 0;">Доступные к прикреплению</h3>
+            <div th:if="${#lists.isEmpty(availablePolygons)}" style="color: var(--color-text-muted);">Больше нет доступных к прикреплению Полигонов.</div>
+            <table th:if="${!#lists.isEmpty(availablePolygons)}" class="table">
+                <thead>
+                <tr>
+                    <th class="id-cell">ID</th>
+                    <th>Название</th>
+                    <th style="width: 25%">Статус анализа</th>
+                    <th style="width: 20%"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="f : ${availablePolygons}">
+                    <td class="id-cell" th:text="${f.id}"></td>
+                    <td><a th:href="@{'/user/developer/task-files/polygon/' + ${f.id}}" th:text="${f.name}"></a></td>
+                    <td style="width: 25%" th:text="${f.analysisStatus.locale}"></td>
+                    <td style="width: 20%">
+                        <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/files/polygon/attach'}" method="post">
+                            <input type="hidden" name="polygonId" th:value="${f.id}">
+                            <button class="button" type="submit" th:disabled="${isTesting || isUsedInAnyContest || f.analysisStatus.dbKey != 'S'}">Прикрепить</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2 class="card-title">Эталонные решения</h2>
+        <div class="card-body">
+
+            <h3 style="margin: 0 0 8px 0;">Прикрепленные</h3>
+            <div th:if="${#lists.isEmpty(attachedSolutions)}" style="color: var(--color-text-muted);">Пока нет прикреплённых Эталонных решений.</div>
+            <table th:if="${!#lists.isEmpty(attachedSolutions)}" class="table">
+                <thead>
+                <tr>
+                    <th class="id-cell">ID</th>
+                    <th>Название</th>
+                    <th style="width: 20%">Тип</th>
+                    <th style="width: 20%"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="f : ${attachedSolutions}">
+                    <td class="id-cell" th:text="${f.id}"></td>
+                    <td><a th:href="@{'/user/developer/task-files/solution/' + ${f.id}}" th:text="${f.name}"></a></td>
+                    <td style="width: 20%" th:text="${f.type}"></td>
+                    <td style="width: 20%">
+                        <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/files/solution/' + ${f.id} + '/detach'}" method="post" onsubmit="return confirm('Открепить файл?');">
+                            <button class="button" type="submit" th:disabled="${isTesting || isUsedInAnyContest}">Открепить</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <hr class="separator">
+
+            <h3 style="margin: 0 0 8px 0;">Доступные к прикреплению</h3>
+            <div th:if="${#lists.isEmpty(availableSolutions)}" style="color: var(--color-text-muted);">Больше нет доступных к прикреплению Эталонных решений.</div>
+            <table th:if="${!#lists.isEmpty(availableSolutions)}" class="table">
+                <thead>
+                <tr>
+                    <th class="id-cell">ID</th>
+                    <th>Название</th>
+                    <th style="width: 20%">Тип</th>
+                    <th style="width: 20%"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="f : ${availableSolutions}">
+                    <td class="id-cell" th:text="${f.id}"></td>
+                    <td><a th:href="@{'/user/developer/task-files/solution/' + ${f.id}}" th:text="${f.name}"></a></td>
+                    <td style="width: 20%" th:text="${f.type}"></td>
+                    <td style="width: 20%">
+                        <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/files/solution/attach'}" method="post">
+                            <input type="hidden" name="solutionId" th:value="${f.id}">
+                            <button class="button" type="submit" th:disabled="${isTesting || isUsedInAnyContest}">Прикрепить</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
     </div>
 
-    <div class="block">
-        <div class="block-title">Файлы</div>
+    <div class="two-column-grid">
+    <section class="card">
+        <h2 class="card-title">Упражнение</h2>
+        <div class="card-body">
 
-        <div class="table tasks-table">
-            <div class="table-header">
-                <h1>Список прикрепленных Файлов</h1>
-            </div>
-            <div class="table-container">
-                <table>
-                    <thead>
-                    <tr>
-                        <th style="width: 10%">
-                            ID
-                        </th>
-                        <th>Тип</th>
-                        <th style="width: 20%">
-                            Название
-                        </th>
-                        <th>Дополнительная информация</th>
-                        <th>Заметка</th>
-                        <th style="width: 7%"></th>
-                    </tr>
-                    </thead>
-                    <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.TaskFileView"*/-->
-                    <tr th:each="taskFile : ${task.taskFiles}">
-                        <td th:text="${taskFile.id}"></td>
-                        <td th:switch="${taskFile.type}">
-                            <span th:case="${taskFile.type.SOLUTION}">Эталонное решение</span>
-                            <span th:case="${taskFile.type.EXERCISE}">Упражнение</span>
-                            <span th:case="${taskFile.type.POLYGON}">Полигон</span>
-                            <span th:case="${taskFile.type.CONDITION}">Условие</span>
-                        </td>
-                        <td th:text="${taskFile.name}"></td>
-                        <td th:text="${taskFile.additionalInfo}"></td>
-                        <td th:text="${taskFile.note}"></td>
-                        <td class="buttons">
-                            <form id="task-file-deAttach" action="#" th:action="@{/developer/tasks/task/deAttachTaskFile/{taskId}(taskId=${task.id})}" method="post">
-                                <input type="hidden" name="taskId" th:value="${task.id}">
-                                <input type="hidden" name="taskFileId" th:value="${taskFile.id}">
+            <h3 style="margin: 0 0 8px 0;">Прикрепленные</h3>
+            <div th:if="${#lists.isEmpty(attachedExercises)}" style="color: var(--color-text-muted);">Пока нет прикреплённых Упражнение.</div>
+            <table th:if="${!#lists.isEmpty(attachedExercises)}" class="table">
+                <thead>
+                <tr>
+                    <th class="id-cell">ID</th>
+                    <th>Название</th>
+                    <th style="width: 20%">Тип</th>
+                    <th style="width: 20%"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="f : ${attachedExercises}">
+                    <td class="id-cell" th:text="${f.id}"></td>
+                    <td><a th:href="@{'/user/developer/task-files/exercise/' + ${f.id}}" th:text="${f.name}"></a></td>
+                    <td style="width: 20%" th:text="${f.type}"></td>
+                    <td style="width: 20%">
+                        <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/files/exercise/' + ${f.id} + '/detach'}" method="post" onsubmit="return confirm('Открепить файл?');">
+                            <button class="button" type="submit">Открепить</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
 
-                                <button type="submit" title="Открепить"
-                                        class="button">
-                                    <i class="fa-solid fa-link-slash"></i>
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                </table>
-            </div>
+            <hr class="separator">
+
+            <h3 style="margin: 0 0 8px 0;">Доступные к прикреплению</h3>
+            <div th:if="${#lists.isEmpty(availableExercises)}" style="color: var(--color-text-muted);">Больше нет доступных к прикреплению Упражнений.</div>
+            <table th:if="${!#lists.isEmpty(availableExercises)}" class="table">
+                <thead>
+                <tr>
+                    <th class="id-cell">ID</th>
+                    <th>Название</th>
+                    <th style="width: 20%">Тип</th>
+                    <th style="width: 20%"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="f : ${availableExercises}">
+                    <td class="id-cell" th:text="${f.id}"></td>
+                    <td><a th:href="@{'/user/developer/task-files/exercise/' + ${f.id}}" th:text="${f.name}"></a></td>
+                    <td style="width: 20%" th:text="${f.type}"></td>
+                    <td style="width: 20%">
+                        <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/files/exercise/attach'}" method="post">
+                            <input type="hidden" name="exerciseId" th:value="${f.id}">
+                            <button class="button" type="submit">Прикрепить</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
         </div>
+    </section>
 
-        <div class="table tasks-table">
-            <div class="table-header">
-                <h1>Список доступных к прикреплению Файлов</h1>
-            </div>
-            <div class="table-container">
-                <table>
-                    <thead>
-                    <tr>
-                        <th style="width: 10%">
-                            ID
-                        </th>
-                        <th>Тип</th>
-                        <th style="width: 20%">
-                            Название
-                        </th>
-                        <th>Дополнительная информация</th>
-                        <th>Заметка</th>
-                        <th style="width: 7%"></th>
-                    </tr>
-                    </thead>
-                    <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.TaskFileView"*/-->
-                    <tr th:each="taskFile : ${taskFiles}">
-                        <td th:text="${taskFile.id}"></td>
-                        <td th:switch="${taskFile.type}">
-                            <span th:case="${taskFile.type.SOLUTION}">Эталонное решение</span>
-                            <span th:case="${taskFile.type.EXERCISE}">Упражнение</span>
-                            <span th:case="${taskFile.type.POLYGON}">Полигон</span>
-                            <span th:case="${taskFile.type.CONDITION}">Условие</span>
-                        </td>
-                        <td th:text="${taskFile.name}"></td>
-                        <td th:text="${taskFile.additionalInfo}"></td>
-                        <td th:text="${taskFile.note}"></td>
-                        <td class="buttons">
-                            <form id="task-file-attach" action="#" th:action="@{/developer/tasks/task/attachTaskFile/{taskId}(taskId=${task.id})}" method="post">
-                                <input type="hidden" name="taskId" th:value="${task.id}">
-                                <input type="hidden" name="taskFileId" th:value="${taskFile.id}">
+    <section class="card">
+        <h2 class="card-title">Условия</h2>
+        <div class="card-body">
 
-                                <button type="submit" title="Прикрепить"
-                                        class="button">
-                                    <i class="fa-solid fa-link"></i>
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                </table>
-            </div>
+            <h3 style="margin: 0 0 8px 0;">Прикрепленные</h3>
+            <div th:if="${#lists.isEmpty(attachedConditions)}" style="color: var(--color-text-muted);">Пока нет прикреплённых Условий.</div>
+            <table th:if="${!#lists.isEmpty(attachedConditions)}" class="table">
+                <thead>
+                <tr>
+                    <th class="id-cell">ID</th>
+                    <th>Название</th>
+                    <th style="width: 20%">Тип</th>
+                    <th style="width: 20%"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="f : ${attachedConditions}">
+                    <td class="id-cell" th:text="${f.id}"></td>
+                    <td><a th:href="@{'/user/developer/task-files/condition/' + ${f.id}}" th:text="${f.name}"></a></td>
+                    <td style="width: 20%" th:text="${f.type}"></td>
+                    <td style="width: 20%">
+                        <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/files/condition/' + ${f.id} + '/detach'}" method="post" onsubmit="return confirm('Открепить файл?');">
+                            <button class="button" type="submit">Открепить</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <hr class="separator">
+
+            <h3 style="margin: 0 0 8px 0;">Доступные к прикреплению</h3>
+            <div th:if="${#lists.isEmpty(availableConditions)}" style="color: var(--color-text-muted);">Больше нет доступных к прикреплению Условий.</div>
+            <table th:if="${!#lists.isEmpty(availableConditions)}" class="table">
+                <thead>
+                <tr>
+                    <th class="id-cell">ID</th>
+                    <th>Название</th>
+                    <th style="width: 20%">Тип</th>
+                    <th style="width: 20%"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="f : ${availableConditions}">
+                    <td class="id-cell" th:text="${f.id}"></td>
+                    <td><a th:href="@{'/user/developer/task-files/condition/' + ${f.id}}" th:text="${f.name}"></a></td>
+                    <td style="width: 20%" th:text="${f.type}"></td>
+                    <td style="width: 20%">
+                        <form th:action="@{'/user/developer/tasks/' + ${task.id} + '/files/condition/attach'}" method="post">
+                            <input type="hidden" name="conditionId" th:value="${f.id}">
+                            <button class="button" type="submit">Прикрепить</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
         </div>
+    </section>
     </div>
 
-    <div class="block">
-        <div class="block-title">Тестирование</div>
+    <section class="card">
+        <h2 class="card-title">Туры, к которым прикреплена</h2>
+        <div class="card-body">
+            <div th:if="${#lists.isEmpty(attachedContests)}" style="color: var(--color-text-muted);">Пока нет прикреплённых Туров.</div>
+            <table th:if="${!#lists.isEmpty(attachedContests)}" class="table">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Название</th>
+                    <th class="date-cell">Начало</th>
+                    <th class="date-cell">Окончание</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="c : ${attachedContests}">
+                    <td th:text="${c.id}"></td>
+                    <td><a th:href="@{'/user/developer/contests/' + ${c.id}}" th:text="${c.name}"></a></td>
+                    <td class="date-cell" data-utc th:attr="data-utc=${c.startsAt}" th:text="${c.startsAt != null ? #temporals.format(c.startsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                    <td class="date-cell" data-utc th:attr="data-utc=${c.endsAt}" th:text="${c.endsAt != null ? #temporals.format(c.endsAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
 
-        <div class="table tasks-table">
-            <div class="table-header">
-                <h1>Запуски тестирования</h1>
-            </div>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th style="width: 10%">ID</th>
-                            <th style="width: 12%">Дата и время запуска</th>
-                            <th>Дополнительная информация</th>
-                            <th style="width: 10%">Статус</th>
-                            <th style="width: 10%">Результат</th>
-                            <th style="width: 7%"></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="testResult : ${testResults}">
-                            <td th:text="${testResult.id}"></td>
-                            <td th:text="${testResult.creationDate}"></td>
-                            <td th:text="${testResult.additionalInfo}"></td>
-                            <td th:switch="${testResult.status}">
-                                <span th:case="${testResult.status.PASSED}">Успешно</span>
-                                <span th:case="${testResult.status.FAILED}">Неуспешно</span>
-                                <span th:case="${testResult.status.ERROR}">Ошибка</span>
-                                <span th:case="${testResult.status.IN_PROGRESS}">Тестируется</span>
-                                <span th:case="${testResult.status.NOT_STARTED}">Ожидает тестирования</span>
-                            </td>
-                            <td th:text="${testResult.score}"></td>
-                            <td class="buttons">
-                                <a title="Скачать результат тестирования"
-                                   class="button" th:href="@{'/developer/tasks/task/testResult/' + ${task.id} + '?solutionId=' + ${testResult.id}}" target="_self">
-                                    <i class="fa-solid fa-download"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    </tbody>
-                    <!--/*@thymesVar id="group" type="trik.testsys.webclient.view.impl.TaskTestResultView"*/-->
-                </table>
-            </div>
+<!-- Popup подтверждения удаления -->
+<div id="deletePopup" class="popup-backdrop">
+    <div class="popup">
+        <h3>Удалить Задачу <span id="popup-entity-name" class="entity-name"></span>?</h3>
+        <p class="warning">
+            Это действие <strong>необратимо</strong>.<br>
+            Чтобы подтвердить, введите точное имя задачи:
+        </p>
+
+        <input type="text" id="confirmInput" placeholder="Введите имя задачи...">
+        <div class="popup-buttons">
+            <button type="button" class="button button--secondary" onclick="closeDeletePopup()">Отмена</button>
+            <button type="button" id="confirmButton" class="button button--danger" disabled>Подтвердить</button>
         </div>
     </div>
-
 </div>
 
+<footer th:replace="fragments/layout :: footer"></footer>
+
+<script>
+    let currentForm = null;
+    let expectedName = '';
+
+    function openDeletePopup(entityId, entityName, button) {
+        currentForm = button.nextElementSibling;
+        expectedName = (entityName || '').toString();
+
+        document.getElementById('popup-entity-name').textContent = expectedName || '(без имени)';
+        document.getElementById('confirmInput').value = '';
+        document.getElementById('confirmButton').disabled = true;
+        document.getElementById('deletePopup').style.display = 'flex';
+
+        const input = document.getElementById('confirmInput');
+        input.oninput = function() {
+            document.getElementById('confirmButton').disabled = input.value.trim() !== expectedName;
+        };
+
+        document.getElementById('confirmButton').onclick = function() {
+            if (currentForm) {
+                currentForm.submit();
+                closeDeletePopup();
+            }
+        };
+    }
+
+    function closeDeletePopup() {
+        document.getElementById('deletePopup').style.display = 'none';
+    }
+</script>
 </body>
 </html>
+
+
+

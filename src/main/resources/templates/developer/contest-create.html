@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+<head>
+    <th:block th:include="fragments/layout :: head('Создать Тур')"></th:block>
+    <style>
+        .form-row { display: grid; grid-template-columns: 1fr; gap: 12px; }
+        @media (min-width: 768px) { .form-row { grid-template-columns: 1fr 1fr; } }
+        .field-note { color: var(--color-text-muted); font-size: 13px; margin-top: 6px; }
+        .req { color: var(--trik-red); margin-left: 4px; }
+    </style>
+</head>
+<body>
+<header th:replace="fragments/layout :: header(userName=${user.name})"></header>
+<aside th:replace="fragments/layout :: sidebar(sections=${menuSections})"></aside>
+
+<main class="app-main">
+    <section class="card">
+        <h2 class="card-title"><a th:href="@{/user/developer/contests}">Туры</a> / Создание Тура</h2>
+        <div class="card-body">
+            <form id="contest-creation" th:action="@{/user/developer/contests/create}" method="post" class="form" style="gap:12px; max-width: 720px;">
+                <label>
+                    <div style="margin-bottom:4px;">Название<span class="req">*</span></div>
+                    <input name="name" type="text" placeholder="Введите название" required style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
+                </label>
+                <label>
+                    <div style="margin-bottom:4px;">Описание</div>
+                    <textarea name="info" placeholder="Краткое описание" rows="3" style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;"></textarea>
+                </label>
+                <div class="form-row">
+                    <label>
+                        <div style="margin-bottom:4px;">Дата и время начала<span class="req">*</span></div>
+                        <input name="startsAt" type="datetime-local" required style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
+                    </label>
+                    <label>
+                        <div style="margin-bottom:4px;">Дата и время окончания</div>
+                        <input name="endsAt" type="datetime-local" style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
+                    </label>
+                </div>
+                <input type="hidden" name="timezone" value="">
+                <label>
+                    <div style="margin-bottom:4px;">Время на прохождение (мин)</div>
+                    <input name="duration" type="number" min="1" step="1" style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
+                    <div class="field-note">Необязательно. Если не указано, используется безлимитное время в рамках дат.</div>
+                </label>
+                <hr class="separator">
+                <div class="form-buttons">
+                    <button type="submit" class="button button--primary">Создать</button>
+                    <a class="button" th:href="@{/user/developer/contests}">Отмена</a>
+                </div>
+            </form>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="fragments/layout :: footer"></footer>
+</body>
+</html>
+
+

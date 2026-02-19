@@ -6,48 +6,56 @@
     <link rel="stylesheet" th:href="@{/css/modal.css}"/>
 
     <th:block th:include="fragments/popup :: head"></th:block>
+    <style>
+        .forgot-link {
+            position: absolute;
+            right: 0;
+            bottom: -18px;
+            font-size: 13px;
+            color: var(--color-primary, #007bff);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .forgot-link:hover {
+            color: #0056b3;
+            text-decoration: underline;
+        }
+    </style>
+
 </head>
-<body>
+<body class="full-page-bg">
 
 <div th:replace="fragments/main :: background"></div>
 
 <div th:replace="fragments/popup :: popup"></div>
 
 <div class="modal-container">
-    <div th:replace="fragments/main :: main-logo"></div>
-
+    
     <div class="modal">
         <div class="modal-header">
             <h1>Вход в личный кабинет TestSys</h1>
         </div>
         <div class="modal-body">
-            <form th:action="@{/login}" method="post"
-                  class="modal-form">
+            <form th:action="@{/login}" method="post" class="modal-form" style="position: relative;">
                 <label for="accessToken">Код-доступа</label>
-                <input type="password"
-                       name="accessToken" id="accessToken"
-                       placeholder="Введите Код-доступа"
-                       required/>
-
-                <button type="submit"
-                        class="button">
-                    Войти
-                </button>
+                <div style="position: relative; width: 100%;">
+                    <input type="password" name="accessToken" id="accessToken"
+                           placeholder="Введите Код-доступа" required
+                           style="width: 100%;"/>
+                    <a th:href="@{/user/mail/restore}" class="forgot-link">Забыли код-доступа?</a>
+                </div>
+                <button type="submit" class="button">Войти</button>
             </form>
-            <a th:href="@{/}"
-               class="button">
-                Вернуться на главную страницу
-            </a>
-            <a th:if="${hasActiveSession}"
-               th:href="@{/redirect}"
-               class="button">
-                Вернуться в активную сессию
-            </a>
+            <a th:href="@{/}" class="button">Вернуться на главную страницу</a>
+            <a th:if="${hasActiveSession}" th:href="@{/user}" class="button">Вернуться в активную сессию</a>
         </div>
     </div>
 
-    <div th:replace="fragments/main :: sponsor-logos"></div>
+    
 </div>
+
+<div th:if="${not #lists.isEmpty(sponsorshipImages)}" class="sponsorship-block" th:insert="~{fragments/main :: sponsor-logos}"></div>
 
 </body>
 </html>

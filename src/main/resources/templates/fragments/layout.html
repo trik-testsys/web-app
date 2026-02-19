@@ -1,0 +1,66 @@
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${title}"></title>
+
+    <link rel="icon" th:href="@{/img/trik_testsys_logo.ico}">
+
+    <link rel="stylesheet" th:href="@{/css/variables.css}"/>
+    <link rel="stylesheet" th:href="@{/css/base.css}"/>
+    <link rel="stylesheet" th:href="@{/css/layout.css}"/>
+    <link rel="stylesheet" th:href="@{/css/table.css}"/>
+    <link rel="stylesheet" th:href="@{/css/components.css}"/>
+    <link rel="stylesheet" th:href="@{/css/form.css}"/>
+    <link rel="stylesheet" th:href="@{/css/utilities.css}"/>
+    <link rel="stylesheet" th:href="@{/css/cell.css}"/>
+    <link rel="stylesheet" th:href="@{/assets/fontawesome/css/all.css}"/>
+
+    <script defer th:src="@{/js/app.js}"></script>
+    <script defer th:src="@{/js/table-sort.js}"></script>
+    <script defer th:src="@{/js/timezone.js}"></script>
+</head>
+
+<header th:fragment="header(userName)" class="app-header">
+    <a href="/" class="brand">
+        <img th:src="@{/img/trik_testsys_logo.svg}" alt="Лого" aria-hidden="true"/>
+        <span class="brand-title">TRIK TestSys</span>
+        <span th:if="${appName != null}" th:text="'(' + ${appName} + ')'"></span>
+    </a>
+    <div class="header-actions">
+        <a class="icon-button" target="_blank" rel="noopener noreferrer" href="https://trik-testsys.github.io" title="Документация" aria-label="Документация"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+        <span class="user-name" th:text="${userName}"></span>
+    </div>
+    <div class="header-border"></div>
+</header>
+
+<aside th:fragment="sidebar(sections)" class="app-sidebar" id="app-sidebar" aria-label="Навигация" th:with="reqUri=${#httpServletRequest != null ? #httpServletRequest.requestURI : ''}, effectiveUri=${reqUri == '/user/viewer/token' ? '/user/viewer/admins' : reqUri}">
+    <nav>
+        <div class="menu-sections">
+            <div class="menu-section" th:each="section : ${sections}"
+                 th:classappend="${(section.items.?[#vars.effectiveUri == #this.link or #strings.startsWith(#vars.effectiveUri, #this.link + '/')]).size() > 0} ? ' active'">
+                <div class="menu-section-title" th:text="${section.title}"></div>
+                <ul class="menu-items">
+                    <li class="menu-item" th:each="item : ${section.items}">
+                        <a th:href="@{__${item.link}__}" th:text="${item.name}"
+                           th:classappend="${#vars.effectiveUri == item.link or #strings.startsWith(#vars.effectiveUri, item.link + '/')} ? ' active'"
+                           th:attr="aria-current=${#vars.effectiveUri == item.link} ? 'page' : null"></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div style="margin-top: 16px;">
+        <a th:href="@{/logout}" class="menu-logout">Выход</a>
+    </div>
+    
+</aside>
+
+<footer th:fragment="footer" class="app-footer">
+    <span>© <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}"></span> TRIK TestSys</span>
+</footer>
+
+</html>
+
+

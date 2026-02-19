@@ -2,35 +2,28 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
 <head>
     <th:block th:include="fragments/main :: head('Тестирующая система TestSys')"></th:block>
-
     <link rel="stylesheet" th:href="@{/css/modal.css}"/>
-
-    <th:block th:include="fragments/popup :: head"></th:block>
 </head>
-<body>
+<body class="full-page-bg">
 
 <div th:replace="fragments/main :: background"></div>
 
-<div th:replace="fragments/popup :: popup"></div>
-
 <div class="modal-container">
-    <div th:replace="fragments/main :: main-logo"></div>
-
     <div class="modal">
         <div class="modal-header">
             <h1>Тестирующая система TestSys</h1>
         </div>
         <div class="modal-body">
             <a th:href="@{/login}" class="button">Войти</a>
-            <a th:href="@{registration}" class="button">Зарегистрироваться</a>
-            <a th:if="${hasActiveSession}"
-               th:href="@{/redirect}"
-               class="button">Вернуться в активную сессию</a>
+            <a th:href="@{/reg}" class="button">Зарегистрироваться</a>
+            <a th:if="${hasActiveSession}" th:href="@{/user}" class="button">Вернуться в активную сессию</a>
         </div>
     </div>
-
-    <div th:replace="fragments/main :: sponsor-logos"></div>
 </div>
+
+<div th:if="${not #lists.isEmpty(sponsorshipImages)}" class="sponsorship-block" th:insert="~{fragments/main :: sponsor-logos}"></div>
 
 </body>
 </html>
+
+

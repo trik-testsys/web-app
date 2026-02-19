@@ -1,5 +1,5 @@
-name: Configure Git
-description: Adds the necessary configurations to Git
+name: Extract Version
+description: Extracts version information from the release tag
 
 runs:
   using: 'composite'

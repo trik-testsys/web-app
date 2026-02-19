@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+<head>
+    <th:block th:include="fragments/layout :: head('Файл')"></th:block>
+    <style>
+        .kv-wide { display: grid; grid-template-columns: 220px 1fr; gap: 10px 20px; }
+
+        /* ==== Popup в стиле GitHub ==== */
+        .popup-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .popup {
+            background: #fff;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+            width: 420px;
+            max-width: 90%;
+            font-family: system-ui, sans-serif;
+            animation: popupShow 0.2s ease-out;
+        }
+        @keyframes popupShow {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .popup h3 { margin-top: 0; font-size: 18px; margin-bottom: 8px; }
+        .popup .warning { color: #a33; font-size: 14px; margin-bottom: 14px; }
+        .popup .entity-name { font-weight: bold; }
+        .popup input {
+            width: 100%;
+            padding: 8px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            margin-bottom: 16px;
+        }
+        .popup-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+        .button--secondary {
+            background: #e5e7eb;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .button--danger {
+            background: #d73a49;
+            color: #fff;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .button--danger:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+<header th:replace="fragments/layout :: header(userName=${user.name})"></header>
+<aside th:replace="fragments/layout :: sidebar(sections=${menuSections})"></aside>
+
+<main class="app-main">
+    <section class="card">
+        <h2 class="card-title" style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+            <span><a th:href="@{/user/developer/task-files}">Файлы</a> / [Условие] <span th:text="${taskFile.name}"></span></span>
+            <span style="display:flex; align-items:center; gap:8px;">
+                <!-- 🔥 Кнопка удаления с popup -->
+                <button type="button"
+                        class="button button--danger"
+                        th:data-id="${taskFile.id}"
+                        th:data-name="${taskFile.name}"
+                        onclick="openDeletePopup(this.dataset.id, this.dataset.name, this)"
+                        th:disabled="${!#lists.isEmpty(taskFile.taskIds)}"
+                        th:title="${!#lists.isEmpty(taskFile.taskIds)} ? 'Нельзя удалить: файл прикреплён к задаче' : null">
+                    <i class="fa fa-trash"></i> Удалить
+                </button>
+
+                <!-- Скрытая форма для удаления -->
+                <form th:action="@{'/user/developer/task-files/condition/' + ${taskFile.id} + '/delete'}"
+                      method="post"
+                      class="delete-form"
+                      style="display:none;"></form>
+            </span>
+        </h2>
+        <div class="card-body">
+            <h3 style="margin-top:0;">Основная информация</h3>
+
+            <form id="task-file-form" data-readonly-toggle th:action="@{'/user/developer/task-files/condition/' + ${taskFile.id} + '/update'}" method="post" class="form" style="display:grid; gap:12px; max-width:720px;">
+                <label>
+                    <div style="margin-bottom:4px;">Название<span class="req">*</span></div>
+                    <input name="name" type="text" th:value="${taskFile.name}" required disabled style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;">
+                </label>
+                <label>
+                    <div style="margin-bottom:4px;">Описание</div>
+                    <textarea name="info" rows="3" th:text="${taskFile.info}" disabled style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px;"></textarea>
+                </label>
+                <div>
+                    <div style="margin-bottom:4px;">Тип</div>
+                    <div th:text="${taskFile.type}"></div>
+                </div>
+                <div>
+                    <div style="margin-bottom:4px;">Дата создания</div>
+                    <div class="date-cell" data-utc th:attr="data-utc=${taskFile.createdAt}" th:text="${taskFile.createdAt != null ? #temporals.format(taskFile.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></div>
+                </div>
+                <div class="form-buttons">
+                    <button type="button" class="button edit-button" onclick="window.App.enableForm('task-file-form')">Редактировать</button>
+                    <button type="submit" class="button button--primary save-button" style="display:none;">Сохранить</button>
+                    <button type="button" class="button cancel-button" style="display:none;" onclick="window.App.disableForm('task-file-form')">Отмена</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2 class="card-title">История изменений</h2>
+
+        <div class="card-body">
+            <h3 style="margin-top:0;">Загрузить новую версию</h3>
+            <form th:action="@{'/user/developer/task-files/condition/' + ${taskFile.id} + '/upload'}" method="post" enctype="multipart/form-data" class="form" style="gap:12px; max-width: 720px;">
+                <label>
+                    <input name="file" type="file" required style="width:100%; padding:10px; border:1px solid #dde3ea; border-radius:8px; background:white;" th:accept="${taskFile.type.extension}">
+                </label>
+                <div class="form-buttons">
+                    <button type="submit" class="button button--primary">Загрузить</button>
+                </div>
+            </form>
+
+            <h3 style="margin-top:0;">Список версий</h3>
+            <div th:if="${#lists.isEmpty(versions)}" style="color: var(--color-text-muted);">История пуста.</div>
+            <table th:if="${!#lists.isEmpty(versions)}" class="table">
+                <thead>
+                <tr>
+                    <th class="version-cell">Версия</th>
+                    <th>Имя файла</th>
+                    <th class="date-cell">Дата создания</th>
+                    <th>Действия</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="v : ${versions}">
+                    <td class="version-cell" th:text="${v.version}"></td>
+                    <td th:text="${v.originalName}"></td>
+                    <td class="date-cell" data-utc th:attr="data-utc=${v.lastModifiedAt}" th:text="${#temporals.format(v.lastModifiedAt, 'dd.MM.yyyy HH:mm')}"></td>
+                    <td>
+                        <a class="button" th:href="@{'/user/developer/task-files/condition/' + ${taskFile.id} + '/download/' + ${v.version}}">Скачать</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<!-- Popup подтверждения -->
+<div id="deletePopup" class="popup-backdrop">
+    <div class="popup">
+        <h3>Удалить Условие <span id="popup-entity-name" class="entity-name"></span>?</h3>
+        <p class="warning">
+            Это действие <strong>необратимо</strong>.<br>
+            Чтобы подтвердить, введите точное имя файла:
+        </p>
+
+        <input type="text" id="confirmInput" placeholder="Введите имя файла...">
+        <div class="popup-buttons">
+            <button type="button" class="button button--secondary" onclick="closeDeletePopup()">Отмена</button>
+            <button type="button" id="confirmButton" class="button button--danger" disabled>Подтвердить</button>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="fragments/layout :: footer"></footer>
+
+<script>
+    let currentForm = null;
+    let expectedName = '';
+
+    function openDeletePopup(fileId, fileName, button) {
+        currentForm = button.nextElementSibling;
+        expectedName = (fileName || '').toString();
+
+        document.getElementById('popup-entity-name').textContent = expectedName || '(без имени)';
+        document.getElementById('confirmInput').value = '';
+        document.getElementById('confirmButton').disabled = true;
+        document.getElementById('deletePopup').style.display = 'flex';
+
+        const input = document.getElementById('confirmInput');
+        input.oninput = function() {
+            document.getElementById('confirmButton').disabled = input.value.trim() !== expectedName;
+        };
+
+        document.getElementById('confirmButton').onclick = function() {
+            if (currentForm) {
+                currentForm.submit();
+                closeDeletePopup();
+            }
+        };
+    }
+
+    function closeDeletePopup() {
+        document.getElementById('deletePopup').style.display = 'none';
+    }
+</script>
+</body>
+</html>

@@ -14,7 +14,7 @@
 
 /* Заголовок окна */
 .form-header h1 {
-    font-size: 20px;
+    font-size: 16px;
     font-weight: 600;
     color: var(--trik-white);
 }
@@ -54,8 +54,8 @@ form {
 }
 
 .form-input input {
-    padding: 5px;
-    font-size: 1rem;
+    padding: 3px;
+    font-size: 0.9rem;
     border: 1px solid #ccc;
     border-radius: 4px;
     width: 100%;
@@ -65,19 +65,116 @@ form {
     background-color: #e9e9e9;
 }
 
+/* Disabled state for using forms as read-only viewers */
+.form-input input:disabled,
+.form-input textarea:disabled,
+.form-input select:disabled,
+input:disabled,
+textarea:disabled,
+select:disabled {
+    background-color: #ffffff;
+    color: var(--color-text);
+    -webkit-text-fill-color: var(--color-text);
+    border-color: #e5e7eb;
+    font-weight: 400; /* look like normal text */
+    opacity: 1; /* prevent UA styles from dimming content */
+}
+
+/* Make placeholders clearly distinct from real data */
+.form-input input::placeholder,
+.form-input textarea::placeholder,
+input::placeholder,
+textarea::placeholder {
+    color: var(--color-text-muted);
+    opacity: .85;
+    font-style: italic;
+}
+
+.form-input input:disabled::placeholder,
+.form-input textarea:disabled::placeholder,
+input:disabled::placeholder,
+textarea:disabled::placeholder {
+    color: #cbd5e1;
+    font-weight: 400;
+}
+
+/* Explicitly differentiate disabled fields with real data vs placeholders */
+input:disabled:placeholder-shown,
+textarea:disabled:placeholder-shown {
+    color: #8a98ab;
+    font-weight: 400;
+    font-style: italic;
+    opacity: 1;
+}
+
+input:disabled:not(:placeholder-shown),
+textarea:disabled:not(:placeholder-shown) {
+    color: var(--color-text);
+    font-weight: 400;
+    font-style: normal;
+    opacity: 1;
+}
+
+/* JS-assisted classes for reliable styling across browsers */
+input.has-value:disabled,
+textarea.has-value:disabled {
+    color: var(--color-text);
+    font-weight: 400;
+    opacity: 1;
+}
+
+input.is-empty:disabled,
+textarea.is-empty:disabled {
+    color: #8a98ab;
+    font-style: italic;
+    font-weight: 400;
+    opacity: 1;
+}
+
+/* Date/time fields: show an explicit placeholder style when empty */
+input[type="date"].is-empty:disabled,
+input[type="datetime-local"].is-empty:disabled,
+input[type="time"].is-empty:disabled {
+    color: #8a98ab;
+    font-style: italic;
+    opacity: 1;
+}
+
+input[type="date"].has-value:disabled,
+input[type="datetime-local"].has-value:disabled,
+input[type="time"].has-value:disabled {
+    color: var(--color-text);
+    font-weight: 400;
+    opacity: 1;
+}
+
+/* Ensure Safari/WebKit does not dim text for disabled date/time inputs */
+input[type="date"].has-value:disabled,
+input[type="datetime-local"].has-value:disabled,
+input[type="time"].has-value:disabled {
+    -webkit-text-fill-color: var(--color-text);
+}
+
+input[type="date"].is-empty:disabled,
+input[type="datetime-local"].is-empty:disabled,
+input[type="time"].is-empty:disabled {
+    -webkit-text-fill-color: #8a98ab;
+}
+
 /* Стиль для кнопок */
 .form-buttons {
     display: flex;
     flex-basis: 100%;
-    justify-content: flex-end;
+    justify-content: flex-start;
     margin-top: 20px;
 }
 
 button {
-    padding: 10px 20px;
-    font-size: 1rem;
-    border: none;
-    border-radius: 4px;
+    appearance: none;
+    padding: 7px 11px;
+    font-size: 0.9rem;
+    border: 0;
+    border-radius: 10px;
     cursor: pointer;
 }
 
@@ -107,7 +204,8 @@ button {
     }
 
     .form-buttons {
-        justify-content: center;
+        justify-content: flex-start;
+        align-items: flex-start;
         flex-direction: column;
     }
 
@@ -117,16 +215,16 @@ button {
 }
 
 select {
-    padding: 5px;
-    font-size: 1rem;
+    padding: 3px;
+    font-size: 0.9rem;
     border: 1px solid var(--trik-grey);
     border-radius: 4px;
     width: 100%;
 }
 
 option {
-    padding: 5px;
-    font-size: 1rem;
+    padding: 3px;
+    font-size: 0.9rem;
     border: 1px solid var(--trik-grey);
     border-radius: 4px;
     width: 100%;

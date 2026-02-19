@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+<head>
+    <th:block th:include="fragments/layout :: head('Администратор Групп')"></th:block>
+    <style>
+    </style>
+</head>
+<body>
+<header th:replace="fragments/layout :: header(userName=${user.name})"></header>
+<aside th:replace="fragments/layout :: sidebar(sections=${menuSections})"></aside>
+
+<main class="app-main">
+    <section class="card">
+        <h2 class="card-title" style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+            <span>Группы Пользователей</span>
+            <a class="button button--info" target="_blank" href="https://trik-testsys.github.io/admin.html" title="Информация о странице"><i class="fa fa-info-circle"></i>Справка</a>
+        </h2>
+        <div class="card-body">
+            <div class="alert" th:if="${message}" th:text="${message}"></div>
+            <div style="margin-bottom:10px;">
+                <a class="button" th:href="@{/user/group-admin/groups/create}">Создать группу</a>
+            </div>
+            <hr class="separator">
+            <div th:if="${#lists.isEmpty(groups)}" style="color: var(--color-text-muted);">У вас пока нет групп.</div>
+            <h3 style="margin: 16px 0 8px 0;">Созданные Группы</h3>
+            <table th:if="${!#lists.isEmpty(groups)}" class="table">
+                <thead>
+                    <tr>
+                        <th class="id-cell" style="text-align:left; padding:8px;">ID</th>
+                        <th style="text-align:left; padding:8px;">Название</th>
+                        <th style="text-align:left; padding:8px;">Описание</th>
+                        <th class="date-cell" style="text-align:left; padding:8px;">Дата создания</th>
+                        <th style="text-align:left; padding:8px;">Количество пользователей</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="g : ${groups}">
+                        <td class="id-cell" style="padding:8px;" th:text="${g.id}"></td>
+                        <td style="padding:8px;">
+                            <a th:href="@{'/user/group-admin/groups/' + ${g.id}}" th:text="${g.name ?: 'Без названия'}"></a>
+                        </td>
+                        <td style="padding:8px;" th:text="${g.info ?: '—'}"></td>
+                        <td class="date-cell" style="padding:8px;" data-utc th:attr="data-utc=${g.createdAt}" th:text="${g.createdAt != null ? #temporals.format(g.createdAt, 'dd.MM.yyyy HH:mm') : '—'}"></td>
+                        <td style="padding:8px;" th:text="${#lists.size(g.members)}"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <hr class="separator">
+        </div>
+    </section>
+    </main>
+
+<footer th:replace="fragments/layout :: footer"></footer>
+</body>
+</html>
+

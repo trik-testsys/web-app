@@ -182,3 +182,16 @@ gradle-app.setting
 
 # Demo application data
 demo/
+
+HELP.md
+target/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+*.iml
+
+data/**
+
+amplicode.xml
+.env
+/.vscode/settings.json

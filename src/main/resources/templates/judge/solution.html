@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru" th:charset="utf-8">
+<head>
+    <th:block th:include="fragments/layout :: head('Посылка')"></th:block>
+</head>
+<body>
+<header th:replace="fragments/layout :: header(userName=${user.name})"></header>
+<aside th:replace="fragments/layout :: sidebar(sections=${menuSections})"></aside>
+
+<main class="app-main">
+    <section class="card">
+        <h2 class="card-title"><a th:href="@{/user/judge/solutions}">Посылки</a> / <span th:text="${solution.id}"></span></h2>
+        <div class="card-body">
+            <div style="display:flex; gap:16px; flex-wrap:wrap;">
+                <div>
+                    <div><strong>ID:</strong> <span th:text="${solution.id}"></span></div>
+                    <div><strong>Автор:</strong> <span th:text="${solution.createdBy.id}"></span></div>
+                </div>
+                <div>
+                    <div><strong>Задача:</strong> <span th:text="${solution.task.id}"></span></div>
+                    <div><strong>Тур:</strong> <span th:text="${solution.contest != null ? solution.contest.id : '—'}"></span></div>
+                </div>
+                <div>
+                    <div><strong>Статус:</strong> <span th:text="${@solutionI18n.toRu(solution.status)}"></span></div>
+                    <div><strong>Дата создания:</strong> <span class="date-cell" data-utc th:attr="data-utc=${solution.createdAt}" th:text="${#temporals.format(solution.createdAt, 'dd.MM.yyyy HH:mm')}"></span></div>
+                </div>
+            </div>
+
+            <div style="margin-top: 12px; display:flex; gap:8px;">
+                <a th:if="${solutionFileAvailable}" th:href="@{'/user/judge/solutions/' + ${solution.id} + '/file'}" class="button">Скачать посылку</a>
+                <a th:if="${resultsAvailable}" th:href="@{'/user/judge/solutions/' + ${solution.id} + '/download'}" class="button">Скачать результаты</a>
+            </div>
+
+            <hr class="separator">
+
+            <h3 style="margin: 0 0 8px 0;">Вердикты</h3>
+            <div th:if="${#lists.isEmpty(verdicts)}" style="color: var(--color-text-muted);">Пока нет вердиктов.</div>
+            <table th:if="${!#lists.isEmpty(verdicts)}" class="table">
+                <thead>
+                <tr>
+                    <th class="id-cell">ID</th>
+                    <th>Значение</th>
+                    <th class="date-cell">Дата создания</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="v : ${verdicts}">
+                    <td class="id-cell" th:text="${v.id}"></td>
+                    <td th:text="${v.value}"></td>
+                    <td class="date-cell" data-utc th:attr="data-utc=${v.createdAt}" th:text="${#temporals.format(v.createdAt, 'dd.MM.yyyy HH:mm')}"></td>
+                </tr>
+                </tbody>
+            </table>
+
+            <hr class="separator">
+
+            <h3 style="margin: 0 0 8px 0;">Обновить релевантный вердикт</h3>
+            <form th:action="@{'/user/judge/solutions/' + ${solution.id} + '/relevant'}" method="post" style="display:flex; gap:8px; align-items:center;">
+                <input type="number" name="score" placeholder="Итоговый балл" required>
+                <button class="button button--primary" type="submit">Сохранить</button>
+            </form>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="fragments/layout :: footer"></footer>
+</body>
+</html>
+
+

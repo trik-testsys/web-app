@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: "${TS_APP_NAME:web-app}"
   jpa:
     hibernate:
       ddl-auto: update                                          # Update database schema on start if necessary
@@ -54,26 +56,44 @@ server:
       enabled: false
     include-message: always
 
-path:
-  l10n: "${PWD}/src/main/resources/static/l10n"
-  startup:
-    entities: "${PWD}/data/entities/"
-  taskFiles:
-    solutions: "${PWD}/data/taskFiles/solutions/"
-    polygons: "${PWD}/data/taskFiles/polygons/"
-    exercises: "${PWD}/data/taskFiles/exercises/"
-    conditions: "${PWD}/data/taskFiles/conditions/"
-  files:
-    solutions: "${PWD}/data/files/solutions/"
-    verdicts: "${PWD}/data/files/verdicts/"
-    recordings: "${PWD}/data/files/recordings/"
-    results: "${PWD}/data/files/results/"
-  logos:
-    sponsor: "${PWD}/data/logos/sponsor/"
-    main: "${PWD}/data/logos/main.png"
-
-trik-studio-version: "${TRIK_STUDIO_VERSION:latest}"
-grading-node-addresses: "${GRADING_NODE_ADDRESSES:}"
-
-create-lektorium-users: ${CREATE_LEKTORIUM_USERS:false}
-lektorium-group-reg-token: "${LEKTORIUM_GROUP_REG_TOKEN:}"
+trik:
+  testsys:
+    superuser:
+      name: "${SUPER_USER_NAME:Default Super User}"
+      accessToken:
+        value: "${SUPER_USER_AT_VALUE:}"
+        storeDir: "${PWD}/data"
+    trik-studio:
+      container:
+        name: "${TS_CONTAINER_NAME:}"
+    grading-node:
+      addresses: "${GN_ADDRESSES:}"
+    paths:
+      taskFiles:
+        solutions: "${PWD}/data/taskFiles/solutions/"
+        polygons: "${PWD}/data/taskFiles/polygons/"
+        exercises: "${PWD}/data/taskFiles/exercises/"
+        conditions: "${PWD}/data/taskFiles/conditions/"
+      files:
+        solutions: "${PWD}/data/files/solutions/"
+        verdicts: "${PWD}/data/files/verdicts/"
+        recordings: "${PWD}/data/files/recordings/"
+        results: "${PWD}/data/files/results/"
+      sponsorship: "${PWD}/data/sponsorship/"
+    notifier:
+      email:
+        receivers: "${NTF_RECEIVERS:}"
+    diagnostics-availability:
+      polygon:
+        timelimit: ${TL_DIAG:false}
+        score-output: ${SO_DIAG:false}
+        invalid-event-id: ${IEI_DIAG:false}
+    email-client:
+      domain: "${EC_DOMAIN:}"
+      credentials:
+        username: "${EC_USERNAME:}"
+        password: "${EC_PASSWORD:}"
+      smtp:
+        host: "${SMTP_HOST:}"
+        port: "${SMTP_PORT:}"
+    display-app-name: "${DISPLAY_APP_NANE:}"

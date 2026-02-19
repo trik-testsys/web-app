@@ -21,7 +21,8 @@
 </head>
 
 <!--Background for every page-->
-<div th:fragment="background" class="background-container"></div>
+<div th:fragment="background" class="background-container" style="height: 240px; background-size: cover; opacity: 1;">
+</div>
 
 <!--/*@thymesVar id="logos" type="trik.testsys.webclient.view.impl.LogosView"*/-->
 <div th:fragment="main-logo">
@@ -32,12 +33,15 @@
     </div>
 </div>
 
-<!--/*@thymesVar id="logos" type="trik.testsys.webclient.view.impl.LogosView"*/-->
+<!--/*@thymesVar id="sponsorshipImages" type="java.util.List"*/-->
 <div th:fragment="sponsor-logos">
-    <div class="sponsor-logos modal" th:style="${logos.hasSponsors} ? '' : 'display: none;'">
-        <img th:each="sponsor : ${logos.sponsorLogos}"
-             th:src="@{|/img/${sponsor.name}|}"
-             alt="Sponsor logo"/>
+    <div class="sponsor-logos-wrapper">
+        <span class="sponsor-logos-title">При поддержке</span>
+        <div class="sponsor-logos">
+            <img th:each="name : ${sponsorshipImages}"
+                 th:src="@{|/sponsorship/${name}|}"
+                 alt="Sponsor logo"/>
+        </div>
     </div>
 </div>
 
