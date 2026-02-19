@@ -35,10 +35,13 @@
 
 <!--/*@thymesVar id="sponsorshipImages" type="java.util.List"*/-->
 <div th:fragment="sponsor-logos">
-    <div class="sponsor-logos" th:style="${#lists.isEmpty(sponsorshipImages)} ? 'display: none;' : ''">
-        <img th:each="name : ${sponsorshipImages}"
-             th:src="@{|/sponsorship/${name}|}"
-             alt="Sponsor logo"/>
+    <div class="sponsor-logos-wrapper">
+        <span class="sponsor-logos-title">При поддержке</span>
+        <div class="sponsor-logos">
+            <img th:each="name : ${sponsorshipImages}"
+                 th:src="@{|/sponsorship/${name}|}"
+                 alt="Sponsor logo"/>
+        </div>
     </div>
 </div>
 
